@@ -11,6 +11,7 @@ const HomeCarousel = () => {
       src={item.image}
       path={item.path}
       role="presentation"
+      alt="item-presentation"
     />
   ));
 
@@ -19,7 +20,7 @@ const HomeCarousel = () => {
       items={items}
       disableButtonsControls
       autoPlay
-      autoPlayInterval={1000}
+      autoPlayInterval={3000}
       infinite
     />
   );
