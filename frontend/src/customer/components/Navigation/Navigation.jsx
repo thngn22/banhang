@@ -147,7 +147,7 @@ export default function Navigation() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="bg-white">
+    <div className="bg-white" style={{position: 'fixed', zIndex: '10', right: '0', left:'0'}}>
       {/* Mobile menu */}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-40 lg:hidden" onClose={setOpen}>
@@ -188,7 +188,7 @@ export default function Navigation() {
 
                 {/* Links */}
                 <Tab.Group as="div" className="mt-2">
-                  <div className="border-b border-gray-200">
+                  <div className="">
                     <Tab.List className="-mb-px flex space-x-8 px-4">
                       {navigation.categories.map((category) => (
                         <Tab
@@ -295,7 +295,7 @@ export default function Navigation() {
         </p>
 
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="border-b border-gray-200">
+          <div className="">
             <div className="flex h-16 items-center">
               <button
                 type="button"
