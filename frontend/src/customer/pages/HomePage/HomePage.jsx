@@ -8,7 +8,7 @@ HomePage.propTypes = {};
 
 function HomePage(props) {
   return (
-    <div>
+    <div className="-z-10">
       <HomeCarousel />
 
       <div className="space-y-10 py-10 px-5 lg:px-10">
