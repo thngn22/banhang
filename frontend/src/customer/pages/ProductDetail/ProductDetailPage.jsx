@@ -3,6 +3,10 @@ import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
 import Rating from "@mui/material/Rating";
 import { Button } from "@mui/material";
+import { jacket } from "../../../Data/jacket";
+import { tShirt } from "../../../Data/t-shirt";
+import HomeSectionCard from "../../components/HomeSectionCard/HomeSectionCard";
+import ProductCard from "../../components/Product/ProductCard";
 
 const product = {
   name: "Basic Tee 6-Pack",
@@ -61,6 +65,8 @@ function classNames(...classes) {
 export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+
+  const simililer_products = [...jacket, ...tShirt];
 
   return (
     <div className="bg-white">
@@ -322,7 +328,19 @@ export default function ProductDetailPage() {
         <section></section>
 
         {/* Smililer Products */}
-        <section></section>
+        <div className="mx-4 lg:mx-8">
+          <hr class="w-full my-8 border-t border-gray-300" />
+        </div>
+        <section className="pt-10">
+          <h1 className="py-5 text-xl font-bold">Smililer Products</h1>
+          <div className="flex flex-wrap justify-center">
+            {simililer_products.map((item) => (
+              <div key={item.id} className="group relative">
+                <ProductCard data={item} />
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

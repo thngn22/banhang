@@ -22,7 +22,6 @@ const HomeSectionCarousel = (props) => {
 
   const items = itemCard?.map((item) => <HomeSectionCard data={item} />);
 
-  console.log(items);
   return (
     <div className="relative px-4 lg:px-8 border">
       <div className="relative p-5">
