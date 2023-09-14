@@ -8,6 +8,7 @@ import com.ecomerce.roblnk.request.LoginRequest;
 import com.ecomerce.roblnk.response.AuthResponse;
 import com.ecomerce.roblnk.service.userServiceImpl.UserServiceImplementation;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,17 +27,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private UserServiceImplementation userServiceImplementation;
 
-
-    public AuthController(UserRepository userRepository, UserServiceImplementation userServiceImplementation) {
-        this.userRepository = userRepository;
-        this.userServiceImplementation = userServiceImplementation;
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandle(@RequestBody User user) throws UserException{
@@ -54,7 +57,7 @@ public class AuthController {
 
         User createdUser = new User();
         createdUser.setEmail(email);
-        createdUser.setPassword((password));
+        createdUser.setPassword(passwordEncoder.encode(password));
         createdUser.setFirstName(firstName);
         createdUser.setLastName(lastName);
 
@@ -74,15 +77,16 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> loginUserHandle(@RequestBody LoginRequest loginRequest){
 
-        String userName = loginRequest.getEmail();
+        String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
-        Authentication authentication = authenticate(userName, password);
+        Authentication authentication = authenticate(email, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtProvider.generateToken(authentication);
 
-        AuthResponse authResponse = new AuthResponse(token, "Log in Success");
-
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setJwt(token);
+        authResponse.setMessage("Signin Success");
 
         return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.CREATED);
     }
@@ -94,7 +98,7 @@ public class AuthController {
             throw new BadCredentialsException("Invalid username");
         }
 
-        if (passwordEncoder.matches(password, userDetails.getPassword())){
+        if (!passwordEncoder.matches(password, userDetails.getPassword())){
             throw new BadCredentialsException("Invalid password");
 
         }

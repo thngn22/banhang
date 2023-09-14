@@ -1,8 +1,16 @@
 package com.ecomerce.roblnk.model;
 
-import javax.persistence.Column;
+import lombok.*;
+
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
+@Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PaymentInformation {
 
     @Column(name = "cardholder_name")
@@ -13,4 +21,8 @@ public class PaymentInformation {
 
     @Column(name = "expiration_date")
     private LocalDate expirationDate;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
