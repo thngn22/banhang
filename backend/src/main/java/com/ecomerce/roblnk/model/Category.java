@@ -1,9 +1,12 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -14,17 +17,21 @@ import lombok.*;
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @Size(max = 50)
+    @Size(max = 150)
     private String name;
+    private int level;
 
+    //Category Parent
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_category_id")
     private Category parentCategory;
 
-    private int level;
-
+    //Product
+    @OneToMany(mappedBy = "category")
+    @JsonIgnore
+    private List<Product> products;
 }

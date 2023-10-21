@@ -2,12 +2,30 @@ server:
     port: 8081
 spring:
     datasource:
+        password: 123456
         url: jdbc:mysql://localhost:3306/springboot
         username: root
-        password: 123456
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: create-drop
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.MySQL8Dialect
+    mail:
+        host: smtp.gmail.com
+        password: LolaBaker15112002
+        port: 420
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+        protocol: smtps
+        username: vunguyentrungkhang2@gmail.com
+    servlet:
+        multipart:
+            enabled: true
+            file-size-threshold: 2MB
+            max-file-size: 5MB
+            max-request-size: 10MB

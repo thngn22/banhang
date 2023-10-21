@@ -1,14 +1,14 @@
 package com.ecomerce.roblnk.controller;
 
-import com.ecomerce.roblnk.config.JwtProvider;
+import com.ecomerce.roblnk.security.JwtProvider;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
 import com.ecomerce.roblnk.repository.UserRepository;
-import com.ecomerce.roblnk.request.LoginRequest;
-import com.ecomerce.roblnk.response.AuthResponse;
-import com.ecomerce.roblnk.service.userServiceImpl.UserServiceImplementation;
+import com.ecomerce.roblnk.dto.auth.AuthenticationRequest;
+import com.ecomerce.roblnk.dto.auth.AuthenticationResponse;
+import com.ecomerce.roblnk.service.Impl.IUserService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,25 +23,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
+import static com.ecomerce.roblnk.constants.PathConstants.*;
 
-    @Autowired
+@RestController
+@RequestMapping(API_V1_AUTH)
+@AllArgsConstructor
+public class AuthenticationController {
+
     private UserRepository userRepository;
 
-    @Autowired
     private JwtProvider jwtProvider;
 
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserServiceImplementation userServiceImplementation;
+    private IUserService userServiceImplementation;
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> createUserHandle(@RequestBody User user) throws UserException{
+    @PostMapping(REGISTER)
+    public ResponseEntity<AuthenticationResponse> createUserHandle(@RequestBody User user) throws UserException{
 
         String email = user.getEmail();
         String password = user.getPassword();
@@ -67,15 +66,13 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtProvider.generateToken(authentication);
 
-        AuthResponse authResponse = new AuthResponse();
-        authResponse.setJwt(token);
-        authResponse.setMessage("Signup Success");
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse(token, "Signup success");
 
-        return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(authenticationResponse, HttpStatus.CREATED);
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> loginUserHandle(@RequestBody LoginRequest loginRequest){
+    @PostMapping(LOGIN)
+    public ResponseEntity<AuthenticationResponse> loginUserHandle(@RequestBody AuthenticationRequest loginRequest){
 
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -84,11 +81,11 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtProvider.generateToken(authentication);
 
-        AuthResponse authResponse = new AuthResponse();
-        authResponse.setJwt(token);
-        authResponse.setMessage("Signin Success");
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+        authenticationResponse.setJwt(token);
+        authenticationResponse.setMessage("Log in success");
 
-        return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.CREATED);
+        return new ResponseEntity<AuthenticationResponse>(authenticationResponse, HttpStatus.CREATED);
     }
 
     private Authentication authenticate(String userName, String password) {

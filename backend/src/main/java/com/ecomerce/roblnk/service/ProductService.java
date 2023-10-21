@@ -2,7 +2,7 @@ package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.exception.ProductException;
 import com.ecomerce.roblnk.model.Product;
-import com.ecomerce.roblnk.request.CreateProductRequest;
+import com.ecomerce.roblnk.dto.product.CreateProductRequest;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

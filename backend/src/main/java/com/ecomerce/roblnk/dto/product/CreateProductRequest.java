@@ -1,11 +1,6 @@
-package com.ecomerce.roblnk.request;
+package com.ecomerce.roblnk.dto.product;
 
-import com.ecomerce.roblnk.model.Size;
 import lombok.*;
-
-import jakarta.persistence.Entity;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -21,7 +16,7 @@ public class CreateProductRequest {
     private int quantity;
     private String branch;
     private String color;
-    private Set<Size> sizes = new HashSet<>();
+    private Integer size;
     private String imageUrl;
     private String topLevelCategory;
     private String secondLevelCategory;

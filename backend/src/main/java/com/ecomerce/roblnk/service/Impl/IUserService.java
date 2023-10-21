@@ -1,11 +1,15 @@
-package com.ecomerce.roblnk.service.userServiceImpl;
+package com.ecomerce.roblnk.service.Impl;
 
-import com.ecomerce.roblnk.config.JwtProvider;
+import com.ecomerce.roblnk.security.JwtProvider;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
 import com.ecomerce.roblnk.repository.UserRepository;
 import com.ecomerce.roblnk.service.UserService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,19 +20,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImplementation implements UserService {
+@AllArgsConstructor
+public class IUserService implements UserService {
 
-    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private JwtProvider jwtProvider;
-
-    public UserServiceImplementation(UserRepository userRepository, JwtProvider jwtProvider){
-
-        this.userRepository = userRepository;
-        this.jwtProvider = jwtProvider;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -62,5 +59,10 @@ public class UserServiceImplementation implements UserService {
 
         }
         return user;
+    }
+
+    @Override
+    public Page<User> getAllUsers(Pageable pageable) {
+        return null;
     }
 }

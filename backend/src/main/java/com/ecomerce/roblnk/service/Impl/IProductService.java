@@ -1,11 +1,11 @@
-package com.ecomerce.roblnk.service.productServiceImpl;
+package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.exception.ProductException;
 import com.ecomerce.roblnk.model.Category;
 import com.ecomerce.roblnk.model.Product;
 import com.ecomerce.roblnk.repository.CategoryRepository;
 import com.ecomerce.roblnk.repository.ProductRepository;
-import com.ecomerce.roblnk.request.CreateProductRequest;
+import com.ecomerce.roblnk.dto.product.CreateProductRequest;
 import com.ecomerce.roblnk.service.ProductService;
 import com.ecomerce.roblnk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ProductServiceImplementation implements ProductService {
+public class IProductService implements ProductService {
 
 
     @Autowired
@@ -121,7 +121,7 @@ public class ProductServiceImplementation implements ProductService {
 
         List<Product> products = productRepository.filterProducts(category, minPrice, maxPrice, minDiscount, sort);
         if (!colors.isEmpty()){
-            products = products.stream().filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColor()))).collect(Collectors.toList());
+            products = products.stream().filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColor().toString()))).collect(Collectors.toList());
         }
 
         if(stock != null){

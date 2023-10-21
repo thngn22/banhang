@@ -16,20 +16,21 @@ import java.time.LocalDateTime;
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String review;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
+    //Product
     @ManyToOne
     @JoinColumn(name = "product_id")
     @JsonIgnore
     private Product product;
 
-    @ManyToOne
+    //User
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    private LocalDateTime createdAt;
 
 }

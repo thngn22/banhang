@@ -8,13 +8,12 @@ import jakarta.persistence.*;
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "street_address")
@@ -26,9 +25,13 @@ public class Address {
     @Column(name = "zip_code")
     private String zipCode;
 
+    //User
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    @JsonIgnore
     private User user;
 
+    //Order
+    @OneToOne(mappedBy = "address")
+    @JsonIgnore
+    private Order order;
 }

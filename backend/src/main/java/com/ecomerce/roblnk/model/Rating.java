@@ -16,20 +16,20 @@ import java.time.LocalDateTime;
 public class Rating {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private double rating;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    @ManyToOne
+    //User
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "rating")
-    private double rating;
 
-    private LocalDateTime createdAt;
 }
