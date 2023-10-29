@@ -1,3 +1,4 @@
+/*
 package com.ecomerce.roblnk.repository;
 
 import com.ecomerce.roblnk.model.Category;
@@ -14,3 +15,4 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE c.name = :name AND c.parentCategory.name = :parentCategoryName")
     Category findByNameAndParent(@Param("name") String name,@Param("parentCategoryName") String parentCategoryName);
 }
+*/

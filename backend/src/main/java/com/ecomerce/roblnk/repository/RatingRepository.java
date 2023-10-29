@@ -1,3 +1,4 @@
+/*
 package com.ecomerce.roblnk.repository;
 
 import com.ecomerce.roblnk.model.Rating;
@@ -14,3 +15,4 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     @Query("SELECT r FROM Rating r WHERE r.product.id = :productId")
     List<Rating> getAllProductsRating(@Param("productId") Long productId);
 }
+*/

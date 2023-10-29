@@ -1,43 +1,37 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.product.ProductResponse;
+import com.ecomerce.roblnk.dto.product.RequestProduct;
 import com.ecomerce.roblnk.exception.ProductException;
 import com.ecomerce.roblnk.model.Category;
 import com.ecomerce.roblnk.model.Product;
-import com.ecomerce.roblnk.repository.CategoryRepository;
 import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.dto.product.CreateProductRequest;
 import com.ecomerce.roblnk.service.ProductService;
 import com.ecomerce.roblnk.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class IProductService implements ProductService {
 
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Override
+   /* @Override
     public Product createProduct(CreateProductRequest req) {
 
         Category topLevel = categoryRepository.findByName(req.getTopLevelCategory());
-
         if (topLevel == null){
             Category topLevelCategory = new Category();
             topLevelCategory.setName(req.getTopLevelCategory());
@@ -99,44 +93,127 @@ public class IProductService implements ProductService {
             product.setQuantity(req.getQuantity());
         }
         return productRepository.save(product);
-    }
+    }*/
 
     @Override
-    public Product findProductById(Long productId) throws ProductException {
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        if (optionalProduct.isPresent()){
-            return optionalProduct.get();
+    public ResponseEntity<?> createProduct(Integer categoryId, CreateProductRequest req) {
+        var productList = productRepository.findAllByCategoryId(Long.valueOf(categoryId));
+        System.out.println("Da lay dc category");
+        if (productList.isPresent()) {
+            for (Product p : productList.get()) {
+                if (p.getName().equals(req.getName())) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("Product existed in category! Please try another name!");
+                }
+            }
+            var prod = Product.builder()
+                    .name(req.getName())
+                    .brand(req.getBrand())
+                    .description(req.getDescription())
+                    .price(req.getPrice())
+                    .discountedPrice(req.getDiscountedPrice())
+                    .discountPercent(req.getDiscountPercent())
+                    .imageUrl(req.getImageUrl())
+                    .stock(req.getStock())
+                    .build();
+            productRepository.save(prod);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Product added!");
         }
-        throw new ProductException("Product not found with id - " + productId);
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Category!");
     }
 
     @Override
-    public List<Product> findProductByCategory(String category) {
-        return null;
+    public ResponseEntity<?> deleteProduct(Long productId) {
+        try {
+            productRepository.deleteById(productId);
+        } catch (Exception e){
+            throw new RuntimeException("Delete product failed! Product not found with error: " + e.getMessage());
+        }
+        return ResponseEntity.ok("Successfully deleted product!");
     }
 
     @Override
-    public Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice, Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<?> updateProduct(Long productId, RequestProduct requestProduct) {
+        var product = productRepository.findById(productId).orElseThrow();
+        if (requestProduct.getId().equals(product.getId())) {
+            product.setName(requestProduct.getName());
+            product.setBrand(requestProduct.getBrand());
+            product.setDescription(requestProduct.getDescription());
+            product.setPrice(requestProduct.getPrice());
+            product.setDiscountedPrice(requestProduct.getDiscountedPrice());
+            product.setDiscountPercent(requestProduct.getDiscountPercent());
+            product.setImageUrl(requestProduct.getImageUrl());
+        };
+        productRepository.save(product);
+        return ResponseEntity.ok("Update product successfully!");
+    }
+
+    @Override
+    public ResponseEntity<?> findProductById(Long productId) {
+        var product = productRepository.findById(productId).orElseThrow(()
+                -> new UsernameNotFoundException("Product not found"));
+
+        var productResponse = ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .brand(product.getBrand())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .discountedPrice(product.getDiscountedPrice())
+                .discountPercent(product.getDiscountPercent())
+                .imageUrl(product.getImageUrl())
+                .stock(product.getStock())
+                .build();
+        return ResponseEntity.ok(productResponse);
+    }
+
+    @Override
+    public ResponseEntity<?> findProductByCategoryIdPageable(Long categoryId, Integer pageNumber, Integer pageSize) {
+        Page<Product> productList = productRepository.findAllByCategoryId(categoryId, PageRequest.of(pageNumber, pageSize));
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        for (Product product : productList){
+            var productResponse = ProductResponse.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .brand(product.getBrand())
+                    .description(product.getDescription())
+                    .price(product.getPrice())
+                    .discountedPrice(product.getDiscountedPrice())
+                    .discountPercent(product.getDiscountPercent())
+                    .imageUrl(product.getImageUrl())
+                    .stock(product.getStock())
+                    .build();
+            productResponseList.add(productResponse);
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("content", productResponseList);
+        map.put("pageSize", productList.getSize());
+        map.put("totalPages", productList.getTotalPages());
+        map.put("totalElements", productList.getTotalElements());
+
+        return ResponseEntity.status(HttpStatus.OK).body(map);
+    }
+
+    @Override
+    public ResponseEntity<?> getAllProduct() {
+        var pro = productRepository.findAll();
+        return ResponseEntity.ok(pro);
+    }
+
+    /*@Override
+    public ResponseEntity<?> getAllProduct(String category, List<String> colors, List<String> sizes, Double minPrice, Double maxPrice, Integer minDiscount, String sort, Double stock, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        List<Product> products = productRepository.filterProducts(category, minPrice, maxPrice, minDiscount, sort);
-        if (!colors.isEmpty()){
-            products = products.stream().filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColor().toString()))).collect(Collectors.toList());
-        }
+        List<Product> products = productRepository.findAllByCategory_NameAndDiscountedPriceBetween(category, minPrice, maxPrice)
+                .orElseThrow(()-> new UsernameNotFoundException("Product not found!"));
 
-        if(stock != null){
-            if (stock.equals("in_stock")){
-                products = products.stream().filter(p -> p.getQuantity()>0).collect(Collectors.toList());
-            }
-            else if (stock.equals("out_of_stock")){
-                products = products.stream().filter(p -> p.getQuantity()<1).collect(Collectors.toList());
-            }
-        }
         int startIndex = (int) pageable.getOffset();
         int endIndex = Math.min(startIndex + pageable.getPageSize(), products.size());
         List<Product> pageContent = products.subList(startIndex, endIndex);
         Page<Product> filteredProducts = new PageImpl<>(pageContent, pageable, products.size());
 
-        return filteredProducts;
-    }
+        return ResponseEntity.ok(filteredProducts);*/
+    //}
 }

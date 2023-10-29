@@ -1,14 +1,17 @@
 package com.ecomerce.roblnk.dto.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Data
-@Getter
-@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
-    private String jwt;
-    private String message;
+
+    @JsonProperty("access_token")
+    private String refreshToken;
+    @JsonProperty("refresh_token")
+    private String accessToken;
 }
 

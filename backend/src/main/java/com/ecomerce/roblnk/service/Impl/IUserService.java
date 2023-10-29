@@ -1,68 +1,40 @@
 package com.ecomerce.roblnk.service.Impl;
 
-import com.ecomerce.roblnk.security.JwtProvider;
-import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
 import com.ecomerce.roblnk.repository.UserRepository;
+import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.UserService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-@Service
+@Service("IUserService")
 @AllArgsConstructor
 public class IUserService implements UserService {
 
-    private UserRepository userRepository;
-
-    private JwtProvider jwtProvider;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        User user = userRepository.findByEmail(username);
-        if(user == null){
-            throw new UsernameNotFoundException("User not found with email - " + username);
-        }
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
-    }
-
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     @Override
-    public User findUserById(Long userId) throws UserException {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isPresent()){
-            return optionalUser.get();
-        }
-        throw new UserException("User not found with id - " + userId);
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new UsernameNotFoundException("User not found with ID: "+ userId));
+
     }
 
     @Override
-    public User findUserProfileByJwt(String jwt) throws UserException {
-        String email = jwtProvider.getEmailFromToken(jwt);
-        User user = userRepository.findByEmail(email);
-        if (user == null){
-            throw new UserException("User not found with email - " + email);
-
-        }
-        return user;
+    public User findUserProfileByJwt(String jwt) {
+        String email = jwtService.getEmailFromToken(jwt);
+        return userRepository.findByEmail(email).orElseThrow(()
+                -> new UsernameNotFoundException("User not found!"));
     }
+
 
     @Override
     public Page<User> getAllUsers(Pageable pageable) {
-        return null;
+        return userRepository.findAll(pageable);
     }
+
 }

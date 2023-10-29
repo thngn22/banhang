@@ -34,5 +34,5 @@ public class OrderItem {
     //Order Item
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
-    private Order order;
+    private Orders orders;
 }

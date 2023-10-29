@@ -25,10 +25,6 @@ public class Category {
     private String name;
     private int level;
 
-    //Category Parent
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_category_id")
-    private Category parentCategory;
 
     //Product
     @OneToMany(mappedBy = "category")

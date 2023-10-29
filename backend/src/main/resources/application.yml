@@ -1,16 +1,23 @@
+application:
+    jwt:
+        expiration: 86400000 # a day
+        refresh-token:
+            expiration: 604800000 # 7 days
+    secret-key: roblnkSecretKey1511ebcaccab1555cac46ca878eda68464dawd
+
 server:
     port: 8081
 spring:
     datasource:
         password: 123456
-        url: jdbc:mysql://localhost:3306/springboot
+        url: jdbc:mysql://localhost:3306/e_commerce_shoes
         username: root
     jpa:
         hibernate:
-            ddl-auto: create-drop
+            ddl-auto: update
         properties:
             hibernate:
-                dialect: org.hibernate.dialect.MySQL8Dialect
+                dialect: org.hibernate.dialect.MySQLDialect
     mail:
         host: smtp.gmail.com
         password: LolaBaker15112002
@@ -23,6 +30,12 @@ spring:
                         enable: true
         protocol: smtps
         username: vunguyentrungkhang2@gmail.com
+    security:
+        filter:
+            order: 0
+        user:
+            name: admin
+            password: password
     servlet:
         multipart:
             enabled: true

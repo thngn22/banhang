@@ -27,7 +27,7 @@ public class CartItem {
     private Cart cart;
 
     //Specified Product
-    @OneToOne(mappedBy = "cartItem")
+    @OneToOne
     @JoinColumn(name = "specified_product_id")
     private SpecifiedProduct specifiedProduct;
 

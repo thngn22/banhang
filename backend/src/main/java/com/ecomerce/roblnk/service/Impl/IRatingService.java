@@ -1,3 +1,4 @@
+/*
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.exception.ProductException;
@@ -41,3 +42,4 @@ public class IRatingService implements RatingService {
         return ratingRepository.getAllProductsRating(productId);
     }
 }
+*/

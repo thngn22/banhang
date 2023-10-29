@@ -1,12 +1,12 @@
 package com.ecomerce.roblnk.dto.product;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder
-public class CreateProductRequest {
-
+public class ProductResponse {
+    private Long id;
     private String name;
     private String brand;
     private String description;
@@ -15,6 +15,4 @@ public class CreateProductRequest {
     private Double discountPercent;
     private String imageUrl;
     private Integer stock;
-
 }
-

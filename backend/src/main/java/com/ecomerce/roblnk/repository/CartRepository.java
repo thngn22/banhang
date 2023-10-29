@@ -1,3 +1,4 @@
+/*
 package com.ecomerce.roblnk.repository;
 
 import com.ecomerce.roblnk.model.Cart;
@@ -12,3 +13,4 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
     Cart findByUserId(@Param("userId") Long userId);
 }
+*/

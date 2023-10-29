@@ -29,7 +29,7 @@ public class Product {
 
     //Category
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category")
     private Category category;
 
     //Rating

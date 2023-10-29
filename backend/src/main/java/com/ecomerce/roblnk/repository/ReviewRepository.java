@@ -1,3 +1,4 @@
+/*
 package com.ecomerce.roblnk.repository;
 
 import com.ecomerce.roblnk.model.Review;
@@ -14,3 +15,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT rv FROM Review rv WHERE rv.product.id = :productId")
     List<Review> getAllProductsReview(@Param("productId") Long productId);
 }
+*/

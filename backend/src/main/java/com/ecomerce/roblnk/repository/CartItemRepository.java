@@ -1,3 +1,4 @@
+/*
 package com.ecomerce.roblnk.repository;
 
 import com.ecomerce.roblnk.model.Cart;
@@ -16,3 +17,4 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
                              @Param("size") String size,
                              @Param("userId") Long userId);
 }
+*/

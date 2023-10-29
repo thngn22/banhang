@@ -1,10 +1,14 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.dto.product.CreateProductRequest;
+import com.ecomerce.roblnk.dto.product.RequestProduct;
 import com.ecomerce.roblnk.exception.ProductException;
 import com.ecomerce.roblnk.model.Product;
 import com.ecomerce.roblnk.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,33 +22,36 @@ import static com.ecomerce.roblnk.constants.PathConstants.*;
 @AllArgsConstructor
 public class ProductController {
 
-    private ProductService productService;
+    private final ProductService productService;
 
-    @GetMapping()
-    public ResponseEntity<Page<Product>> findProductByCategoryHandler(
-            @RequestParam String category,      @RequestParam List<String> color,
-            @RequestParam List<String> size,    @RequestParam Integer minPrice,
-            @RequestParam Integer maxPrice,     @RequestParam Integer minDiscount,
-            @RequestParam String sort,          @RequestParam String stock,
-            @RequestParam Integer pageNumber,   @RequestParam Integer pageSize){
-
-        Page<Product> response = productService.getAllProduct(category, color, size, minPrice, maxPrice, minDiscount,
-                sort,stock, pageNumber, pageSize);
-        System.out.println("Complete products");
-
-        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+    @GetMapping
+    public ResponseEntity<?> getAllProducts(){
+        return productService.getAllProduct();
+    }
+    @GetMapping("/product")
+    public ResponseEntity<?> getProductById(@RequestParam("id") Long productId){
+        return productService.findProductById(productId);
     }
 
-    @GetMapping("/id/{productId}")
-    public ResponseEntity<Product> findProductByIdHandler(@PathVariable Long productId) throws ProductException{
-
-        Product product = productService.findProductById(productId);
-        return new ResponseEntity<Product>(product, HttpStatus.ACCEPTED);
+    @GetMapping("/category")
+    public ResponseEntity<?> getAllProductsByCategoryId(@RequestParam("id") Long categoryId,
+                                                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber,
+                                                        @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize){
+        return productService.findProductByCategoryIdPageable(categoryId, pageNumber, pageSize);
     }
 
-    /*public ResponseEntity<List<Product>> searchProductHandler(@RequestParam String searchString){
-        List<Product> products = productService.searchProduct(searchString);
+    @PostMapping("/create")
+    public ResponseEntity<?> createProduct(@RequestParam("category_id") Integer categoryId, @Valid @RequestBody CreateProductRequest request){
+        return productService.createProduct(categoryId, request);
+    }
 
-        return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
-    }*/
+    @PatchMapping("/product/id")
+    public ResponseEntity<?> updateProduct(@RequestParam("id") Long productId, @Valid @RequestBody RequestProduct requestproduct){
+        return productService.updateProduct(productId, requestproduct);
+    }
+
+    @DeleteMapping("/delete")
+    private ResponseEntity<?> deleteProduct(@RequestParam("id") Long productId){
+        return productService.deleteProduct(productId);
+    }
 }

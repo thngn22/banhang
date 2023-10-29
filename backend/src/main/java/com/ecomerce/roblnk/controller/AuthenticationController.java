@@ -1,104 +1,46 @@
 package com.ecomerce.roblnk.controller;
 
-import com.ecomerce.roblnk.security.JwtProvider;
-import com.ecomerce.roblnk.exception.UserException;
-import com.ecomerce.roblnk.model.User;
-import com.ecomerce.roblnk.repository.UserRepository;
+import com.ecomerce.roblnk.dto.auth.RegisterRequest;
 import com.ecomerce.roblnk.dto.auth.AuthenticationRequest;
-import com.ecomerce.roblnk.dto.auth.AuthenticationResponse;
-import com.ecomerce.roblnk.service.Impl.IUserService;
-
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
+import com.ecomerce.roblnk.dto.auth.UpdatePasswordRequest;
+import com.ecomerce.roblnk.service.AuthenticationService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 import static com.ecomerce.roblnk.constants.PathConstants.*;
 
 @RestController
 @RequestMapping(API_V1_AUTH)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticationController {
 
-    private UserRepository userRepository;
-
-    private JwtProvider jwtProvider;
-
-    private PasswordEncoder passwordEncoder;
-
-    private IUserService userServiceImplementation;
-
-
+    private final AuthenticationService authenticationService;
     @PostMapping(REGISTER)
-    public ResponseEntity<AuthenticationResponse> createUserHandle(@RequestBody User user) throws UserException{
-
-        String email = user.getEmail();
-        String password = user.getPassword();
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
-
-        User isEmailExist = userRepository.findByEmail(email);
-
-        if (isEmailExist != null){
-            throw new UserException("Email is already used with another account");
-        }
-
-
-        User createdUser = new User();
-        createdUser.setEmail(email);
-        createdUser.setPassword(passwordEncoder.encode(password));
-        createdUser.setFirstName(firstName);
-        createdUser.setLastName(lastName);
-
-        User savedUser = userRepository.save(createdUser);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtProvider.generateToken(authentication);
-
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse(token, "Signup success");
-
-        return new ResponseEntity<>(authenticationResponse, HttpStatus.CREATED);
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult){
+        return authenticationService.register(request, bindingResult);
     }
 
     @PostMapping(LOGIN)
-    public ResponseEntity<AuthenticationResponse> loginUserHandle(@RequestBody AuthenticationRequest loginRequest){
+    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest request){
+        return authenticationService.login(request);
+    }
+    @GetMapping("/infor")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> information(){
+        return authenticationService.findInforUser();
 
-        String email = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
-
-        Authentication authentication = authenticate(email, password);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtProvider.generateToken(authentication);
-
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
-        authenticationResponse.setJwt(token);
-        authenticationResponse.setMessage("Log in success");
-
-        return new ResponseEntity<AuthenticationResponse>(authenticationResponse, HttpStatus.CREATED);
+    }
+    @PostMapping("/infor/update")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal connectedUser){
+        return authenticationService.updatePassword(updatePasswordRequest, connectedUser);
     }
 
-    private Authentication authenticate(String userName, String password) {
-        UserDetails userDetails = userServiceImplementation.loadUserByUsername(userName);
-
-        if (userDetails == null){
-            throw new BadCredentialsException("Invalid username");
-        }
-
-        if (!passwordEncoder.matches(password, userDetails.getPassword())){
-            throw new BadCredentialsException("Invalid password");
-
-        }
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
 }
