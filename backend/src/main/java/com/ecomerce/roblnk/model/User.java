@@ -1,9 +1,11 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,10 +33,13 @@ public class User implements UserDetails {
     private boolean isEmailActive;
     private boolean isPhoneActive;
     private String avatar;
-    private LocalDateTime createdAt;
+
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createdAt;
 
     //Token
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Token> tokens;
 
     //Role
@@ -45,34 +50,31 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     //Address
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Column(name = "address")
-    private List<Address> addresses;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<UserAddress> addresses;
 
     //Cart
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
-    private Cart cart;
+    private List<Cart> cart;
 
-    //Payment Information
-    @ElementCollection
-    @CollectionTable(name = "user_payment_information", joinColumns = @JoinColumn(name = "user_id"))
-    private List<PaymentInformation> paymentInformations = new ArrayList<>();
-
-    //Rating
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    //Payment Method
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
-    private Rating rating;
+    private List<PaymentMethod> paymentMethods;
+
 
     //Review
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
-    private Review review;
+    private List<Review> review;
 
     //Order
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Orders> orders;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

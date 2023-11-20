@@ -1,10 +1,9 @@
-package com.ecomerce.roblnk.dto.auth;
+package com.ecomerce.roblnk.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 public class UserInformationResponse {
     private String userName;
     private String email;

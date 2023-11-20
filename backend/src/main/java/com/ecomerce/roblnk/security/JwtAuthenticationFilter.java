@@ -40,12 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(authHeader != null && authHeader.startsWith("Bearer ")){
             jwt = authHeader.substring(7);
-            try {
-                userEmail = jwtService.extractEmail(jwt);
-            }catch (ExpiredJwtException ex) {
-                logger.error("JWT Token has expired!");
-                return;
-            }
+            userEmail = jwtService.extractEmail(jwt);
         }else{
             if (authHeader != null){
                 logger.error("JWT Token does not begin with Bearer String");
@@ -57,9 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try{
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                boolean isTokenValid = tokenRepository.findByToken(jwt).map(t -> !t.isExpired() && !t.isRevoked()).orElse(false);
-
-                if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
+                if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

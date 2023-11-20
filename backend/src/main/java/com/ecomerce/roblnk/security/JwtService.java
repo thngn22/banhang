@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Component
 public class JwtService {
 
@@ -52,23 +50,17 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails){
-        /* Map<String, Object> claims = new HashMap<>();
-        final Collection<? extends GrantedAuthority> roles =  userDetails.getAuthorities();
-        List<String> list = new ArrayList<>();
-        for (var authority : roles){
-            list.add(authority.getAuthority());
-        }
-        claims.put("role", list);*/
-        Map<String, Object> claims = Map.of("role", userDetails.getAuthorities().stream().map(Object::toString).toList());
+        Map<String, Object> claims = new HashMap<>(Map.of("role", userDetails.getAuthorities().stream().map(Object::toString).toList()));
+        claims.put("token_type", "accessToken");
         return buildToken(claims, userDetails, jwtExpiration);
     }
     public String generateRefreshToken(UserDetails userDetails){
-        Map<String, Object> claims = Map.of("role", userDetails.getAuthorities().stream().map(Object::toString).toList());
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("token_type", "refreshToken");
         return buildToken(claims, userDetails, refreshExpiration);
     }
 
-    public String buildToken(Map<String, Object> extraClaims,
-                                UserDetails userDetails, long expirationTime){
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expirationTime){
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -80,16 +72,24 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails){
         try {
             final String email = extractEmail(token);
-            return (email.equals(userDetails.getUsername())) && !isTokenExpired(token);
+            final String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
+            if (tokenType.equals("accessToken")) {
+                return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            } else if (tokenType.equals("refreshToken")) {
+                if (isTokenExpired(tokenType)) {
+                    throw new JwtAuthenticationException("Refresh token is expired. Please login again!");
+                }
+            }
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
             throw new BadCredentialsException("INVALID_CREDENTIALS", ex);
         } catch (ExpiredJwtException ex) {
             throw new JwtAuthenticationException("Token is expired!");
         }
+        return false;
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return extractExpiration(token).before(new Date(System.currentTimeMillis()));
     }
 
 

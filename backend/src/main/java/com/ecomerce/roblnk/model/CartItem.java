@@ -1,24 +1,27 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "cart_item")
 public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_item_id")
     private Long id;
-    private Integer size;
-    private String color;
+
+    @Column(name = "quantity")
     private Integer quantity;
+
+    @Column(name = "price")
     private Double price;
-    private Double discountedPrice;
 
 
     //Cart
@@ -26,12 +29,13 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    //Specified Product
-    @OneToOne
-    @JoinColumn(name = "specified_product_id")
-    private SpecifiedProduct specifiedProduct;
+    //Product Item
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_item_id")
+    private ProductItem productItem;
 
     //Order Item
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnore
     private OrderItem orderItem;
 }

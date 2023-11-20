@@ -20,7 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     "ORDER BY " +
     "CASE WHEN :sort = 'price_low' THEN p.discountedPrice END ASC, " +
     "CASE WHEN :sort = 'price_high' THEN p.discountedPrice END DESC")*/
-    Optional<List<Product>> findAllByCategory_NameAndDiscountedPriceBetween(@NotNull @Size(max = 150) String category_name, Double minPrice, Double maxPrice);
+    //Optional<List<Product>> findAllByCategory_NameAndDiscountedPriceBetween(@NotNull @Size(max = 150) String category_name, Double minPrice, Double maxPrice);
     Page<Product> findAllByCategoryId(Long category_id, Pageable page);
     Optional<List<Product>> findAllByCategoryId(Long category_id);
     boolean existsProductById(Long id);

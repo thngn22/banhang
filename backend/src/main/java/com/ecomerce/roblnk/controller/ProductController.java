@@ -18,7 +18,7 @@ import java.util.List;
 import static com.ecomerce.roblnk.constants.PathConstants.*;
 
 @RestController
-@RequestMapping(API_V1_PRODUCTS)
+@RequestMapping("/api/v1/product")
 @AllArgsConstructor
 public class ProductController {
 
@@ -28,8 +28,8 @@ public class ProductController {
     public ResponseEntity<?> getAllProducts(){
         return productService.getAllProduct();
     }
-    @GetMapping("/product")
-    public ResponseEntity<?> getProductById(@RequestParam("id") Long productId){
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findProductById(@PathVariable("id") Long productId){
         return productService.findProductById(productId);
     }
 
@@ -41,17 +41,17 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestParam("category_id") Integer categoryId, @Valid @RequestBody CreateProductRequest request){
+    public ResponseEntity<?> createProduct(@RequestParam("category_id") Long categoryId, @Valid @RequestBody CreateProductRequest request){
         return productService.createProduct(categoryId, request);
     }
 
-    @PatchMapping("/product/id")
-    public ResponseEntity<?> updateProduct(@RequestParam("id") Long productId, @Valid @RequestBody RequestProduct requestproduct){
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable("id") Long productId, @Valid @RequestBody RequestProduct requestproduct){
         return productService.updateProduct(productId, requestproduct);
     }
 
-    @DeleteMapping("/delete")
-    private ResponseEntity<?> deleteProduct(@RequestParam("id") Long productId){
+    @DeleteMapping("/{id}")
+    private ResponseEntity<?> deleteProduct(@PathVariable("id") Long productId){
         return productService.deleteProduct(productId);
     }
 }

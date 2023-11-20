@@ -13,41 +13,37 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "product")
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long id;
+
+    @Column(name = "name")
     private String name;
-    private String brand;
+
+    @Column(name = "description")
     private String description;
-    private Double price;
-    private Double discountedPrice;
-    private Double discountPercent;
-    private String imageUrl;
-    private Integer stock;
+
+    @Column(name = "product_image")
+    private String productImage;
 
     //Category
     @ManyToOne
-    @JoinColumn(name = "category")
+    @JoinColumn(name = "category_id")
     private Category category;
-
-    //Rating
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIgnore
-    @Column(name = "rating")
-    private List<Rating> ratings;
 
     //Review
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
-    @Column(name = "review")
     private List<Review> reviews;
 
+    //Product Item
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
-    @Column(name = "specified_product")
-    private  List<SpecifiedProduct> specifiedProducts;
+    private List<ProductItem> productItems;
 
 
 }

@@ -17,11 +17,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         url = "https://facebook.com/RoblnK"
                 ),
                 description = "OpenApi documentation for e-Commerce Shoes Project",
-                title = "OpenApi specification - Vu Nguyen Trung Khang",
+                title = "OpenApi specification - Vu Nguyen Trung Khang, Nguyen Huu Thang",
                 version = "1.0",
                 license = @License(
                         name = "Licence name",
-                        url = "https://some-url.com"
+                        url = "https://facebook.com"
                 ),
                 termsOfService = "Terms of service"
         ),

@@ -8,5 +8,5 @@ import lombok.Data;
 public class UpdatePasswordRequest {
     private String email;
     private String password;
-    private String second_password;
+    private String newPassword;
 }

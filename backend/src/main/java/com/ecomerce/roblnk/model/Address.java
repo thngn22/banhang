@@ -5,6 +5,9 @@ import lombok.*;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -25,13 +28,13 @@ public class Address {
     @Column(name = "zip_code")
     private String zipCode;
 
-    //User
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User user;
+    //User Address
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<UserAddress> userAddresses;
 
     //Order
-    @OneToOne(mappedBy = "address")
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Orders orders;
+    private List<Orders> orders;
 }

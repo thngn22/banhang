@@ -1,21 +1,36 @@
 package com.ecomerce.roblnk.model;
 
-import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
-@Embeddable
-@Getter
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Delivery {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private Double price;
     private String description;
-    private LocalDateTime time;
+
+    @Column(name = "estimated_shipping_time")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date estimatedShippingTime;
+
+    //Orders
+    @OneToMany(mappedBy = "delivery")
+    @JsonIgnore
+    private List<Orders> orders;
+
 }

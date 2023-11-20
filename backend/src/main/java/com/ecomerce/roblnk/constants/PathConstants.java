@@ -22,6 +22,8 @@ public class PathConstants {
     public static final String USER_BY_ID = USER + "/{userId}";
     public static final String USER_ALL = USER + "/all";
     public static final String LOGIN = "/login";
+
+    public static final String INFORMATION = "/information";
     public static final String FORGOT_EMAIL = "/forgot/{email}";
     public static final String RESET = "/reset";
     public static final String CODE = "/{code}";

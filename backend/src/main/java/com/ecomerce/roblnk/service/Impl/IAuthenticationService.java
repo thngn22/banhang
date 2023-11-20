@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.auth.*;
+import com.ecomerce.roblnk.mapper.UserMapper;
 import com.ecomerce.roblnk.model.EnumRole;
 import com.ecomerce.roblnk.model.Role;
 import com.ecomerce.roblnk.model.Token;
@@ -16,14 +17,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -39,14 +41,15 @@ public class IAuthenticationService implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
 
     @Override
-    public ResponseEntity<?> register(RegisterRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(bindingResult.getAllErrors());
-        }
+    public ResponseEntity<?> register(RegisterRequest request) {
 
+        var existedUser = userRepository.findByEmail(request.getEmail());
+        if (existedUser.isPresent())
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email existed, please try another email!");
         var role = new HashSet<Role>();
         role.add(roleRepository.findRoleByRole(EnumRole.ROLE_ADMINISTRATOR.name()));
         var user = User.builder()
@@ -61,7 +64,7 @@ public class IAuthenticationService implements AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
-        saveUserToken(savedUser, jwtToken);
+        //saveUserToken(savedUser, refreshToken);
 
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .accessToken(jwtToken)
@@ -70,20 +73,9 @@ public class IAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public ResponseEntity<?> findInforUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("this is email: " + email);
-        var user = userRepository.findByEmail(email).orElseThrow();
-        var userInformation = UserInformationResponse.builder()
-                .userName(user.getUsername())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .phone(user.getPhone())
-                .isEmailActive(user.isEmailActive())
-                .isPhoneActive(user.isPhoneActive())
-                .avatar(user.getAvatar())
-                .build();
+    public ResponseEntity<?> findInformationUser(Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        var userInformation = userMapper.toInformationResponse(user);
         return ResponseEntity.ok(userInformation);
     }
 
@@ -93,39 +85,43 @@ public class IAuthenticationService implements AuthenticationService {
 
         // check if the current password is correct
         if (!passwordEncoder.matches(updatePasswordRequest.getPassword(), user.getPassword())) {
-            throw new IllegalStateException("Wrong password");
+            ResponseEntity.status(HttpStatusCode.valueOf(400)).body("Wrong password, please try again!");
         }
-        // check if the two new passwords are the same
-        if (updatePasswordRequest.getSecond_password().equals(updatePasswordRequest.getPassword())) {
-            throw new IllegalStateException("Password are the same");
+        // check if new passwords are the same current password
+        if (updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getPassword())) {
+            ResponseEntity.status(HttpStatusCode.valueOf(400)).body("New password is the same as current password, please try again!");
         }
 
-        user.setPassword(passwordEncoder.encode(updatePasswordRequest.getSecond_password()));
+        user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
         userRepository.save(user);
         return ResponseEntity.ok("Password has been changed successfully!");
     }
 
 
     @Override
-    public ResponseEntity<?> login(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+    public ResponseEntity<?> authenticate(AuthenticationRequest request) {
 
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
+        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (user != null){
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                return ResponseEntity.status(HttpStatusCode.valueOf(400)).body("Wrong password, please try again!");
+            }
+            else{
+                var jwtToken = jwtService.generateToken(user);
+                var refreshToken = jwtService.generateRefreshToken(user);
+                return ResponseEntity.ok(AuthenticationResponse.builder()
+                        .accessToken(jwtToken)
+                        .refreshToken(refreshToken)
+                        .build());
+            }
 
-        return ResponseEntity.ok(AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build());
+        }
+        return ResponseEntity.status(HttpStatusCode.valueOf(404)).body("Not found any email!");
+
+        //revokeAllUserTokens(user);
+        //saveUserToken(user, refreshToken);
+
+
     }
 
     private void saveUserToken(User user, String jwtToken) {

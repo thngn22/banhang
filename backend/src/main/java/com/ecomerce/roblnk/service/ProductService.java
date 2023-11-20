@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface ProductService {
-    ResponseEntity<?> createProduct(Integer categoryId, CreateProductRequest req);
+    ResponseEntity<?> createProduct(Long categoryId, CreateProductRequest req);
     ResponseEntity<?> deleteProduct(Long productId);
     ResponseEntity<?> updateProduct(Long productId, RequestProduct requestProduct);
     ResponseEntity<?> findProductById(Long productId);

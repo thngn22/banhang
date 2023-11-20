@@ -1,11 +1,15 @@
 package com.ecomerce.roblnk.model;
 
 import com.ecomerce.roblnk.util.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,8 +28,16 @@ public class Orders {
     private Status status;
     private Double totalPayment;
     private Integer totalItem;
-    private LocalDateTime createdAt;
-    private LocalDateTime updateAt;
+
+    @Column(name = "created_at")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createdAt;
+
+    @Column(name = "updated_at")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateAt;
 
     //User
     @ManyToOne
@@ -33,18 +45,18 @@ public class Orders {
     private User user;
 
     //Address
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "address_id")
     private Address address;
 
-    //Payment Detail
-    @ElementCollection
-    @CollectionTable(name = "order_payment_detail", joinColumns = @JoinColumn(name = "payment_id"))
-    private List<PaymentDetail> paymentDetails = new ArrayList<>();
+    //Payment Method
+    @OneToMany(mappedBy = "orders")
+    @JsonIgnore
+    private List<PaymentMethod> paymentMethods;
 
     //Delivery
-    @ElementCollection
-    @CollectionTable(name = "order_delivery", joinColumns = @JoinColumn(name = "delivery_id"))
-    private List<Delivery> deliveries = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
 }

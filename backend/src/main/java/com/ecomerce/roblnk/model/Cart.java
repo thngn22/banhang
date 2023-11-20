@@ -8,17 +8,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Table(name = "cart")
 public class Cart {
 
     @Id
+    @Column(name = "cart_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -31,7 +33,6 @@ public class Cart {
 
     //Cart Item
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Column(name = "cart_items")
     @JsonIgnore
-    private Set<CartItem> cartItems = new HashSet<>();
+    private Set<CartItem> cartItems;
 }

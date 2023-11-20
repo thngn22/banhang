@@ -4,14 +4,13 @@ import com.ecomerce.roblnk.dto.auth.AuthenticationRequest;
 import com.ecomerce.roblnk.dto.auth.RegisterRequest;
 import com.ecomerce.roblnk.dto.auth.UpdatePasswordRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 
 import java.security.Principal;
 
 public interface AuthenticationService {
-    ResponseEntity<?> login(AuthenticationRequest request);
-    ResponseEntity<?> register(RegisterRequest request, BindingResult bindingResult);
+    ResponseEntity<?> authenticate(AuthenticationRequest request);
+    ResponseEntity<?> register(RegisterRequest request);
 
-    ResponseEntity<?> findInforUser();
+    ResponseEntity<?> findInformationUser(Principal connectedUser);
     ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal connectedUser);
 }

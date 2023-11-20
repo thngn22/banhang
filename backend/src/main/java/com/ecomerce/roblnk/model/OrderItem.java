@@ -1,34 +1,36 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "order_item")
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Integer size;
-    private String color;
     private Integer quantity;
     private Double price;
-    private Double discountedPrice;
-    private LocalDateTime createdAt;
+
+    @Column(name = "created_at")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createdAt;
 
     //Cart Item
     @OneToOne(mappedBy = "orderItem")
     @JoinColumn(name = "cart_item_id")
-    @JsonIgnore
     private CartItem cartItem;
 
     //Order Item

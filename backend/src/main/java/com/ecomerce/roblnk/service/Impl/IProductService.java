@@ -96,8 +96,8 @@ public class IProductService implements ProductService {
     }*/
 
     @Override
-    public ResponseEntity<?> createProduct(Integer categoryId, CreateProductRequest req) {
-        var productList = productRepository.findAllByCategoryId(Long.valueOf(categoryId));
+    public ResponseEntity<?> createProduct(Long categoryId, CreateProductRequest req) {
+        var productList = productRepository.findAllByCategoryId(categoryId);
         System.out.println("Da lay dc category");
         if (productList.isPresent()) {
             for (Product p : productList.get()) {
@@ -108,13 +108,8 @@ public class IProductService implements ProductService {
             }
             var prod = Product.builder()
                     .name(req.getName())
-                    .brand(req.getBrand())
                     .description(req.getDescription())
-                    .price(req.getPrice())
-                    .discountedPrice(req.getDiscountedPrice())
-                    .discountPercent(req.getDiscountPercent())
-                    .imageUrl(req.getImageUrl())
-                    .stock(req.getStock())
+                    .productImage(req.getImageUrl())
                     .build();
             productRepository.save(prod);
             return ResponseEntity.status(HttpStatus.CREATED).body("Product added!");
@@ -136,15 +131,7 @@ public class IProductService implements ProductService {
     @Override
     public ResponseEntity<?> updateProduct(Long productId, RequestProduct requestProduct) {
         var product = productRepository.findById(productId).orElseThrow();
-        if (requestProduct.getId().equals(product.getId())) {
-            product.setName(requestProduct.getName());
-            product.setBrand(requestProduct.getBrand());
-            product.setDescription(requestProduct.getDescription());
-            product.setPrice(requestProduct.getPrice());
-            product.setDiscountedPrice(requestProduct.getDiscountedPrice());
-            product.setDiscountPercent(requestProduct.getDiscountPercent());
-            product.setImageUrl(requestProduct.getImageUrl());
-        };
+
         productRepository.save(product);
         return ResponseEntity.ok("Update product successfully!");
     }
@@ -154,18 +141,8 @@ public class IProductService implements ProductService {
         var product = productRepository.findById(productId).orElseThrow(()
                 -> new UsernameNotFoundException("Product not found"));
 
-        var productResponse = ProductResponse.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .brand(product.getBrand())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .discountedPrice(product.getDiscountedPrice())
-                .discountPercent(product.getDiscountPercent())
-                .imageUrl(product.getImageUrl())
-                .stock(product.getStock())
-                .build();
-        return ResponseEntity.ok(productResponse);
+
+        return ResponseEntity.ok("productResponse");
     }
 
     @Override
@@ -176,13 +153,6 @@ public class IProductService implements ProductService {
             var productResponse = ProductResponse.builder()
                     .id(product.getId())
                     .name(product.getName())
-                    .brand(product.getBrand())
-                    .description(product.getDescription())
-                    .price(product.getPrice())
-                    .discountedPrice(product.getDiscountedPrice())
-                    .discountPercent(product.getDiscountPercent())
-                    .imageUrl(product.getImageUrl())
-                    .stock(product.getStock())
                     .build();
             productResponseList.add(productResponse);
         }

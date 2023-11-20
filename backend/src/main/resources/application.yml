@@ -3,7 +3,7 @@ application:
         expiration: 86400000 # a day
         refresh-token:
             expiration: 604800000 # 7 days
-    secret-key: roblnkSecretKey1511ebcaccab1555cac46ca878eda68464dawd
+    secret-key: roblnkSecretKey1511ebcaccab1555cac46ca878eda68464dawdbipogepmmeopkawkk6a44946opiu
 
 server:
     port: 8081
@@ -20,16 +20,15 @@ spring:
                 dialect: org.hibernate.dialect.MySQLDialect
     mail:
         host: smtp.gmail.com
-        password: LolaBaker15112002
-        port: 420
+        username: vunguyentrungkhang2@gmail.com
+        password: kkpqbsfpkzfujufs
+        port: 587
         properties:
             mail:
                 smtp:
                     auth: true
                     starttls:
                         enable: true
-        protocol: smtps
-        username: vunguyentrungkhang2@gmail.com
     security:
         filter:
             order: 0
@@ -40,5 +39,17 @@ spring:
         multipart:
             enabled: true
             file-size-threshold: 2MB
-            max-file-size: 5MB
+            max-file-size: 10MB
             max-request-size: 10MB
+cloudinary:
+    cloud-name: dmvncmrci
+    api-key: 887812432951354
+    api-secret: 2yGg1_La5nS0VVNZH970wYrFiUw
+    secure: true
+vn-pay:
+    vnp_PayUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    vnp_ReturnUrl: /api/v1/vnpay/payment
+    vnp_TmnCode: S2O88S7B
+    secretKey: FLGAZRZYBZKROQFGOHKGVYYOQWONBVJF
+    vnp_ApiUrl: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+    vnp_Version: 2.1.0
