@@ -13,9 +13,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -28,6 +30,8 @@ public class IEmailService implements EmailService {
     @Override
     public ResponseEntity<?> sendSimpleMail(EmailDetails details) {
         try {
+            Context context = new Context();
+            context.setVariables(Map.of());
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
 

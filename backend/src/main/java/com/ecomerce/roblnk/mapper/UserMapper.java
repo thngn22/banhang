@@ -20,7 +20,7 @@ public interface UserMapper {
 
     List<UserAddressResponse> toListUserAddressResponse(List<UserAddress> userAddresses);
 
-    @Mapping(source = "default", target = "default")
+    //@Mapping(source = "default", target = "default")
     UserAddressResponse toUserAddressResponse(UserAddress userAddress);
     AddressDTO toUserAddressDTO(Address address);
 
