@@ -4,6 +4,8 @@ import { Button } from "@mui/material";
 import HomeSectionCard from "../HomeSectionCard/HomeSectionCard";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 
+
+
 const HomeSectionCarousel = (props) => {
   const itemCard = props.data;
 
