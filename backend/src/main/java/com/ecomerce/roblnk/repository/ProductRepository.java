@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.repository;
 
+import com.ecomerce.roblnk.model.Category;
 import com.ecomerce.roblnk.model.Product;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,6 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>{
-    Page<Product> findAllByCategoryId(Long category_id, Pageable page);
     List<Product> findAllByCategoryId(Long category_id);
+
 }

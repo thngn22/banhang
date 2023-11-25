@@ -16,7 +16,9 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
+    @Column(name = "name")
     private String name;
+
 
     //Product
     @OneToMany(mappedBy = "category")
@@ -24,13 +26,13 @@ public class Category {
     private List<Product> products;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "parent_category_id")
     private Category parentCategoryId;
 
 
     //Category
     @OneToMany(mappedBy = "parentCategoryId")
+    @JsonIgnore
     private List<Category> categories;
 
     //Promotion
