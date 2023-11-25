@@ -19,7 +19,7 @@ public class ICloudinaryService implements CloudinaryService {
         try{
             HashMap<Object, Object> options = new HashMap<>();
             options.put("folder", folderName);
-            Map uploadedFile = cloudinary.uploader().upload(file.getBytes(), options);
+            Map<?,?> uploadedFile = cloudinary.uploader().upload(file.getBytes(), options);
             String publicId = (String) uploadedFile.get("public_id");
             return uploadedFile;
 

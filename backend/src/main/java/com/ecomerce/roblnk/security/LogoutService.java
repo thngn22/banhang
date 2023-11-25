@@ -15,14 +15,11 @@ import org.springframework.stereotype.Service;
 public class LogoutService implements LogoutHandler {
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication
-    ) {
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
-            SecurityContextHolder.getContext().setAuthentication(null);
-            auth.setAuthenticated(false);
         }
 
     }

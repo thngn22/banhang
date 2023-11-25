@@ -1,15 +1,28 @@
 package com.ecomerce.roblnk.mapper;
 
-import com.ecomerce.roblnk.dto.user.UserInformationResponse;
-import com.ecomerce.roblnk.dto.user.UserResponse;
+import com.ecomerce.roblnk.dto.user.*;
+import com.ecomerce.roblnk.model.Address;
+import com.ecomerce.roblnk.model.PaymentMethod;
 import com.ecomerce.roblnk.model.User;
+import com.ecomerce.roblnk.model.UserAddress;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    UserInformationResponse toInformationResponse(User user);
-    List<UserResponse> toListUserResponse(List<User> userList);
+    UserProfileResponse toUserProfileResponse(User user);
     UserResponse toUserResponse(User user);
+    List<UserResponse> toListUserResponse(List<User> userList);
+
+    PaymentMethod toPaymentEntity(UserPaymentRequest userPaymentRequest);
+
+    List<UserAddressResponse> toListUserAddressResponse(List<UserAddress> userAddresses);
+
+    @Mapping(source = "default", target = "default")
+    UserAddressResponse toUserAddressResponse(UserAddress userAddress);
+    AddressDTO toUserAddressDTO(Address address);
+
+    Address toAddressEntity(UserAddressRequest userAddressRequest);
 }

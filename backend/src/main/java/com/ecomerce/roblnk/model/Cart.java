@@ -5,13 +5,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "cart")
 public class Cart {
 
@@ -34,5 +32,5 @@ public class Cart {
     //Cart Item
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<CartItem> cartItems;
+    private List<CartItem> cartItems;
 }

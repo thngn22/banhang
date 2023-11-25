@@ -5,8 +5,6 @@ import lombok.*;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Role {
 
     @Id

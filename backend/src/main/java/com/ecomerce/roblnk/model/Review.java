@@ -12,8 +12,6 @@ import java.util.Date;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "review")
 public class Review {
 

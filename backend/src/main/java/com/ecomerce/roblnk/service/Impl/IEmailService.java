@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
 @Service
@@ -27,18 +28,17 @@ public class IEmailService implements EmailService {
     @Override
     public ResponseEntity<?> sendSimpleMail(EmailDetails details) {
         try {
-
-            // Creating a simple mail message
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
 
             // Setting up necessary details
-            mailMessage.setFrom(sender);
-            mailMessage.setTo(details.getRecipient());
-            mailMessage.setText(details.getMsgBody());
-            mailMessage.setSubject(details.getSubject());
+            mimeMessageHelper.setFrom(sender, "VIP Pro Shoes Shop");
+            mimeMessageHelper.setTo(details.getRecipient());
+            mimeMessageHelper.setText(details.getMsgBody());
+            mimeMessageHelper.setSubject(details.getSubject());
 
             // Sending the mail
-            javaMailSender.send(mailMessage);
+            javaMailSender.send(mimeMessage);
             return ResponseEntity.ok("Mail sent successfully!");
         }
 
@@ -59,11 +59,10 @@ public class IEmailService implements EmailService {
             // be send
             mimeMessageHelper
                     = new MimeMessageHelper(mimeMessage, true);
-            mimeMessageHelper.setFrom(sender);
+            mimeMessageHelper.setFrom(sender, "Shoes Shop");
             mimeMessageHelper.setTo(details.getRecipient());
             mimeMessageHelper.setText(details.getMsgBody());
-            mimeMessageHelper.setSubject(
-                    details.getSubject());
+            mimeMessageHelper.setSubject(details.getSubject());
 
             // Adding the attachment
             FileSystemResource file = new FileSystemResource(new File(details.getAttachment()));
@@ -80,6 +79,8 @@ public class IEmailService implements EmailService {
 
             // Display message when exception occurred
             return "Error while sending mail!!!";
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

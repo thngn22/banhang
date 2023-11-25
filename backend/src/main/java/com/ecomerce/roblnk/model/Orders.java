@@ -13,11 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Data
 @Table(name = "orders")
 public class Orders {
 

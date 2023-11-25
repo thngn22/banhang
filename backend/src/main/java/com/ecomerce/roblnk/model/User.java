@@ -10,14 +10,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -30,9 +28,18 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String phone;
+    private LocalDate dob;
+    private String gender;
     private boolean isEmailActive;
     private boolean isPhoneActive;
+    private boolean isActive;
     private String avatar;
+
+    @Column(name = "one_time_password")
+    private String oneTimePassword;
+
+    @Column(name = "otp_requested_time")
+    private Date otpRequestedTime;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -50,7 +57,7 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     //Address
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
     private List<UserAddress> addresses;
 

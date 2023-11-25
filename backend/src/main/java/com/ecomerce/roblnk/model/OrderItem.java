@@ -11,9 +11,6 @@ import java.util.Date;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "order_item")
 public class OrderItem {
 

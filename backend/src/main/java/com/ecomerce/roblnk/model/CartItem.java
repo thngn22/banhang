@@ -6,9 +6,6 @@ import lombok.*;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "cart_item")
 public class CartItem {
 

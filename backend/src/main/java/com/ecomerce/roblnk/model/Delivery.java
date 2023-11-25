@@ -12,9 +12,6 @@ import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class Delivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

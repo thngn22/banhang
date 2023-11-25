@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Address {
 
     @Id
@@ -31,7 +28,7 @@ public class Address {
     //User Address
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<UserAddress> userAddresses;
+    private List<UserAddress> userAddresses;
 
     //Order
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)

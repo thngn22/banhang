@@ -11,9 +11,6 @@ import java.util.Set;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "variation_option")
 public class VariationOption {
     @Id
@@ -30,6 +27,6 @@ public class VariationOption {
     private Variation variation;
 
     //Product Item
-    @ManyToMany(mappedBy = "variationOptions", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ProductItem> productItem;
+    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ProductConfiguration> productConfigurations;
 }

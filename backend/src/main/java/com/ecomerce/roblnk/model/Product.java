@@ -8,11 +8,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 @Table(name = "product")
 public class Product {
 

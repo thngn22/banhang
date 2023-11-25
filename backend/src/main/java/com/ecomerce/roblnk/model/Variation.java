@@ -11,9 +11,6 @@ import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class Variation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

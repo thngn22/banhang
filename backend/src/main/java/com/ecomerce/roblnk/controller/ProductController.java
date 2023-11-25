@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,34 +25,13 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping
-    public ResponseEntity<?> getAllProducts(){
-        return productService.getAllProduct();
-    }
     @GetMapping("/{id}")
-    public ResponseEntity<?> findProductById(@PathVariable("id") Long productId){
-        return productService.findProductById(productId);
-    }
-
-    @GetMapping("/category")
-    public ResponseEntity<?> getAllProductsByCategoryId(@RequestParam("id") Long categoryId,
-                                                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber,
-                                                        @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize){
-        return productService.findProductByCategoryIdPageable(categoryId, pageNumber, pageSize);
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestParam("category_id") Long categoryId, @Valid @RequestBody CreateProductRequest request){
-        return productService.createProduct(categoryId, request);
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable("id") Long productId, @Valid @RequestBody RequestProduct requestproduct){
-        return productService.updateProduct(productId, requestproduct);
-    }
-
-    @DeleteMapping("/{id}")
-    private ResponseEntity<?> deleteProduct(@PathVariable("id") Long productId){
-        return productService.deleteProduct(productId);
+    public ResponseEntity<?> getDetailProduct(@PathVariable("id") Long id){
+        var productDetail = productService.getDetailProduct(id);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 }

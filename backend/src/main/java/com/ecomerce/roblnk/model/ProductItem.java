@@ -2,19 +2,13 @@ package com.ecomerce.roblnk.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class ProductItem {
 
     @Id
@@ -42,13 +36,8 @@ public class ProductItem {
     @JsonIgnore
     private List<CartItem> cartItems;
 
-    //Variation Option
-    @ManyToMany
+    //Product Configuration
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
-    @JoinTable(
-            name = "product_configuration",
-            joinColumns = @JoinColumn(name = "product_item_id"),
-            inverseJoinColumns = @JoinColumn(name = "variation_id")
-    )
-    private Set<VariationOption> variationOptions;
+    private List<ProductConfiguration> productConfigurations;
 }

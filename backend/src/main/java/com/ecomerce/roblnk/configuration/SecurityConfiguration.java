@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.configuration;
 
 import com.ecomerce.roblnk.security.JwtAuthenticationEntryPoint;
 import com.ecomerce.roblnk.security.JwtAuthenticationFilter;
+import com.ecomerce.roblnk.security.JwtAuthenticationFilterExceptionHandler;
 import com.ecomerce.roblnk.security.LogoutService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,9 @@ public class SecurityConfiguration{
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilterExceptionHandler jwtAuthenticationFilterExceptionHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final LogoutService logoutService;
+    //private final LogoutService logoutService;
     @Bean
     public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception{
 
@@ -50,8 +52,8 @@ public class SecurityConfiguration{
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register"),
+                            new AntPathRequestMatcher("/api/v1/auth/sendOTP"),
                             new AntPathRequestMatcher("/api/v1/auth/login"),
-                            new AntPathRequestMatcher("/api/v1/auth/logout"),
                             new AntPathRequestMatcher("/swagger-ui/**"),
                             new AntPathRequestMatcher("/swagger-ui.html"),
                             new AntPathRequestMatcher("/configuration/ui"),
@@ -67,12 +69,16 @@ public class SecurityConfiguration{
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
-                        .addLogoutHandler(logoutService)
-                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
+                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
+                        )
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID"))
+                        //.addLogoutHandler(logoutService)
+                        //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
 

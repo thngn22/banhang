@@ -14,9 +14,6 @@ import java.util.List;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "promotion")
 public class Promotion {
 

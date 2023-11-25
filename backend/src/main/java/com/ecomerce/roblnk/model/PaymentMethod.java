@@ -5,9 +5,6 @@ import lombok.*;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "payment_method")
 public class PaymentMethod {
     @Id
@@ -15,6 +12,12 @@ public class PaymentMethod {
     private Long id;
 
     private PaymentType paymentTypeEnum;
+    private String cardNumber;
+    private String dateExpire;
+    private String CVV;
+    private String nameHolder;
+    private String addressBanking;
+    private String zipCode;
 
     //User
     @ManyToOne

@@ -7,11 +7,7 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 @Table(name = "category")
 public class Category {
 

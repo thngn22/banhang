@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.*;
 import java.util.function.Function;
+
 @Component
 public class JwtService {
 
@@ -35,12 +36,12 @@ public class JwtService {
     }
 
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token){
+    private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -49,18 +50,19 @@ public class JwtService {
                 .getBody();
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>(Map.of("role", userDetails.getAuthorities().stream().map(Object::toString).toList()));
         claims.put("token_type", "accessToken");
         return buildToken(claims, userDetails, jwtExpiration);
     }
-    public String generateRefreshToken(UserDetails userDetails){
+
+    public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("token_type", "refreshToken");
         return buildToken(claims, userDetails, refreshExpiration);
     }
 
-    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expirationTime){
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expirationTime) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -69,7 +71,8 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    public boolean isTokenValid(String token, UserDetails userDetails){
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             final String email = extractEmail(token);
             final String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
@@ -97,19 +100,21 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
     public String getEmailFromToken(String token) {
         Claims claims = extractAllClaims(token);
         return String.valueOf(claims.get("email"));
     }
+
     public List<SimpleGrantedAuthority> getRolesFromToken(String token) {
         Claims claims = extractAllClaims(token);
         List<SimpleGrantedAuthority> roles = new ArrayList<>();
         List<?> rolesFromClaims = (List<?>) claims.get("role");
 
         if (rolesFromClaims != null) {
-           for (var ro : rolesFromClaims){
-               roles.add((SimpleGrantedAuthority) rolesFromClaims.get(rolesFromClaims.indexOf(ro)));
-           }
+            for (var ro : rolesFromClaims) {
+                roles.add((SimpleGrantedAuthority) rolesFromClaims.get(rolesFromClaims.indexOf(ro)));
+            }
         }
 
         return roles;

@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.dto.auth.OtpRequest;
 import com.ecomerce.roblnk.dto.auth.RegisterRequest;
 import com.ecomerce.roblnk.dto.auth.AuthenticationRequest;
 import com.ecomerce.roblnk.dto.auth.UpdatePasswordRequest;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.ecomerce.roblnk.constants.ErrorMessage.INCORRECT_PASSWORD_CONFIRMATION;
 import static com.ecomerce.roblnk.constants.PathConstants.*;
 
 @RestController
@@ -55,21 +57,28 @@ public class AuthenticationController {
         return authenticationService.authenticate(request);
     }
 
-    @GetMapping("/information")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> information(Principal connectedUser){
-        return authenticationService.findInformationUser(connectedUser);
-
+    @PostMapping("/sendOTP")
+    public ResponseEntity<?> sendOTP(@Valid @RequestBody OtpRequest request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        return authenticationService.validateLoginOTP(request);
     }
 
-    @PostMapping("/information/update")
+    @PostMapping("/password")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal connectedUser){
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal connectedUser, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
+        }
+        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(INCORRECT_PASSWORD_CONFIRMATION);
+        }
         return authenticationService.updatePassword(updatePasswordRequest, connectedUser);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader HttpServletRequest request, HttpServletResponse response, Authentication authentication){
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
         logoutService.logout(request, response, authentication);
         return ResponseEntity.ok("Log out successfully!");
     }
