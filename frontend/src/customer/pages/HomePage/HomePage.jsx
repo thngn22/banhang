@@ -8,13 +8,14 @@ HomePage.propTypes = {};
 
 function HomePage(props) {
   return (
-    <div className="-z-10 top-28 relative">
+    <div className="">
       <HomeCarousel />
 
       <div className="space-y-10 py-10 px-5 lg:px-10">
         <HomeSectionCarousel data={tShirt} />
         <HomeSectionCarousel data={jacket}/>
       </div>
+      
     </div>
   );
 }
