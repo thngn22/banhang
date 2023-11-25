@@ -26,6 +26,7 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailProduct(@PathVariable("id") Long id){
         var productDetail = productService.getDetailProduct(id);
         if (productDetail != null){
@@ -34,4 +35,5 @@ public class ProductController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
+
 }
