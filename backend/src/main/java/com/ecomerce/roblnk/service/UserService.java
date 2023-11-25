@@ -1,10 +1,35 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
-public interface UserService extends UserDetailsService {
-    User findUserById(Long userId) throws UserException;
+import java.security.Principal;
+import java.util.List;
+
+public interface UserService {
+    UserResponse findUserById(Long userId) throws UserException;
     User findUserProfileByJwt(String jwt) throws UserException;
+    Page<User> getAllUsers(Pageable pageable);
+    ResponseEntity<?> findInformationUser(Principal connectedUser);
+    List<UserResponse> getAllUsers();
+
+    ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
+
+    ResponseEntity<?> getUserPayment(Principal connectedUser);
+
+    ResponseEntity<?> addUserPayment(Principal connectedUser, UserPaymentRequest request);
+
+    ResponseEntity<?> getUserAddress(Principal connectedUser);
+
+    ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest);
+
+    ResponseEntity<?> updateUserAddress(Principal connectedUser, Long id, UserAddressRequest userUpdateAddressRequest);
+
+    ResponseEntity<?> deleteUserAddress(Principal connectedUser, Long id);
+
+    ResponseEntity<?> deActiveOrActiveUser(Long id);
 }

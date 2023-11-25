@@ -5,16 +5,15 @@ import lombok.*;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "street_address")
@@ -26,9 +25,13 @@ public class Address {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    //User Address
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private User user;
+    private List<UserAddress> userAddresses;
 
+    //Order
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Orders> orders;
 }
