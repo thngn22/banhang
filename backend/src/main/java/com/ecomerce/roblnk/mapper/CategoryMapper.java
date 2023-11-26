@@ -17,4 +17,5 @@ public interface CategoryMapper {
     @Mapping(source = "parentCategoryId.id", target = "parentCategoryId")
     NonNestedCategoryResponse toNonNestedCategoryResponse(Category category);
     List<NonNestedCategoryResponse> toNonNestedCategoryResponses(List<Category> categories);
+
 }

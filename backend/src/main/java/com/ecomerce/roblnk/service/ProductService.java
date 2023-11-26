@@ -17,4 +17,5 @@ public interface ProductService {
 
     ProductDetailResponse getDetailProduct(Long productId);
 
+    String createProduct(Long id);
 }

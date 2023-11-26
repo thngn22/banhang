@@ -11,7 +11,7 @@ import java.util.Set;
 public class ProductItemDTO {
     private Long id;
     private Double price;
-    private Boolean quantityInStock;
+    private Long quantityInStock;
     private String productImage;
     private List<ProductConfigurationDTO> productConfigurations;
 

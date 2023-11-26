@@ -2,17 +2,21 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.UserService;
+import com.ecomerce.roblnk.service.VariationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
 public class AdminController {
     private final UserService userService;
+    private final VariationService variationService;
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> findUserById(@PathVariable("id") Long id) throws UserException {
@@ -31,8 +35,10 @@ public class AdminController {
 
     @PostMapping("/users/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> deActiveOrActiveUser(@PathVariable("id") Long id){
-        return userService.deActiveOrActiveUser(id);
+    public ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, @PathVariable("id") Long id){
+        return userService.deActiveOrActiveUser(connectedUser, id);
     }
+
+
 
 }

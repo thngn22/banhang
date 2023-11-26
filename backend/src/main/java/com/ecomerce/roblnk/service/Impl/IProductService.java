@@ -6,6 +6,7 @@ import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.model.Category;
 import com.ecomerce.roblnk.model.Product;
 import com.ecomerce.roblnk.repository.CategoryRepository;
+import com.ecomerce.roblnk.repository.ProductItemRepository;
 import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class IProductService implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
+    private final ProductItemRepository productItemRepository;
 
 
     @Override
@@ -28,6 +30,7 @@ public class IProductService implements ProductService {
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Product> products = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
         var cate = categoryRepository.findAll();
         var cateTarget = categoryRepository.findById(categoryId).orElseThrow();
         categories.add(cateTarget);
@@ -52,13 +55,33 @@ public class IProductService implements ProductService {
         for (Category category : categoryList) {
             products.addAll(productRepository.findAllByCategoryId(category.getId()));
         }
-        return productMapper.toProductResponseList(products);
+        for (Product product : products){
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            list.add(items.size());
+        }
+        var productResponseList =  productMapper.toProductResponseList(products);
+        for (int i = 0; i < productResponseList.size(); i++){
+            productResponseList.get(i).setQuantity(list.get(i));
+        }
+        return productResponseList;
     }
 
     @Override
     public ProductDetailResponse getDetailProduct(Long productId) {
         var product = productRepository.findById(productId);
-        return product.map(productMapper::toDetailResponse).orElse(null);
+        if (product.isPresent()){
+            var items = productItemRepository.findAllByProduct_Id(product.get().getId());
+            var productDetail = productMapper.toDetailResponse(product.get());
+            productDetail.setQuantity(items.size());
+            return productDetail;
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public String createProduct(Long id) {
+        return null;
     }
 
 

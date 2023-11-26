@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -159,7 +158,11 @@ public class IUserService implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> deActiveOrActiveUser(Long id) {
+    public ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, Long id) {
+        var admin = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (admin == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid account, please login again!");
+        }
         var user = userRepository.findById(id);
         if (user.isPresent()){
             if (user.get().isActive()){

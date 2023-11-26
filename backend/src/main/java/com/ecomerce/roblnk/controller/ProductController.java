@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.product.CreateProductRequest;
+import com.ecomerce.roblnk.dto.product.RequestCreateProduct;
 import com.ecomerce.roblnk.dto.product.RequestProduct;
 import com.ecomerce.roblnk.exception.ProductException;
 import com.ecomerce.roblnk.model.Product;
@@ -36,4 +37,37 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 
+    //Chưa làm
+    @PostMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> creatProduct(@PathVariable(value = "id", required = false) Long id, @RequestBody @Valid RequestCreateProduct requestCreateProduct){
+        var productDetail = productService.createProduct(id);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -20,7 +20,7 @@ public class ProductItem {
     private Double price;
 
     @Column(name = "quantity_in_stock")
-    private Boolean quantityInStock;
+    private Long quantityInStock;
 
     @Column(name = "product_image")
     private String productImage;
