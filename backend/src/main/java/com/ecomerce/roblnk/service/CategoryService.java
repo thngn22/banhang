@@ -1,7 +1,8 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.category.VariationRequest;
+
 import java.util.List;
-import java.util.Map;
 
 public interface CategoryService {
     List<?> getAllCategory();
@@ -9,4 +10,8 @@ public interface CategoryService {
     List<?> getAllChildCategory(Long id);
 
     List<?> getNonNestedCategory(Long id);
+
+    List<?> addVariationIntoCategory(Long id, List<String> variationRequest);
+
+    List<?> getVariationInCategory(Long id);
 }

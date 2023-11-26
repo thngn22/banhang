@@ -14,7 +14,7 @@ public interface ProductMapper {
     ProductResponse toProductResponse(Product product);
 
     List<ProductResponse> toProductResponseList(List<Product> products);
-
+    @Mapping(source = "category.id", target = "categoryId")
     ProductDetailResponse toDetailResponse(Product product);
 
     ReviewDTO toReviewDTO(Review review);
@@ -25,5 +25,8 @@ public interface ProductMapper {
 
     @Mapping(source = "productItem.id", target = "productItemId")
     @Mapping(source = "variationOption.id", target = "variationOptionId")
+    @Mapping(source = "variationOption.value", target = "variationOption")
     ProductConfigurationDTO toProductConfigurationDTO(ProductConfiguration productConfiguration);
+
+
 }

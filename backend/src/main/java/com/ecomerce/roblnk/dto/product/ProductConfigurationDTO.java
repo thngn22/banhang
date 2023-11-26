@@ -8,4 +8,5 @@ public class ProductConfigurationDTO {
     private Long id;
     private Long productItemId;
     private Long variationOptionId;
+    private String variationOption;
 }

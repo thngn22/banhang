@@ -14,6 +14,7 @@ public class ProductDetailResponse {
     private String description;
     private String productImage;
     private Long categoryId;
+    private Integer quantity;
     private List<ReviewDTO> reviews;
     private List<ProductItemDTO> productItems;
 }

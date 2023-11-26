@@ -9,4 +9,5 @@ public class ProductResponse {
     private String name;
     private String productImage;
     private Long categoryId;
+    private Integer quantity;
 }

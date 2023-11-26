@@ -31,5 +31,5 @@ public interface UserService {
 
     ResponseEntity<?> deleteUserAddress(Principal connectedUser, Long id);
 
-    ResponseEntity<?> deActiveOrActiveUser(Long id);
+    ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, Long id);
 }
