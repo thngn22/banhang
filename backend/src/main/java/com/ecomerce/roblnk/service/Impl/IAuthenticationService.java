@@ -1,6 +1,5 @@
 package com.ecomerce.roblnk.service.Impl;
 
-import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.auth.*;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.UserMapper;
@@ -79,7 +78,7 @@ public class IAuthenticationService implements AuthenticationService {
             EmailDetails emailDetails = new EmailDetails();
             emailDetails.setSubject("Xác thực tài khoản mới!");
             emailDetails.setRecipient(user.getEmail());
-            emailDetails.setMsgBody("Chào " + request.getUserName() +
+            emailDetails.setMsgBody("Chào "+ request.getUserName() +
                     ",\nChúng tôi rất vui thông báo rằng tài khoản của bạn đã được tạo thành công tại Shoes Shop. Dưới đây là thông tin tài khoản của bạn:\n"
                     + "\nMã OTP dành cho tài khoản " + request.getEmail() + " :"
                     + "\n\n" + otp
@@ -93,13 +92,9 @@ public class IAuthenticationService implements AuthenticationService {
             emailService.sendSimpleMail(emailDetails);
             //saveUserToken(savedUser, refreshToken);
             userRepository.save(user);
-            return ResponseEntity.ok(ApiResponse.builder()
-                    .statusCode(200)
-                    .message("OTP has been sent to your email. Please check your email!")
-                    .description("Successfully")
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
-        } catch (UnsupportedEncodingException | MessagingException exception) {
+            return ResponseEntity.ok("OTP has been sent to your email. Please check your email!");
+        }
+        catch (UnsupportedEncodingException | MessagingException exception){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                     .statusCode(403)
                     .message(String.valueOf(HttpStatus.FORBIDDEN))
@@ -116,84 +111,55 @@ public class IAuthenticationService implements AuthenticationService {
 
         // check if the current password is correct
         if (!passwordEncoder.matches(updatePasswordRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                    .statusCode(400)
-                    .message(String.valueOf(HttpStatus.FORBIDDEN))
-                    .description(INCORRECT_PASSWORD)
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
+            ResponseEntity.status(HttpStatusCode.valueOf(400)).body(INCORRECT_PASSWORD);
         }
         // check if new passwords are the same current password
         if (updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getPassword())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                    .statusCode(400)
-                    .message(String.valueOf(HttpStatus.FORBIDDEN))
-                    .description(NEW_PASSWORD_IS_SAME_CURRENT_PASSWORD)
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
+            ResponseEntity.status(HttpStatusCode.valueOf(400)).body(NEW_PASSWORD_IS_SAME_CURRENT_PASSWORD);
         }
 
         user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
         userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
-                .statusCode(200)
-                .message(String.valueOf(HttpStatus.OK))
-                .description("Password changed successfully!")
-                .timestamp(new Date(System.currentTimeMillis()))
-                .build());
+        return ResponseEntity.ok("Password has been changed successfully!");
     }
 
     @Override
     public ResponseEntity<?> validateLoginOTP(OtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail());
-        if (user.isPresent()) {
-            if (user.get().isEmailActive()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
-                        .statusCode(400)
-                        .message(String.valueOf(HttpStatus.BAD_REQUEST))
-                        .description("Invalid request!")
-                        .timestamp(new Date(System.currentTimeMillis()))
-                        .build());
-            } else {
-                if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
-                    clearOTP(user.get());
-                    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
-                            .statusCode(201)
-                            .message(String.valueOf(HttpStatus.CREATED))
-                            .description("Email has been active successfully! Please login!")
-                            .timestamp(new Date(System.currentTimeMillis()))
-                            .build());
-                } else
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                            .statusCode(403)
-                            .message(String.valueOf(HttpStatus.FORBIDDEN))
-                            .description(OTP_NOT_VALID)
-                            .timestamp(new Date(System.currentTimeMillis()))
-                            .build());
+        if (user.isPresent()){
+            if (user.get().isEmailActive()){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
             }
-        } else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
-                    .statusCode(404)
-                    .message(String.valueOf(HttpStatus.NOT_FOUND))
-                    .description(EMAIL_NOT_FOUND)
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
+            else {
+                if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())){
+                    clearOTP(user.get());
+                    return ResponseEntity.status(HttpStatus.CREATED).body("Email has been active successfully! Please login!");
+                }
+                else
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(OTP_NOT_VALID);
+            }
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(EMAIL_NOT_FOUND);
     }
 
     @Override
     public boolean validateChangePasswordOTP(OtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail());
-        if (user.isPresent()) {
-            if (user.get().getOneTimePassword().isEmpty()) {
+        if (user.isPresent()){
+            if (user.get().getOneTimePassword().isEmpty()){
                 return false;
-            } else {
-                if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
+            }
+            else {
+                if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())){
                     clearOTP(user.get());
                     return true;
-                } else
+                }
+                else
                     return false;
             }
-        } else
+        }
+        else
             return false;
     }
 
@@ -202,24 +168,15 @@ public class IAuthenticationService implements AuthenticationService {
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
 
         var user = userRepository.findByEmail(request.getEmail()).orElse(null);
-        if (user != null) {
+        if (user != null){
             if (!user.isEmailActive()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                        .statusCode(403)
-                        .message(String.valueOf(HttpStatus.FORBIDDEN))
-                        .description(INACTIVE_EMAIL)
-                        .timestamp(new Date(System.currentTimeMillis()))
-                        .build());
+                return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(INACTIVE_EMAIL);
             }
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
-                        .statusCode(404)
-                        .message(String.valueOf(HttpStatus.NOT_FOUND))
-                        .description(INCORRECT_PASSWORD_OR_EMAIL)
-                        .timestamp(new Date(System.currentTimeMillis()))
-                        .build());
-            } else {
-                var jwtToken = jwtService.generateToken(user, user);
+                return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(INCORRECT_PASSWORD_OR_EMAIL);
+            }
+            else{
+                var jwtToken = jwtService.generateToken(user);
                 var refreshToken = jwtService.generateRefreshToken(user);
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
@@ -227,13 +184,9 @@ public class IAuthenticationService implements AuthenticationService {
                         .build());
             }
 
-        } else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
-                    .statusCode(400)
-                    .message(String.valueOf(HttpStatus.NOT_FOUND))
-                    .description(INCORRECT_PASSWORD_OR_EMAIL)
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
+        }
+        else
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(INCORRECT_PASSWORD_OR_EMAIL);
 
         //revokeAllUserTokens(user);
         //saveUserToken(user, refreshToken);
@@ -267,7 +220,7 @@ public class IAuthenticationService implements AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userEmail;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);
@@ -276,7 +229,7 @@ public class IAuthenticationService implements AuthenticationService {
             var user = userRepository.findByEmail(userEmail)
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user, user);
+                var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
@@ -287,7 +240,6 @@ public class IAuthenticationService implements AuthenticationService {
             }
         }
     }
-
     public String generateOTP(User user)
             throws UnsupportedEncodingException, MessagingException {
         String numbers = "0123456789";

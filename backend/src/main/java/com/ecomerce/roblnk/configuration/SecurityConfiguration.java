@@ -38,7 +38,7 @@ public class SecurityConfiguration{
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationFilterExceptionHandler jwtAuthenticationFilterExceptionHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final LogoutService logoutService;
+    //private final LogoutService logoutService;
     @Bean
     public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception{
 
@@ -55,7 +55,6 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/api/v1/auth/register/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register"),
                             new AntPathRequestMatcher("/api/v1/category/**/products", "GET"),
-                            new AntPathRequestMatcher("/api/v1/category/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/product/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/auth/sendOTP"),
                             new AntPathRequestMatcher("/api/v1/auth/login"),
@@ -81,11 +80,7 @@ public class SecurityConfiguration{
                 .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
                         )
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .addLogoutHandler(logoutService )
-                        .logoutSuccessUrl("/api/v1/category")
-                        //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
-                )
+                        .deleteCookies("JSESSIONID"))
                         //.addLogoutHandler(logoutService)
                         //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
