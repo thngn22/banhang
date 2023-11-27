@@ -1,17 +1,24 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.category.VariationRequest;
+import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.CategoryService;
 import com.ecomerce.roblnk.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +28,21 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/{id}/products")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getAllProductInCategory(@PathVariable("id") Long id){
         var productDetail = productService.getAllProduct(id);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
+    @PostMapping("/{id}/products")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        var productDetail = productService.createProduct(id, request);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }
