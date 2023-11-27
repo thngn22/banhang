@@ -18,9 +18,12 @@ public interface UserMapper {
 
     PaymentMethod toPaymentEntity(UserPaymentRequest userPaymentRequest);
 
+    UserPaymentResponse toPaymentResponse(PaymentMethod paymentMethod);
+    List<UserPaymentResponse> toUserPaymentResponses(List<PaymentMethod> paymentMethods);
+
     List<UserAddressResponse> toListUserAddressResponse(List<UserAddress> userAddresses);
 
-    //@Mapping(source = "default", target = "default")
+    @Mapping(source = "default", target = "default")
     UserAddressResponse toUserAddressResponse(UserAddress userAddress);
     AddressDTO toUserAddressDTO(Address address);
 

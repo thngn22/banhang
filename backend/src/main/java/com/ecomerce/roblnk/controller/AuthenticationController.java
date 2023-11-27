@@ -44,7 +44,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(Arrays.stream(Objects.requireNonNull(bindingResult.getAllErrors().get(0).getCodes())).toList().get(3).split("\\."));
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
         return authenticationService.register(request);
     }

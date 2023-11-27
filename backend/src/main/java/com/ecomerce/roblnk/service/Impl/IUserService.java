@@ -84,7 +84,7 @@ public class IUserService implements UserService {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
             var userPayments = paymentMethodRepository.findAllByUser_Email(user.getEmail());
-            return ResponseEntity.ok(userPayments);
+            return ResponseEntity.ok(userMapper.toUserPaymentResponses(userPayments));
         }
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user!");

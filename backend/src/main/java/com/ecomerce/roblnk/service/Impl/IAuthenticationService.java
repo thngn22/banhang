@@ -91,7 +91,7 @@ public class IAuthenticationService implements AuthenticationService {
                     "Vũ Nguyễn Trung Khang");
             emailService.sendSimpleMail(emailDetails);
             //saveUserToken(savedUser, refreshToken);
-
+            userRepository.save(user);
             return ResponseEntity.ok("OTP has been sent to your email. Please check your email!");
         }
         catch (UnsupportedEncodingException | MessagingException exception){

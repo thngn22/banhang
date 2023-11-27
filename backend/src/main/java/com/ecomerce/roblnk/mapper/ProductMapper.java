@@ -28,5 +28,7 @@ public interface ProductMapper {
     @Mapping(source = "variationOption.value", target = "variationOption")
     ProductConfigurationDTO toProductConfigurationDTO(ProductConfiguration productConfiguration);
 
+    @Mapping(source = "categoryId", target = "category.id")
+    Product toProductEntity(ProductCreateRequest request);
 
 }

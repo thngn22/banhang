@@ -1,16 +1,14 @@
 package com.ecomerce.roblnk.dto.product;
 
+import com.ecomerce.roblnk.model.Category;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class RequestCreateProduct {
+public class ProductCreateRequest {
     private Long id;
     private String name;
     private String description;
     private String productImage;
-    private Long category;
-    private List<Integer> productItems;
+    private Long categoryId;
 
 }

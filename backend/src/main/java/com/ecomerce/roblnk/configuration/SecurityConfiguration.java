@@ -25,6 +25,8 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @Configuration
 @RequiredArgsConstructor
@@ -52,6 +54,8 @@ public class SecurityConfiguration{
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register"),
+                            new AntPathRequestMatcher("/api/v1/category/**/products", "GET"),
+                            new AntPathRequestMatcher("/api/v1/product/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/auth/sendOTP"),
                             new AntPathRequestMatcher("/api/v1/auth/login"),
                             new AntPathRequestMatcher("/swagger-ui/**"),
@@ -80,6 +84,7 @@ public class SecurityConfiguration{
                         //.addLogoutHandler(logoutService)
                         //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .build();
 
     }

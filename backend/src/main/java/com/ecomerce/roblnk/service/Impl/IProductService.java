@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.product.ProductDetailResponse;
+import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.dto.product.ProductResponse;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.model.Category;
@@ -9,6 +10,7 @@ import com.ecomerce.roblnk.repository.CategoryRepository;
 import com.ecomerce.roblnk.repository.ProductItemRepository;
 import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -80,7 +82,8 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public String createProduct(Long id) {
+    public String createProduct(Long id, @Valid ProductRequest request) {
+        var category = categoryRepository.findById(id);
         return null;
     }
 
