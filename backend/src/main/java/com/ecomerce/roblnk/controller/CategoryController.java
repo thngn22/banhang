@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.category.VariationRequest;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
@@ -42,16 +43,32 @@ public class CategoryController {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
-        var productDetail = productService.createProduct(id, request);
-        if (productDetail != null){
-            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        var productDetail = productService.createProductFromCategory(id, request);
+        if (productDetail.startsWith("Successfull")) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.CREATED))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else if (productDetail.startsWith("Thi")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                    .statusCode(403)
+                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    .statusCode(404)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
         }
-        else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 
     @GetMapping("/")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getAllTreeCategory(){
          var listCate = categoryService.getAllCategory();
         if (listCate != null){
