@@ -1,17 +1,25 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.category.VariationRequest;
+import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.CategoryService;
 import com.ecomerce.roblnk.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +29,6 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/{id}/products")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getAllProductInCategory(@PathVariable("id") Long id){
         var productDetail = productService.getAllProduct(id);
         if (productDetail != null){
@@ -30,9 +37,38 @@ public class CategoryController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
+    @PostMapping("/{id}/products")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        var productDetail = productService.createProductFromCategory(id, request);
+        if (productDetail.startsWith("Successfull")) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.CREATED))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else if (productDetail.startsWith("Thi")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                    .statusCode(403)
+                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    .statusCode(404)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        }
+    }
 
     @GetMapping("/")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getAllTreeCategory(){
          var listCate = categoryService.getAllCategory();
         if (listCate != null){

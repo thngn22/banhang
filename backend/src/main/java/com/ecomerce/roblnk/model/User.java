@@ -15,7 +15,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id

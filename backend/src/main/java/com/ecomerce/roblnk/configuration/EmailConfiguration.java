@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
@@ -36,7 +36,7 @@ public class EmailConfiguration {
     @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
     private String enable;
 
-    @Value("false")
+    //@Value("false")
     private String debug;
 
     @Bean

@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.security;
 
+import com.ecomerce.roblnk.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -50,9 +51,10 @@ public class JwtService {
                 .getBody();
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, User user) {
         Map<String, Object> claims = new HashMap<>(Map.of("role", userDetails.getAuthorities().stream().map(Object::toString).toList()));
         claims.put("token_type", "accessToken");
+        claims.put("id", user.getId());
         return buildToken(claims, userDetails, jwtExpiration);
     }
 

@@ -13,6 +13,7 @@ public class ProductItemDTO {
     private Double price;
     private Long quantityInStock;
     private String productImage;
+    private boolean active;
     private List<ProductConfigurationDTO> productConfigurations;
 
 }

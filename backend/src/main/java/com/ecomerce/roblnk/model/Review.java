@@ -11,7 +11,10 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "review")
 public class Review {
 

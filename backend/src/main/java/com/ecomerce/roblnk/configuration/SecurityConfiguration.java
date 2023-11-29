@@ -25,6 +25,8 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @Configuration
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class SecurityConfiguration{
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationFilterExceptionHandler jwtAuthenticationFilterExceptionHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    //private final LogoutService logoutService;
+    private final LogoutService logoutService;
     @Bean
     public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception{
 
@@ -52,6 +54,9 @@ public class SecurityConfiguration{
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register"),
+                            new AntPathRequestMatcher("/api/v1/category/**/products", "GET"),
+                            new AntPathRequestMatcher("/api/v1/category/**", "GET"),
+                            new AntPathRequestMatcher("/api/v1/product/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/auth/sendOTP"),
                             new AntPathRequestMatcher("/api/v1/auth/login"),
                             new AntPathRequestMatcher("/swagger-ui/**"),
@@ -76,10 +81,15 @@ public class SecurityConfiguration{
                 .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
                         )
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID"))
+                        .deleteCookies("JSESSIONID")
+                        .addLogoutHandler(logoutService )
+                        .logoutSuccessUrl("/api/v1/category")
+                        //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
+                )
                         //.addLogoutHandler(logoutService)
                         //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .build();
 
     }
