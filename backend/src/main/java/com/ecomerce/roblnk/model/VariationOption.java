@@ -1,16 +1,18 @@
 package com.ecomerce.roblnk.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.validator.constraints.UniqueElements;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "variation_option")
 public class VariationOption {
     @Id
@@ -22,11 +24,11 @@ public class VariationOption {
     private String value;
 
     //Variation
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "variation_id")
     private Variation variation;
 
     //Product Item
-    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ProductConfiguration> productConfigurations;
+    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

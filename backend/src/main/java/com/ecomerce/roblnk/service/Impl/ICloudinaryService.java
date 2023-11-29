@@ -21,6 +21,7 @@ public class ICloudinaryService implements CloudinaryService {
             options.put("folder", folderName);
             Map<?,?> uploadedFile = cloudinary.uploader().upload(file.getBytes(), options);
             String publicId = (String) uploadedFile.get("public_id");
+            String resourceType = (String) uploadedFile.get("resource_type");
             return uploadedFile;
 
         }catch (IOException | java.io.IOException e){

@@ -24,11 +24,16 @@ public interface ProductMapper {
     ProductItemDTO toProductItemDTO(ProductItem productItem);
 
     @Mapping(source = "productItem.id", target = "productItemId")
-    @Mapping(source = "variationOption.id", target = "variationOptionId")
     @Mapping(source = "variationOption.value", target = "variationOption")
+    @Mapping(source = "variationOption.variation.name", target = "variationName")
     ProductConfigurationDTO toProductConfigurationDTO(ProductConfiguration productConfiguration);
 
-    @Mapping(source = "categoryId", target = "category.id")
-    Product toProductEntity(ProductCreateRequest request);
+    Product toEntityProduct(ProductCreateRequest productCreateRequest);
+    ProductItem toProductItem(ProductItemRequest productItemRequest);
+    List<ProductItem> toProductItems(List<ProductItemRequest> productItemRequests);
 
-}
+    @Mapping(source = "variationName", target = "variationOption.variation.name")
+    ProductConfiguration toProductConfiguration (ProductConfigurationRequest productConfigurationRequest);
+
+
+ }

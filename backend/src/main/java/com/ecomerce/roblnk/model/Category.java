@@ -7,7 +7,10 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "category")
 public class Category {
 
@@ -21,7 +24,7 @@ public class Category {
 
 
     //Product
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Product> products;
 
@@ -31,7 +34,7 @@ public class Category {
 
 
     //Category
-    @OneToMany(mappedBy = "parentCategoryId")
+    @OneToMany(mappedBy = "parentCategoryId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Category> categories;
 
@@ -44,4 +47,9 @@ public class Category {
             inverseJoinColumns = @JoinColumn(name = "promotion_id")
     )
     private List<Promotion> promotions;
+
+    //Variation
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Variation> variations;
 }

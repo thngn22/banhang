@@ -10,5 +10,9 @@ public interface ProductService {
 
     ProductDetailResponse getDetailProduct(Long productId);
 
-    String createProduct(Long id, @Valid ProductRequest request);
+    String createProduct(@Valid ProductRequest request);
+
+    String createProductFromCategory(Long id, ProductRequest request);
+
+    String editProduct(ProductEditRequest productEditRequest);
 }

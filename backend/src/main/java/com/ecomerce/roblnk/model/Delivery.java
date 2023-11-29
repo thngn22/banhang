@@ -11,7 +11,10 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Delivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
