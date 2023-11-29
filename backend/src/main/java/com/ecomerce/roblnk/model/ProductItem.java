@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductItem {
 
     @Id
@@ -25,6 +29,8 @@ public class ProductItem {
     @Column(name = "product_image")
     private String productImage;
 
+    @Column(name = "is_active")
+    private boolean active;
 
     //Product
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -32,12 +38,12 @@ public class ProductItem {
     private Product product;
 
     //Cart Item
-    @OneToMany(mappedBy = "productItem")
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<CartItem> cartItems;
+    private List<CartItem> cartItems = new ArrayList<>();
 
     //Product Configuration
     @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
-    private List<ProductConfiguration> productConfigurations;
+    private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

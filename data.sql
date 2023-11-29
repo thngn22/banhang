@@ -115,7 +115,7 @@ CREATE TABLE `category` (
   PRIMARY KEY (`category_id`),
   KEY `FKs2ride9gvilxy2tcuv7witnxc` (`parent_category_id`),
   CONSTRAINT `FKs2ride9gvilxy2tcuv7witnxc` FOREIGN KEY (`parent_category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,7 +124,7 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (1,NULL,'Nam'),(2,NULL,'Nu');
+INSERT INTO `category` VALUES (1,NULL,'Nam'),(2,NULL,'Nu'),(3,1,'Nam1'),(4,1,'Nam2'),(5,2,'Nu1'),(6,3,'Nam1_1'),(7,4,'Nam2_1'),(8,3,'Nam1_2'),(9,5,'Nu1_1'),(10,8,'Nam1_2_1'),(11,8,'Nam1_2_2');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -269,7 +269,7 @@ CREATE TABLE `payment_method` (
   CONSTRAINT `FK9qgi86n91j5kxnymanelaa1ag` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKoq4hku62glsu292jk2x5dl4f8` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
   CONSTRAINT `payment_method_chk_1` CHECK ((`payment_type_enum` between 0 and 2))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -278,6 +278,7 @@ CREATE TABLE `payment_method` (
 
 LOCK TABLES `payment_method` WRITE;
 /*!40000 ALTER TABLE `payment_method` DISABLE KEYS */;
+INSERT INTO `payment_method` VALUES (1,0,NULL,2,'322','4556461','0445123384648','03/28','VU NGUYEN TRUNG KHANG','704894');
 /*!40000 ALTER TABLE `payment_method` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -297,7 +298,7 @@ CREATE TABLE `product` (
   PRIMARY KEY (`product_id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -306,6 +307,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
+INSERT INTO `product` VALUES (1,'giay the thao dark','giay the thao dark','lmao',6),(2,'giay the thao','giay the thao cho nam','dark',10),(3,'giay lmao','dep','burh',11);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -325,7 +327,7 @@ CREATE TABLE `product_configuration` (
   KEY `FKm5sgep9e3ot2covfpw9l3ml7s` (`variation_option_id`),
   CONSTRAINT `FKd9wo8k6srbadxvi3l87wfqnfx` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKm5sgep9e3ot2covfpw9l3ml7s` FOREIGN KEY (`variation_option_id`) REFERENCES `variation_option` (`variation_option_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -334,6 +336,7 @@ CREATE TABLE `product_configuration` (
 
 LOCK TABLES `product_configuration` WRITE;
 /*!40000 ALTER TABLE `product_configuration` DISABLE KEYS */;
+INSERT INTO `product_configuration` VALUES (1,1,1),(3,1,4),(4,2,1),(5,2,5);
 /*!40000 ALTER TABLE `product_configuration` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -348,12 +351,12 @@ CREATE TABLE `product_item` (
   `product_item_id` bigint NOT NULL AUTO_INCREMENT,
   `price` double DEFAULT NULL,
   `product_image` varchar(255) DEFAULT NULL,
-  `quantity_in_stock` bit(1) DEFAULT NULL,
+  `quantity_in_stock` bigint DEFAULT NULL,
   `product_id` bigint DEFAULT NULL,
   PRIMARY KEY (`product_item_id`),
   KEY `FKa9mjpi98ark8eovbtnnreygbb` (`product_id`),
   CONSTRAINT `FKa9mjpi98ark8eovbtnnreygbb` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -362,6 +365,7 @@ CREATE TABLE `product_item` (
 
 LOCK TABLES `product_item` WRITE;
 /*!40000 ALTER TABLE `product_item` DISABLE KEYS */;
+INSERT INTO `product_item` VALUES (1,30000,'LMAO',1,2),(2,40000,'dark',1,2);
 /*!40000 ALTER TABLE `product_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -587,7 +591,7 @@ CREATE TABLE `variation` (
   PRIMARY KEY (`variation_id`),
   KEY `FKcyhn1nd52sy3lm12vm62f5cmg` (`category_id`),
   CONSTRAINT `FKcyhn1nd52sy3lm12vm62f5cmg` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -596,7 +600,7 @@ CREATE TABLE `variation` (
 
 LOCK TABLES `variation` WRITE;
 /*!40000 ALTER TABLE `variation` DISABLE KEYS */;
-INSERT INTO `variation` VALUES (1,'Size',1),(2,'Color',1);
+INSERT INTO `variation` VALUES (1,'Size',10),(2,'Color',10),(5,'Size',11),(6,'Size',11);
 /*!40000 ALTER TABLE `variation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -614,7 +618,7 @@ CREATE TABLE `variation_option` (
   PRIMARY KEY (`variation_option_id`),
   KEY `FKlfkypq92cr21b9mtc7mihks1e` (`variation_id`),
   CONSTRAINT `FKlfkypq92cr21b9mtc7mihks1e` FOREIGN KEY (`variation_id`) REFERENCES `variation` (`variation_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -623,12 +627,9 @@ CREATE TABLE `variation_option` (
 
 LOCK TABLES `variation_option` WRITE;
 /*!40000 ALTER TABLE `variation_option` DISABLE KEYS */;
+INSERT INTO `variation_option` VALUES (1,'39',1),(2,'40',1),(3,'41',1),(4,'RED',2),(5,'BLUE',2),(6,'black',2);
 /*!40000 ALTER TABLE `variation_option` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'e_commerce_shoes'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -639,4 +640,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-25 18:09:35
+-- Dump completed on 2023-11-28 10:00:39

@@ -78,13 +78,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
         logoutService.logout(request, response, authentication);
         return ResponseEntity.ok("Log out successfully!");
-    }
-    @PostMapping
-    public ResponseEntity<Map<?,?>> uploadImage(@RequestParam("image") MultipartFile file){
-        Map<?,?> data = cloudinaryService.uploadFile(file, "Product");
-        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

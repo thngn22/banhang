@@ -10,7 +10,10 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "order_item")
 public class OrderItem {
 

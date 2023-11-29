@@ -2,15 +2,16 @@ package com.ecomerce.roblnk.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Variation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,7 @@ public class Variation {
     private Category category;
 
     //Variation Option
-    @OneToMany(mappedBy = "variation")
+    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
-    private List<VariationOption> variationOptions;
+    private List<VariationOption> variationOptions = new ArrayList<>();
 }

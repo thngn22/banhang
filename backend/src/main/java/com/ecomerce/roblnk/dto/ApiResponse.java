@@ -1,14 +1,14 @@
-package com.ecomerce.roblnk.exception;
+package com.ecomerce.roblnk.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @Builder
-public class ErrorResponse implements Serializable {
+public class ApiResponse {
     private int statusCode;
     private String message;
     private String description;
