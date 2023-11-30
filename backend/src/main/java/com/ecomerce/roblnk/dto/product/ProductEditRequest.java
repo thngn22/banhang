@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ProductEditRequest {
     private ProductDTO productDTO;
-    private List<ProductItemDTO> productItems;
+    private List<ProductItemDTOv2> productItems;
 }

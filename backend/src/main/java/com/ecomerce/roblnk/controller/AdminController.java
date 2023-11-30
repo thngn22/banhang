@@ -37,7 +37,7 @@ public class AdminController {
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build());
     }
-    @GetMapping({"/", ""})
+    @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getListUser(){
         var list =  userService.getAllUsers();

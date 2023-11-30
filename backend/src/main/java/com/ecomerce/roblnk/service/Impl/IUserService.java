@@ -167,10 +167,12 @@ public class IUserService implements UserService {
         if (user.isPresent()){
             if (user.get().isActive()){
                 user.get().setActive(false);
+                userRepository.save(user.get());
                 return ResponseEntity.status(HttpStatus.ACCEPTED).body("Deactive user successfully!");
             }
             else {
                 user.get().setActive(true);
+                userRepository.save(user.get());
                 return ResponseEntity.status(HttpStatus.ACCEPTED).body("Active user successfully!");
             }
         }

@@ -49,7 +49,7 @@ public class ProductItem {
     private Date modifiedDate;
 
     //Product
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -59,7 +59,7 @@ public class ProductItem {
     private List<CartItem> cartItems;
 
     //Product Configuration
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
     private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

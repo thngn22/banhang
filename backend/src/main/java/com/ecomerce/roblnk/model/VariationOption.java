@@ -29,6 +29,6 @@ public class VariationOption {
     private Variation variation;
 
     //Product Item
-    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

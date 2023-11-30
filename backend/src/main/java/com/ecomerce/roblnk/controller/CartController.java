@@ -18,17 +18,18 @@ public class CartController {
     private final CartService cartService;
     private final UserService userService;
 
-    @GetMapping({"/", ""})
+    @GetMapping("/")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getCart(Principal principal) {
         return cartService.getUserCart(principal);
     }
 
-    @PostMapping({"/", ""})
+    @PostMapping("/")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> editCart(Principal principal, @RequestBody @Valid CartEditRequest editRequestCart) {
         return cartService.editUserCart(principal, editRequestCart);
     }
+
 
 
 }

@@ -103,7 +103,7 @@ public class IProductService implements ProductService {
                         boolean flag = false;
                         var variationName = "";
                         Long variationId = 0L;
-                        name = " " + pro.getVariationName() + " " +  pro.getVariationOption();
+                        name = " " + pro.getVariationName() + " " + pro.getVariationOption();
                         loop:
                         {
                             for (Variation variation : variations) {
@@ -136,44 +136,40 @@ public class IProductService implements ProductService {
                             if (miniFlag) {
                                 System.out.println(variationOptionValue);
                                 var variationOption = variationOptionRepository.findById(variationOptionId).orElseThrow();
-                                ProductConfiguration productConfiguration = new ProductConfiguration();
-                                productConfiguration.setVariationOption(variationOption);
-                                productConfiguration.setProductItem(productItem);
-                                variationOption.getProductConfigurations().add(productConfiguration);
-                                productConfigurations.add(productConfiguration);
+
+                                ProductConfiguration productConfiguration1 = new ProductConfiguration();
+                                productConfiguration1.setVariationOption(variationOption);
+                                productConfiguration1.setProductItem(productItem);
+                                productConfigurations.add(productConfiguration1);
+
+
                             } else {
                                 System.out.println(variationOptionValue);
                                 System.out.println("tao moi voi variationId: " + variationId);
                                 //tao variation option moi
                                 var variationParent = variationRepository.findById(variationId).orElseThrow();
                                 VariationOption variationOption = new VariationOption();
+                                ProductConfiguration productConfiguration = new ProductConfiguration();
                                 variationOption.setVariation(variationParent);
                                 variationOption.setValue(pro.getVariationOption());
-                                variationOptionRepository.save(variationOption);
-                                ProductConfiguration productConfiguration = new ProductConfiguration();
-                                productConfiguration.setVariationOption(variationOption);
                                 productConfiguration.setProductItem(productItem);
+                                productConfiguration.setVariationOption(variationOption);
                                 productConfigurations.add(productConfiguration);
-                                variationOption.setProductConfigurations(productConfigurations);
                                 variationOptions.add(variationOption);
                             }
                         } else {
                             //Tao variation moi
                             Variation variation = new Variation();
+                            VariationOption variationOption = new VariationOption();
+                            ProductConfiguration productConfiguration = new ProductConfiguration();
                             variation.setCategory(category.get());
                             variation.setName(pro.getVariationName());
-                            variationRepository.save(variation);
-                            VariationOption variationOption = new VariationOption();
                             variationOption.setValue(pro.getVariationOption());
                             variationOption.setVariation(variation);
-                            variationOptionRepository.save(variationOption);
-                            ProductConfiguration productConfiguration = new ProductConfiguration();
                             productConfiguration.setVariationOption(variationOption);
                             productConfiguration.setProductItem(productItem);
                             productConfigurations.add(productConfiguration);
-                            variationOption.setProductConfigurations(productConfigurations);
                             variationOptions.add(variationOption);
-                            variation.setVariationOptions(variationOptions);
                             variationList.add(variation);
                         }
 
@@ -182,19 +178,43 @@ public class IProductService implements ProductService {
                     productItem.setName(request.getProductCreateRequest().getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
                     productItem.setProduct(product);
-                    productItem.setProductImage(getURLPictureAndUploadToCloudinary(productItem.getProductImage()));
+                    productItem.setProductImage(getURLPictureAndUploadToCloudinary(productItem.getProductImage()) != null ?
+                            getURLPictureAndUploadToCloudinary(productItem.getProductImage()) : ImageUtil.urlImage);
                     productItem.setActive(true);
                     productItem.setCreatedDate(new Date(System.currentTimeMillis()));
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
-                    productItemRepository.save(productItem);
-                    variationRepository.saveAll(variationList);
-                    variationOptionRepository.saveAll(variationOptions);
-                    productConfigurationRepository.saveAll(productConfigurations);
+                    var productConfigs = productItem.getProductConfigurations();
+                    System.out.println("Size: " + productConfigs.size() + ", size productConfiguration: " + productConfigurations.size());
+                    System.out.println("Value: " + productConfigs.get(0).getVariationOption().getValue() + ", value productConfiguration: " + productConfigurations.get(0).getVariationOption().getValue());
+                    System.out.println("Value: " + productConfigs.get(1).getVariationOption().getValue() + ", value productConfiguration: " + productConfigurations.get(1).getVariationOption().getValue());
+                    System.out.println("Name: " + productConfigs.get(0).getVariationOption().getVariation().getName() + ", name productConfiguration: " + productConfigurations.get(0).getVariationOption().getVariation().getName());
+                    System.out.println("Name: " + productConfigs.get(1).getVariationOption().getVariation().getName() + ", name productConfiguration: " + productConfigurations.get(1).getVariationOption().getVariation().getName());
+
+                    System.out.println(variationList.size());
+                    System.out.println(variationOptions.size());
+                    System.out.println(productConfigurations.size());
+
+                    if (!variationList.isEmpty()) {
+                        productItemRepository.save(productItem);
+                        variationRepository.saveAll(variationList);
+                        variationOptionRepository.saveAll(variationOptions);
+                        productConfigurationRepository.saveAll(productConfigurations);
+                    } else if (!variationOptions.isEmpty()) {
+                        productItemRepository.save(productItem);
+                        variationOptionRepository.saveAll(variationOptions);
+                        productConfigurationRepository.saveAll(productConfigurations);
+                    } else {
+                        productItemRepository.save(productItem);
+                        productConfigurationRepository.saveAll(productConfigurations);
+                    }
+
 
                     productItems.add(productItem);
                 }
 
+                product.setName(request.getProductCreateRequest().getName());
                 product.setProductItems(productItems);
+                product.setDescription(request.getProductCreateRequest().getDescription());
                 product.setCategory(category.get());
                 product.setProductImage(ImageUtil.urlImage);
                 product.setCreatedDate(new Date(System.currentTimeMillis()));
@@ -227,9 +247,9 @@ public class IProductService implements ProductService {
             if (cateList.isEmpty()) {
                 var product = productRepository.findById(productEditRequest.getProductDTO().getId()).orElseThrow();
                 List<ProductItem> productItems = new ArrayList<>();
-                List<ProductItemDTO> productItemRequests = productEditRequest.getProductItems();
+                List<ProductItemDTOv2> productItemRequests = productEditRequest.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(productEditRequest.getProductDTO().getCategoryId());
-                for (ProductItemDTO p : productItemRequests) {
+                for (ProductItemDTOv2 p : productItemRequests) {
                     var productItem = productItemRepository.findById(p.getId()).orElse(new ProductItem());
                     List<ProductConfiguration> productConfigurations = new ArrayList<>();
                     List<Variation> variationList = new ArrayList<>();
@@ -240,7 +260,7 @@ public class IProductService implements ProductService {
                         boolean flag = false;
                         var variationName = "";
                         Long variationId = 0L;
-                        name = " " + pro.getVariationName() + " " +  pro.getVariationOption();
+                        name = " " + pro.getVariationName() + " " + pro.getVariationOption();
                         loop:
                         {
                             for (Variation variation : variations) {
@@ -281,8 +301,7 @@ public class IProductService implements ProductService {
                                     productConfiguration1.setVariationOption(variationOption);
                                     productConfiguration1.setProductItem(productItem);
                                     productConfigurations.add(productConfiguration1);
-                                }
-                                else {
+                                } else {
                                     productConfigurations.add(productConfiguration.get());
                                     variationOption.getProductConfigurations().add(productConfiguration.get());
                                 }
@@ -297,31 +316,25 @@ public class IProductService implements ProductService {
                                 ProductConfiguration productConfiguration = new ProductConfiguration();
                                 variationOption.setVariation(variationParent);
                                 variationOption.setValue(pro.getVariationOption());
-                                //variationOptionRepository.save(variationOption);
                                 productConfiguration.setProductItem(productItem);
                                 productConfiguration.setVariationOption(variationOption);
                                 productConfigurations.add(productConfiguration);
                                 variationOptions.add(variationOption);
-                                variationParent.getVariationOptions().add(variationOption);
 
                             }
                         } else {
                             //Tao variation moi
                             Variation variation = new Variation();
+                            VariationOption variationOption = new VariationOption();
+                            ProductConfiguration productConfiguration = new ProductConfiguration();
                             variation.setCategory(category.get());
                             variation.setName(pro.getVariationName());
-                            variationRepository.save(variation);
-                            VariationOption variationOption = new VariationOption();
                             variationOption.setValue(pro.getVariationOption());
                             variationOption.setVariation(variation);
-                            variationOptionRepository.save(variationOption);
-                            ProductConfiguration productConfiguration = new ProductConfiguration();
                             productConfiguration.setVariationOption(variationOption);
                             productConfiguration.setProductItem(productItem);
                             productConfigurations.add(productConfiguration);
-                            variationOption.setProductConfigurations(productConfigurations);
                             variationOptions.add(variationOption);
-                            variation.setVariationOptions(variationOptions);
                             variationList.add(variation);
                         }
 
@@ -329,27 +342,30 @@ public class IProductService implements ProductService {
                     category.get().getVariations().addAll(variationList);
                     productItem.setName(productEditRequest.getProductDTO().getName() + name);
                     productItem.setProduct(product);
-                    productItem.setProductImage(productItem.getProductImage() == null ? getURLPictureAndUploadToCloudinary(p.getProductImage()) : productItem.getProductImage());
+                    productItem.setProductImage(getURLPictureAndUploadToCloudinary(p.getProductImage()) != null ?
+                            getURLPictureAndUploadToCloudinary(p.getProductImage()) : ImageUtil.urlImage);
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());
                     productItem.setQuantityInStock(p.getQuantityInStock());
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     List<ProductConfiguration> p2 = new ArrayList<>();
                     var productConfigs = productItem.getProductConfigurations();
-                    var list = new ArrayList<>();
                     System.out.println("Size: " + productConfigs.size());
                     while (!productConfigs.isEmpty()) {
                         var pad = productConfigs.get(0);
                         System.out.println("value: pad" + pad.getVariationOption().getValue());
                         boolean flag = false;
-                        long productConfigId = 0L;
-                        var value = "";
 
                         for (ProductConfiguration pad1 : productConfigurations) {
                             if (pad.getVariationOption().getValue().equals(pad1.getVariationOption().getValue())) {
                                 flag = true;
                                 System.out.println("value: pad to change" + pad.getVariationOption().getValue());
                                 System.out.println(pad.getVariationOption().getValue());
+                                var variation = pad.getVariationOption();
+                                variation.getProductConfigurations().add(pad);
+                                pad.setVariationOption(pad1.getVariationOption());
+                                System.out.println(pad.getVariationOption().getValue());
+                                p2.add(pad);
                             }
                         }
 
@@ -373,16 +389,21 @@ public class IProductService implements ProductService {
                         }
                         productConfigs.remove(0);
                     }
+                    System.out.println(variationList.size());
                     System.out.println(variations.size());
-                    if (!variationOptions.isEmpty()){
+                    System.out.println(p2.size());
+
+                    if (!variationList.isEmpty()) {
                         variationOptionRepository.saveAll(variationOptions);
                         productItemRepository.save(productItem);
                         variationRepository.saveAll(variationList);
                         productConfigurationRepository.saveAll(p2);
-                    }else {
-                        productItemRepository.save(productItem);
-                        variationRepository.saveAll(variationList);
+                    } else if (!variationOptions.isEmpty()) {
                         variationOptionRepository.saveAll(variationOptions);
+                        productItemRepository.save(productItem);
+                        productConfigurationRepository.saveAll(p2);
+                    } else {
+                        productItemRepository.save(productItem);
                         productConfigurationRepository.saveAll(p2);
                     }
 
@@ -390,9 +411,11 @@ public class IProductService implements ProductService {
                 }
 
                 product.setProductItems(productItems);
+                product.setDescription(productEditRequest.getProductDTO().getDescription());
                 product.setName(productEditRequest.getProductDTO().getName());
                 product.setCategory(category.get());
-                product.setProductImage(ImageUtil.urlImage);
+                product.setProductImage(getURLPictureAndUploadToCloudinary(productEditRequest.getProductDTO().getProductImage()) != null ?
+                        getURLPictureAndUploadToCloudinary(productEditRequest.getProductDTO().getProductImage()) : ImageUtil.urlImage);
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 productRepository.save(product);
                 categoryRepository.save(category.get());
@@ -408,16 +431,16 @@ public class IProductService implements ProductService {
     public String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest) {
         var product = productRepository.findById(productDeleteRequest.getId()).orElseThrow();
         var category = categoryRepository.findById(productDeleteRequest.getCategoryId());
-        if (category.isEmpty()){
+        if (category.isEmpty()) {
             return "Not found any category to delete product. Please create category first!";
         }
         var productItems = product.getProductItems();
         List<ProductItem> productItemList = new ArrayList<>();
-        for (ProductItem productItem : productItems){
+        for (ProductItem productItem : productItems) {
             loop:
             {
-                for (Long id : productDeleteRequest.getListProductItemId()){
-                    if (productItem.getId().equals(id)){
+                for (Long id : productDeleteRequest.getListProductItemId()) {
+                    if (productItem.getId().equals(id)) {
                         productItem.setActive(false);
                         productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                         productItemList.add(productItem);
@@ -438,16 +461,21 @@ public class IProductService implements ProductService {
     }
 
     public String getURLPictureAndUploadToCloudinary(String base64Content) {
-        byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
-        MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
-        Tika tika = new Tika();
-        String mimetype = tika.detect(fileBytes);
-        if (mimetype.contains("image")) {
-            Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Product");
-            return (String) map.get("secure_url");
+        try {
+            byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
+            MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
+            Tika tika = new Tika();
+            String mimetype = tika.detect(fileBytes);
+            if (mimetype.contains("image")) {
+                Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Product");
+                return (String) map.get("secure_url");
 
-        } else
-            return ImageUtil.urlImage;
+            } else
+                return ImageUtil.urlImage;
+        } catch (Exception exception) {
+            return null;
+        }
+
     }
 
 }

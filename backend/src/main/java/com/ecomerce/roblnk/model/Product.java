@@ -53,7 +53,7 @@ public class Product {
     private List<Review> reviews;
 
     //Product Item
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<ProductItem> productItems;
 
