@@ -34,10 +34,10 @@ public class IUserService implements UserService {
     private final AddressRepository addressRepository;
 
     @Override
-    public UserResponse findUserById(Long userId) {
+    public UserDetailResponse getDetailUser(Long userId) {
         var user = userRepository.findById(userId).orElseThrow(() ->
                 new UsernameNotFoundException("User not found with ID: " + userId));
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserDetailResponse(user);
     }
 
     @Override

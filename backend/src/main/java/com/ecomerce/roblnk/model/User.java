@@ -24,14 +24,13 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String userName;
     private String email;
     private String password;
     private String firstName;
     private String lastName;
     private String phone;
-    private LocalDate dob;
+    private Date dob;
     private String gender;
     private boolean isEmailActive;
     private boolean isPhoneActive;
@@ -65,9 +64,9 @@ public class User implements UserDetails {
     private List<UserAddress> addresses;
 
     //Cart
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<Cart> cart;
+    private Cart cart;
 
     //Payment Method
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)

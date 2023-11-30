@@ -49,7 +49,7 @@ public class Orders {
     private Address address;
 
     //Payment Method
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<PaymentMethod> paymentMethods;
 

@@ -1,10 +1,14 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -29,6 +33,15 @@ public class Product {
     @Column(name = "product_image")
     private String productImage;
 
+    @Column(name = "created_date")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createdDate;
+
+    @Column(name = "modified_date")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifiedDate;
     //Category
     @ManyToOne
     @JoinColumn(name = "category_id")

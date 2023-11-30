@@ -15,4 +15,6 @@ public interface ProductService {
     String createProductFromCategory(Long id, ProductRequest request);
 
     String editProduct(ProductEditRequest productEditRequest);
+
+    String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest);
 }

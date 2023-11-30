@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.product.ProductDeleteRequest;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.dto.product.ProductEditRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
@@ -32,11 +33,11 @@ public class ProductController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> creatProduct(@RequestBody @Valid ProductRequest requestCreateProduct) {
+    public ResponseEntity<?> createProduct(@RequestBody @Valid ProductRequest requestCreateProduct) {
         var productDetail = productService.createProduct(requestCreateProduct);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
-                    .statusCode(200)
+                    .statusCode(201)
                     .message(String.valueOf(HttpStatus.CREATED))
                     .description(productDetail)
                     .timestamp(new Date(System.currentTimeMillis()))
@@ -64,7 +65,7 @@ public class ProductController {
         var productDetail = productService.editProduct(productEditRequest);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
-                    .statusCode(200)
+                    .statusCode(201)
                     .message(String.valueOf(HttpStatus.CREATED))
                     .description(productDetail)
                     .timestamp(new Date(System.currentTimeMillis()))
@@ -85,6 +86,28 @@ public class ProductController {
                     .build());
         }
     }
+
+    @DeleteMapping("/")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> deleteProduct(@RequestBody @Valid ProductDeleteRequest productDeleteRequest) {
+        var productDetail = productService.deleteProduct(productDeleteRequest);
+        if (productDetail.startsWith("Successfully")) {
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.OK))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    .statusCode(404)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description(productDetail)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        }
+    }
+
 }
 
 

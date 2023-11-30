@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ProductConfigurationRepository extends JpaRepository<ProductConfiguration, Long> {
-    Optional<ProductConfiguration> findAllByProductItem_IdAndVariationOption_Id(Long productItem_id, Long variationOption_id);
+    Optional<ProductConfiguration> findProductConfigurationByProductItem_IdAndVariationOption_Id(Long productItem_id, Long variationOption_id);
 }
