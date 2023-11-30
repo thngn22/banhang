@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.dto.product.*;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface ProductService {
     String editProduct(ProductEditRequest productEditRequest);
 
     String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest);
+
+    List<ProductResponse> getAllProductV2();
 }

@@ -431,6 +431,12 @@ public class IProductService implements ProductService {
         return "Successfully delete product";
     }
 
+    @Override
+    public List<ProductResponse> getAllProductV2() {
+        var products = productRepository.findAll();
+        return productMapper.toProductResponseList(products);
+    }
+
     public String getURLPictureAndUploadToCloudinary(String base64Content) {
         byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
         MultipartFile multipartFile = new ByteMultipartFile(fileBytes);

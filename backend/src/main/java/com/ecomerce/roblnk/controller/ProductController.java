@@ -30,6 +30,14 @@ public class ProductController {
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
+    @GetMapping("/")
+    public ResponseEntity<?> getAllProduct() {
+        var productDetail = productService.getAllProductV2();
+        if (productDetail != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        } else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")

@@ -295,10 +295,12 @@ CREATE TABLE `product` (
   `name` varchar(255) DEFAULT NULL,
   `product_image` varchar(255) DEFAULT NULL,
   `category_id` bigint DEFAULT NULL,
+  `created_date` datetime(6) DEFAULT NULL,
+  `modified_date` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`product_id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -307,7 +309,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (1,'giay the thao dark','giay the thao dark','lmao',6),(2,'giay the thao','giay the thao cho nam','dark',10),(3,'giay lmao','dep','burh',11);
+INSERT INTO `product` VALUES (1,'giay the thao dark','giay the thao dark','lmao',6,'2023-11-30 04:46:46.000000','2023-11-30 04:46:48.000000'),(2,'giay the thao','giay the thao cho nam','dark',10,'2023-11-30 04:46:51.000000','2023-11-30 04:46:55.000000'),(3,'giay lmao','dep','burh',11,'2023-11-30 04:46:55.000000','2023-11-30 04:46:57.000000'),(10,'giay nay dat lam','giay the thao','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-11-30 04:47:00.000000','2023-11-30 04:46:58.000000'),(11,'giay nay dat lam','giay the thao','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-11-30 04:46:59.000000','2023-11-30 04:47:01.000000');
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -327,7 +329,7 @@ CREATE TABLE `product_configuration` (
   KEY `FKm5sgep9e3ot2covfpw9l3ml7s` (`variation_option_id`),
   CONSTRAINT `FKd9wo8k6srbadxvi3l87wfqnfx` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKm5sgep9e3ot2covfpw9l3ml7s` FOREIGN KEY (`variation_option_id`) REFERENCES `variation_option` (`variation_option_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=409 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -336,7 +338,7 @@ CREATE TABLE `product_configuration` (
 
 LOCK TABLES `product_configuration` WRITE;
 /*!40000 ALTER TABLE `product_configuration` DISABLE KEYS */;
-INSERT INTO `product_configuration` VALUES (1,1,1),(3,1,4),(4,2,1),(5,2,5);
+INSERT INTO `product_configuration` VALUES (1,1,1),(3,1,4),(4,2,1),(5,2,5),(170,73,36),(171,73,5),(172,74,2),(173,74,4),(174,75,37),(175,75,6),(176,76,38),(177,76,4),(377,72,91),(378,72,92),(399,77,1),(400,77,4),(401,78,36),(402,78,5),(403,79,2),(404,79,4),(405,80,37),(406,80,6),(407,81,38),(408,81,4);
 /*!40000 ALTER TABLE `product_configuration` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -353,10 +355,14 @@ CREATE TABLE `product_item` (
   `product_image` varchar(255) DEFAULT NULL,
   `quantity_in_stock` bigint DEFAULT NULL,
   `product_id` bigint DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
+  `created_date` datetime(6) DEFAULT NULL,
+  `modified_date` datetime(6) DEFAULT NULL,
+  `product_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`product_item_id`),
   KEY `FKa9mjpi98ark8eovbtnnreygbb` (`product_id`),
   CONSTRAINT `FKa9mjpi98ark8eovbtnnreygbb` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -365,7 +371,7 @@ CREATE TABLE `product_item` (
 
 LOCK TABLES `product_item` WRITE;
 /*!40000 ALTER TABLE `product_item` DISABLE KEYS */;
-INSERT INTO `product_item` VALUES (1,30000,'LMAO',1,2),(2,40000,'dark',1,2);
+INSERT INTO `product_item` VALUES (1,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',1,2,_binary '','2023-11-30 04:39:46.000000','2023-11-30 04:39:50.000000',NULL),(2,40000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',1,2,_binary '','2023-11-30 04:39:49.000000','2023-11-30 04:39:51.000000',NULL),(72,20000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',18,10,_binary '','2023-11-30 04:39:53.000000','2023-11-30 04:39:52.000000',NULL),(73,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,10,_binary '','2023-11-30 04:39:54.000000','2023-11-30 04:39:54.000000',NULL),(74,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:39:57.000000','2023-11-30 04:40:00.000000',NULL),(75,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:39:58.000000','2023-11-30 04:40:00.000000',NULL),(76,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:40:02.000000','2023-11-30 04:40:01.000000',NULL),(77,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '','2023-11-30 04:40:10.000000','2023-11-30 04:40:03.000000',NULL),(78,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,11,_binary '\0','2023-11-30 04:40:17.000000','2023-11-30 04:40:11.000000',NULL),(79,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:28.000000','2023-11-30 04:40:13.000000',NULL),(80,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:27.000000','2023-11-30 04:40:29.000000',NULL),(81,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:31.000000','2023-11-30 04:40:30.000000',NULL);
 /*!40000 ALTER TABLE `product_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -501,7 +507,7 @@ CREATE TABLE `user` (
   `password` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `user_name` varchar(255) DEFAULT NULL,
-  `dob` date DEFAULT NULL,
+  `dob` datetime(6) DEFAULT NULL,
   `gender` varchar(255) DEFAULT NULL,
   `one_time_password` varchar(255) DEFAULT NULL,
   `otp_requested_time` datetime(6) DEFAULT NULL,
@@ -516,7 +522,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,NULL,NULL,'admin@gmail.com','Admin',_binary '\0',_binary '\0','test','$2a$10$PSSO4Sbb/PZKRhj8biloTunv4nfzbfBc8nW2xIbW8fE7.ea6nbcnC',NULL,'admin123',NULL,NULL,NULL,NULL,_binary ''),(2,NULL,NULL,'admin1@gmail.com','Admin',_binary '',_binary '\0','test','$2a$10$hpSUohELIeNRmfsDpgr.pO4FsEF1y8bwqop83q/TRlNmm1qTNFwXG',NULL,'admin123',NULL,NULL,NULL,NULL,_binary ''),(5,NULL,NULL,'trungkhangsteve@gmail.com','User',_binary '',_binary '\0','test','$2a$10$9OIF.7GKOaXpNc4Q/RLc3eEGnNZ82AenT5303byT96ks4pdHXpi6i',NULL,'yser',NULL,NULL,NULL,NULL,_binary '');
+INSERT INTO `user` VALUES (1,NULL,'2023-11-30 05:10:21.000000','admin@gmail.com','Admin',_binary '\0',_binary '\0','test','$2a$10$PSSO4Sbb/PZKRhj8biloTunv4nfzbfBc8nW2xIbW8fE7.ea6nbcnC','0123456789','admin123','2023-11-30 00:00:00.000000','Nam',NULL,NULL,_binary ''),(2,NULL,'2023-11-30 05:10:17.000000','admin1@gmail.com','Admin',_binary '',_binary '\0','test','$2a$10$hpSUohELIeNRmfsDpgr.pO4FsEF1y8bwqop83q/TRlNmm1qTNFwXG','0216495242','admin123','2023-11-03 00:00:00.000000','Nam',NULL,NULL,_binary ''),(5,NULL,'2023-11-30 05:10:20.000000','trungkhangsteve@gmail.com','User',_binary '',_binary '\0','test','$2a$10$9OIF.7GKOaXpNc4Q/RLc3eEGnNZ82AenT5303byT96ks4pdHXpi6i','0245348648','yser','2023-11-08 00:00:00.000000','Nu',NULL,NULL,_binary '');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -600,7 +606,7 @@ CREATE TABLE `variation` (
 
 LOCK TABLES `variation` WRITE;
 /*!40000 ALTER TABLE `variation` DISABLE KEYS */;
-INSERT INTO `variation` VALUES (1,'Size',10),(2,'Color',10),(5,'Size',11),(6,'Size',11);
+INSERT INTO `variation` VALUES (1,'Size',10),(2,'Color',10),(5,'Size',11),(6,'Color',11);
 /*!40000 ALTER TABLE `variation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -618,7 +624,7 @@ CREATE TABLE `variation_option` (
   PRIMARY KEY (`variation_option_id`),
   KEY `FKlfkypq92cr21b9mtc7mihks1e` (`variation_id`),
   CONSTRAINT `FKlfkypq92cr21b9mtc7mihks1e` FOREIGN KEY (`variation_id`) REFERENCES `variation` (`variation_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -627,9 +633,13 @@ CREATE TABLE `variation_option` (
 
 LOCK TABLES `variation_option` WRITE;
 /*!40000 ALTER TABLE `variation_option` DISABLE KEYS */;
-INSERT INTO `variation_option` VALUES (1,'39',1),(2,'40',1),(3,'41',1),(4,'RED',2),(5,'BLUE',2),(6,'black',2);
+INSERT INTO `variation_option` VALUES (1,'39',1),(2,'40',1),(3,'41',1),(4,'RED',2),(5,'BLUE',2),(6,'black',2),(36,'48',1),(37,'38',1),(38,'35',1),(39,'Pink',2),(68,'43',1),(70,'Yellow',2),(71,'50',1),(72,'51',1),(73,'37',1),(74,'36',1),(75,'42',1),(76,'Purple',2),(77,'49',1),(78,'Brown',2),(81,'52',1),(82,'White',2),(83,'55',1),(84,'Grey',2),(85,'44',1),(86,'Black',2),(87,'53',1),(88,'Orange',2),(89,'54',1),(90,'Cyan',2),(91,'56',1),(92,'Smoke',2);
 /*!40000 ALTER TABLE `variation_option` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'e_commerce_shoes'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -640,4 +650,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-28 10:00:39
+-- Dump completed on 2023-11-30  8:56:01
