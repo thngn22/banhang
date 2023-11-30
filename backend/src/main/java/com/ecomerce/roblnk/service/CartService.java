@@ -1,12 +1,14 @@
 package com.ecomerce.roblnk.service;
 
-import com.ecomerce.roblnk.exception.ProductException;
-import com.ecomerce.roblnk.model.Cart;
-import com.ecomerce.roblnk.model.User;
-import com.ecomerce.roblnk.dto.product.AddItemRequest;
+import com.ecomerce.roblnk.dto.cart.CartEditRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+
+import java.security.Principal;
 
 public interface CartService {
-    Cart createCart(User user);
-    String addCartItem(Long userId, AddItemRequest request) throws ProductException;
-    Cart findUserCart(Long userId);
+
+    ResponseEntity<?> getUserCart(Principal principal);
+
+    ResponseEntity<?> editUserCart(Principal principal, @Valid CartEditRequest editCartRequest);
 }

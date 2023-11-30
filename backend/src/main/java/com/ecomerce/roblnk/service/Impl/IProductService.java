@@ -15,9 +15,7 @@ import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +66,7 @@ public class IProductService implements ProductService {
         for (int i = 0; i < productResponseList.size(); i++) {
             productResponseList.get(i).setQuantity(list.get(i));
         }
+        productResponseList.sort((d1, d2) -> d2.getModifiedDate().compareTo(d1.getModifiedDate()));
         return productResponseList;
     }
 
@@ -93,28 +92,30 @@ public class IProductService implements ProductService {
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemRequest> productItemRequests = request.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(request.getProductCreateRequest().getCategoryId());
-                for (ProductItemRequest p : productItemRequests){
+                for (ProductItemRequest p : productItemRequests) {
                     ProductItem productItem = productMapper.toProductItem(p);
                     List<ProductConfiguration> productConfigurations = new ArrayList<>();
                     List<Variation> variationList = new ArrayList<>();
                     List<VariationOption> variationOptions = new ArrayList<>();
-                   for (ProductConfigurationRequest pro : p.getProductConfigurations()){
+                    String name = "";
+                    for (ProductConfigurationRequest pro : p.getProductConfigurations()) {
 
-                       boolean flag = false;
-                       var variationName = "";
-                       Long variationId = 0L;
-                       loop:
-                       {
-                           for (Variation variation : variations) {
-                               if (variation.getName().equals(pro.getVariationName())) {
-                                   flag = true;
-                                   variationName = variation.getName();
-                                   variationId = variation.getId();
-                                   break loop;
-                               }
-                           }
-                       }
-                        if (flag){
+                        boolean flag = false;
+                        var variationName = "";
+                        Long variationId = 0L;
+                        name = " " + pro.getVariationName() + " " +  pro.getVariationOption();
+                        loop:
+                        {
+                            for (Variation variation : variations) {
+                                if (variation.getName().equals(pro.getVariationName())) {
+                                    flag = true;
+                                    variationName = variation.getName();
+                                    variationId = variation.getId();
+                                    break loop;
+                                }
+                            }
+                        }
+                        if (flag) {
                             System.out.println(variationName);
                             var variation = variationRepository.findById(variationId).orElseThrow();
                             boolean miniFlag = false;
@@ -132,7 +133,7 @@ public class IProductService implements ProductService {
                                 }
                             }
 
-                            if (miniFlag){
+                            if (miniFlag) {
                                 System.out.println(variationOptionValue);
                                 var variationOption = variationOptionRepository.findById(variationOptionId).orElseThrow();
                                 ProductConfiguration productConfiguration = new ProductConfiguration();
@@ -140,8 +141,7 @@ public class IProductService implements ProductService {
                                 productConfiguration.setProductItem(productItem);
                                 variationOption.getProductConfigurations().add(productConfiguration);
                                 productConfigurations.add(productConfiguration);
-                            }
-                            else {
+                            } else {
                                 System.out.println(variationOptionValue);
                                 System.out.println("tao moi voi variationId: " + variationId);
                                 //tao variation option moi
@@ -157,8 +157,7 @@ public class IProductService implements ProductService {
                                 variationOption.setProductConfigurations(productConfigurations);
                                 variationOptions.add(variationOption);
                             }
-                        }
-                        else {
+                        } else {
                             //Tao variation moi
                             Variation variation = new Variation();
                             variation.setCategory(category.get());
@@ -178,12 +177,15 @@ public class IProductService implements ProductService {
                             variationList.add(variation);
                         }
 
-                   }
+                    }
                     category.get().getVariations().addAll(variationList);
+                    productItem.setName(request.getProductCreateRequest().getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
                     productItem.setProduct(product);
                     productItem.setProductImage(getURLPictureAndUploadToCloudinary(productItem.getProductImage()));
                     productItem.setActive(true);
+                    productItem.setCreatedDate(new Date(System.currentTimeMillis()));
+                    productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItemRepository.save(productItem);
                     variationRepository.saveAll(variationList);
                     variationOptionRepository.saveAll(variationOptions);
@@ -195,6 +197,8 @@ public class IProductService implements ProductService {
                 product.setProductItems(productItems);
                 product.setCategory(category.get());
                 product.setProductImage(ImageUtil.urlImage);
+                product.setCreatedDate(new Date(System.currentTimeMillis()));
+                product.setModifiedDate(new Date(System.currentTimeMillis()));
                 productRepository.save(product);
                 categoryRepository.save(category.get());
                 return "Successfully save product";
@@ -209,10 +213,9 @@ public class IProductService implements ProductService {
     public String createProductFromCategory(Long id, ProductRequest request) {
         var category = categoryRepository.findById(id);
         var cate = request.getProductCreateRequest().getCategoryId();
-        if (category.isPresent() && category.get().getId().equals(cate)){
+        if (category.isPresent() && category.get().getId().equals(cate)) {
             return createProduct(request);
-        }
-        else
+        } else
             return "This category is not available to create product. Please try a sub-category of this category or another!";
     }
 
@@ -226,16 +229,18 @@ public class IProductService implements ProductService {
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemDTO> productItemRequests = productEditRequest.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(productEditRequest.getProductDTO().getCategoryId());
-                for (ProductItemDTO p : productItemRequests){
+                for (ProductItemDTO p : productItemRequests) {
                     var productItem = productItemRepository.findById(p.getId()).orElse(new ProductItem());
                     List<ProductConfiguration> productConfigurations = new ArrayList<>();
                     List<Variation> variationList = new ArrayList<>();
                     List<VariationOption> variationOptions = new ArrayList<>();
-                    for (ProductConfigurationDTO pro : p.getProductConfigurations()){
+                    String name = "";
+                    for (ProductConfigurationDTO pro : p.getProductConfigurations()) {
 
                         boolean flag = false;
                         var variationName = "";
                         Long variationId = 0L;
+                        name = " " + pro.getVariationName() + " " +  pro.getVariationOption();
                         loop:
                         {
                             for (Variation variation : variations) {
@@ -247,7 +252,7 @@ public class IProductService implements ProductService {
                                 }
                             }
                         }
-                        if (flag){
+                        if (flag) {
                             System.out.println(variationName);
                             var variation = variationRepository.findById(variationId).orElseThrow();
                             boolean miniFlag = false;
@@ -265,40 +270,42 @@ public class IProductService implements ProductService {
                                 }
                             }
 
-                            if (miniFlag){
-                                System.out.println(variationOptionValue);
+                            if (miniFlag) {
+                                System.out.println("variationOption: " + variationOptionValue);
+                                System.out.println("productItem: " + productItem.getId());
+                                System.out.println("variationOptionId: " + variationOptionId);
                                 var variationOption = variationOptionRepository.findById(variationOptionId).orElseThrow();
-                                var productConfiguration = productConfigurationRepository.findAllByProductItem_IdAndVariationOption_Id(pro.getProductItemId(), variationOptionId);
-                                if (productConfiguration.isEmpty()){
+                                var productConfiguration = productConfigurationRepository.findProductConfigurationByProductItem_IdAndVariationOption_Id(pro.getProductItemId(), variationOptionId);
+                                if (productConfiguration.isEmpty()) {
                                     ProductConfiguration productConfiguration1 = new ProductConfiguration();
                                     productConfiguration1.setVariationOption(variationOption);
                                     productConfiguration1.setProductItem(productItem);
-                                    variationOption.getProductConfigurations().add(productConfiguration1);
                                     productConfigurations.add(productConfiguration1);
                                 }
                                 else {
                                     productConfigurations.add(productConfiguration.get());
+                                    variationOption.getProductConfigurations().add(productConfiguration.get());
                                 }
 
-                            }
-                            else {
+
+                            } else {
                                 System.out.println(variationOptionValue);
                                 System.out.println("tao moi voi variationId: " + variationId);
                                 //tao variation option moi
                                 var variationParent = variationRepository.findById(variationId).orElseThrow();
                                 VariationOption variationOption = new VariationOption();
+                                ProductConfiguration productConfiguration = new ProductConfiguration();
                                 variationOption.setVariation(variationParent);
                                 variationOption.setValue(pro.getVariationOption());
-                                variationOptionRepository.save(variationOption);
-                                ProductConfiguration productConfiguration = new ProductConfiguration();
-                                productConfiguration.setVariationOption(variationOption);
+                                //variationOptionRepository.save(variationOption);
                                 productConfiguration.setProductItem(productItem);
+                                productConfiguration.setVariationOption(variationOption);
                                 productConfigurations.add(productConfiguration);
-                                variationOption.setProductConfigurations(productConfigurations);
                                 variationOptions.add(variationOption);
+                                variationParent.getVariationOptions().add(variationOption);
+
                             }
-                        }
-                        else {
+                        } else {
                             //Tao variation moi
                             Variation variation = new Variation();
                             variation.setCategory(category.get());
@@ -320,49 +327,73 @@ public class IProductService implements ProductService {
 
                     }
                     category.get().getVariations().addAll(variationList);
-                    var productConfigs = productItem.getProductConfigurations();
-                    var list = new ArrayList<>();
-                    if (!productConfigs.isEmpty()){
-                        for (ProductConfiguration pad : productConfigs){
-                            boolean flag = false;
-                            long productConfigId = 0L;
-
-                            loop:
-                            {
-                                for (ProductConfiguration pad1 : productConfigurations) {
-                                    if (pad.getVariationOption().getValue().equals(pad1.getVariationOption().getValue())) {
-                                        flag = true;
-                                        productConfigId = pad.getId();
-                                        break loop;
-                                    }
-                                }
-                            }
-                            if (!flag){
-                                for (ProductConfiguration pad1 : productConfigurations) {
-                                    if (pad.getVariationOption().getId().equals(pad1.getVariationOption().getId())) {
-                                        pad.setVariationOption(pad1.getVariationOption());
-                                    }
-                                }
-                            }
-                        }
-                    }
-
+                    productItem.setName(productEditRequest.getProductDTO().getName() + name);
                     productItem.setProduct(product);
-                    productItem.setProductImage(productItem.getProductImage() == null ? getURLPictureAndUploadToCloudinary(p.getProductImage()): productItem.getProductImage());
+                    productItem.setProductImage(productItem.getProductImage() == null ? getURLPictureAndUploadToCloudinary(p.getProductImage()) : productItem.getProductImage());
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());
                     productItem.setQuantityInStock(p.getQuantityInStock());
-                    productItemRepository.save(productItem);
-                    variationRepository.saveAll(variationList);
-                    variationOptionRepository.saveAll(variationOptions);
-                    productConfigurationRepository.saveAll(productConfigurations);
+                    productItem.setModifiedDate(new Date(System.currentTimeMillis()));
+                    List<ProductConfiguration> p2 = new ArrayList<>();
+                    var productConfigs = productItem.getProductConfigurations();
+                    var list = new ArrayList<>();
+                    System.out.println("Size: " + productConfigs.size());
+                    while (!productConfigs.isEmpty()) {
+                        var pad = productConfigs.get(0);
+                        System.out.println("value: pad" + pad.getVariationOption().getValue());
+                        boolean flag = false;
+                        long productConfigId = 0L;
+                        var value = "";
+
+                        for (ProductConfiguration pad1 : productConfigurations) {
+                            if (pad.getVariationOption().getValue().equals(pad1.getVariationOption().getValue())) {
+                                flag = true;
+                                System.out.println("value: pad to change" + pad.getVariationOption().getValue());
+                                System.out.println(pad.getVariationOption().getValue());
+                            }
+                        }
+
+                        if (!flag) {
+                            lmao:
+                            {
+                                for (ProductConfiguration pad1 : productConfigurations) {
+                                    if (pad.getVariationOption().getVariation().getName().equals(pad1.getVariationOption().getVariation().getName())) {
+                                        System.out.println("value con: " + pad.getVariationOption().getValue());
+                                        var variation = pad.getVariationOption();
+                                        variation.getProductConfigurations().add(pad);
+                                        pad.setVariationOption(pad1.getVariationOption());
+                                        System.out.println(pad.getVariationOption().getValue());
+                                        p2.add(pad);
+                                        break lmao;
+                                    }
+                                }
+                            }
+
+
+                        }
+                        productConfigs.remove(0);
+                    }
+                    System.out.println(variations.size());
+                    if (!variationOptions.isEmpty()){
+                        variationOptionRepository.saveAll(variationOptions);
+                        productItemRepository.save(productItem);
+                        variationRepository.saveAll(variationList);
+                        productConfigurationRepository.saveAll(p2);
+                    }else {
+                        productItemRepository.save(productItem);
+                        variationRepository.saveAll(variationList);
+                        variationOptionRepository.saveAll(variationOptions);
+                        productConfigurationRepository.saveAll(p2);
+                    }
 
                     productItems.add(productItem);
                 }
 
                 product.setProductItems(productItems);
+                product.setName(productEditRequest.getProductDTO().getName());
                 product.setCategory(category.get());
                 product.setProductImage(ImageUtil.urlImage);
+                product.setModifiedDate(new Date(System.currentTimeMillis()));
                 productRepository.save(product);
                 categoryRepository.save(category.get());
                 return "Successfully update product";
@@ -373,17 +404,43 @@ public class IProductService implements ProductService {
 
     }
 
-    public String getURLPictureAndUploadToCloudinary(String base64Content){
+    @Override
+    public String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest) {
+        var product = productRepository.findById(productDeleteRequest.getId()).orElseThrow();
+        var category = categoryRepository.findById(productDeleteRequest.getCategoryId());
+        if (category.isEmpty()){
+            return "Not found any category to delete product. Please create category first!";
+        }
+        var productItems = product.getProductItems();
+        List<ProductItem> productItemList = new ArrayList<>();
+        for (ProductItem productItem : productItems){
+            loop:
+            {
+                for (Long id : productDeleteRequest.getListProductItemId()){
+                    if (productItem.getId().equals(id)){
+                        productItem.setActive(false);
+                        productItem.setModifiedDate(new Date(System.currentTimeMillis()));
+                        productItemList.add(productItem);
+                        break loop;
+                    }
+                }
+            }
+        }
+        product.setModifiedDate(new Date(System.currentTimeMillis()));
+        productItemRepository.saveAll(productItemList);
+        return "Successfully delete product";
+    }
+
+    public String getURLPictureAndUploadToCloudinary(String base64Content) {
         byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
         MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
         Tika tika = new Tika();
         String mimetype = tika.detect(fileBytes);
-        if (mimetype.contains("image")){
+        if (mimetype.contains("image")) {
             Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Product");
             return (String) map.get("secure_url");
 
-        }
-        else
+        } else
             return ImageUtil.urlImage;
     }
 

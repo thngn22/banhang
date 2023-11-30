@@ -11,7 +11,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface UserService {
-    UserResponse findUserById(Long userId) throws UserException;
+    UserDetailResponse getDetailUser(Long userId) throws UserException;
     User findUserProfileByJwt(String jwt) throws UserException;
     Page<User> getAllUsers(Pageable pageable);
     ResponseEntity<?> findInformationUser(Principal connectedUser);

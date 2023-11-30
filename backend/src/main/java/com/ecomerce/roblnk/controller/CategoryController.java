@@ -28,8 +28,8 @@ public class CategoryController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    @GetMapping("/{id}/products")
-    public ResponseEntity<?> getAllProductInCategory(@PathVariable("id") Long id){
+    @GetMapping("")
+    public ResponseEntity<?> getAllProductInCategory(@RequestParam(value = "id", defaultValue = "1") Long id){
         var productDetail = productService.getAllProduct(id);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
@@ -68,7 +68,7 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<?> getAllTreeCategory(){
          var listCate = categoryService.getAllCategory();
         if (listCate != null){

@@ -35,7 +35,7 @@ public class CartItem {
     private ProductItem productItem;
 
     //Order Item
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JsonIgnore
     private OrderItem orderItem;
 }
