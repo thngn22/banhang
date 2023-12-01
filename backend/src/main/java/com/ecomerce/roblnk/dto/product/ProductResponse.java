@@ -12,7 +12,7 @@ public class ProductResponse {
     private Long id;
     private String name;
     private String productImage;
-    private Long categoryId;
+    private String categoryName;
     private Integer quantity;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
