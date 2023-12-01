@@ -1,19 +1,16 @@
-package com.ecomerce.roblnk.dto.auth;
+package com.ecomerce.roblnk.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
-@NoArgsConstructor
+@Setter
+@Getter
 @AllArgsConstructor
-@Builder
-public class RegisterRequest {
-
+@NoArgsConstructor
+public class UserCreateRequest {
     @NotBlank
     @Size(max = 50)
     @Email
@@ -25,5 +22,5 @@ public class RegisterRequest {
 
     private String firstName;
     private String lastName;
-
+    private String phone;
 }

@@ -32,4 +32,6 @@ public interface UserService {
     ResponseEntity<?> deleteUserAddress(Principal connectedUser, Long id);
 
     ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, Long id);
+
+    ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest);
 }

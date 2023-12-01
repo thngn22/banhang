@@ -61,10 +61,10 @@ public class User implements UserDetails {
     //Address
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
-    private List<UserAddress> addresses;
+    private List<UserAddress> addresses = new ArrayList<>();
 
     //Cart
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JsonIgnore
     private Cart cart;
 

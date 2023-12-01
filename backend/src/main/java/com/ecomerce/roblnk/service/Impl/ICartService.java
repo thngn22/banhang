@@ -1,15 +1,20 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
-import com.ecomerce.roblnk.dto.cart.CartEditRequest;
+import com.ecomerce.roblnk.dto.cart.UserCart;
+import com.ecomerce.roblnk.dto.cartItem.CartItemDTO;
+import com.ecomerce.roblnk.dto.cartItem.CartItemEditRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.CartMapper;
 import com.ecomerce.roblnk.model.Cart;
 import com.ecomerce.roblnk.model.CartItem;
+import com.ecomerce.roblnk.model.ProductItem;
+import com.ecomerce.roblnk.repository.CartItemRepository;
 import com.ecomerce.roblnk.repository.CartRepository;
 import com.ecomerce.roblnk.repository.UserRepository;
 import com.ecomerce.roblnk.service.CartItemService;
 import com.ecomerce.roblnk.service.CartService;
+import com.ecomerce.roblnk.service.ProductItemService;
 import com.ecomerce.roblnk.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +34,11 @@ import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 public class ICartService implements CartService {
 
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
     private final CartItemService cartItemService;
-    private final ProductService productService;
     private final CartMapper cartMapper;
     private final UserRepository userRepository;
+    private final ProductItemService productItemService;
 
     @Override
     public ResponseEntity<?> getUserCart(Principal principal) {
@@ -40,7 +46,22 @@ public class ICartService implements CartService {
         if (user.isPresent()) {
             var cart = user.get().getCart();
             if (cart != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(cartMapper.toUserCart(cart));
+                UserCart userCart = cartMapper.toUserCart(cart);
+                int totalItem = 0;
+                int totalPrice = 0;
+                List<CartItemDTO> list = new ArrayList<>();
+                for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
+                    if (cartItemDTO.getQuantity() > 0) {
+                        totalItem += cartItemDTO.getQuantity();
+                        totalPrice += cartItemDTO.getTotalPrice();
+                        list.add(cartItemDTO);
+                    }
+                }
+                userCart.setTotalItem(totalItem);
+                userCart.setTotalPrice(totalPrice);
+                userCart.setCartItems(list);
+                return ResponseEntity.status(HttpStatus.OK).body(userCart);
+
             } else return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
                     .statusCode(200)
                     .message(String.valueOf(HttpStatus.OK))
@@ -58,19 +79,127 @@ public class ICartService implements CartService {
     }
 
     @Override
-    public ResponseEntity<?> editUserCart(Principal principal, @Valid CartEditRequest editCartRequest) {
+    public ResponseEntity<?> editUserCart(Principal principal, @Valid List<CartItemEditRequest> list) {
         var user = userRepository.findByEmail(principal.getName());
         List<CartItem> cartItems = new ArrayList<>();
-
         if (user.isPresent()) {
-            var cart = user.get().getCart();
-            if (cart != null) {
-                return null;
-            } else {
-                var userCart = new Cart();
-                userCart.setUser(user.get());
-                return null;
+            var userCart = user.get().getCart();
+
+            for (CartItemEditRequest cartItemEditRequest : list) {
+                var productItem = productItemService.getProductItem(cartItemEditRequest.getProductItemId());
+                if (productItem != null) {
+                    if (productItem.isActive()) {
+                        var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
+                        if (!cartItemsExisted.isEmpty()) {
+                            boolean flag = false;
+                            loop:
+                            {
+                                for (CartItem cartItem : cartItemsExisted) {
+                                    if (cartItem.getProductItem().getId().equals(productItem.getId())) {
+                                        flag = true;
+                                        break loop;
+                                    }
+                                }
+                            }
+                            if (flag) {
+                                miniLoop:
+                                {
+                                    for (CartItem cartItem : cartItemsExisted) {
+                                        if (cartItem.getProductItem().getId().equals(productItem.getId())) {
+                                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                                                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                                        .statusCode(403)
+                                                        .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                                        .description("Quantity is more than in stock!")
+                                                        .timestamp(new Date(System.currentTimeMillis()))
+                                                        .build());
+                                            }
+                                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
+                                                cartItem.setQuantity(0);
+                                                cartItem.setTotalPrice((double) 0);
+                                            } else {
+                                                cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
+                                                cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
+                                            }
+                                            cartItem.setPrice(productItem.getPrice());
+
+                                            cartItems.add(cartItem);
+                                            userCart.getCartItems().add(cartItem);
+                                            break miniLoop;
+                                        }
+                                    }
+                                }
+                            } else {
+                                CartItem cartItem = new CartItem();
+                                cartItem.setCart(userCart);
+                                cartItem.setProductItem(productItem);
+                                cartItem.setPrice(productItem.getPrice());
+                                if (cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                            .statusCode(403)
+                                            .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                            .description("Quantity is more than in stock!")
+                                            .timestamp(new Date(System.currentTimeMillis()))
+                                            .build());
+                                }
+                                if (cartItemEditRequest.getQuantity() <= 0) {
+                                    cartItem.setQuantity(0);
+                                    cartItem.setTotalPrice((double) 0);
+                                } else {
+                                    cartItem.setQuantity(cartItemEditRequest.getQuantity());
+                                    cartItem.setTotalPrice(cartItemEditRequest.getQuantity() * productItem.getPrice());
+                                }
+                                cartItems.add(cartItem);
+                            }
+                        } else {
+                            CartItem cartItem = new CartItem();
+                            cartItem.setCart(userCart);
+                            cartItem.setProductItem(productItem);
+                            cartItem.setPrice(productItem.getPrice());
+                            if (cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                        .statusCode(403)
+                                        .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                        .description("Quantity is more than in stock!")
+                                        .timestamp(new Date(System.currentTimeMillis()))
+                                        .build());
+                            }
+                            if (cartItemEditRequest.getQuantity() <= 0) {
+                                cartItem.setQuantity(0);
+                                cartItem.setTotalPrice((double) 0);
+                            } else {
+                                cartItem.setQuantity(cartItemEditRequest.getQuantity());
+                                cartItem.setTotalPrice(cartItemEditRequest.getQuantity() * productItem.getPrice());
+                            }
+                            cartItems.add(cartItem);
+                        }
+
+                    } else {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                .statusCode(403)
+                                .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                .description("Unavailable to add this product! Out of stock!")
+                                .timestamp(new Date(System.currentTimeMillis()))
+                                .build());
+                    }
+                } else
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                            .statusCode(403)
+                            .message(String.valueOf(HttpStatus.FORBIDDEN))
+                            .description("Product not found. Invalid to add this product!")
+                            .timestamp(new Date(System.currentTimeMillis()))
+                            .build());
+
+
+                cartItemRepository.saveAll(cartItems);
+                cartRepository.save(userCart);
             }
+            return ResponseEntity.status(HttpStatus.OK).body(ErrorResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.OK))
+                    .description("Update cart successfully")
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
                     .statusCode(404)

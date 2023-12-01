@@ -1,15 +1,19 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.constants.ErrorMessage;
+import com.ecomerce.roblnk.dto.user.UserCreateRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.UserService;
 import com.ecomerce.roblnk.service.VariationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -37,6 +41,14 @@ public class AdminController {
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build());
     }
+    @PostMapping("/users")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> createUser(Principal principal, @RequestBody @Valid UserCreateRequest userCreateRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        return userService.createUser(principal, userCreateRequest);
+    }
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getListUser(){
@@ -44,7 +56,7 @@ public class AdminController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/users")
+    @PostMapping("/usersa")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, @RequestParam("id") Long id){
         return userService.deActiveOrActiveUser(connectedUser, id);

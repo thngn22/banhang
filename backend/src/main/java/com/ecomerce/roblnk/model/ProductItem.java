@@ -54,12 +54,12 @@ public class ProductItem {
     private Product product;
 
     //Cart Item
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.MERGE, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
-    private List<CartItem> cartItems;
+    private List<CartItem> cartItems = new ArrayList<>();
 
     //Product Configuration
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.MERGE, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
     private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

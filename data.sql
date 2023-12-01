@@ -115,7 +115,7 @@ CREATE TABLE `category` (
   PRIMARY KEY (`category_id`),
   KEY `FKs2ride9gvilxy2tcuv7witnxc` (`parent_category_id`),
   CONSTRAINT `FKs2ride9gvilxy2tcuv7witnxc` FOREIGN KEY (`parent_category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,7 +124,7 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (1,NULL,'Nam'),(2,NULL,'Nu'),(3,1,'Nam1'),(4,1,'Nam2'),(5,2,'Nu1'),(6,3,'Nam1_1'),(7,4,'Nam2_1'),(8,3,'Nam1_2'),(9,5,'Nu1_1'),(10,8,'Nam1_2_1'),(11,8,'Nam1_2_2');
+INSERT INTO `category` VALUES (1,NULL,'Nam'),(2,NULL,'Nu'),(3,1,'Nam1'),(4,1,'Nam2'),(5,2,'Nu1'),(6,3,'Nam1_1'),(7,4,'Nam2_1'),(8,3,'Nam1_2'),(9,5,'Nu1_1'),(10,8,'Nam1_2_1'),(11,8,'Nam1_2_2'),(12,5,'Nu1_2');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -300,7 +300,7 @@ CREATE TABLE `product` (
   PRIMARY KEY (`product_id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -309,7 +309,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (1,'giay the thao dark','giay the thao dark','lmao',6,'2023-11-30 04:46:46.000000','2023-11-30 04:46:48.000000'),(2,'giay the thao','giay the thao cho nam','dark',10,'2023-11-30 04:46:51.000000','2023-11-30 04:46:55.000000'),(3,'giay lmao','dep','burh',11,'2023-11-30 04:46:55.000000','2023-11-30 04:46:57.000000'),(10,'giay nay dat lam','giay the thao','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-11-30 04:47:00.000000','2023-11-30 04:46:58.000000'),(11,'giay nay dat lam','giay the thao','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-11-30 04:46:59.000000','2023-11-30 04:47:01.000000');
+INSERT INTO `product` VALUES (1,'giay the thao dark','giay the thao dark','lmao',6,'2023-11-30 04:46:46.000000','2023-11-30 04:46:48.000000'),(2,'giay the thao','giay the thao cho nam','dark',10,'2023-11-30 04:46:51.000000','2023-11-30 04:46:55.000000'),(3,'giay lmao','dep','burh',11,'2023-11-30 04:46:55.000000','2023-11-30 04:46:57.000000'),(10,'lmao','test lai update','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-11-30 04:47:00.000000','2023-12-01 02:49:18.144000'),(11,'giay nay dat lam','giay the thao','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-11-30 04:46:59.000000','2023-11-30 04:47:01.000000'),(15,'giay ben nu','giay nu','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,'2023-12-01 04:19:15.710000','2023-12-01 04:19:15.710000'),(19,'giay ben nu nha','giay nu siu vip','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',7,'2023-12-01 04:36:59.896000','2023-12-01 04:36:59.896000'),(20,'giay ben nu nha','giay nu siu vip','https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',7,'2023-12-01 04:37:49.388000','2023-12-01 04:37:49.388000');
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -329,7 +329,7 @@ CREATE TABLE `product_configuration` (
   KEY `FKm5sgep9e3ot2covfpw9l3ml7s` (`variation_option_id`),
   CONSTRAINT `FKd9wo8k6srbadxvi3l87wfqnfx` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKm5sgep9e3ot2covfpw9l3ml7s` FOREIGN KEY (`variation_option_id`) REFERENCES `variation_option` (`variation_option_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=409 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=524 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -338,7 +338,7 @@ CREATE TABLE `product_configuration` (
 
 LOCK TABLES `product_configuration` WRITE;
 /*!40000 ALTER TABLE `product_configuration` DISABLE KEYS */;
-INSERT INTO `product_configuration` VALUES (1,1,1),(3,1,4),(4,2,1),(5,2,5),(170,73,36),(171,73,5),(172,74,2),(173,74,4),(174,75,37),(175,75,6),(176,76,38),(177,76,4),(377,72,91),(378,72,92),(399,77,1),(400,77,4),(401,78,36),(402,78,5),(403,79,2),(404,79,4),(405,80,37),(406,80,6),(407,81,38),(408,81,4);
+INSERT INTO `product_configuration` VALUES (1,1,1),(3,1,4),(4,2,1),(5,2,5),(172,74,2),(173,74,4),(174,75,37),(175,75,6),(176,76,38),(177,76,4),(399,77,1),(400,77,4),(401,78,36),(402,78,5),(403,79,2),(404,79,4),(405,80,37),(406,80,6),(407,81,38),(408,81,4),(466,72,185),(467,72,186),(470,73,185),(471,73,186),(478,87,1),(479,87,193),(480,88,36),(481,88,194),(482,89,2),(483,89,193),(484,90,37),(485,90,86),(486,91,38),(487,91,193),(504,95,208),(505,95,209),(506,96,210),(507,96,211),(508,97,212),(509,97,213),(510,98,214),(511,98,215),(512,99,216),(513,99,217),(514,100,208),(515,100,209),(516,101,210),(517,101,211),(518,102,212),(519,102,209),(520,103,214),(521,103,215),(522,104,216),(523,104,209);
 /*!40000 ALTER TABLE `product_configuration` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -362,7 +362,7 @@ CREATE TABLE `product_item` (
   PRIMARY KEY (`product_item_id`),
   KEY `FKa9mjpi98ark8eovbtnnreygbb` (`product_id`),
   CONSTRAINT `FKa9mjpi98ark8eovbtnnreygbb` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -371,7 +371,7 @@ CREATE TABLE `product_item` (
 
 LOCK TABLES `product_item` WRITE;
 /*!40000 ALTER TABLE `product_item` DISABLE KEYS */;
-INSERT INTO `product_item` VALUES (1,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',1,2,_binary '','2023-11-30 04:39:46.000000','2023-11-30 04:39:50.000000',NULL),(2,40000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',1,2,_binary '','2023-11-30 04:39:49.000000','2023-11-30 04:39:51.000000',NULL),(72,20000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',18,10,_binary '','2023-11-30 04:39:53.000000','2023-11-30 04:39:52.000000',NULL),(73,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,10,_binary '','2023-11-30 04:39:54.000000','2023-11-30 04:39:54.000000',NULL),(74,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:39:57.000000','2023-11-30 04:40:00.000000',NULL),(75,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:39:58.000000','2023-11-30 04:40:00.000000',NULL),(76,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:40:02.000000','2023-11-30 04:40:01.000000',NULL),(77,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '','2023-11-30 04:40:10.000000','2023-11-30 04:40:03.000000',NULL),(78,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,11,_binary '\0','2023-11-30 04:40:17.000000','2023-11-30 04:40:11.000000',NULL),(79,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:28.000000','2023-11-30 04:40:13.000000',NULL),(80,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:27.000000','2023-11-30 04:40:29.000000',NULL),(81,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:31.000000','2023-11-30 04:40:30.000000',NULL);
+INSERT INTO `product_item` VALUES (1,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',1,2,_binary '','2023-11-30 04:39:46.000000','2023-11-30 04:39:50.000000',NULL),(2,40000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',1,2,_binary '','2023-11-30 04:39:49.000000','2023-11-30 04:39:51.000000',NULL),(72,20000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',18,10,_binary '','2023-11-30 04:39:53.000000','2023-12-01 02:49:17.896000','test lai update Color oiajwdoiajwdo'),(73,5000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',18,10,_binary '','2023-11-30 04:39:54.000000','2023-12-01 02:49:17.974000','test lai update Color oiajwdoiajwdo'),(74,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:39:57.000000','2023-11-30 04:40:00.000000',NULL),(75,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:39:58.000000','2023-11-30 04:40:00.000000',NULL),(76,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,10,_binary '','2023-11-30 04:40:02.000000','2023-11-30 04:40:01.000000',NULL),(77,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '','2023-11-30 04:40:10.000000','2023-11-30 04:40:03.000000',NULL),(78,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,11,_binary '\0','2023-11-30 04:40:17.000000','2023-11-30 04:40:11.000000',NULL),(79,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:28.000000','2023-11-30 04:40:13.000000',NULL),(80,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:27.000000','2023-11-30 04:40:29.000000',NULL),(81,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,11,_binary '\0','2023-11-30 04:40:31.000000','2023-11-30 04:40:30.000000',NULL),(87,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,15,_binary '','2023-12-01 04:19:15.468000','2023-12-01 04:19:15.468000','giay nu  Color Red'),(88,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,15,_binary '','2023-12-01 04:19:15.566000','2023-12-01 04:19:15.566000','giay nu  Color Blue'),(89,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,15,_binary '','2023-12-01 04:19:15.621000','2023-12-01 04:19:15.621000','giay nu  Color Red'),(90,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,15,_binary '','2023-12-01 04:19:15.666000','2023-12-01 04:19:15.666000','giay nu  Color Black'),(91,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,15,_binary '','2023-12-01 04:19:15.696000','2023-12-01 04:19:15.696000','giay nu  Color Red'),(95,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,19,_binary '','2023-12-01 04:36:59.631000','2023-12-01 04:36:59.631000','giay nu siu vip  Color Red'),(96,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,19,_binary '','2023-12-01 04:36:59.731000','2023-12-01 04:36:59.731000','giay nu siu vip  Color Blue'),(97,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,19,_binary '','2023-12-01 04:36:59.782000','2023-12-01 04:36:59.782000','giay nu siu vip  Color Red'),(98,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,19,_binary '','2023-12-01 04:36:59.831000','2023-12-01 04:36:59.831000','giay nu siu vip  Color Black'),(99,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,19,_binary '','2023-12-01 04:36:59.877000','2023-12-01 04:36:59.877000','giay nu siu vip  Color Red'),(100,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,20,_binary '','2023-12-01 04:37:49.283000','2023-12-01 04:37:49.283000','giay nu siu vip  Color Red'),(101,45000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',11,20,_binary '','2023-12-01 04:37:49.317000','2023-12-01 04:37:49.317000','giay nu siu vip  Color Blue'),(102,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,20,_binary '','2023-12-01 04:37:49.339000','2023-12-01 04:37:49.339000','giay nu siu vip  Color Red'),(103,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,20,_binary '','2023-12-01 04:37:49.360000','2023-12-01 04:37:49.360000','giay nu siu vip  Color Black'),(104,30000,'https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp',10,20,_binary '','2023-12-01 04:37:49.380000','2023-12-01 04:37:49.380000','giay nu siu vip  Color Red');
 /*!40000 ALTER TABLE `product_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -597,7 +597,7 @@ CREATE TABLE `variation` (
   PRIMARY KEY (`variation_id`),
   KEY `FKcyhn1nd52sy3lm12vm62f5cmg` (`category_id`),
   CONSTRAINT `FKcyhn1nd52sy3lm12vm62f5cmg` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -606,7 +606,7 @@ CREATE TABLE `variation` (
 
 LOCK TABLES `variation` WRITE;
 /*!40000 ALTER TABLE `variation` DISABLE KEYS */;
-INSERT INTO `variation` VALUES (1,'Size',10),(2,'Color',10),(5,'Size',11),(6,'Color',11);
+INSERT INTO `variation` VALUES (1,'Size',10),(2,'Color',10),(5,'Size',11),(6,'Color',11),(100,'Size',7),(101,'Color',7);
 /*!40000 ALTER TABLE `variation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -624,7 +624,7 @@ CREATE TABLE `variation_option` (
   PRIMARY KEY (`variation_option_id`),
   KEY `FKlfkypq92cr21b9mtc7mihks1e` (`variation_id`),
   CONSTRAINT `FKlfkypq92cr21b9mtc7mihks1e` FOREIGN KEY (`variation_id`) REFERENCES `variation` (`variation_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -633,13 +633,9 @@ CREATE TABLE `variation_option` (
 
 LOCK TABLES `variation_option` WRITE;
 /*!40000 ALTER TABLE `variation_option` DISABLE KEYS */;
-INSERT INTO `variation_option` VALUES (1,'39',1),(2,'40',1),(3,'41',1),(4,'RED',2),(5,'BLUE',2),(6,'black',2),(36,'48',1),(37,'38',1),(38,'35',1),(39,'Pink',2),(68,'43',1),(70,'Yellow',2),(71,'50',1),(72,'51',1),(73,'37',1),(74,'36',1),(75,'42',1),(76,'Purple',2),(77,'49',1),(78,'Brown',2),(81,'52',1),(82,'White',2),(83,'55',1),(84,'Grey',2),(85,'44',1),(86,'Black',2),(87,'53',1),(88,'Orange',2),(89,'54',1),(90,'Cyan',2),(91,'56',1),(92,'Smoke',2);
+INSERT INTO `variation_option` VALUES (1,'39',1),(2,'40',1),(3,'41',1),(4,'RED',2),(5,'BLUE',2),(6,'black',2),(36,'48',1),(37,'38',1),(38,'35',1),(39,'Pink',2),(68,'43',1),(70,'Yellow',2),(71,'50',1),(72,'51',1),(73,'37',1),(74,'36',1),(75,'42',1),(76,'Purple',2),(77,'49',1),(78,'Brown',2),(81,'52',1),(82,'White',2),(83,'55',1),(84,'Grey',2),(85,'44',1),(86,'Black',2),(87,'53',1),(88,'Orange',2),(89,'54',1),(90,'Cyan',2),(91,'56',1),(92,'Smoke',2),(185,'88',1),(186,'oiajwdoiajwdo',2),(187,'88',100),(188,'oiajwdoiajwdo',101),(193,'Red',2),(194,'Blue',2),(208,'39',100),(209,'Red',101),(210,'48',100),(211,'Blue',101),(212,'40',100),(213,'Red',101),(214,'38',100),(215,'Black',101),(216,'35',100),(217,'Red',101);
 /*!40000 ALTER TABLE `variation_option` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'e_commerce_shoes'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -650,4 +646,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-30  8:56:01
+-- Dump completed on 2023-12-01 14:46:45

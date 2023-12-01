@@ -17,6 +17,7 @@ public interface ProductMapper {
     @Mapping(source = "category.id", target = "categoryId")
     ProductDetailResponse toDetailResponse(Product product);
 
+    ProductDetailResponsev2 toProductDetailResponsev2(ProductDetailResponse productDetailResponse);
     ReviewDTO toReviewDTO(Review review);
 
     UserReview toUserReview(User user);

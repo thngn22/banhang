@@ -42,6 +42,9 @@ public class Product {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifiedDate;
+
+    @Column(name = "is_active")
+    private boolean active;
     //Category
     @ManyToOne
     @JoinColumn(name = "category_id")

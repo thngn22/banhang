@@ -9,7 +9,7 @@ import java.util.List;
 public interface ProductService {
     List<ProductResponse> getAllProduct(Long categoryId);
 
-    ProductDetailResponse getDetailProduct(Long productId);
+    ProductDetailResponsev2 getDetailProduct(Long productId);
 
     String createProduct(@Valid ProductRequest request);
 

@@ -69,7 +69,7 @@ public class IAuthenticationService implements AuthenticationService {
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setEmail(request.getEmail());
-            user.setUserName(request.getUserName());
+            user.setUserName(request.getEmail());
             user.setRoles(role);
             user.setActive(true);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -79,7 +79,7 @@ public class IAuthenticationService implements AuthenticationService {
             EmailDetails emailDetails = new EmailDetails();
             emailDetails.setSubject("Xác thực tài khoản mới!");
             emailDetails.setRecipient(user.getEmail());
-            emailDetails.setMsgBody("Chào " + request.getUserName() +
+            emailDetails.setMsgBody("Chào " + request.getEmail() +
                     ",\nChúng tôi rất vui thông báo rằng tài khoản của bạn đã được tạo thành công tại Shoes Shop. Dưới đây là thông tin tài khoản của bạn:\n"
                     + "\nMã OTP dành cho tài khoản " + request.getEmail() + " :"
                     + "\n\n" + otp

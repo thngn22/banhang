@@ -1,15 +1,18 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.auth.EmailDetails;
 import com.ecomerce.roblnk.dto.user.*;
+import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.UserMapper;
+import com.ecomerce.roblnk.model.EnumRole;
+import com.ecomerce.roblnk.model.Role;
 import com.ecomerce.roblnk.model.User;
 import com.ecomerce.roblnk.model.UserAddress;
-import com.ecomerce.roblnk.repository.AddressRepository;
-import com.ecomerce.roblnk.repository.PaymentMethodRepository;
-import com.ecomerce.roblnk.repository.UserAddressRepository;
-import com.ecomerce.roblnk.repository.UserRepository;
+import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.UserService;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +20,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+
+import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_IN_USE;
 
 @Service("IUserService")
 @AllArgsConstructor
@@ -32,6 +41,8 @@ public class IUserService implements UserService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final UserAddressRepository userAddressRepository;
     private final AddressRepository addressRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
@@ -178,6 +189,37 @@ public class IUserService implements UserService {
         }
         else
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Something went wrong, user is not existed!");
+
+    }
+
+    @Override
+    public ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest) {
+        var admin = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (admin == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid account, please login again!");
+        }
+        var existedUser = userRepository.findByEmail(userCreateRequest.getEmail());
+        if (existedUser.isPresent())
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(EMAIL_IN_USE);
+        var role = new HashSet<Role>();
+        role.add(roleRepository.findRoleByRole(EnumRole.ROLE_USER.name()));
+        var user = new User();
+        user.setFirstName(userCreateRequest.getFirstName());
+        user.setLastName(userCreateRequest.getLastName());
+        user.setEmail(userCreateRequest.getEmail());
+        user.setUserName(userCreateRequest.getEmail());
+        user.setRoles(role);
+        user.setActive(true);
+        user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+        user.setActive(true);
+        user.setEmailActive(true);
+        userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.builder()
+                .statusCode(200)
+                .message("Created user successfully")
+                .description("Successfully")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build());
 
     }
 
