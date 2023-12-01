@@ -4,10 +4,8 @@ import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.auth.*;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.UserMapper;
-import com.ecomerce.roblnk.model.EnumRole;
-import com.ecomerce.roblnk.model.Role;
-import com.ecomerce.roblnk.model.Token;
-import com.ecomerce.roblnk.model.User;
+import com.ecomerce.roblnk.model.*;
+import com.ecomerce.roblnk.repository.CartRepository;
 import com.ecomerce.roblnk.repository.RoleRepository;
 import com.ecomerce.roblnk.repository.TokenRepository;
 import com.ecomerce.roblnk.repository.UserRepository;
@@ -54,6 +52,7 @@ public class IAuthenticationService implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final EmailService emailService;
+    private final CartRepository cartRepository;
 
 
     @Override
@@ -73,6 +72,8 @@ public class IAuthenticationService implements AuthenticationService {
             user.setRoles(role);
             user.setActive(true);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            Cart cart = new Cart();
+            cart.setUser(user);
             var otp = generateOTP(user);
 
 
@@ -93,6 +94,7 @@ public class IAuthenticationService implements AuthenticationService {
             emailService.sendSimpleMail(emailDetails);
             //saveUserToken(savedUser, refreshToken);
             userRepository.save(user);
+            cartRepository.save(cart);
             return ResponseEntity.ok(ApiResponse.builder()
                     .statusCode(200)
                     .message("OTP has been sent to your email. Please check your email!")
