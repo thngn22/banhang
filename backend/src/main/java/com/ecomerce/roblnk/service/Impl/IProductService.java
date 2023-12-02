@@ -126,6 +126,7 @@ public class IProductService implements ProductService {
                         productItemDTOv3.setVariationSize(optionSize);
                         productItemDTOv3List.add(productItemDTOv3);
                         indexes.add(i);
+
                     }
                 }
 
