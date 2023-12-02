@@ -31,10 +31,10 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
     @GetMapping("/")
-    public ResponseEntity<?> getAllProduct() {
-        var productDetail = productService.getAllProductV2();
-        if (productDetail != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+    public ResponseEntity<?> getAllProductForUser() {
+        var product = productService.getAllProductV3();
+        if (product != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(product);
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }

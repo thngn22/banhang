@@ -20,6 +20,7 @@ public class ProductDetailResponsev2 {
     private Long categoryId;
     private Integer quantityOfVariation;
     private Integer quantity;
+    private boolean active;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifiedDate;

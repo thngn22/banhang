@@ -60,7 +60,10 @@ public class IProductService implements ProductService {
         }
         for (Product product : products) {
             var items = productItemRepository.findAllByProduct_Id(product.getId());
-            list.add(items.size());
+            for (ProductItem productItem : items){
+                list.add(Math.toIntExact(productItem.getQuantityInStock()));
+            }
+
         }
         var productResponseList = productMapper.toProductResponseList(products);
         for (int i = 0; i < productResponseList.size(); i++) {
@@ -274,6 +277,7 @@ public class IProductService implements ProductService {
                 product.setProductImage(ImageUtil.urlImage);
                 product.setCreatedDate(new Date(System.currentTimeMillis()));
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
+                product.setActive(true);
                 productRepository.save(product);
                 categoryRepository.save(category.get());
                 return "Successfully save product";
@@ -395,6 +399,7 @@ public class IProductService implements ProductService {
 
                     }
                     category.get().getVariations().addAll(variationList);
+
                     productItem.setName(productEditRequest.getProductDTO().getName() + name);
                     productItem.setProduct(product);
                     productItem.setProductImage(getURLPictureAndUploadToCloudinary(p.getProductImage()) != null ?
@@ -464,7 +469,7 @@ public class IProductService implements ProductService {
 
                     productItems.add(productItem);
                 }
-
+                product.setActive(productEditRequest.getProductDTO().isActive());
                 product.setProductItems(productItems);
                 product.setDescription(productEditRequest.getProductDTO().getDescription());
                 product.setName(productEditRequest.getProductDTO().getName());
@@ -515,8 +520,34 @@ public class IProductService implements ProductService {
     @Override
     public List<ProductResponse> getAllProductV2() {
         var products = productRepository.findAll();
-        return productMapper.toProductResponseList(products);
+        List<Integer> list = new ArrayList<>();
+        for (Product product : products) {
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            for (ProductItem productItem : items){
+                list.add(Math.toIntExact(productItem.getQuantityInStock()));
+            }
+
+        }
+        var productResponseList = productMapper.toProductResponseList(products);
+        for (int i = 0; i < productResponseList.size(); i++) {
+            productResponseList.get(i).setQuantity(list.get(i));
+        }
+        productResponseList.sort((d1, d2) -> d2.getModifiedDate().compareTo(d1.getModifiedDate()));
+        return productResponseList;
     }
+
+    @Override
+    public List<ProductResponse> getAllProductV3() {
+        var products = getAllProductV2();
+        List<ProductResponse> list = new ArrayList<>();
+        for (ProductResponse productResponse : products){
+            if (productResponse.isActive()){
+                list.add(productResponse);
+            }
+        }
+        return list;
+    }
+
 
     public String getURLPictureAndUploadToCloudinary(String base64Content) {
         try {

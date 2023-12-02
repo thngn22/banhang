@@ -15,4 +15,5 @@ public class ProductDTO {
     private String description;
     private String productImage;
     private Long categoryId;
+    private boolean active;
 }

@@ -68,4 +68,10 @@ public class UserController {
         return userService.deleteUserAddress(connectedUser, id);
     }
 
+    @GetMapping("/account/order/")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getOrderHistory(Principal connectedUser){
+        return userService.getUserHistoryOrder(connectedUser);
+    }
+
 }

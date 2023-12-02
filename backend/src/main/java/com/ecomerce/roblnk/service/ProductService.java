@@ -20,4 +20,6 @@ public interface ProductService {
     String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest);
 
     List<ProductResponse> getAllProductV2();
+
+    List<ProductResponse> getAllProductV3();
 }

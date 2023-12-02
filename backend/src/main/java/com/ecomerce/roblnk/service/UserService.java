@@ -34,4 +34,6 @@ public interface UserService {
     ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, Long id);
 
     ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest);
+
+    ResponseEntity<?> getUserHistoryOrder(Principal connectedUser);
 }

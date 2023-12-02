@@ -11,10 +11,12 @@ import java.util.List;
 public interface ProductMapper {
 
     @Mapping(source = "category.name", target = "categoryName")
+    @Mapping(source = "active", target = "active")
     ProductResponse toProductResponse(Product product);
 
     List<ProductResponse> toProductResponseList(List<Product> products);
     @Mapping(source = "category.id", target = "categoryId")
+    @Mapping(source = "active", target = "active")
     ProductDetailResponse toDetailResponse(Product product);
 
     ProductDetailResponsev2 toProductDetailResponsev2(ProductDetailResponse productDetailResponse);

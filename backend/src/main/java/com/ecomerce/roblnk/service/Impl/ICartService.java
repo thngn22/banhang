@@ -183,7 +183,7 @@ public class ICartService implements CartService {
                                 .build());
                     }
                 } else
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                             .statusCode(403)
                             .message(String.valueOf(HttpStatus.FORBIDDEN))
                             .description("Product not found. Invalid to add this product!")

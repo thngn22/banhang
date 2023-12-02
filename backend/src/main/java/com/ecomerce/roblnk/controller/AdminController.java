@@ -5,6 +5,7 @@ import com.ecomerce.roblnk.dto.user.UserCreateRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.exception.UserException;
+import com.ecomerce.roblnk.service.ProductService;
 import com.ecomerce.roblnk.service.UserService;
 import com.ecomerce.roblnk.service.VariationService;
 import jakarta.validation.Valid;
@@ -26,8 +27,8 @@ import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 @RequestMapping("/api/v1/admin")
 public class AdminController {
     private final UserService userService;
-    private final VariationService variationService;
-    @GetMapping("/users")
+    private final ProductService productService;
+    @GetMapping("/user")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailUser(@RequestParam("id") Long id) throws UserException {
         var user = userService.getDetailUser(id);
@@ -49,19 +50,27 @@ public class AdminController {
         }
         return userService.createUser(principal, userCreateRequest);
     }
-    @GetMapping("/")
+    @GetMapping("/users")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getListUser(){
         var list =  userService.getAllUsers();
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/usersa")
+    @PostMapping("/users/active")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, @RequestParam("id") Long id){
         return userService.deActiveOrActiveUser(connectedUser, id);
     }
 
-
+    @GetMapping("/products")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllProduct() {
+        var product = productService.getAllProductV2();
+        if (product != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        } else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
 
 }

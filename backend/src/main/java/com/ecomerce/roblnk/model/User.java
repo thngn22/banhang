@@ -24,12 +24,12 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String userName;
     private String email;
     private String password;
     private String firstName;
     private String lastName;
     private String phone;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date dob;
     private String gender;
     private boolean isEmailActive;
@@ -41,6 +41,8 @@ public class User implements UserDetails {
     private String oneTimePassword;
 
     @Column(name = "otp_requested_time")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date otpRequestedTime;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")

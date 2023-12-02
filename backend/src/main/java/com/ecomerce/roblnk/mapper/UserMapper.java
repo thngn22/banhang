@@ -10,10 +10,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(source = "username", target = "userName")
     UserProfileResponse toUserProfileResponse(User user);
 
-    @Mapping(source = "username", target = "userName")
     @Mapping(source = "emailActive", target = "emailActive")
     @Mapping(source = "phoneActive", target = "phoneActive")
     @Mapping(source = "active", target = "active")
@@ -21,7 +19,6 @@ public interface UserMapper {
     @Mapping(source = "default", target = "default")
     UserAddressDTO toUserAddress(UserAddress userAddress);
     List<UserAddressDTO> toUserAddressDTOs(List<UserAddress> userAddresses);
-
     UserResponse toUserResponse(User user);
     List<UserResponse> toListUserResponse(List<User> userList);
     UserReviewDTO toUserReviewDTO(Review review);

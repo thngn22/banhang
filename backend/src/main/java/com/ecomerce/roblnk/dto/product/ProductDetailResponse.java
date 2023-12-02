@@ -11,6 +11,10 @@ import java.util.Date;
 import java.util.List;
 
 @Data
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDetailResponse {
     private Long id;
     private String name;
@@ -19,6 +23,7 @@ public class ProductDetailResponse {
     private Long categoryId;
     private Integer quantityOfVariation;
     private Integer quantity;
+    private boolean active;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifiedDate;

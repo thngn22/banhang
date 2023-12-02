@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,7 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_IN_USE;
+import static com.ecomerce.roblnk.constants.ErrorMessage.*;
 
 @Service("IUserService")
 @AllArgsConstructor
@@ -73,12 +74,7 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        var userName = userRepository.findByUserName(request.getUserName());
-        if (userName.isPresent()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name existed, please try another user name!");
-        }
         if (user != null){
-            user.setUserName(request.getUserName());
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setDob(request.getDob());
@@ -207,7 +203,6 @@ public class IUserService implements UserService {
         user.setFirstName(userCreateRequest.getFirstName());
         user.setLastName(userCreateRequest.getLastName());
         user.setEmail(userCreateRequest.getEmail());
-        user.setUserName(userCreateRequest.getEmail());
         user.setRoles(role);
         user.setActive(true);
         user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
@@ -221,6 +216,15 @@ public class IUserService implements UserService {
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build());
 
+    }
+
+    @Override
+    public ResponseEntity<?> getUserHistoryOrder(Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            return null;
+        }
+        return null;
     }
 
     @Override

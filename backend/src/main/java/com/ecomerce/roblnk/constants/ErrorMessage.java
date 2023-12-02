@@ -3,6 +3,7 @@ package com.ecomerce.roblnk.constants;
 public class ErrorMessage {
     public static final String INVALID_JWT_TOKEN = "JWT token is expired or invalid";
     public static final String EMAIL_NOT_FOUND = "Email not found";
+    public static final String EXISTED_USER_NAME = "User name existed, please try another user name!";
     public static final String INCORRECT_PASSWORD_OR_EMAIL = "Incorrect password or email";
     public static final String INCORRECT_PASSWORD = "Incorrect password!";
     public static final String PASSWORDS_DO_NOT_MATCH = "Passwords do not match.";
