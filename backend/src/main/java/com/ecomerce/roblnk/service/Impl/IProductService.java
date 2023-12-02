@@ -60,7 +60,7 @@ public class IProductService implements ProductService {
         }
         for (Product product : products) {
             var items = productItemRepository.findAllByProduct_Id(product.getId());
-            for (ProductItem productItem : items){
+            for (ProductItem productItem : items) {
                 list.add(Math.toIntExact(productItem.getQuantityInStock()));
             }
 
@@ -87,6 +87,10 @@ public class IProductService implements ProductService {
             productDetail.setQuantityOfVariation(items.size());
             List<ProductItemResponse> productItemResponses = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
+                if (!productDetail.getProductItems().get(0).isActive()){
+                    productDetail.getProductItems().remove(0);
+                    continue;
+                }
                 System.out.println(productDetail.getProductItems().size());
                 ProductItemResponse productItemResponse = new ProductItemResponse();
                 List<ProductItemDTOv3> productItemDTOv3List = new ArrayList<>();
@@ -100,9 +104,9 @@ public class IProductService implements ProductService {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 }
                 productItemResponse.setVariationColor(optionColor);
-                for (int i = 0; i < productDetail.getProductItems().size(); i++){
+                for (int i = 0; i < productDetail.getProductItems().size(); i++) {
                     if (productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationName().startsWith("Color")
-                    && productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
+                            && productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
                         optionSize = productDetail.getProductItems().get(i).getProductConfigurations().get(1).getVariationOption();
                         ProductItemDTOv3 productItemDTOv3 = new ProductItemDTOv3();
                         productItemDTOv3.setId(productDetail.getProductItems().get(i).getId());
@@ -112,7 +116,7 @@ public class IProductService implements ProductService {
                         productItemDTOv3.setVariationSize(optionSize);
                         productItemDTOv3List.add(productItemDTOv3);
                         indexes.add(i);
-                    } else if (productDetail.getProductItems().get(i).getProductConfigurations().get(1).getVariationOption().equals(optionColor)){
+                    } else if (productDetail.getProductItems().get(i).getProductConfigurations().get(1).getVariationOption().equals(optionColor)) {
                         optionSize = productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationOption();
                         ProductItemDTOv3 productItemDTOv3 = new ProductItemDTOv3();
                         productItemDTOv3.setId(productDetail.getProductItems().get(i).getId());
@@ -130,6 +134,7 @@ public class IProductService implements ProductService {
                     System.out.println(indexes.get(j));
                     productDetail.getProductItems().remove(indexes.get(j) - j);
                 }
+
                 productItemResponse.setListProductItem(productItemDTOv3List);
                 productItemResponses.add(productItemResponse);
             }
@@ -523,7 +528,7 @@ public class IProductService implements ProductService {
         List<Integer> list = new ArrayList<>();
         for (Product product : products) {
             var items = productItemRepository.findAllByProduct_Id(product.getId());
-            for (ProductItem productItem : items){
+            for (ProductItem productItem : items) {
                 list.add(Math.toIntExact(productItem.getQuantityInStock()));
             }
 
@@ -540,8 +545,8 @@ public class IProductService implements ProductService {
     public List<ProductResponse> getAllProductV3() {
         var products = getAllProductV2();
         List<ProductResponse> list = new ArrayList<>();
-        for (ProductResponse productResponse : products){
-            if (productResponse.isActive()){
+        for (ProductResponse productResponse : products) {
+            if (productResponse.isActive()) {
                 list.add(productResponse);
             }
         }
