@@ -30,7 +30,7 @@ public class ProductItem {
     private Double price;
 
     @Column(name = "quantity_in_stock")
-    private Long quantityInStock;
+    private Integer quantityInStock;
 
     @Column(name = "product_image")
     private String productImage;

@@ -16,6 +16,7 @@ public class ProductResponse {
     private Long id;
     private String name;
     private String productImage;
+    private Long categoryId;
     private String categoryName;
     private Integer quantity;
     private boolean active;

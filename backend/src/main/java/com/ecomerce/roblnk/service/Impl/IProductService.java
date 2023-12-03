@@ -527,12 +527,15 @@ public class IProductService implements ProductService {
     public List<ProductResponse> getAllProductV2() {
         var products = productRepository.findAll();
         List<Integer> list = new ArrayList<>();
+
         for (Product product : products) {
+            int total = 0;
             var items = productItemRepository.findAllByProduct_Id(product.getId());
             for (ProductItem productItem : items) {
-                list.add(Math.toIntExact(productItem.getQuantityInStock()));
+                total += productItem.getQuantityInStock();
             }
 
+                list.add(total);
         }
         var productResponseList = productMapper.toProductResponseList(products);
         for (int i = 0; i < productResponseList.size(); i++) {

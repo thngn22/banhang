@@ -12,7 +12,7 @@ import java.util.List;
 public class ProductItemDTOv2 {
     private Long id;
     private Double price;
-    private Long quantityInStock;
+    private Integer quantityInStock;
     private String productImage;
     private boolean active;
     private List<ProductConfigurationDTO> productConfigurations;
