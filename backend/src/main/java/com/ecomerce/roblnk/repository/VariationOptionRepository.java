@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface VariationOptionRepository extends JpaRepository<VariationOption, Long> {
     List<VariationOption> findAllByVariation_Id(Long variation_id);
+    VariationOption findVariationOptionByVariation_IdAndValueContainingIgnoreCase(Long variation_id, String value);
 }

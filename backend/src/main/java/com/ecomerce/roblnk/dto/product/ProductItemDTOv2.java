@@ -11,10 +11,10 @@ import java.util.List;
 @Getter
 public class ProductItemDTOv2 {
     private Long id;
-    private Double price;
+    private Integer price;
     private Integer quantityInStock;
     private String productImage;
     private boolean active;
-    private List<ProductConfigurationDTO> productConfigurations;
-
+    private String size;
+    private String color;
 }

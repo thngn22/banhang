@@ -1,21 +1,27 @@
 package com.ecomerce.roblnk.dto.product;
 
-import com.ecomerce.roblnk.model.ProductConfiguration;
-import com.ecomerce.roblnk.model.VariationOption;
+import com.ecomerce.roblnk.dto.product.ProductItemResponse;
+import com.ecomerce.roblnk.dto.product.ReviewDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Data
-public class ProductItemDTO {
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductDetailResponsev3 {
     private Long id;
-    private Integer price;
-    private Integer quantityInStock;
+    private String name;
+    private String description;
     private String productImage;
+    private Long categoryId;
+    private Integer quantityOfVariation;
+    private Integer quantity;
     private boolean active;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -23,6 +29,6 @@ public class ProductItemDTO {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
-    private List<ProductConfigurationDTO> productConfigurations;
-
+    List<ProductItemResponse> productItemResponses;
+    
 }

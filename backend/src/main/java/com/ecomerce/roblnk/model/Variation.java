@@ -28,7 +28,7 @@ public class Variation {
     private Category category;
 
     //Variation Option
-    @OneToMany(mappedBy = "variation", cascade = CascadeType.MERGE, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<VariationOption> variationOptions = new ArrayList<>();
 }

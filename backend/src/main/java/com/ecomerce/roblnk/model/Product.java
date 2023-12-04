@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,10 +28,10 @@ public class Product {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 100000)
     private String description;
 
-    @Column(name = "product_image")
+    @Column(name = "product_image", length = 100000)
     private String productImage;
 
     @Column(name = "created_date")
@@ -58,7 +59,7 @@ public class Product {
     //Product Item
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<ProductItem> productItems;
+    private List<ProductItem> productItems = new ArrayList<>();
 
 
 }

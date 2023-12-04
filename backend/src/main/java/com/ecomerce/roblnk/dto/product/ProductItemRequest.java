@@ -7,8 +7,9 @@ import java.util.List;
 
 @Data
 public class ProductItemRequest {
-    private Double price;
-    private Long quantityInStock;
+    private Integer price;
+    private Integer quantityInStock;
     private String productImage;
-    private List<ProductConfigurationRequest> productConfigurations;
+    private String size;
+    private String color;
 }

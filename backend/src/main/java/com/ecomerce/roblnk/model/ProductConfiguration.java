@@ -15,11 +15,11 @@ public class ProductConfiguration {
     @Column(name = "product_configuration_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_item_id")
     private ProductItem productItem;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "variation_option_id")
     private VariationOption variationOption;
 }

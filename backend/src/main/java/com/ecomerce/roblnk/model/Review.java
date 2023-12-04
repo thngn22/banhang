@@ -22,6 +22,8 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
     private Long id;
+
+    @Column(name = "comment", length = 100000)
     private String comment;
     private Double rating;
 

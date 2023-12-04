@@ -21,23 +21,23 @@ public class CartItem {
     private Integer quantity;
 
     @Column(name = "price")
-    private Double price;
+    private Integer price;
 
     @Column(name = "total_price")
-    private Double totalPrice;
+    private Integer totalPrice;
 
     //Cart
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
     //Product Item
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_item_id")
     private ProductItem productItem;
 
     //Order Item
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JsonIgnore
     private OrderItem orderItem;
 }

@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface VariationRepository extends JpaRepository<Variation, Long> {
     List<Variation> findVariationsByCategory_Id(Long category_id);
+    Variation findVariationByCategory_IdAndNameContaining(Long category_id, String name);
 }

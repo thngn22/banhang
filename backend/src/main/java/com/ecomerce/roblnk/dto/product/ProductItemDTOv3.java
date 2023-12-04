@@ -10,8 +10,8 @@ import lombok.*;
 public class ProductItemDTOv3 {
     private String variationSize;
     private Long id;
-    private Double price;
-    private Long quantityInStock;
+    private Integer price;
+    private Integer quantityInStock;
     private String productImage;
     private boolean active;
 }

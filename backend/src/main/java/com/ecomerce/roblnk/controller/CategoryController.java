@@ -98,7 +98,7 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 
-    @PostMapping("/{id}/variation")
+/*    @PostMapping("/{id}/variation")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addVariationIntoCategory(@PathVariable("id") Long id, @RequestBody List<String> variationRequest){
         try {
@@ -128,5 +128,5 @@ public class CategoryController {
         }
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
-    }
+    }*/
 }

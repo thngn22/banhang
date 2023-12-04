@@ -27,12 +27,12 @@ public class ProductItem {
     private String name;
 
     @Column(name = "price")
-    private Double price;
+    private Integer price;
 
     @Column(name = "quantity_in_stock")
     private Integer quantityInStock;
 
-    @Column(name = "product_image")
+    @Column(name = "product_image", length = 100000)
     private String productImage;
 
     @Column(name = "is_active")
@@ -49,17 +49,17 @@ public class ProductItem {
     private Date modifiedDate;
 
     //Product
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
 
     //Cart Item
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.MERGE, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<CartItem> cartItems = new ArrayList<>();
 
     //Product Configuration
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.MERGE, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.service.OrderService;
 import com.ecomerce.roblnk.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,11 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/order")
 public class OrderController {
-    private final UserService userService;
+    private final OrderService orderService;
 
-    @GetMapping("/account/profile")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> information(Principal connectedUser){
-        return userService.findInformationUser(connectedUser);
-
+    @GetMapping("/")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllOrders(Principal connectedUser){
+        return null;
     }
 }

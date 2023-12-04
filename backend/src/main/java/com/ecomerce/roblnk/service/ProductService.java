@@ -2,13 +2,13 @@ package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.dto.product.*;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface ProductService {
     List<ProductResponse> getAllProduct(Long categoryId);
 
+    ProductDetailResponsev3 getDetailProductForAdmin(Long productId);
     ProductDetailResponsev2 getDetailProduct(Long productId);
 
     String createProduct(@Valid ProductRequest request);

@@ -12,6 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductEditRequest {
-    private ProductDTO productDTO;
+    private Long id;
+    private String name;
+    private String description;
+    private String productImage;
+    private Long categoryId;
+    private boolean active;
     private List<ProductItemDTOv2> productItems;
 }

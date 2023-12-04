@@ -47,18 +47,12 @@ public class ICartService implements CartService {
             var cart = user.get().getCart();
             if (cart != null) {
                 UserCart userCart = cartMapper.toUserCart(cart);
-                int totalItem = 0;
-                int totalPrice = 0;
                 List<CartItemDTO> list = new ArrayList<>();
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
                     if (cartItemDTO.getQuantity() > 0) {
-                        totalItem += cartItemDTO.getQuantity();
-                        totalPrice += cartItemDTO.getTotalPrice();
                         list.add(cartItemDTO);
                     }
                 }
-                userCart.setTotalItem(totalItem);
-                userCart.setTotalPrice(totalPrice);
                 userCart.setCartItems(list);
                 return ResponseEntity.status(HttpStatus.OK).body(userCart);
 
@@ -82,6 +76,8 @@ public class ICartService implements CartService {
     public ResponseEntity<?> editUserCart(Principal principal, @Valid List<CartItemEditRequest> list) {
         var user = userRepository.findByEmail(principal.getName());
         List<CartItem> cartItems = new ArrayList<>();
+        int totalPrice = 0;
+        int totalQuantity = 0;
         if (user.isPresent()) {
             var userCart = user.get().getCart();
 
@@ -116,10 +112,12 @@ public class ICartService implements CartService {
                                             }
                                             if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
                                                 cartItem.setQuantity(0);
-                                                cartItem.setTotalPrice((double) 0);
+                                                cartItem.setTotalPrice(0);
                                             } else {
                                                 cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
                                                 cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
+                                                totalPrice += cartItem.getPrice() * cartItem.getQuantity();
+                                                totalQuantity += cartItem.getQuantity();
                                             }
                                             cartItem.setPrice(productItem.getPrice());
 
@@ -144,10 +142,12 @@ public class ICartService implements CartService {
                                 }
                                 if (cartItemEditRequest.getQuantity() <= 0) {
                                     cartItem.setQuantity(0);
-                                    cartItem.setTotalPrice((double) 0);
+                                    cartItem.setTotalPrice(0);
                                 } else {
                                     cartItem.setQuantity(cartItemEditRequest.getQuantity());
                                     cartItem.setTotalPrice(cartItemEditRequest.getQuantity() * productItem.getPrice());
+                                    totalPrice += cartItem.getPrice() * cartItem.getQuantity();
+                                    totalQuantity += cartItem.getQuantity();
                                 }
                                 cartItems.add(cartItem);
                             }
@@ -166,10 +166,13 @@ public class ICartService implements CartService {
                             }
                             if (cartItemEditRequest.getQuantity() <= 0) {
                                 cartItem.setQuantity(0);
-                                cartItem.setTotalPrice((double) 0);
+                                cartItem.setTotalPrice(0);
                             } else {
                                 cartItem.setQuantity(cartItemEditRequest.getQuantity());
                                 cartItem.setTotalPrice(cartItemEditRequest.getQuantity() * productItem.getPrice());
+                                totalPrice += cartItem.getPrice() * cartItem.getQuantity();
+                                totalQuantity += cartItem.getQuantity();
+
                             }
                             cartItems.add(cartItem);
                         }
@@ -190,7 +193,8 @@ public class ICartService implements CartService {
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
 
-
+                userCart.setTotalItem(totalQuantity);
+                userCart.setTotalPrice(totalPrice);
                 cartItemRepository.saveAll(cartItems);
                 cartRepository.save(userCart);
             }

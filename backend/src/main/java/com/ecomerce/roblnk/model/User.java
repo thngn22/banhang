@@ -61,30 +61,30 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     //Address
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<UserAddress> addresses = new ArrayList<>();
 
     //Cart
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     private Cart cart;
 
     //Payment Method
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<PaymentMethod> paymentMethods;
+    private List<PaymentMethod> paymentMethods = new ArrayList<>();
 
 
     //Review
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Review> review;
+    private List<Review> review = new ArrayList<>();
 
     //Order
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Orders> orders;
+    private List<Orders> orders = new ArrayList<>();
 
 
     @Override

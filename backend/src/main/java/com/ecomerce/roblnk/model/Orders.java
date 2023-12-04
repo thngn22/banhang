@@ -25,7 +25,7 @@ public class Orders {
     private Long id;
 
     private Status status;
-    private Double totalPayment;
+    private Integer totalPayment;
     private Integer totalItem;
 
     @Column(name = "created_at")

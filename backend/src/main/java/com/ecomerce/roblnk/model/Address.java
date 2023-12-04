@@ -19,10 +19,10 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "street_address")
+    @Column(name = "street_address", length = 100000)
     private String streetAddress;
 
-    @Column(name = "city")
+    @Column(name = "city", length = 100000)
     private String city;
 
     @Column(name = "zip_code")

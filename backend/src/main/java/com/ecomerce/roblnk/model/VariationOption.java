@@ -24,11 +24,11 @@ public class VariationOption {
     private String value;
 
     //Variation
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "variation_id")
     private Variation variation;
 
     //Product Item
-    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.MERGE, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "variationOption", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ProductConfiguration> productConfigurations = new ArrayList<>();
 }

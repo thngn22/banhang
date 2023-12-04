@@ -20,7 +20,7 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Double price;
+    private Integer price;
     private String description;
 
     @Column(name = "estimated_shipping_time")

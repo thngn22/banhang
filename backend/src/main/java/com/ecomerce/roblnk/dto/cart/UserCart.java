@@ -15,7 +15,7 @@ import java.util.List;
 public class UserCart {
     private Long id;
     private Long userId;
-    private double totalPrice;
+    private Integer totalPrice;
     private int totalItem;
     private List<CartItemDTO> cartItems;
 

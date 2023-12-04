@@ -6,6 +6,9 @@ import java.util.List;
 
 @Data
 public class ProductRequest {
-    private ProductCreateRequest productCreateRequest;
+    private String name;
+    private String description;
+    private String productImage;
+    private Long categoryId;
     private List<ProductItemRequest> productItems;
 }
