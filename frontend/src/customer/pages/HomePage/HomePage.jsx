@@ -10,32 +10,33 @@ import ProductCard from "../../components/Product/ProductCard";
 HomePage.propTypes = {};
 
 function HomePage(props) {
-  const fetchProductAll = async () => {
-    const res = await ProductService.getAllProduct();
-    return res;
-  };
+  // const fetchProductAll = async () => {
+  //   const res = await ProductService.getAllProduct();
+  //   return res;
+  // };
 
-  // const data = fetchProductAll()
-  // console.log(data);
+  // // const data = fetchProductAll()
+  // // console.log(data);
 
-  const { data: products, isSuccess } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => fetchProductAll(),
-  });
+  // const { data: products, isSuccess } = useQuery({
+  //   queryKey: ["products"],
+  //   queryFn: () => fetchProductAll(),
+  // });
 
   return (
     <div className="">
       <HomeCarousel />
 
       <div className="space-y-10 py-10 px-5 lg:px-10">
-        {isSuccess && (
+        {/* {isSuccess && (
           <>
             <ProductCard data={products} />
             <ProductCard data={products} />
             <ProductCard data={products} />
             <ProductCard data={products} />
           </>
-        )}
+        )} */}
+
         {/* <ProductCard data={products} /> */}
         {/* <ProductCard data={products} />
          <ProductCard data={products} />

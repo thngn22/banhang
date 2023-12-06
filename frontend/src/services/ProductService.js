@@ -11,7 +11,14 @@ export const getAllProductUser = async () => {
   const res = await axios.get(`${process.env.REACT_APP_API_URL}product/`);
   return res.data;
 };
-
+export const getAllProductByCategory = async (params) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}category`, { params });
+  return res.data
+}
+export const getProductDetail = async (productId) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}product/${productId}`);
+  return res.data;
+};
 export const getProductAdmin = async (accessToken) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/products`,

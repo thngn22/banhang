@@ -1,48 +1,33 @@
 import { jacket } from "../../../Data/jacket";
 import { tShirt } from "../../../Data/t-shirt";
 import ProductCard from "../../components/Product/ProductCard";
-
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
-// const products = [
-//   {
-//     id: 1,
-//     name: "Basic Tee",
-//     href: "#",
-//     imageSrc:
-//       "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
-//     imageAlt: "Front of men's Basic Tee in black.",
-//     price: "$35",
-//     color: "Black",
-//   },
-//   // More products...
-// ];
+import { useQuery } from '@tanstack/react-query'
+import { useParams } from 'react-router-dom'
+import * as ProductService from "../../../services/ProductService";
 
 const products = [...jacket, ...tShirt];
 
 export default function ProductPage() {
+  const { categoryId } = useParams()
+
+  const { data: products } = useQuery({
+    queryKey: ['category', categoryId],
+    queryFn: () => {
+      return ProductService.getAllProductByCategory({ id: categoryId })
+    }
+  })
+
+  const categoryName = products?.[0]?.categoryName
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          Customers purchased
+          {categoryName}
         </h2>
 
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-          {products.map((product) => (
-            <div key={product.id} className="group relative">
+          {products?.map((product, index) => (
+            <div key={index} className="group relative">
               {/* <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                 <img
                   src={product.imageUrl}
@@ -64,7 +49,7 @@ export default function ProductPage() {
                   {product.price}
                 </p>
               </div> */}
-              <ProductCard data={product}/>
+              <ProductCard data={product} />
             </div>
           ))}
         </div>

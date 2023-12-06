@@ -6,7 +6,8 @@ const initialState = {
   phone: "",
   avatar: "",
   accessToken: "",
-  isAdmin: false
+  isAdmin: false,
+  cart: [],
 };
 
 export const userSlice = createSlice({
@@ -23,10 +24,35 @@ export const userSlice = createSlice({
       state.accessToken = accessToken;
       state.isAdmin = isAdmin
     },
+    addToCart: (state, action) => {
+      const newItem = action.payload;
+
+      const existingItem = state.cart.find(item => item.id === newItem.id && item.sizeBuy === newItem.sizeBuy && item.colorBuy === newItem.colorBuy);
+
+      if (existingItem) {
+        // Nếu có, cập nhật quantity
+        existingItem.quantity += newItem.quantity;
+        existingItem.price += newItem.price;
+      } else {
+        // Nếu không, thêm mới vào state.cart
+        state.cart.push({ ...newItem, quantity: 1 });
+      }
+    },
+    updateQuantity: (state, action) => {
+      const newItem = action.payload
+      const itemIndex = state.cart.findIndex(item => item.id === newItem.id && item.sizeBuy === newItem.sizeBuy && item.colorBuy === newItem.colorBuy);
+      state.cart[itemIndex] = newItem;
+
+    },
+    removeItem: (state, action) => {
+      const deleteItem = action.payload
+      const itemIndex = state.cart.findIndex(item => item.id === deleteItem.id && item.sizeBuy === deleteItem.sizeBuy && item.colorBuy === deleteItem.colorBuy);
+      state.cart.splice(itemIndex, 1)
+    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { updateUser } = userSlice.actions;
+export const { updateUser, addToCart, updateQuantity, removeItem } = userSlice.actions;
 
 export default userSlice.reducer;

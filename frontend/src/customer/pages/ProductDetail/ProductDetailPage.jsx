@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
 import Rating from "@mui/material/Rating";
@@ -7,7 +7,17 @@ import { jacket } from "../../../Data/jacket";
 import { tShirt } from "../../../Data/t-shirt";
 import HomeSectionCard from "../../components/HomeSectionCard/HomeSectionCard";
 import ProductCard from "../../components/Product/ProductCard";
-
+import { useParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import * as ProductService from "../../../services/ProductService";
+import * as CartService from "../../../services/CartService";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from '../../../redux/slides/userSlide';
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { IconButton } from "@mui/material";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import { useMutationHook } from '../../../hooks/useMutationHook';
+import { useQueryClient } from '@tanstack/react-query'
 const product = {
   name: "Basic Tee 6-Pack",
   price: "$192",
@@ -63,10 +73,49 @@ function classNames(...classes) {
 }
 
 export default function ProductDetailPage() {
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const [selectedColor, setSelectedColor] = useState();
+  const [selectedSize, setSelectedSize] = useState();
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const { productId } = useParams()
+  const queryClient = useQueryClient()
+  const auth = useSelector((state) => state.auth.login.currentUser);
 
   const simililer_products = [...jacket, ...tShirt];
+  const { data: productDetail } = useQuery({
+    queryKey: ['category', productId],
+    queryFn: () => {
+      return ProductService.getProductDetail(productId)
+    }
+  })
+
+  React.useEffect(() => {
+    productDetail && setSelectedColor(productDetail.productItemResponses?.[0].variationColor)
+    productDetail && setSelectedSize(productDetail.productItemResponses?.[0].listProductItem?.[0].variationSize)
+  }, [productDetail])
+
+
+  // Find the element with the matching variationColor
+  const selectedElement = productDetail?.productItemResponses?.find(item => item.variationColor === selectedColor);
+
+  // If the element is found, map over its listProductItem
+  const selectedItems = selectedElement ? selectedElement.listProductItem : [];
+
+  const handlePlusQuantity = () => {
+    setSelectedQuantity((prev) => prev + 1);
+
+
+  }
+  const handleSubQuantity = () => {
+    setSelectedQuantity((prev) => (prev > 1 ? prev - 1 : prev));
+
+  }
+  const mutation = useMutationHook((data) => {
+    const res = CartService.updateCart(data, auth.accessToken);
+    return res;
+  });
+
+
+
 
   return (
     <div className="bg-white">
@@ -116,14 +165,14 @@ export default function ProductDetailPage() {
           <div className="flex flex-col item-center">
             <div className="mx-auto overflow-hidden rounded-lg max-w-[30rem] max-h-[35rem]">
               <img
-                src={product.images[0].src}
-                alt={product.images[0].alt}
+                src={productDetail?.productImage}
+                alt={productDetail?.productImage}
                 className="h-full w-full object-cover object-center"
               />
             </div>
             <div className="flex flex-wrap space-x-5 justify-center">
-              {product.images.map((image) => (
-                <div className="overflow-hidden rounded-lg max-w-[5rem] max-h-[5rem] mt-4">
+              {product.images.map((image, index) => (
+                <div key={index} className="overflow-hidden rounded-lg max-w-[5rem] max-h-[5rem] mt-4">
                   <img
                     src={image.src}
                     alt={image.alt}
@@ -141,7 +190,7 @@ export default function ProductDetailPage() {
                 local
               </h1>
               <h1 className="text-lg lg:text-x1 text-gray-900 opacity-60 pt-1">
-                name
+                {productDetail?.name}
               </h1>
             </div>
 
@@ -180,13 +229,14 @@ export default function ProductDetailPage() {
                       Choose a color
                     </RadioGroup.Label>
                     <div className="flex items-center space-x-3">
-                      {product.colors.map((color) => (
-                        <RadioGroup.Option
-                          key={color.name}
-                          value={color}
+                      {productDetail?.productItemResponses.map((item, index) => {
+
+                        return <RadioGroup.Option
+                          key={index}
+                          value={item?.variationColor}
                           className={({ active, checked }) =>
                             classNames(
-                              color.selectedClass,
+                              "ring-green-500",
                               active && checked ? "ring ring-offset-1" : "",
                               !active && checked ? "ring-2" : "",
                               "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
@@ -194,17 +244,17 @@ export default function ProductDetailPage() {
                           }
                         >
                           <RadioGroup.Label as="span" className="sr-only">
-                            {color.name}
+                            {item?.variationColor}
                           </RadioGroup.Label>
                           <span
                             aria-hidden="true"
-                            className={classNames(
-                              color.class,
-                              "h-8 w-8 rounded-full border border-black border-opacity-10"
-                            )}
+                            style={{ background: `${item?.variationColor.toLowerCase()}` }}
+                            className={
+                              "h-8 w-8 rounded-full border border-black border-opacity-10 "
+                            }
                           />
                         </RadioGroup.Option>
-                      ))}
+                      })}
                     </div>
                   </RadioGroup>
                 </div>
@@ -230,14 +280,14 @@ export default function ProductDetailPage() {
                       Choose a size
                     </RadioGroup.Label>
                     <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
-                      {product.sizes.map((size) => (
+                      {selectedItems?.map((item, index) => (
                         <RadioGroup.Option
-                          key={size.name}
-                          value={size}
-                          disabled={!size.inStock}
+                          key={index}
+                          value={item?.variationSize}
+                          disabled={item?.quantityInStock < 1 ? true : false}
                           className={({ active }) =>
                             classNames(
-                              size.inStock
+                              item?.quantityInStock > 0
                                 ? "cursor-pointer bg-white text-gray-900 shadow-sm"
                                 : "cursor-not-allowed bg-gray-50 text-gray-200",
                               active ? "ring-2 ring-indigo-500" : "",
@@ -248,9 +298,9 @@ export default function ProductDetailPage() {
                           {({ active, checked }) => (
                             <>
                               <RadioGroup.Label as="span">
-                                {size.name}
+                                {item?.variationSize}
                               </RadioGroup.Label>
-                              {size.inStock ? (
+                              {item?.variationSize ? (
                                 <span
                                   className={classNames(
                                     active ? "border" : "border-2",
@@ -289,7 +339,18 @@ export default function ProductDetailPage() {
                     </div>
                   </RadioGroup>
                 </div>
+                <div className='mt-10'>
+                  <div className="flex items-center space-x-2">
+                    <IconButton onClick={() => handleSubQuantity()}>
+                      <RemoveCircleOutlineIcon />
+                    </IconButton>
+                    <span className="py-1 px-7 border rounded-sm">{selectedQuantity}</span>
+                    <IconButton onClick={() => handlePlusQuantity()} sx={{ color: "RGB(145,85,253)" }}>
+                      <AddCircleOutlineIcon />
+                    </IconButton>
+                  </div>
 
+                </div>
                 <div className="flex space-x-10 pt-8">
                   <Button
                     variant="contained"
@@ -298,6 +359,27 @@ export default function ProductDetailPage() {
                       py: "1rem",
                       bgcolor: "#9155fd",
                       flexGrow: "1",
+                    }}
+                    onClick={() => {
+                      const resultItem = productDetail.productItemResponses.find(item =>
+                        item.variationColor === selectedColor &&
+                        item.listProductItem.some(subItem => subItem.variationSize === selectedSize)
+                      );
+
+                      const idProductBuy = resultItem ? resultItem.listProductItem.find(subItem => subItem.variationSize === selectedSize).id : null;
+                      const dataToUpdate = {
+                        productItemId: idProductBuy,
+                        quantity: selectedQuantity
+                      }
+
+                      mutation.mutate([dataToUpdate],
+                        {
+                          onSuccess: (data) => {
+
+                            queryClient.invalidateQueries({ queryKey: ['cart'] })
+                          }
+                        });
+                      alert("thêm vào giỏ hàng thành công")
                     }}
                   >
                     Add to Cart
@@ -334,8 +416,8 @@ export default function ProductDetailPage() {
         <section className="pt-10">
           <h1 className="py-5 text-xl font-bold">Smililer Products</h1>
           <div className="flex flex-wrap justify-center">
-            {simililer_products.map((item) => (
-              <div key={item.id} className="group relative">
+            {simililer_products.map((item, index) => (
+              <div key={index} className="group relative">
                 <ProductCard data={item} />
               </div>
             ))}

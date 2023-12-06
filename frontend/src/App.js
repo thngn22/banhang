@@ -73,7 +73,7 @@ function App() {
         <Route path="/register" element={<SignUp />} />
         <Route path="/otp" element={<ConfirmOTP />} />
         <Route
-          path="/productDetail"
+          path="/product/:productId"
           element={
             <DefaultComponent>
               <ProductDetailPage />
@@ -81,7 +81,7 @@ function App() {
           }
         />
         <Route
-          path="/products"
+          path="/products/category/:categoryId"
           element={
             <DefaultComponent>
               <ProductPage />
