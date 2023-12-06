@@ -19,7 +19,7 @@ public interface UserService {
 
     ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
 
-    ResponseEntity<?> getUserPayment(Principal connectedUser);
+    ResponseEntity<?> getUserPaymentMethod(Principal connectedUser);
 
     ResponseEntity<?> addUserPayment(Principal connectedUser, UserPaymentRequest request);
 
@@ -36,4 +36,5 @@ public interface UserService {
     ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest);
 
     ResponseEntity<?> getUserHistoryOrder(Principal connectedUser);
+
 }

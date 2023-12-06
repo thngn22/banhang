@@ -75,7 +75,50 @@ public class IProductService implements ProductService {
 
     @Override
     public ProductDetailResponsev3 getDetailProductForAdmin(Long productId) {
-        return null;
+        var product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            var items = productItemRepository.findAllByProduct_Id(product.get().getId());
+            var productDetail = productMapper.toDetailResponse(product.get());
+            var totalQuantity = 0;
+            for (ProductItem productItem : items) {
+                totalQuantity += productItem.getQuantityInStock();
+            }
+            productDetail.setQuantity(totalQuantity);
+            productDetail.setQuantityOfVariation(items.size());
+            List<ProductItemDTOv2> productItemDTOv2List = new ArrayList<>();
+            while (!productDetail.getProductItems().isEmpty()) {
+                System.out.println(productDetail.getProductItems().size());
+
+                String optionColor = "";
+                String optionSize = "";
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
+                    optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
+                } else {
+                    optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
+                }
+                ProductItemDTOv2 productItemDTOv2 = new ProductItemDTOv2();
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")
+                        && productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
+                    optionSize = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
+                } else if (productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption().equals(optionColor)) {
+                    optionSize = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
+
+                }
+                productItemDTOv2.setId(productDetail.getProductItems().get(0).getId());
+                productItemDTOv2.setPrice(productDetail.getProductItems().get(0).getPrice());
+                productItemDTOv2.setProductImage(productDetail.getProductItems().get(0).getProductImage());
+                productItemDTOv2.setQuantityInStock(productDetail.getProductItems().get(0).getQuantityInStock());
+                productItemDTOv2.setActive(productDetail.getProductItems().get(0).isActive());
+                productItemDTOv2.setColor(optionColor);
+                productItemDTOv2.setSize(optionSize);
+                productItemDTOv2List.add(productItemDTOv2);
+                productDetail.getProductItems().remove(0);
+            }
+            var productResponse = productMapper.toProductDetailResponsev3(productDetail);
+            productResponse.setProductItems(productItemDTOv2List);
+            return productResponse;
+        } else
+            return null;
     }
 
     @Override
@@ -398,12 +441,11 @@ public class IProductService implements ProductService {
 
                     productItem.setName(productEditRequest.getName() + name);
                     var image = productItem.getProductImage();
-                    if (image != null){
-                        if (image.startsWith("/")){
+                    if (image != null) {
+                        if (image.startsWith("/")) {
                             productItem.setProductImage(getURLPictureAndUploadToCloudinary(image));
                         }
-                    }
-                    else productItem.setProductImage(ImageUtil.urlImage);
+                    } else productItem.setProductImage(ImageUtil.urlImage);
 
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());

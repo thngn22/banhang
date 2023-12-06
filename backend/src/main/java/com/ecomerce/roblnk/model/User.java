@@ -10,8 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -73,7 +71,7 @@ public class User implements UserDetails {
     //Payment Method
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<PaymentMethod> paymentMethods = new ArrayList<>();
+    private List<UserPaymentMethod> userPaymentMethods = new ArrayList<>();
 
 
     //Review

@@ -5,10 +5,7 @@ import com.ecomerce.roblnk.dto.auth.EmailDetails;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.UserMapper;
-import com.ecomerce.roblnk.model.EnumRole;
-import com.ecomerce.roblnk.model.Role;
-import com.ecomerce.roblnk.model.User;
-import com.ecomerce.roblnk.model.UserAddress;
+import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.UserService;
@@ -44,6 +41,7 @@ public class IUserService implements UserService {
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserPaymentMethodRepository userPaymentMethodRepository;
 
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
@@ -87,13 +85,13 @@ public class IUserService implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> getUserPayment(Principal connectedUser) {
+    public ResponseEntity<?> getUserPaymentMethod(Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
-            var userPayments = paymentMethodRepository.findAllByUser_Email(user.getEmail());
-            return ResponseEntity.ok(userMapper.toUserPaymentResponses(userPayments));
-        }
-        else
+//        if (user != null){
+//            var userPayments = userPaymentMethodRepository.findAllByUser_Email(user.getEmail());
+//            return ResponseEntity.ok(userMapper.toUserPaymentResponses(userPayments));
+//        }
+//        else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user!");
     }
 
@@ -101,13 +99,22 @@ public class IUserService implements UserService {
     public ResponseEntity<?> addUserPayment(Principal connectedUser, UserPaymentRequest request) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
-            var userPayment = paymentMethodRepository.findAllByCardNumber(request.getCardNumber());
+            var userPayment = userPaymentMethodRepository.findAllByCardNumberContainingIgnoreCase(request.getCardNumber());
             if (userPayment.isPresent()){
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Already existed card number, please try another card with another card number!");
             }
-            var userPaymentEntity = userMapper.toPaymentEntity(request);
-            userPaymentEntity.setUser(user);
-            paymentMethodRepository.save(userPaymentEntity);
+            else {
+                var paymentMethod = paymentMethodRepository.findAllByNameMethodContaining("Thẻ tín dụng/ngân hàng").orElseThrow();
+                UserPaymentMethod userPaymentMethod = new UserPaymentMethod();
+                userPaymentMethod.setPaymentMethod(paymentMethod);
+                userPaymentMethod.setCVV(request.getCVV());
+                userPaymentMethod.setAddressBanking(request.getAddressBanking());
+                userPaymentMethod.setZipCode(request.getZipCode());
+                userPaymentMethod.setNameHolder(request.getNameHolder());
+                userPaymentMethod.setDateExpire(request.getDateExpire());
+                userPaymentMethod.setUser(user);
+                userPaymentMethodRepository.save(userPaymentMethod);
+            }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user!");
     }

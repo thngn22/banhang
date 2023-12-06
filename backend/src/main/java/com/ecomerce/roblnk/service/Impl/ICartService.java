@@ -116,13 +116,13 @@ public class ICartService implements CartService {
                                             } else {
                                                 cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
                                                 cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
-                                                totalPrice += cartItem.getPrice() * cartItem.getQuantity();
-                                                totalQuantity += cartItem.getQuantity();
                                             }
                                             cartItem.setPrice(productItem.getPrice());
-
+                                            cartItem = cartItemRepository.save(cartItem);
+                                            System.out.println("Gia: " + cartItem.getPrice());
+                                            System.out.println("So luong: " + cartItem.getQuantity());
+                                            System.out.println(" ");
                                             cartItems.add(cartItem);
-                                            userCart.getCartItems().add(cartItem);
                                             break miniLoop;
                                         }
                                     }
@@ -145,10 +145,10 @@ public class ICartService implements CartService {
                                     cartItem.setTotalPrice(0);
                                 } else {
                                     cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                    cartItem.setTotalPrice(cartItemEditRequest.getQuantity() * productItem.getPrice());
-                                    totalPrice += cartItem.getPrice() * cartItem.getQuantity();
-                                    totalQuantity += cartItem.getQuantity();
+                                    cartItem.setTotalPrice(cartItem.getPrice() * cartItemEditRequest.getQuantity());
                                 }
+                                cartItem.setPrice(productItem.getPrice());
+                                cartItem = cartItemRepository.save(cartItem);
                                 cartItems.add(cartItem);
                             }
                         } else {
@@ -164,16 +164,15 @@ public class ICartService implements CartService {
                                         .timestamp(new Date(System.currentTimeMillis()))
                                         .build());
                             }
-                            if (cartItemEditRequest.getQuantity() <= 0) {
+                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
                                 cartItem.setQuantity(0);
                                 cartItem.setTotalPrice(0);
                             } else {
-                                cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                cartItem.setTotalPrice(cartItemEditRequest.getQuantity() * productItem.getPrice());
-                                totalPrice += cartItem.getPrice() * cartItem.getQuantity();
-                                totalQuantity += cartItem.getQuantity();
-
+                                cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
+                                cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
                             }
+                            cartItem.setPrice(productItem.getPrice());
+                            cartItem = cartItemRepository.save(cartItem);
                             cartItems.add(cartItem);
                         }
 
@@ -193,9 +192,13 @@ public class ICartService implements CartService {
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
 
+                userCart = cartRepository.save(userCart);
+                for (CartItem cartItem : userCart.getCartItems()){
+                    totalQuantity += cartItem.getQuantity();
+                    totalPrice += cartItem.getTotalPrice();
+                }
                 userCart.setTotalItem(totalQuantity);
                 userCart.setTotalPrice(totalPrice);
-                cartItemRepository.saveAll(cartItems);
                 cartRepository.save(userCart);
             }
             return ResponseEntity.status(HttpStatus.OK).body(ErrorResponse.builder()

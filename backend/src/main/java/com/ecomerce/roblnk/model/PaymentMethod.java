@@ -1,7 +1,11 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -13,23 +17,11 @@ public class PaymentMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String nameMethod;
 
-    private PaymentType paymentTypeEnum;
-    private String cardNumber;
-    private String dateExpire;
-    private String CVV;
-    private String nameHolder;
-    private String addressBanking;
-    private String zipCode;
-
-    //User
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    //Order
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Orders orders;
+    //Payment Information
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "paymentMethod", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<UserPaymentMethod> userPaymentMethods = new ArrayList<>();
 
 }

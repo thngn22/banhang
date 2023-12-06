@@ -73,4 +73,13 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 
+    @GetMapping("/products/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getDetailProduct(@PathVariable("id") Long id) {
+        var product = productService.getDetailProductForAdmin(id);
+        if (product != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        } else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
 }

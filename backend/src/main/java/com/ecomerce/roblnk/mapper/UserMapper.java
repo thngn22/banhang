@@ -27,10 +27,8 @@ public interface UserMapper {
     @Mapping(source = "category.id", target = "categoryId")
     ProductDTO toProductDTO(Product product);
 
-    PaymentMethod toPaymentEntity(UserPaymentRequest userPaymentRequest);
-
-    UserPaymentResponse toPaymentResponse(PaymentMethod paymentMethod);
-    List<UserPaymentResponse> toUserPaymentResponses(List<PaymentMethod> paymentMethods);
+    //UserPaymentResponse toPaymentResponse(PaymentMethod paymentMethod);
+    //List<UserPaymentResponse> toUserPaymentResponses(List<UserPaymentMethod> userPaymentMethods);
 
     List<UserAddressResponse> toListUserAddressResponse(List<UserAddress> userAddresses);
 

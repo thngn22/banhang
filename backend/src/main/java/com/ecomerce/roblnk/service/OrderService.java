@@ -1,10 +1,12 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.exception.OrderException;
 import com.ecomerce.roblnk.model.Address;
 import com.ecomerce.roblnk.model.Orders;
 import com.ecomerce.roblnk.model.User;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface OrderService {
@@ -17,4 +19,5 @@ public interface OrderService {
     Orders deliveredOrder(Long orderId) throws OrderException;
     Orders canceledOrder(Long orderId) throws OrderException;
 
+    List<OrdersResponse> getAllOrder(Principal connectedUser);
 }

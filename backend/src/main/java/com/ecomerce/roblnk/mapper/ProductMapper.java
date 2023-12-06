@@ -21,6 +21,9 @@ public interface ProductMapper {
     ProductDetailResponse toDetailResponse(Product product);
 
     ProductDetailResponsev2 toProductDetailResponsev2(ProductDetailResponse productDetailResponse);
+    ProductDetailResponsev3 toProductDetailResponsev3(ProductDetailResponse productDetailResponse);
+
+
     ReviewDTO toReviewDTO(Review review);
 
     UserReview toUserReview(User user);

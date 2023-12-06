@@ -35,7 +35,7 @@ public class UserController {
     @GetMapping("/account/payment")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> payment(Principal connectedUser){
-        return userService.getUserPayment(connectedUser);
+        return userService.getUserPaymentMethod(connectedUser);
     }
 
     @PostMapping("/account/payment")

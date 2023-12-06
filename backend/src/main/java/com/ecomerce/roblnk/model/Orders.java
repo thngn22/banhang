@@ -1,16 +1,12 @@
 package com.ecomerce.roblnk.model;
 
-import com.ecomerce.roblnk.util.Status;
+import com.ecomerce.roblnk.constants.StatusOrder;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
@@ -24,7 +20,6 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Status status;
     private Integer totalPayment;
     private Integer totalItem;
 
@@ -49,13 +44,18 @@ public class Orders {
     private Address address;
 
     //Payment Method
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<PaymentMethod> paymentMethods;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_payment_method_id")
+    private UserPaymentMethod userPaymentMethod;
 
     //Delivery
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
+
+    //Order Status
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "order_status")
+    private StatusOrder statusOrder;
 
 }
