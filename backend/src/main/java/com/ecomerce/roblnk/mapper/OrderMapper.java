@@ -16,7 +16,6 @@ import java.util.List;
 public interface OrderMapper {
 
     @Mapping(source = "statusOrder.orderStatus", target = "statusOrder")
-    @Mapping(source = "user.id", target = "userId")
     OrdersResponse toOrderResponse(Orders orders);
 
 
