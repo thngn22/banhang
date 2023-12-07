@@ -95,10 +95,10 @@ public class ProductController {
         }
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> deleteProduct(@RequestBody @Valid ProductDeleteRequest productDeleteRequest) {
-        var productDetail = productService.deleteProduct(productDeleteRequest);
+    public ResponseEntity<?> deleteProduct(@PathVariable("id") Long id) {
+        var productDetail = productService.deleteProduct(id);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
                     .statusCode(200)

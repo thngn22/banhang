@@ -17,7 +17,7 @@ public interface ProductService {
 
     String editProduct(ProductEditRequest productEditRequest);
 
-    String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest);
+    String deleteProduct(Long productDeleteRequest);
 
     List<ProductResponse> getAllProductV2();
 

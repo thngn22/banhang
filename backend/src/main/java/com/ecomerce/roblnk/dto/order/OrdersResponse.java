@@ -25,7 +25,7 @@ public class OrdersResponse {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateAt;
-    private UserDTO user;
+    private Long userId;
     private AddressDTO address;
     private PaymentMethodDTO userPaymentMethod;
     private DeliveryDTO delivery;

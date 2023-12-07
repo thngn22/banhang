@@ -1,8 +1,10 @@
 package com.ecomerce.roblnk.mapper;
 
+import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.dto.order.PaymentMethodDTO;
+import com.ecomerce.roblnk.model.OrderItem;
 import com.ecomerce.roblnk.model.Orders;
 import com.ecomerce.roblnk.model.UserPaymentMethod;
 import org.mapstruct.Mapper;
@@ -14,10 +16,15 @@ import java.util.List;
 public interface OrderMapper {
 
     @Mapping(source = "statusOrder.orderStatus", target = "statusOrder")
+    @Mapping(source = "user.id", target = "userId")
     OrdersResponse toOrderResponse(Orders orders);
 
+
+    @Mapping(source = "productItem.id", target = "productItemId")
+    @Mapping(source = "productItem.productImage", target = "productItemImage")
+    OrderItemDTO toOrderItemDTO(OrderItem orderItem);
+    List<OrderItemDTO> toOrderItemDTOs(List<OrderItem> orderItems);
     @Mapping(source = "statusOrder.orderStatus", target = "statusOrder")
-    @Mapping(source = "user.id", target = "userId")
     OrderResponsev2 toOrderResponsev2(Orders orders);
     List<OrderResponsev2> toOrderResponsev2s(List<Orders> orders);
 

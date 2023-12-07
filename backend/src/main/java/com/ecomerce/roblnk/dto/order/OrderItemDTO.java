@@ -1,5 +1,8 @@
 package com.ecomerce.roblnk.dto.order;
 
+import com.ecomerce.roblnk.dto.product.ProductItemDTO;
+import com.ecomerce.roblnk.dto.product.ProductItemDTOv2;
+import com.ecomerce.roblnk.dto.product.ProductItemDTOv3;
 import com.ecomerce.roblnk.model.CartItem;
 import lombok.*;
 
@@ -13,4 +16,8 @@ public class OrderItemDTO {
     private Integer quantity;
     private Integer price;
     private Integer totalPrice;
+    private Long productItemId;
+    private String productItemImage;
+    private String size;
+    private String color;
 }

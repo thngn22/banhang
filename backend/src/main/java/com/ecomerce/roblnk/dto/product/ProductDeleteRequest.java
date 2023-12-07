@@ -10,6 +10,4 @@ import java.util.List;
 @NoArgsConstructor
 public class ProductDeleteRequest {
     private Long id;
-    private Long categoryId;
-    private List<Long> listProductItemId;
 }

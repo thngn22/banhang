@@ -422,7 +422,7 @@ public class IProductService implements ProductService {
                             productConfigurationList.get(0).setVariationOption(variationOption);
                             productConfigurationList.get(0).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(0));
-                        } else {
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)){
                             productConfigurationList.get(1).setVariationOption(variationOption);
                             productConfigurationList.get(1).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(1));
@@ -441,14 +441,13 @@ public class IProductService implements ProductService {
                         productConfigurations.add(productConfiguration);
                     } else {
                         var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(colorId, colorValueFromRequest);
-                        System.out.println(variationOption.getId());
-                        System.out.println(colorOptionId);
+
                         var productConfigurationList = productConfigurationRepository.findAllByProductItem_Id(productItem.getId());
                         if (productConfigurationList.get(0).getVariationOption().getVariation().getName().equals(colorName)) {
                             productConfigurationList.get(0).setVariationOption(variationOption);
                             productConfigurationList.get(0).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(0));
-                        } else {
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)){
                             productConfigurationList.get(1).setVariationOption(variationOption);
                             productConfigurationList.get(1).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(1));
@@ -487,33 +486,22 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public String deleteProduct(@Valid ProductDeleteRequest productDeleteRequest) {
-        var product = productRepository.findById(productDeleteRequest.getId()).orElseThrow();
-        var category = categoryRepository.findById(productDeleteRequest.getCategoryId());
-        if (category.isEmpty()) {
-            return "Not found any category to delete product. Please create category first!";
-        }
-        var productItems = product.getProductItems();
-        List<ProductItem> productItemList = new ArrayList<>();
-        if (productDeleteRequest.getListProductItemId().isEmpty()) {
-            product.setActive(false);
-        }
-        for (ProductItem productItem : productItems) {
-            loop:
-            {
-                for (Long id : productDeleteRequest.getListProductItemId()) {
-                    if (productItem.getId().equals(id)) {
-                        productItem.setActive(false);
-                        productItem.setModifiedDate(new Date(System.currentTimeMillis()));
-                        productItemList.add(productItem);
-                        break loop;
-                    }
-                }
+    public String deleteProduct(@Valid Long id) {
+        var product = productRepository.findById(id);
+        if (product.isPresent()){
+            product.get().setModifiedDate(new Date(System.currentTimeMillis()));
+            if (product.get().isActive()){
+                product.get().setActive(false);
+                productRepository.save(product.get());
+                return "Successfully deactive product";
+            }else {
+                product.get().setActive(true);
+                productRepository.save(product.get());
+                return "Successfully active product";
             }
         }
-        product.setModifiedDate(new Date(System.currentTimeMillis()));
-        productItemRepository.saveAll(productItemList);
-        return "Successfully delete product";
+        else
+            return "Product not found or not available to delete!";
     }
 
     @Override

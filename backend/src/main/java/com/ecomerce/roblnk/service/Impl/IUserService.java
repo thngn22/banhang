@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.dto.user.*;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +42,7 @@ public class IUserService implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final ProductItemRepository productItemRepository;
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
         var user = userRepository.findById(userId).orElseThrow(() ->
@@ -193,7 +196,19 @@ public class IUserService implements UserService {
         if (user != null){
             var userOrders = orderRepository.findById(id);
             if (userOrders.isPresent()){
-                return orderMapper.toOrderResponse(userOrders.get());
+                var orderDetail = orderMapper.toOrderResponse(userOrders.get());
+                for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                    var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else {
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
+                }
+                return orderDetail;
+
             }
         }
         return null;
@@ -211,12 +226,27 @@ public class IUserService implements UserService {
         return null;
     }
 
+    //Detail
     @Override
     public OrdersResponse getUserHistoryOrderForUser(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
             var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
-            return userOrders.map(orderMapper::toOrderResponse).orElse(null);
+            if (userOrders.isPresent()){
+                var orderDetail = orderMapper.toOrderResponse(userOrders.get());
+                for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                    var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else {
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
+                }
+                return orderDetail;
+
+            }
         }
         return null;
     }

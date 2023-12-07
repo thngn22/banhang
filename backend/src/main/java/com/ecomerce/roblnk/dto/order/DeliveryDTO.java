@@ -12,6 +12,4 @@ public class DeliveryDTO {
     private String name;
     private Integer price;
     private String description;
-    private Integer estimatedShippingTime;
-
 }

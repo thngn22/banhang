@@ -59,7 +59,7 @@ public class UserController {
 
     @GetMapping("/account/orders/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getOrderHistoryById(Principal connectedUser, @PathVariable("id") Long id){
+    public ResponseEntity<?> getDetailOrderHistoryById(Principal connectedUser, @PathVariable("id") Long id){
         var userOrders = userService.getUserHistoryOrderForUser(connectedUser, id);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
