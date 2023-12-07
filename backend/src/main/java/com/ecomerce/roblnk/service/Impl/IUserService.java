@@ -327,9 +327,7 @@ public class IUserService implements UserService {
                         }
                     }
                     case "DA_GIAO_HANG" -> {
-                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_CHO_XU_LY")
-                                || userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_XU_LY")
-                                || userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_VAN_CHUYEN")) {
+                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_VAN_CHUYEN")) {
                             flag = true;
                         }
 
