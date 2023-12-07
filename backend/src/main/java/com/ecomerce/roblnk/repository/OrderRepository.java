@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Orders, Long> {
     List<Orders> findAllByUser_Email(String user_email);
+    Optional<Orders> findOrdersByUser_EmailAndId(String user_email, Long id);
 }

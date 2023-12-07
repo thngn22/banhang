@@ -37,7 +37,7 @@ public class CartItem {
     private ProductItem productItem;
 
     //Order Item
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "cartItem")
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_item_id")
     private OrderItem orderItem;
 }

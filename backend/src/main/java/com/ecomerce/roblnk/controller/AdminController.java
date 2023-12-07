@@ -94,7 +94,7 @@ public class AdminController {
     @GetMapping("/orders/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailOrder(Principal connectedUser, @PathVariable("id") Long id) {
-        var userOrders = userService.getUserHistoryOrder(connectedUser, id);
+        var userOrders = userService.getUserHistoryOrderForAdmin(connectedUser, id);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
         } else

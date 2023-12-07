@@ -7,7 +7,9 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,9 +37,9 @@ public class OrderItem {
     private Date createdAt;
 
     //Cart Item
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_item_id")
-    private CartItem cartItem;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "orderItem")
+    @JsonIgnore
+    private List<CartItem> cartItems = new ArrayList<>();
 
     //Order Item
     @ManyToOne(cascade = CascadeType.ALL)

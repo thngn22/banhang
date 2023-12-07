@@ -60,11 +60,11 @@ public class UserController {
     @GetMapping("/account/orders/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getOrderHistoryById(Principal connectedUser, @PathVariable("id") Long id){
-        var userOrders = userService.getUserHistoryOrder(connectedUser, id);
+        var userOrders = userService.getUserHistoryOrderForUser(connectedUser, id);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
         } else
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+            return ResponseEntity.status(HttpStatus.OK).body("Did not found any orders!");
     }
     @GetMapping("/account/orders")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")

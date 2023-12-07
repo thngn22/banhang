@@ -282,8 +282,10 @@ public class ICartService implements CartService {
                         for (Long id : list.getCartItemId()) {
                             OrderItem orderItem = new OrderItem();
                             var cartItem = cartItemService.getCartItem(id);
+                            List<CartItem> cartItems = new ArrayList<>();
+                            cartItems.add(cartItem);
                             if (cartItem != null && cartItem.getCart().getId().equals(userCart.getId())) {
-                                orderItem.setCartItem(cartItem);
+                                orderItem.setCartItems(cartItems);
                                 orderItem.setPrice(cartItem.getPrice());
                                 orderItem.setQuantity(cartItem.getQuantity());
                                 orderItem.setTotalPrice(cartItem.getTotalPrice());

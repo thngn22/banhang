@@ -188,7 +188,7 @@ public class IUserService implements UserService {
     }
 
     @Override
-    public OrdersResponse getUserHistoryOrder(Principal connectedUser, Long id) {
+    public OrdersResponse getUserHistoryOrderForAdmin(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
             var userOrders = orderRepository.findById(id);
@@ -207,6 +207,16 @@ public class IUserService implements UserService {
             if (userOrders != null){
                 return orderMapper.toOrderResponsev2s(userOrders);
             }
+        }
+        return null;
+    }
+
+    @Override
+    public OrdersResponse getUserHistoryOrderForUser(Principal connectedUser, Long id) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
+            return userOrders.map(orderMapper::toOrderResponse).orElse(null);
         }
         return null;
     }

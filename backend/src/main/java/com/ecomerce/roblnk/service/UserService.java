@@ -33,8 +33,9 @@ public interface UserService {
 
     ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest);
 
-    OrdersResponse getUserHistoryOrder(Principal connectedUser, Long id);
+    OrdersResponse getUserHistoryOrderForAdmin(Principal connectedUser, Long id);
 
     List<OrderResponsev2> getAllUserHistoryOrders(Principal connectedUser);
 
+    OrdersResponse getUserHistoryOrderForUser(Principal connectedUser, Long id);
 }

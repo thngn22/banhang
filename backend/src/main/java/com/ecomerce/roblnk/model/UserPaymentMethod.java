@@ -31,5 +31,5 @@ public class UserPaymentMethod {
     //Order
     @OneToMany(mappedBy = "userPaymentMethod", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<Orders> orders;
+    private List<Orders> orders = new ArrayList<>();
 }
