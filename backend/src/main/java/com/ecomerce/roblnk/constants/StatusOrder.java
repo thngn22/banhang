@@ -28,6 +28,7 @@ public class StatusOrder {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "statusOrder", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Orders> orders = new ArrayList<>();
+    private String orderStatus;
 
     private Status status;
     public String describe() {

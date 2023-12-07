@@ -17,12 +17,6 @@ public class UserPaymentMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String cardNumber;
-    private String dateExpire;
-    private String CVV;
-    private String nameHolder;
-    private String addressBanking;
-    private String zipCode;
 
     //Payment Method
     @ManyToOne(cascade = CascadeType.MERGE)
@@ -37,5 +31,5 @@ public class UserPaymentMethod {
     //Order
     @OneToMany(mappedBy = "userPaymentMethod", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<Orders> orders = new ArrayList<>();
+    private List<Orders> orders;
 }

@@ -18,6 +18,4 @@ public interface OrderService {
     Orders shippedOrder(Long orderId) throws OrderException;
     Orders deliveredOrder(Long orderId) throws OrderException;
     Orders canceledOrder(Long orderId) throws OrderException;
-
-    List<OrdersResponse> getAllOrder(Principal connectedUser);
 }

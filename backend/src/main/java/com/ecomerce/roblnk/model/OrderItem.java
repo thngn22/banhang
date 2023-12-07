@@ -20,8 +20,14 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "quantity")
     private Integer quantity;
+
+    @Column(name = "price")
     private Integer price;
+
+    @Column(name = "total_price")
+    private Integer totalPrice;
 
     @Column(name = "created_at")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
@@ -29,7 +35,7 @@ public class OrderItem {
     private Date createdAt;
 
     //Cart Item
-    @OneToOne(mappedBy = "orderItem")
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_item_id")
     private CartItem cartItem;
 
@@ -37,4 +43,8 @@ public class OrderItem {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
     private Orders orders;
+
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "product_item_id")
+    private ProductItem productItem;
 }

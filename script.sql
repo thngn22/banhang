@@ -28,7 +28,7 @@ CREATE TABLE `address` (
   `street_address` mediumtext,
   `zip_code` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -37,7 +37,7 @@ CREATE TABLE `address` (
 
 LOCK TABLES `address` WRITE;
 /*!40000 ALTER TABLE `address` DISABLE KEYS */;
-INSERT INTO `address` VALUES (1,'LMao','haha','48946'),(5,'Ba Ria','53 Tran Quang Dieu','13554'),(6,'Ba Ria','53 Tran Quang Dieu','13554');
+INSERT INTO `address` VALUES (24,'lmao','darrk','darrk burh'),(25,'lmao','darrk','darrk burh'),(26,'lmao','darrk','darrk burh'),(27,'lmao','darrk','darrk burh');
 /*!40000 ALTER TABLE `address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `cart` (
 
 LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (7,0,0,1),(8,12,4296000,2);
+INSERT INTO `cart` VALUES (7,0,0,1),(8,1,358000,2);
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -81,17 +81,14 @@ CREATE TABLE `cart_item` (
   `price` int DEFAULT NULL,
   `quantity` int DEFAULT NULL,
   `cart_id` bigint DEFAULT NULL,
-  `order_item_id` bigint DEFAULT NULL,
   `product_item_id` bigint DEFAULT NULL,
   `total_price` int DEFAULT NULL,
   PRIMARY KEY (`cart_item_id`),
-  UNIQUE KEY `UK_ea012d3uskfsh9jy1jynlv56r` (`order_item_id`),
   KEY `FK1uobyhgl1wvgt1jpccia8xxs3` (`cart_id`),
   KEY `FKj46f52s31n4pbpgucd6x2ci46` (`product_item_id`),
   CONSTRAINT `FK1uobyhgl1wvgt1jpccia8xxs3` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`),
-  CONSTRAINT `FKj46f52s31n4pbpgucd6x2ci46` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
-  CONSTRAINT `FKjf5jd3pbctwr3xerd2hlsa6m1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `FKj46f52s31n4pbpgucd6x2ci46` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +97,7 @@ CREATE TABLE `cart_item` (
 
 LOCK TABLES `cart_item` WRITE;
 /*!40000 ALTER TABLE `cart_item` DISABLE KEYS */;
-INSERT INTO `cart_item` VALUES (20,358000,5,8,NULL,296,1790000),(21,427000,0,8,NULL,280,0),(22,358000,0,8,NULL,283,0),(23,358000,5,8,NULL,284,1790000),(24,358000,2,8,NULL,291,716000);
+INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0),(21,427000,0,8,280,0),(22,358000,1,8,283,358000),(23,358000,0,8,284,0),(24,358000,0,8,291,0),(25,358000,0,8,292,0);
 /*!40000 ALTER TABLE `cart_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -167,11 +164,11 @@ DROP TABLE IF EXISTS `delivery`;
 CREATE TABLE `delivery` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `description` varchar(255) DEFAULT NULL,
-  `estimated_shipping_time` datetime(6) DEFAULT NULL,
+  `estimated_shipping_time` int DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `price` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,6 +177,7 @@ CREATE TABLE `delivery` (
 
 LOCK TABLES `delivery` WRITE;
 /*!40000 ALTER TABLE `delivery` DISABLE KEYS */;
+INSERT INTO `delivery` VALUES (1,'Chuyển phát trong vòng 5 ngày kể từ khi đặt hàng',5,'Chuyển phát nhanh',18000),(2,'Chuyển phát hỏa tốc trong vòng 3 ngày kể từ khi đặt hàng',3,'Hỏa tốc',45000),(3,'Chuyên phát thần tốc',1,'Chuyển giao trong ngày',99000);
 /*!40000 ALTER TABLE `delivery` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -196,10 +194,17 @@ CREATE TABLE `order_item` (
   `price` int DEFAULT NULL,
   `quantity` int DEFAULT NULL,
   `order_id` bigint DEFAULT NULL,
+  `cart_item_id` bigint DEFAULT NULL,
+  `total_price` int DEFAULT NULL,
+  `product_item_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_cmbmrmbbaofi7dfc4y5ddtlnq` (`cart_item_id`),
   KEY `FKt4dc2r9nbvbujrljv3e23iibt` (`order_id`),
+  KEY `FKcdqml0b87oh0ukk87wjx9fk86` (`product_item_id`),
+  CONSTRAINT `FKcdqml0b87oh0ukk87wjx9fk86` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
+  CONSTRAINT `FKjjejp1dmbelv9icv8bh9f67ad` FOREIGN KEY (`cart_item_id`) REFERENCES `cart_item` (`cart_item_id`),
   CONSTRAINT `FKt4dc2r9nbvbujrljv3e23iibt` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -208,6 +213,7 @@ CREATE TABLE `order_item` (
 
 LOCK TABLES `order_item` WRITE;
 /*!40000 ALTER TABLE `order_item` DISABLE KEYS */;
+INSERT INTO `order_item` VALUES (21,'2023-12-07 06:31:06.718000',358000,3,25,20,1074000,296);
 /*!40000 ALTER TABLE `order_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -221,22 +227,27 @@ DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
-  `status` tinyint DEFAULT NULL,
   `total_item` int DEFAULT NULL,
   `total_payment` int DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `address_id` bigint DEFAULT NULL,
   `delivery_id` bigint DEFAULT NULL,
   `user_id` bigint DEFAULT NULL,
+  `user_payment_method_id` bigint DEFAULT NULL,
+  `order_status` bigint DEFAULT NULL,
+  `final_payment` int DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_1pudsuvdf7susauw208senrqk` (`user_payment_method_id`),
   KEY `FKf5464gxwc32ongdvka2rtvw96` (`address_id`),
   KEY `FKtkrur7wg4d8ax0pwgo0vmy20c` (`delivery_id`),
   KEY `FKel9kyl84ego2otj2accfd8mr7` (`user_id`),
+  KEY `FKakb1bcbd52td26dlk8kvu0glv` (`order_status`),
+  CONSTRAINT `FKakb1bcbd52td26dlk8kvu0glv` FOREIGN KEY (`order_status`) REFERENCES `status_order` (`id`),
   CONSTRAINT `FKel9kyl84ego2otj2accfd8mr7` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKf5464gxwc32ongdvka2rtvw96` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
-  CONSTRAINT `FKtkrur7wg4d8ax0pwgo0vmy20c` FOREIGN KEY (`delivery_id`) REFERENCES `delivery` (`id`),
-  CONSTRAINT `orders_chk_1` CHECK ((`status` between 0 and 6))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `FKqippj57d958yt8kaefy29bv8q` FOREIGN KEY (`user_payment_method_id`) REFERENCES `user_payment_method` (`id`),
+  CONSTRAINT `FKtkrur7wg4d8ax0pwgo0vmy20c` FOREIGN KEY (`delivery_id`) REFERENCES `delivery` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -245,6 +256,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
+INSERT INTO `orders` VALUES (25,'2023-12-07 06:31:06.735000',3,1074000,'2023-12-07 06:31:06.735000',27,1,2,1,1,1092000);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -257,22 +269,10 @@ DROP TABLE IF EXISTS `payment_method`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payment_method` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `payment_type_enum` tinyint DEFAULT NULL,
-  `order_id` bigint DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  `cvv` varchar(255) DEFAULT NULL,
-  `address_banking` varchar(255) DEFAULT NULL,
-  `card_number` varchar(255) DEFAULT NULL,
-  `date_expire` varchar(255) DEFAULT NULL,
-  `name_holder` varchar(255) DEFAULT NULL,
-  `zip_code` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FKoq4hku62glsu292jk2x5dl4f8` (`order_id`),
-  KEY `FK9qgi86n91j5kxnymanelaa1ag` (`user_id`),
-  CONSTRAINT `FK9qgi86n91j5kxnymanelaa1ag` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
-  CONSTRAINT `FKoq4hku62glsu292jk2x5dl4f8` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
-  CONSTRAINT `payment_method_chk_1` CHECK ((`payment_type_enum` between 0 and 2))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `describes` varchar(255) DEFAULT NULL,
+  `name_method` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -281,7 +281,7 @@ CREATE TABLE `payment_method` (
 
 LOCK TABLES `payment_method` WRITE;
 /*!40000 ALTER TABLE `payment_method` DISABLE KEYS */;
-INSERT INTO `payment_method` VALUES (1,0,NULL,2,'322','4556461','0445123384648','03/28','VU NGUYEN TRUNG KHANG','704894');
+INSERT INTO `payment_method` VALUES (1,'Thanh toán trực tuyến (VNPAY-QR, Thẻ tín dụng, Thẻ nội địa)','Ví VN Pay'),(2,'Thanh toán khi nhận hàng','COD'),(3,'Ví Momo','Ví Momo');
 /*!40000 ALTER TABLE `payment_method` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -464,6 +464,32 @@ INSERT INTO `role` VALUES (1,'ROLE_ADMINISTRATOR'),(2,'ROLE_USER');
 UNLOCK TABLES;
 
 --
+-- Table structure for table `status_order`
+--
+
+DROP TABLE IF EXISTS `status_order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `status_order` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_status` varchar(255) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `status_order_chk_1` CHECK ((`status` between 0 and 10))
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `status_order`
+--
+
+LOCK TABLES `status_order` WRITE;
+/*!40000 ALTER TABLE `status_order` DISABLE KEYS */;
+INSERT INTO `status_order` VALUES (1,'DANG_CHO_XU_LY',1),(2,'HOAN_TAT',2),(3,'DA_GIAO_HANG',3),(4,'DANG_VAN_CHUYEN',4),(5,'DA_HOAN_TIEN',5);
+/*!40000 ALTER TABLE `status_order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `token`
 --
 
@@ -546,7 +572,7 @@ CREATE TABLE `user_address` (
   KEY `FKk2ox3w9jm7yd6v1m5f68xibry` (`user_id`),
   CONSTRAINT `FKdaaxogn1ss81gkcsdn05wi6jp` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKk2ox3w9jm7yd6v1m5f68xibry` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -555,35 +581,37 @@ CREATE TABLE `user_address` (
 
 LOCK TABLES `user_address` WRITE;
 /*!40000 ALTER TABLE `user_address` DISABLE KEYS */;
-INSERT INTO `user_address` VALUES (1,_binary '\0',1,2);
+INSERT INTO `user_address` VALUES (23,_binary '\0',24,2),(24,_binary '\0',25,2),(25,_binary '\0',26,2),(26,_binary '\0',27,2);
 /*!40000 ALTER TABLE `user_address` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `user_name`
+-- Table structure for table `user_payment_method`
 --
 
-DROP TABLE IF EXISTS `user_name`;
+DROP TABLE IF EXISTS `user_payment_method`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_name` (
+CREATE TABLE `user_payment_method` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_namee` varchar(255) DEFAULT NULL,
+  `payment_method_id` bigint DEFAULT NULL,
   `user_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_47xa40rf9jpeb5puhwybyf9mg` (`user_id`),
-  CONSTRAINT `FKs9t71ginwu760gi95jooaya3j` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+  KEY `FKm3fq7vaahnq9eb7al7cdxh519` (`user_id`),
+  KEY `FKjj97m3tgdq73q80p2xh4xe5rn` (`payment_method_id`),
+  CONSTRAINT `FKjj97m3tgdq73q80p2xh4xe5rn` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`),
+  CONSTRAINT `FKm3fq7vaahnq9eb7al7cdxh519` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user_name`
+-- Dumping data for table `user_payment_method`
 --
 
-LOCK TABLES `user_name` WRITE;
-/*!40000 ALTER TABLE `user_name` DISABLE KEYS */;
-INSERT INTO `user_name` VALUES (1,'admin@gmail.com',1),(2,'admin1242',2),(3,'trungkhangsteve@gmail.com',5);
-/*!40000 ALTER TABLE `user_name` ENABLE KEYS */;
+LOCK TABLES `user_payment_method` WRITE;
+/*!40000 ALTER TABLE `user_payment_method` DISABLE KEYS */;
+INSERT INTO `user_payment_method` VALUES (1,2,2);
+/*!40000 ALTER TABLE `user_payment_method` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -676,4 +704,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-05  3:23:42
+-- Dump completed on 2023-12-07  7:20:25

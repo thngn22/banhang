@@ -7,6 +7,7 @@ import com.ecomerce.roblnk.dto.user.UserUpdateAddressRequest;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,18 +31,6 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> editInformation(Principal connectedUser, @RequestBody EditUserProfileRequest request){
         return userService.editInformation(connectedUser, request);
-    }
-
-    @GetMapping("/account/payment")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> payment(Principal connectedUser){
-        return userService.getUserPaymentMethod(connectedUser);
-    }
-
-    @PostMapping("/account/payment")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> addPayment(Principal connectedUser, @RequestBody UserPaymentRequest request){
-        return userService.addUserPayment(connectedUser, request);
     }
 
     @GetMapping("/account/address")
@@ -68,10 +57,24 @@ public class UserController {
         return userService.deleteUserAddress(connectedUser, id);
     }
 
-    @GetMapping("/account/order/")
+    @GetMapping("/account/orders/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getOrderHistory(Principal connectedUser){
-        return userService.getUserHistoryOrder(connectedUser);
+    public ResponseEntity<?> getOrderHistoryById(Principal connectedUser, @PathVariable("id") Long id){
+        var userOrders = userService.getUserHistoryOrder(connectedUser, id);
+        if (userOrders != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
+    @GetMapping("/account/orders")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getListOrderHistory(Principal connectedUser){
+        var userOrders = userService.getAllUserHistoryOrders(connectedUser);
+        if (userOrders != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
+
 
 }

@@ -9,7 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface UserPaymentMethodRepository extends JpaRepository<UserPaymentMethod, Long> {
-    List<UserPaymentMethod> findAllByPaymentMethod_Id(Long paymentMethod_id);
-    List<UserPaymentMethod> findAllByUser_Email(String user_email);
-    Optional<UserPaymentMethod> findAllByCardNumberContainingIgnoreCase(String cardNumber);
+    List<UserPaymentMethod> findAllByUser_Id(Long user_id);
 }

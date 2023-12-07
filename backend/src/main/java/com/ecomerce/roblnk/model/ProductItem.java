@@ -48,6 +48,11 @@ public class ProductItem {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifiedDate;
 
+    //Order Item
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<OrderItem> orderItems;
+
     //Product
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")

@@ -21,20 +21,6 @@ import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/order")
 public class OrderController {
-    private final OrderService orderService;
 
-    @GetMapping("/")
-    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllOrders(Principal connectedUser){
-        var orders = orderService.getAllOrder(connectedUser);
-        if (orders != null){
-            return ResponseEntity.status(HttpStatus.OK).body(orders);
-        }
-        else return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(ErrorResponse.builder()
-                .statusCode(404)
-                .message(String.valueOf(HttpStatus.NOT_FOUND))
-                .description(EMAIL_NOT_FOUND)
-                .timestamp(new Date(System.currentTimeMillis()))
-                .build());
-    }
+
 }

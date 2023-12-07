@@ -1,21 +1,19 @@
 package com.ecomerce.roblnk.dto.order;
 
-import com.ecomerce.roblnk.constants.StatusOrder;
 import com.ecomerce.roblnk.dto.user.AddressDTO;
-import com.ecomerce.roblnk.model.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrdersResponse {
+public class OrderResponsev2 {
     private Long id;
     private Integer totalPayment;
     private Integer totalItem;
@@ -25,11 +23,10 @@ public class OrdersResponse {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateAt;
-    private UserDTO user;
+    private Long userId;
     private AddressDTO address;
     private PaymentMethodDTO userPaymentMethod;
     private DeliveryDTO delivery;
     private String statusOrder;
     private Integer finalPayment;
-    private List<OrderItemDTO> orderItems;
 }

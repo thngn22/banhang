@@ -82,4 +82,22 @@ public class AdminController {
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
+    @GetMapping("/orders")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllOrder(Principal connectedUser) {
+        var userOrders = userService.getAllUserHistoryOrders(connectedUser);
+        if (userOrders != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
+    @GetMapping("/orders/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getDetailOrder(Principal connectedUser, @PathVariable("id") Long id) {
+        var userOrders = userService.getUserHistoryOrder(connectedUser, id);
+        if (userOrders != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
 }

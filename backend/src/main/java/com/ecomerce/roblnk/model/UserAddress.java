@@ -19,7 +19,7 @@ public class UserAddress {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "address_id")
     private Address address;
 

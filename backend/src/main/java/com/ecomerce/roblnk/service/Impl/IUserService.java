@@ -1,27 +1,25 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
-import com.ecomerce.roblnk.dto.auth.EmailDetails;
+import com.ecomerce.roblnk.dto.order.OrderResponsev2;
+import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.dto.user.*;
-import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.mapper.UserMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.UserService;
-import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Date;
 import java.util.HashSet;
@@ -36,13 +34,12 @@ public class IUserService implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final PaymentMethodRepository paymentMethodRepository;
     private final UserAddressRepository userAddressRepository;
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserPaymentMethodRepository userPaymentMethodRepository;
-
+    private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
         var user = userRepository.findById(userId).orElseThrow(() ->
@@ -82,41 +79,6 @@ public class IUserService implements UserService {
         }
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user! Something went wrong...");
-    }
-
-    @Override
-    public ResponseEntity<?> getUserPaymentMethod(Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-//        if (user != null){
-//            var userPayments = userPaymentMethodRepository.findAllByUser_Email(user.getEmail());
-//            return ResponseEntity.ok(userMapper.toUserPaymentResponses(userPayments));
-//        }
-//        else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user!");
-    }
-
-    @Override
-    public ResponseEntity<?> addUserPayment(Principal connectedUser, UserPaymentRequest request) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
-            var userPayment = userPaymentMethodRepository.findAllByCardNumberContainingIgnoreCase(request.getCardNumber());
-            if (userPayment.isPresent()){
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Already existed card number, please try another card with another card number!");
-            }
-            else {
-                var paymentMethod = paymentMethodRepository.findAllByNameMethodContaining("Thẻ tín dụng/ngân hàng").orElseThrow();
-                UserPaymentMethod userPaymentMethod = new UserPaymentMethod();
-                userPaymentMethod.setPaymentMethod(paymentMethod);
-                userPaymentMethod.setCVV(request.getCVV());
-                userPaymentMethod.setAddressBanking(request.getAddressBanking());
-                userPaymentMethod.setZipCode(request.getZipCode());
-                userPaymentMethod.setNameHolder(request.getNameHolder());
-                userPaymentMethod.setDateExpire(request.getDateExpire());
-                userPaymentMethod.setUser(user);
-                userPaymentMethodRepository.save(userPaymentMethod);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user!");
     }
 
     @Override
@@ -226,10 +188,25 @@ public class IUserService implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> getUserHistoryOrder(Principal connectedUser) {
+    public OrdersResponse getUserHistoryOrder(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
-            return null;
+            var userOrders = orderRepository.findById(id);
+            if (userOrders.isPresent()){
+                return orderMapper.toOrderResponse(userOrders.get());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<OrderResponsev2> getAllUserHistoryOrders(Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            var userOrders = orderRepository.findAllByUser_Email(user.getEmail());
+            if (userOrders != null){
+                return orderMapper.toOrderResponsev2s(userOrders);
+            }
         }
         return null;
     }

@@ -18,9 +18,10 @@ public class PaymentMethod {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nameMethod;
+    private String describes;
 
-    //Payment Information
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "paymentMethod", fetch = FetchType.EAGER)
+    //Payment Method
+    @OneToMany(mappedBy = "paymentMethod", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<UserPaymentMethod> userPaymentMethods = new ArrayList<>();
 

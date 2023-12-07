@@ -28,7 +28,6 @@ public class IOrderService implements OrderService {
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
     private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
     @Override
     public Orders createOrder(User user, Address address) throws OrderException {
         return null;
@@ -69,14 +68,4 @@ public class IOrderService implements OrderService {
         return null;
     }
 
-    @Override
-    public List<OrdersResponse> getAllOrder(Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
-            var orderList = orderRepository.findAll();
-            return orderMapper.toOrderResponses(orderList);
-        }
-        else
-            return null;
-    }
 }

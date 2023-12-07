@@ -1,5 +1,7 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.order.OrderResponsev2;
+import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
@@ -19,10 +21,6 @@ public interface UserService {
 
     ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
 
-    ResponseEntity<?> getUserPaymentMethod(Principal connectedUser);
-
-    ResponseEntity<?> addUserPayment(Principal connectedUser, UserPaymentRequest request);
-
     ResponseEntity<?> getUserAddress(Principal connectedUser);
 
     ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest);
@@ -35,6 +33,8 @@ public interface UserService {
 
     ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest);
 
-    ResponseEntity<?> getUserHistoryOrder(Principal connectedUser);
+    OrdersResponse getUserHistoryOrder(Principal connectedUser, Long id);
+
+    List<OrderResponsev2> getAllUserHistoryOrders(Principal connectedUser);
 
 }

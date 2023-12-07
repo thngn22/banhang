@@ -68,7 +68,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private Cart cart;
 
-    //Payment Method
+    //User Payment Method
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<UserPaymentMethod> userPaymentMethods = new ArrayList<>();
