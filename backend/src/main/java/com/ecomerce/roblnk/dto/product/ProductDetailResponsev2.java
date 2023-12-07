@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.dto.product;
 
+import com.ecomerce.roblnk.dto.category.CategoryDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,7 +18,7 @@ public class ProductDetailResponsev2 {
     private String name;
     private String description;
     private String productImage;
-    private Long categoryId;
+    private CategoryDTO categoryId;
     private Integer quantityOfVariation;
     private Integer quantity;
     private boolean active;

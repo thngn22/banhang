@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.dto.product;
 
+import com.ecomerce.roblnk.dto.category.CategoryDTO;
 import com.ecomerce.roblnk.model.Category;
 import com.ecomerce.roblnk.model.ProductItem;
 import com.ecomerce.roblnk.model.Review;
@@ -20,7 +21,7 @@ public class ProductDetailResponse {
     private String name;
     private String description;
     private String productImage;
-    private Long categoryId;
+    private CategoryDTO categoryId;
     private Integer quantityOfVariation;
     private Integer quantity;
     private boolean active;

@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.mapper;
 
+import com.ecomerce.roblnk.dto.category.CategoryDTO;
 import com.ecomerce.roblnk.dto.product.*;
 import com.ecomerce.roblnk.model.*;
 import org.mapstruct.Mapper;
@@ -16,9 +17,12 @@ public interface ProductMapper {
     ProductResponse toProductResponse(Product product);
 
     List<ProductResponse> toProductResponseList(List<Product> products);
-    @Mapping(source = "category.id", target = "categoryId")
+
     @Mapping(source = "active", target = "active")
+    @Mapping(source = "category", target = "categoryId")
     ProductDetailResponse toDetailResponse(Product product);
+
+    CategoryDTO toCategoryDTO(Category category);
 
     ProductDetailResponsev2 toProductDetailResponsev2(ProductDetailResponse productDetailResponse);
     ProductDetailResponsev3 toProductDetailResponsev3(ProductDetailResponse productDetailResponse);
