@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.auth.EmailDetails;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
@@ -10,7 +11,9 @@ import com.ecomerce.roblnk.mapper.UserMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
+import com.ecomerce.roblnk.service.EmailService;
 import com.ecomerce.roblnk.service.UserService;
+import com.ecomerce.roblnk.util.Status;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +45,8 @@ public class IUserService implements UserService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final ProductItemRepository productItemRepository;
+    private final StatusOrderRepository statusOrderRepository;
+    private final EmailService emailService;
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
         var user = userRepository.findById(userId).orElseThrow(() ->
@@ -249,6 +253,149 @@ public class IUserService implements UserService {
             }
         }
         return null;
+    }
+
+    @Override
+    public String cancelOrdersFromUser(Principal connectedUser, Long id) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
+            if (userOrders.isPresent()){
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DANG_CHO_XU_LY.toString())
+                || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DANG_XU_LY.toString())){
+                    var status = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DA_BI_NGUOI_DUNG_HUY.toString()).orElseThrow();
+                    System.out.println(status.getOrderStatus());
+                    status.getOrders().add(userOrders.get());
+                    statusOrderRepository.save(status);
+                    userOrders.get().setStatusOrder(status);
+                    orderRepository.save(userOrders.get());
+                    return "Successfully canceled this order!";
+                }
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                    return "This order already canceled!";
+                }
+                else return "You do not have permission to change this status!";
+            }
+            else return "Did not found any order, please try again!";
+        }
+        return "You don't have permission to access this resource!";
+    }
+
+    @Override
+    public String confirmOrdersFromUser(Principal connectedUser, Long id) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
+            if (userOrders.isPresent()){
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_GIAO_HANG.toString())
+                        || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.CHO_XAC_NHAN.toString())){
+                    var status = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.HOAN_TAT.toString()).orElseThrow();
+                    System.out.println(status.getOrderStatus());
+                    status.getOrders().add(userOrders.get());
+                    statusOrderRepository.save(status);
+                    userOrders.get().setStatusOrder(status);
+                    orderRepository.save(userOrders.get());
+                    return "Successfully confirm this order!";
+                }
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                    return "This order already canceled!";
+                }
+                else return "You do not have permission to change this status!";
+            }
+            else return "Did not found any order, please try again!";
+        }
+        return "You don't have permission to access this resource!";    }
+
+    @Override
+    public String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), orderId);
+            if (userOrders.isPresent()){
+                boolean flag = false;
+                boolean sendMail = false;
+                switch (status) {
+                    case "DANG_XU_LY" -> {
+                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_CHO_XU_LY")) {
+                            flag = true;
+                        }
+                    }
+                    case "DANG_VAN_CHUYEN" -> {
+                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_CHO_XU_LY")
+                                || userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_XU_LY")) {
+                            flag = true;
+                        }
+                    }
+                    case "DA_GIAO_HANG" -> {
+                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_CHO_XU_LY")
+                                || userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_XU_LY")
+                                || userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_VAN_CHUYEN")) {
+                            flag = true;
+                        }
+
+                    }
+                    case "DA_BI_HE_THONG_HUY" -> {
+                        if (!userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_NGUOI_DUNG_HUY")
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
+                            flag = true;
+                        }
+
+                    }
+                    case "DA_BI_NGUOI_DUNG_HUY" -> {
+                        if (!userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_HE_THONG_HUY")
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
+                            flag = true;
+                        }
+
+                    }
+                    case "BI_TU_CHOI" -> {
+                        if (!userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
+                            flag = true;
+                        }
+
+                    }
+                    case "CHO_XAC_NHAN" -> {
+                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DA_GIAO_HANG")) {
+                            flag = true;
+                            sendMail = true;
+                        }
+
+                    }
+                    case "HOAN_TAT" -> {
+                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DA_GIAO_HANG")
+                                || (userOrders.get().getStatusOrder().getOrderStatus().equals("CHO_XAC_NHAN"))) {
+                            flag = true;
+                        }
+
+                    }
+                }
+                if (flag){
+                    var statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(status).orElseThrow();
+                    System.out.println(statusOrder.getOrderStatus());
+                    statusOrder.getOrders().add(userOrders.get());
+                    statusOrderRepository.save(statusOrder);
+                    userOrders.get().setStatusOrder(statusOrder);
+                    orderRepository.save(userOrders.get());
+                    if (sendMail){
+                        EmailDetails emailDetails = new EmailDetails();
+                        emailDetails.setSubject("Xác nhận hoàn tất đơn hàng!");
+                        emailDetails.setRecipient(user.getEmail());
+                        emailDetails.setMsgBody("Chào " + user.getEmail() +
+                                ",\nChúng tôi rất vui khi thông báo rằng đơn hàng của bạn đã được giao thành công. Vui lòng quay lại website và bấm xác nhận đơn hàng ngay thôi nào!"
+                                + "\n\nTrân trọng,\n" +
+                                "Vũ Nguyễn Trung Khang");
+                        emailService.sendSimpleMail(emailDetails);
+                    }
+                    return "Successfully updated status of this order!";
+                }
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                    return "This order already canceled!";
+                }
+                else return "You do not have permission to change this status!";
+            }
+            else return "Did not found any order, please try again!";
+        }
+        return "You don't have permission to access this resource!";
     }
 
     @Override

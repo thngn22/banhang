@@ -1,8 +1,6 @@
 package com.ecomerce.roblnk.dto.order;
 
-import com.ecomerce.roblnk.constants.StatusOrder;
 import com.ecomerce.roblnk.dto.user.AddressDTO;
-import com.ecomerce.roblnk.model.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -1,6 +1,5 @@
 package com.ecomerce.roblnk.service.Impl;
 
-import com.ecomerce.roblnk.constants.StatusOrder;
 import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.cart.CheckoutRequest;
 import com.ecomerce.roblnk.dto.cart.PaymentMethodResponse;
@@ -306,7 +305,7 @@ public class ICartService implements CartService {
                         orders.setTotalItem(totalItem);
                         orders.setTotalPayment(totalPayment);
                         orders.setFinalPayment(totalPayment + delivery.getPrice());
-                        var statusOrder = statusOrderRepository.findAllByStatusIs(Status.DANG_XU_LY);
+                        var statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DANG_XU_LY.toString());
                         statusOrder.get().getOrders().add(orders);
                         orders.setStatusOrder(statusOrder.get());
                         orders.setDelivery(delivery);

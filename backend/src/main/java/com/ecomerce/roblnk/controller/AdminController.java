@@ -6,10 +6,12 @@ import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.ProductService;
+import com.ecomerce.roblnk.service.StatusService;
 import com.ecomerce.roblnk.service.UserService;
 import com.ecomerce.roblnk.service.VariationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 public class AdminController {
     private final UserService userService;
     private final ProductService productService;
+    private final StatusService statusService;
     @GetMapping("/user")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailUser(@RequestParam("id") Long id) throws UserException {
@@ -97,6 +100,26 @@ public class AdminController {
         var userOrders = userService.getUserHistoryOrderForAdmin(connectedUser, id);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
+
+    @PostMapping("/orders/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> changeStatusOrderByAdmin(Principal connectedUser, @PathVariable("id") Long orderId, @Param("status") String status) {
+        var userOrders = userService.changeStatusOrderByAdmin(connectedUser, orderId, status);
+        if (userOrders != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
+
+    @GetMapping("/orders/status")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllStatus() {
+        var statusOrders = statusService.getAllStatusOrder();
+        if (statusOrders != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(statusOrders);
         } else
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }

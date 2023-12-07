@@ -38,4 +38,9 @@ public interface UserService {
     List<OrderResponsev2> getAllUserHistoryOrders(Principal connectedUser);
 
     OrdersResponse getUserHistoryOrderForUser(Principal connectedUser, Long id);
+
+    String cancelOrdersFromUser(Principal connectedUser, Long id);
+    String confirmOrdersFromUser(Principal connectedUser, Long id);
+
+    String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
 }

@@ -1,6 +1,5 @@
 package com.ecomerce.roblnk.model;
 
-import com.ecomerce.roblnk.constants.StatusOrder;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
