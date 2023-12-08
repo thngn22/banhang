@@ -188,12 +188,12 @@ public class ICartService implements CartService {
                                         .timestamp(new Date(System.currentTimeMillis()))
                                         .build());
                             }
-                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
+                            if (cartItemEditRequest.getQuantity() <= 0) {
                                 cartItem.setQuantity(0);
                                 cartItem.setTotalPrice(0);
                             } else {
-                                cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
-                                cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
+                                cartItem.setQuantity(cartItemEditRequest.getQuantity());
+                                cartItem.setTotalPrice(cartItem.getPrice() * cartItemEditRequest.getQuantity());
                             }
                             cartItem.setPrice(productItem.getPrice());
                             cartItem = cartItemRepository.save(cartItem);
@@ -215,15 +215,16 @@ public class ICartService implements CartService {
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
 
-                userCart = cartRepository.save(userCart);
-                for (CartItem cartItem : userCart.getCartItems()) {
-                    totalQuantity += cartItem.getQuantity();
-                    totalPrice += cartItem.getTotalPrice();
-                }
-                userCart.setTotalItem(totalQuantity);
-                userCart.setTotalPrice(totalPrice);
-                cartRepository.save(userCart);
+
             }
+            userCart = cartRepository.save(userCart);
+            for (CartItem cartItem : userCart.getCartItems()) {
+                totalQuantity += cartItem.getQuantity();
+                totalPrice += cartItem.getTotalPrice();
+            }
+            userCart.setTotalItem(totalQuantity);
+            userCart.setTotalPrice(totalPrice);
+            cartRepository.save(userCart);
             return ResponseEntity.status(HttpStatus.OK).body(ErrorResponse.builder()
                     .statusCode(200)
                     .message(String.valueOf(HttpStatus.OK))

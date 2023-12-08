@@ -230,6 +230,16 @@ public class IUserService implements UserService {
         return null;
     }
 
+    @Override
+    public List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null){
+            var userOrders = orderRepository.findAll();
+            return orderMapper.toOrderResponsev2s(userOrders);
+        }
+        return null;
+    }
+
     //Detail
     @Override
     public OrdersResponse getUserHistoryOrderForUser(Principal connectedUser, Long id) {
@@ -274,7 +284,7 @@ public class IUserService implements UserService {
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
                     return "This order already canceled!";
                 }
-                else return "You do not have permission to change this status!";
+                else return "Order is deliveried, you don't have permission to cancel it!";
             }
             else return "Did not found any order, please try again!";
         }
@@ -285,7 +295,7 @@ public class IUserService implements UserService {
     public String confirmOrdersFromUser(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
-            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
+            var userOrders = orderRepository.findById(id);
             if (userOrders.isPresent()){
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_GIAO_HANG.toString())
                         || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.CHO_XAC_NHAN.toString())){
@@ -300,7 +310,7 @@ public class IUserService implements UserService {
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
                     return "This order already canceled!";
                 }
-                else return "You do not have permission to change this status!";
+                else return "Order is deliveried, you don't have permission to cancel it!";
             }
             else return "Did not found any order, please try again!";
         }
@@ -310,7 +320,7 @@ public class IUserService implements UserService {
     public String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null){
-            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), orderId);
+            var userOrders = orderRepository.findById(orderId);
             if (userOrders.isPresent()){
                 boolean flag = false;
                 boolean sendMail = false;

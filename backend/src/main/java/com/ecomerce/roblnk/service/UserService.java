@@ -43,4 +43,6 @@ public interface UserService {
     String confirmOrdersFromUser(Principal connectedUser, Long id);
 
     String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
+
+    List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser);
 }
