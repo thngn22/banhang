@@ -345,7 +345,6 @@ public class IProductService implements ProductService {
                 var product = productRepository.findById(productEditRequest.getId()).orElseThrow();
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemDTOv2> productItemRequests = productEditRequest.getProductItems();
-                List<ProductConfiguration> productConfigurations2 = new ArrayList<>();
                 var variations = variationRepository.findVariationsByCategory_Id(productEditRequest.getCategoryId());
                 Long sizeId = 0L;
                 String sizeName = "";
@@ -471,7 +470,7 @@ public class IProductService implements ProductService {
                     productItem.setName(productEditRequest.getName() + name);
                     var image = productItem.getProductImage();
                     if (image != null) {
-                        productItem.setProductImage(getURLPictureAndUploadToCloudinary(image));
+                        productItem.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
                     } else productItem.setProductImage(ImageUtil.urlImage);
 
                     productItem.setActive(p.isActive());
@@ -482,19 +481,20 @@ public class IProductService implements ProductService {
                     productItem.setProductConfigurations(productConfigurations);
                     productItems.add(productItem);
                     productItemRequests.remove(0);
-                    productConfigurations2.addAll(productConfigurations);
                 }
 
                 product.setName(productEditRequest.getName());
                 product.setDescription(productEditRequest.getDescription());
                 product.setCategory(category.get());
-                product.setProductImage(getURLPictureAndUploadToCloudinary(product.getProductImage()) != null ?
-                        getURLPictureAndUploadToCloudinary(product.getProductImage()) : ImageUtil.urlImage);
+                var image = product.getProductImage();
+                if (image != null) {
+                    product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
+                } else product.setProductImage(ImageUtil.urlImage);
+
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 productRepository.save(product);
-                productItemRepository.saveAll(productItems);
-                productConfigurationRepository.saveAll(productConfigurations2);
+
                 return "Successfully update product";
             } else
                 return "This category is not available to update product. Please try a sub-category of this category or another!";
