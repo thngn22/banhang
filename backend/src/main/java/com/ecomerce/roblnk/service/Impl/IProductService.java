@@ -295,8 +295,11 @@ public class IProductService implements ProductService {
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
                     productItem.setProduct(product);
-                    productItem.setProductImage(getURLPictureAndUploadToCloudinary(productItem.getProductImage()) != null ?
-                            getURLPictureAndUploadToCloudinary(productItem.getProductImage()) : ImageUtil.urlImage);
+                    var image = p.getProductImage();
+
+                    if (image != null) {
+                        product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
+                    } else product.setProductImage(ImageUtil.urlImage);
                     productItem.setActive(true);
                     productItem.setCreatedDate(new Date(System.currentTimeMillis()));
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
@@ -310,8 +313,12 @@ public class IProductService implements ProductService {
                 product.setProductItems(productItems);
                 product.setDescription(request.getDescription());
                 product.setCategory(category.get());
-                product.setProductImage(getURLPictureAndUploadToCloudinary(product.getProductImage()) != null ?
-                        getURLPictureAndUploadToCloudinary(product.getProductImage()) : ImageUtil.urlImage);
+                var image = request.getProductImage();
+
+                if (image != null) {
+                    product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
+                } else product.setProductImage(ImageUtil.urlImage);
+
                 product.setCreatedDate(new Date(System.currentTimeMillis()));
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
@@ -468,7 +475,7 @@ public class IProductService implements ProductService {
                     }
 
                     productItem.setName(productEditRequest.getName() + name);
-                    var image = productItem.getProductImage();
+                    var image = p.getProductImage();
                     if (image != null) {
                         productItem.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
                     } else productItem.setProductImage(ImageUtil.urlImage);
@@ -486,7 +493,8 @@ public class IProductService implements ProductService {
                 product.setName(productEditRequest.getName());
                 product.setDescription(productEditRequest.getDescription());
                 product.setCategory(category.get());
-                var image = product.getProductImage();
+                var image = productEditRequest.getProductImage();
+
                 if (image != null) {
                     product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
                 } else product.setProductImage(ImageUtil.urlImage);
