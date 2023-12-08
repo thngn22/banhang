@@ -1,65 +1,100 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "../../../customer/components/InputField";
 import { Button, Input } from "antd";
 
 import { DeleteOutlined } from "@ant-design/icons";
 import UploadImage from "../UploadFile/UploadImage";
+import { useSelector } from "react-redux";
 
 const Variations = (props) => {
   const { title, name, isHiddenAddPicture = false, data, updateData } = props;
-  const [variations, setVariations] = useState([]);
+
+  let variationsArray = [];
+  const [variations, setVariations] = useState(variationsArray);
+
+
+  useEffect(() => {
+    if (props.isEdit) {
+      data.map((item) => variationsArray.push(item));
+      setVariations(variationsArray);
+    }
+  }, [data]);
+
+
+
 
   const addVariation = () => {
-    // setVariations([...variations, { id: variations.length + 1 }]);
-    setVariations([
-      ...variations,
-      { id: variations.length + 1, text: "", image: "" },
+    setVariations((prevVariations) => [
+      ...prevVariations,
+      { id: prevVariations.length, text: "", image: "" },
     ]);
   };
-
   const deleteVariation = (id) => {
-    setVariations(variations.filter((variation) => variation.id !== id));
+    setVariations((prevVariations) =>
+      prevVariations.filter((variation) => variation.id !== id)
+    );
   };
-
   const handleInputChange = (id, value) => {
-    // const updatedVariations = variations.map((variation) =>
-    //   variation.id === id ? { ...variation, text: value } : variation
-    // );
-    // setVariations(updatedVariations);
-
     const updatedVariations = variations.map((variation) =>
       variation.id === id ? { ...variation, text: value } : variation
     );
     setVariations(updatedVariations);
   };
-
+  const handleInputChangeEdit = (id, value) => {
+    if (props.isEdit) {
+      const updatedVariations = variations.map((variation, index) => {
+        if (id === index) {
+          if (name === "color") {
+            return { ...variation, color: value };
+          } else {
+            return { ...variation, size: value };
+          }
+        } else {
+          return variation;
+        }
+      });
+      setVariations(updatedVariations);
+    }
+  };
   const handleImageChange = (id, image) => {
     const updatedVariations = variations.map((variation) =>
       variation.id === id ? { ...variation, image } : variation
     );
     setVariations(updatedVariations);
   };
-
+  const handleImageChangeEdit = (id, image) => {
+    // console.log("imageChange", image);
+    if (props.isEdit) {
+      const updatedVariations = variations.map((variation, index) => {
+        if (id === index) {
+          return { ...variation, productImage: image };
+        } else {
+          return variation;
+        }
+      });
+      setVariations(updatedVariations);
+    }
+  };
   const saveData = () => {
-    // const newData = variations.map((variation) => variation.text);
-    // updateData(newData);
-
-    // const newData = variations.map((variation) => ({ color: variation.text, image: variation.image }));
-    // updateData(newData);
-
-    // const newData = variations.map((variation) => ({
-    //   color: variation.text,
-    //   image: variation.image,
-    // }));
-    // updateData(newData);
-
+    console.log("variations", variations);
     const newData = variations.map((variation) => {
       if (name === "color") {
-        // Nếu là variation color, chứa cả thuộc tính image
-        return { color: variation.text, image: variation.image };
+        return { color: variation.text, productImage: variation.image };
       } else {
-        // Nếu là variation size, không chứa thuộc tính image
         return { size: variation.text };
+      }
+    });
+
+    console.log("newData", newData);
+    
+    updateData(newData);
+  };
+  const saveDataDetail = () => {
+    const newData = variations.map((variation) => {
+      if (name === "color") {
+        return { color: variation.color, productImage: variation.productImage };
+      } else {
+        return { size: variation.size };
       }
     });
     updateData(newData);
@@ -78,61 +113,101 @@ const Variations = (props) => {
       }}
     >
       <p style={{ fontSize: "14px", fontWeight: "500" }}>{title}</p>
-      {variations.map((variation) => (
-        <div
-          key={variation.id}
-          style={{ display: "flex", marginBottom: "10px" }}
-        >
-          <DeleteOutlined
-            onClick={() => deleteVariation(variation.id)}
-            style={{
-              color: "red",
-              fontSize: "26px",
-              cursor: "pointer",
-              alignItems: "flex-start",
-              margin: "12px 20px 0px 0px ",
-            }}
-          />
-          <Input
-            style={{
-              padding: "6px 20px",
-              margin: "8px 50px 8px 0px",
-              height: "38px",
-            }}
-            onChange={(e) => {
-              handleInputChange(variation.id, e.target.value);
-            }}
-          />
-          {!isHiddenAddPicture && (
-            <UploadImage
-              onImageChange={(image) => handleImageChange(variation.id, image)}
+      {variations.map((variation, index) => (
+        <div key={index} style={{ display: "flex", marginBottom: "10px" }}>
+          {!props.isEdit && (
+            <DeleteOutlined
+              onClick={() => deleteVariation(variation.id)}
+              style={{
+                color: "red",
+                fontSize: "26px",
+                cursor: "pointer",
+                alignItems: "flex-start",
+                margin: "12px 20px 0px 0px ",
+              }}
             />
+          )}
+          {props.isEdit ? (
+            <Input
+              style={{
+                padding: "6px 20px",
+                margin: "8px 50px 8px 0px",
+                height: "38px",
+              }}
+              value={name === "color" ? variation.color : variation.size}
+              onChange={(e) => {
+                handleInputChangeEdit(index, e.target.value);
+              }}
+            />
+          ) : (
+            <Input
+              style={{
+                padding: "6px 20px",
+                margin: "8px 50px 8px 0px",
+                height: "38px",
+              }}
+              onChange={(e) => {
+                handleInputChange(variation.id, e.target.value);
+              }}
+            />
+          )}
+
+          {!isHiddenAddPicture ? (
+            <UploadImage
+              onImageChange={(image) =>
+                props.isEdit
+                  ? handleImageChangeEdit(index, image)
+                  : handleImageChange(variation.id, image)
+              }
+              dataImage={variation.productImage}
+              isEdit={props.isEdit}
+            />
+          ) : (
+            <></>
           )}
         </div>
       ))}
-      <Button
-        onClick={addVariation}
-        style={{
-          marginBottom: "10px",
-          backgroundColor: "orange",
-          color: "#fff",
-          fontWeight: "500",
-        }}
-      >
-        Thêm {title}
-      </Button>
+      {props.isEdit ? (
+        <></>
+      ) : (
+        <Button
+          onClick={addVariation}
+          style={{
+            marginBottom: "10px",
+            backgroundColor: "orange",
+            color: "#fff",
+            fontWeight: "500",
+          }}
+        >
+          Thêm {title}
+        </Button>
+      )}
 
-      <Button
-        onClick={saveData}
-        style={{
-          marginBottom: "10px",
-          backgroundColor: "green",
-          color: "#fff",
-          fontWeight: "500",
-        }}
-      >
-        Lưu {title}
-      </Button>
+      {props.isEdit ? (
+        <Button
+          onClick={saveDataDetail}
+          style={{
+            marginBottom: "10px",
+            backgroundColor: "green",
+            color: "#fff",
+            fontWeight: "500",
+          }}
+        >
+          Lưu {title}
+        </Button>
+      ) : (
+        <Button
+          onClick={saveData}
+          style={{
+            marginBottom: "10px",
+            backgroundColor: "green",
+            color: "#fff",
+            fontWeight: "500",
+          }}
+        >
+          Lưu {title}
+        </Button>
+      )}
     </div>
   );
 };

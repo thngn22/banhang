@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SkinOutlined,
   UserOutlined,
@@ -14,6 +14,10 @@ import AdminProduct from "../components/AdminProduct/AdminProduct";
 import AdminProductCreate from "../components/AdminProduct/AdminProductCreate";
 import AdminOrder from "../components/AdminOrder/AdminOrder";
 import { WrapperHeader } from "../components/AdminUser/style";
+import { useQuery } from "@tanstack/react-query";
+import * as CategoryService from "../../services/CategoryService";
+import { useDispatch, useSelector } from "react-redux";
+import { getCategory } from "../../redux/slides/categorySlice";
 
 function AdminPage(props) {
   const items = [

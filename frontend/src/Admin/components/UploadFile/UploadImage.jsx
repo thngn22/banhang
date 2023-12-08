@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
 
 const UploadImage = (props) => {
-  const { onImageChange } = props;
+  const { onImageChange, dataImage, isEdit } = props;
 
   const [fileList, setFileList] = useState([]);
-  const [base64Image, setBase64Image] = useState(null);
-  const [base64Data, setBase64Data] = useState("");
+  const [base64Image, setBase64Image] = useState("");
+  let test = dataImage;
+  if (dataImage && dataImage.startsWith("/9j/")) {
+    test = `data:image/jpeg;base64,${dataImage}`;
+  }
+
+
 
   const beforeUpload = (file) => {
     const isImage = file.type.startsWith("image/");
@@ -20,7 +26,6 @@ const UploadImage = (props) => {
     }
     return isImage && isLt2M;
   };
-
   const handleChange = (info) => {
     if (info.file.status === "done") {
       message.success(`${info.file.name} tải lên thành công`);
@@ -31,22 +36,20 @@ const UploadImage = (props) => {
 
     setFileList(info.fileList);
   };
-
   const convertToBase64 = (file) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      setBase64Image(reader.result);
-
       // Lưu giá trị của base64Data sau khi xử lý
-      const processedBase64Data = reader.result.split("data:image/jpeg;base64,")[1];
-      setBase64Data(processedBase64Data);
+      const processedBase64Data = reader.result.split(
+        "data:image/jpeg;base64,"
+      )[1];
+      setBase64Image(reader.result);
 
       // Gọi hàm callback để thông báo sự thay đổi của ảnh và truyền giá trị base64Data đã xử lý
       onImageChange(processedBase64Data);
     };
   };
-
   const customRequest = ({ onSuccess, onError, file }) => {
     // Thực hiện logic tải lên tệp tin của bạn ở đây
     // Ví dụ: gửi tệp tin đến máy chủ của bạn
@@ -66,39 +69,53 @@ const UploadImage = (props) => {
       });
   };
 
+
+  
+
   const renderImage = () => {
-    if (base64Image) {
+    if (test && isEdit) {
       return (
         <img
-          src={base64Image}
+          src={test}
           alt="ErrorImage"
           style={{ width: "150px", height: "150px", objectFit: "cover" }}
         />
       );
+    } else {
+      if (base64Image) {
+        return (
+          <img
+            src={base64Image}
+            alt="ErrorImage"
+            style={{ width: "150px", height: "150px", objectFit: "cover" }}
+          />
+        );
+      } else {
+        return (
+          <Button
+            type="dashed"
+            style={{
+              display: "block",
+              height: "150px",
+              width: "150px",
+              position: "relative",
+            }}
+          >
+            <p
+              style={{
+                fontWeight: "300",
+                fontSize: "80px",
+                position: "absolute",
+                top: 0,
+                left: "34%",
+              }}
+            >
+              +
+            </p>
+          </Button>
+        );
+      }
     }
-    return (
-      <Button
-        type="dashed"
-        style={{
-          display: "block",
-          height: "150px",
-          width: "150px",
-          position: "relative",
-        }}
-      >
-        <p
-          style={{
-            fontWeight: "300",
-            fontSize: "80px",
-            position: "absolute",
-            top: 0,
-            left: "34%",
-          }}
-        >
-          +
-        </p>
-      </Button>
-    );
   };
 
   // console.log(base64Data);
@@ -111,6 +128,7 @@ const UploadImage = (props) => {
         onChange={handleChange}
         fileList={fileList}
         maxCount={1} // Đặt giá trị này là 1 nếu bạn chỉ muốn cho phép một tệp tin
+        showUploadList={false}
       >
         {renderImage(fileList)}
       </Upload>

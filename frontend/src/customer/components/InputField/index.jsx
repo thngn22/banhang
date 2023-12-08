@@ -5,7 +5,7 @@ import { TextField } from "@mui/material";
 InputField.propTypes = {};
 
 function InputField(props) {
-  const { label, value, name, type, style, handleOnChange } = props;
+  const { label, value, name, type, style, handleOnChange, isCategory } = props;
 
   const handleOnChangeInput = (e) => {
     handleOnChange(e.target.value);
@@ -13,17 +13,32 @@ function InputField(props) {
 
   return (
     <div>
-      <TextField
-        margin="normal"
-        required
-        autoFocus
-        label={label}
-        value={value}
-        name={name}
-        type={type}
-        style={style}
-        onChange={handleOnChangeInput}
-      />
+      {isCategory ? (
+        <TextField
+          margin="normal"
+          required
+          autoFocus
+          label={label}
+          value={value.name}
+          name={name}
+          type={type}
+          style={style}
+          onChange={handleOnChangeInput}
+          disabled={true}
+        />
+      ) : (
+        <TextField
+          margin="normal"
+          required
+          autoFocus
+          label={label}
+          value={value}
+          name={name}
+          type={type}
+          style={style}
+          onChange={handleOnChangeInput}
+        />
+      )}
     </div>
   );
 }

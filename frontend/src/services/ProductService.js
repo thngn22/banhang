@@ -62,3 +62,22 @@ export const deleteProduct = async (data, accessToken) => {
   );
   return res.data;
 };
+
+export const getDetailProduct = async (id, accessToken) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}product/${id}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+
+export const getDetailProductForAdmin = async (id, accessToken) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}admin/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return res.data;
+};

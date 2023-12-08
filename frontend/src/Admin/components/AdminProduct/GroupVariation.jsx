@@ -4,19 +4,75 @@ import { Button } from "antd";
 import Price_Quantity from "./Price_Quantity";
 import Variations from "./Variations";
 import UploadImage from "../UploadFile/UploadImage";
+import { useSelector } from "react-redux";
 
 const GroupVariation = (props) => {
-  const { title, saveButtonClicked, setSaveButtonClicked } = props;
+  const {
+    title,
+    saveButtonClicked,
+    setSaveButtonClicked,
+    onDefaultImageChange,
+    dataDefaultImage,
+    isEdit,
+    test,
+    productItemsDetail,
+  } = props;
 
-  const [dataSize, setDataSize] = useState([]);
-  const [dataColor, setDataColor] = useState([]);
+  let colorArray = [];
+  let sizeArray = [];
+  let priceQuantityActiveIDArray = [];
+  if (isEdit) {
+    const uniqueColors = Array.from(
+      new Set(productItemsDetail.map((item) => item.color))
+    );
+    const uniqueSizes = Array.from(
+      new Set(productItemsDetail.map((item) => item.size))
+    );
+    colorArray = uniqueColors.map((color) => ({
+      color,
+      productImage: productItemsDetail.find((item) => item.color === color)
+        .productImage,
+    }));
+    sizeArray = uniqueSizes.map((size) => ({ size }));
+
+    priceQuantityActiveIDArray = productItemsDetail.map(
+      ({ price, quantityInStock, active, id }) => ({
+        price,
+        quantityInStock,
+        active,
+        id,
+      })
+    );
+  } else {
+    // test = null;
+    // productItemsDetail = null;
+  }
+
+  const [dataSize, setDataSize] = useState(sizeArray);
+  const [dataColor, setDataColor] = useState(colorArray);
   const [showPriceQuantity, setShowPriceQuantity] = useState(false);
   const [combinedData, setCombinedData] = useState([]);
   const [isButtonDisabled, setButtonDisabled] = useState(true);
   const [errorText, setErrorText] = useState(
     "Bạn cần nhập ít nhất một color và một size. Thì nút Xong mới hoạt động được"
   );
-  const [defaultImage, setDefaultImage] = useState("");
+  const [defaultImage, setDefaultImage] = useState(test);
+
+  useEffect(() => {
+    if (isEdit && colorArray) {
+      setDataColor(colorArray);
+    }
+    if (isEdit && sizeArray) {
+      setDataSize(sizeArray);
+    }
+  }, [productItemsDetail]);
+
+
+  useEffect(() => {
+    if (test) {
+      setDefaultImage(test);
+    }
+  }, [test]);
 
   const updateData = (name, newData) => {
     if (name === "color") {
@@ -25,16 +81,9 @@ const GroupVariation = (props) => {
       setDataSize(newData);
     }
   };
-  //   console.log("color", dataColor);
-  //   console.log("size", dataSize);
+
 
   const combineData = () => {
-    // // Combine dataColor and dataSize into a single array
-    // const combined = dataColor.map((color) =>
-    //   dataSize.map((size) => ({ color, size }))
-    // );
-    // setCombinedData(combined.flat()); // Use flat to flatten the nested arrays
-
     let combined = [];
 
     dataColor.forEach((colorItem) => {
@@ -43,15 +92,33 @@ const GroupVariation = (props) => {
       });
     });
 
-    setCombinedData(combined);
+
+    let newCombined = [];
+
+    if (isEdit) {
+      newCombined = combined.map((item, index) => {
+        return {
+          ...item,
+          price: priceQuantityActiveIDArray[index].price,
+          quantityInStock: priceQuantityActiveIDArray[index].quantityInStock,
+          active: priceQuantityActiveIDArray[index].active,
+          id: priceQuantityActiveIDArray[index].id,
+        };
+      });
+    } else {
+      newCombined = combined.map((item, index) => {
+        return {
+          ...item,
+        };
+      });
+    }
+
+    setCombinedData(newCombined);
   };
 
-  const handleDoneClick = () => {
-    // if (dataColor.length > 0 && dataSize.length > 0) {
-    //   combineData();
-    //   setShowPriceQuantity(true);
-    // }
 
+
+  const handleDoneClick = () => {
     if (dataColor.length > 0 && dataSize.length > 0) {
       combineData();
       setShowPriceQuantity(true);
@@ -68,20 +135,17 @@ const GroupVariation = (props) => {
 
   const handleDefaultImageChange = (imageData) => {
     setDefaultImage(imageData);
-    props.onDefaultImageChange(imageData);
+    onDefaultImageChange(imageData);
   };
 
-  //   console.log("defaultImage", defaultImage);
+
 
   const updateCombinedData = (updatedData) => {
-    // Logic xử lý khi có dữ liệu được cập nhật từ Price_Quantity
-    // ...
-    // Ở đây có thể setState hoặc thực hiện các bước cần thiết
     setCombinedData(updatedData);
     props.onCombinedDataChange(updatedData);
   };
 
-//   console.log("combinedData", combinedData);
+
 
   return (
     <div>
@@ -90,7 +154,11 @@ const GroupVariation = (props) => {
       </p>
 
       {/* Add Default picture */}
-      <UploadImage onImageChange={handleDefaultImageChange} />
+      <UploadImage
+        onImageChange={handleDefaultImageChange}
+        dataImage={defaultImage}
+        isEdit={isEdit}
+      />
 
       {/* Variations */}
       <Variations
@@ -98,6 +166,7 @@ const GroupVariation = (props) => {
         title={"Màu sắc"}
         name={"color"}
         updateData={(newData) => updateData("color", newData)}
+        isEdit={isEdit}
       />
       <Variations
         data={dataSize}
@@ -105,6 +174,7 @@ const GroupVariation = (props) => {
         name={"size"}
         updateData={(newData) => updateData("size", newData)}
         isHiddenAddPicture
+        isEdit={isEdit}
       />
 
       {/* Button render Price_Quantity */}
@@ -130,6 +200,7 @@ const GroupVariation = (props) => {
           updateCombinedData={updateCombinedData}
           saveButtonClicked={saveButtonClicked}
           setSaveButtonClicked={setSaveButtonClicked}
+          isEdit={isEdit}
         />
       )}
     </div>

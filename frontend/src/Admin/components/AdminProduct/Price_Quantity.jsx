@@ -1,4 +1,4 @@
-import { Table, InputNumber, Button } from "antd";
+import { Table, InputNumber, Button, Checkbox } from "antd";
 import React, { useEffect, useState } from "react";
 
 const Price_Quantity = (props) => {
@@ -7,89 +7,106 @@ const Price_Quantity = (props) => {
     updateCombinedData,
     saveButtonClicked,
     setSaveButtonClicked,
+    isEdit,
   } = props;
   const [data, setData] = useState([]);
   const [values, setValues] = useState([]);
 
-  // // Sử dụng useEffect để theo dõi thay đổi trong combinedData
-  // useEffect(() => {
-  //   // Chuyển đổi combinedData thành dữ liệu hiển thị trong bảng
-  //   const tableData = combinedData.map(({ color, size }) => ({
-  //     color: <span>{color}</span>,
-  //     size: <span>{size}</span>,
-  //     price: <InputNumber addonAfter="VNĐ" defaultValue={0} />,
-  //     quantity: <InputNumber defaultValue={0} />,
-  //   }));
-
-  //   // Cập nhật state data
-  //   setData(tableData);
-  // }, [combinedData]);
-
-  // useEffect(() => {
-  //   // Chuyển đổi combinedData thành dữ liệu hiển thị trong bảng
-  //   const tableData = combinedData.map(({ color, size }, index) => {
-  //     return {
-  //       key: index,
-  //       color: <span>{color}</span>,
-  //       size: <span>{size}</span>,
-  //       price: (
-  //         <InputNumber
-  //           addonAfter="VNĐ"
-  //           defaultValue={0}
-  //           value={values[index]?.price ?? 0}
-  //           onChange={(value) => handleValueChange(index, "price", value)}
-  //         />
-  //       ),
-  //       quantity: (
-  //         <InputNumber
-  //           defaultValue={0}
-  //           value={values[index]?.quantity ?? 0}
-  //           onChange={(value) => handleValueChange(index, "quantity", value)}
-  //         />
-  //       ),
-  //     };
-  //   });
-
-  //   // Cập nhật state data
-  //   setData(tableData);
-  // }, [combinedData, values]);
 
   useEffect(() => {
-    // Khởi tạo giá trị mặc định cho values khi combinedData thay đổi lần đầu
-    if (combinedData.length > 0 && values.length === 0) {
-      const defaultValues = combinedData.reduce((acc, _, index) => {
-        acc[index] = { price: 0, quantity: 0 };
-        return acc;
-      }, {});
-      setValues(defaultValues);
+    if (isEdit) {
+      // Khởi tạo giá trị mặc định cho values khi combinedData thay đổi lần đầu
+      if (combinedData.length > 0 && values.length === 0) {
+        const defaultValues = combinedData.reduce((acc, item, index) => {
+          acc[index] = {
+            price: item.price,
+            quantity: item.quantityInStock,
+            active: item.active,
+            id: item.id,
+          };
+          return acc;
+        }, {});
+
+        setValues(defaultValues);
+      }
+      // Chuyển đổi combinedData thành dữ liệu hiển thị trong bảng
+      const tableData = combinedData.map(
+        ({ color, size, price, quantityInStock, active }, index) => {
+          return {
+            key: index,
+            color: <span>{color}</span>,
+            size: <span>{size}</span>,
+            price: (
+              <InputNumber
+                addonAfter="VNĐ"
+                defaultValue={0}
+                value={values[index]?.price ?? price}
+                onChange={(value) => handleValueChange(index, "price", value)}
+              />
+            ),
+            quantity: (
+              <InputNumber
+                defaultValue={0}
+                value={values[index]?.quantity ?? quantityInStock}
+                onChange={(value) =>
+                  handleValueChange(index, "quantity", value)
+                }
+              />
+            ),
+            active: (
+              <Checkbox
+                checked={values[index]?.active ?? active}
+                onChange={(e) =>
+                  handleValueChange(index, "active", e.target.checked)
+                }
+              >
+                Active
+              </Checkbox>
+            ),
+          };
+        }
+      );
+
+
+
+      setData(tableData);
+    } else {
+      // Khởi tạo giá trị mặc định cho values khi combinedData thay đổi lần đầu
+      if (combinedData.length > 0 && values.length === 0) {
+        const defaultValues = combinedData.reduce((acc, _, index) => {
+          acc[index] = { price: 0, quantity: 0 };
+          return acc;
+        }, {});
+        setValues(defaultValues);
+      }
+
+      // Chuyển đổi combinedData thành dữ liệu hiển thị trong bảng
+      const tableData = combinedData.map(({ color, size }, index) => {
+        return {
+          key: index,
+          color: <span>{color}</span>,
+          size: <span>{size}</span>,
+          price: (
+            <InputNumber
+              addonAfter="VNĐ"
+              defaultValue={0}
+              value={values[index]?.price ?? 0}
+              onChange={(value) => handleValueChange(index, "price", value)}
+            />
+          ),
+          quantity: (
+            <InputNumber
+              defaultValue={0}
+              value={values[index]?.quantity ?? 0}
+              onChange={(value) => handleValueChange(index, "quantity", value)}
+            />
+          ),
+        };
+      });
+
+      // Cập nhật state data
+      setData(tableData);
     }
-
-    // Chuyển đổi combinedData thành dữ liệu hiển thị trong bảng
-    const tableData = combinedData.map(({ color, size }, index) => {
-      return {
-        key: index,
-        color: <span>{color}</span>,
-        size: <span>{size}</span>,
-        price: (
-          <InputNumber
-            addonAfter="VNĐ"
-            defaultValue={0}
-            value={values[index]?.price ?? 0}
-            onChange={(value) => handleValueChange(index, "price", value)}
-          />
-        ),
-        quantity: (
-          <InputNumber
-            defaultValue={0}
-            value={values[index]?.quantity ?? 0}
-            onChange={(value) => handleValueChange(index, "quantity", value)}
-          />
-        ),
-      };
-    });
-
-    // Cập nhật state data
-    setData(tableData);
   }, [combinedData, values]);
 
   const handleValueChange = (index, field, value) => {
@@ -108,19 +125,24 @@ const Price_Quantity = (props) => {
 
   const handleSaveClick = () => {
     // Tạo một array chứa giá trị price và quantity từ state values
-    const updatedData = combinedData.map(({ color, size, image }, index) => ({
+    const updatedData = combinedData.map(({ color, size, productImage }, index) => ({
       ...values[index],
       color,
       size,
-      image,
+      productImage,
     }));
+
+    console.log("updatedData", updatedData);
 
     // Gọi hàm updateCombinedData để cập nhật combinedData trong GroupVariation
     updateCombinedData(updatedData);
     setSaveButtonClicked(true);
   };
 
-  const columns = [
+
+  
+
+  let columns = [
     {
       title: "Màu sắc",
       dataIndex: "color",
@@ -144,6 +166,12 @@ const Price_Quantity = (props) => {
       key: "quantity",
     },
   ];
+  if (isEdit) {
+    columns = [
+      ...columns,
+      { title: "Trạng thái", dataIndex: "active", key: "active" },
+    ];
+  }
 
   return (
     <div>
