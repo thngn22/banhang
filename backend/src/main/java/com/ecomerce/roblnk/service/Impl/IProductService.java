@@ -410,10 +410,17 @@ public class IProductService implements ProductService {
                         variationOption.setValue(p.getSize());
                         variationOption.setVariation(variation);
                         variationOption = variationOptionRepository.save(variationOption);
-                        ProductConfiguration productConfiguration = new ProductConfiguration();
-                        productConfiguration.setProductItem(productItem);
-                        productConfiguration.setVariationOption(variationOption);
-                        productConfigurations.add(productConfiguration);
+
+                        var productConfigurationList = productConfigurationRepository.findAllByProductItem_Id(productItem.getId());
+                        if (productConfigurationList.get(0).getVariationOption().getVariation().getName().equals(sizeName)) {
+                            productConfigurationList.get(0).setVariationOption(variationOption);
+                            productConfigurationList.get(0).setProductItem(productItem);
+                            productConfigurations.add(productConfigurationList.get(0));
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(sizeName)){
+                            productConfigurationList.get(1).setVariationOption(variationOption);
+                            productConfigurationList.get(1).setProductItem(productItem);
+                            productConfigurations.add(productConfigurationList.get(1));
+                        }
                     } else {
                         var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(sizeId, sizeValueFromRequest);
 
@@ -435,10 +442,17 @@ public class IProductService implements ProductService {
                         variationOption.setValue(p.getColor());
                         variationOption.setVariation(variation);
                         variationOption = variationOptionRepository.save(variationOption);
-                        ProductConfiguration productConfiguration = new ProductConfiguration();
-                        productConfiguration.setProductItem(productItem);
-                        productConfiguration.setVariationOption(variationOption);
-                        productConfigurations.add(productConfiguration);
+
+                        var productConfigurationList = productConfigurationRepository.findAllByProductItem_Id(productItem.getId());
+                        if (productConfigurationList.get(0).getVariationOption().getVariation().getName().equals(colorName)) {
+                            productConfigurationList.get(0).setVariationOption(variationOption);
+                            productConfigurationList.get(0).setProductItem(productItem);
+                            productConfigurations.add(productConfigurationList.get(0));
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)){
+                            productConfigurationList.get(1).setVariationOption(variationOption);
+                            productConfigurationList.get(1).setProductItem(productItem);
+                            productConfigurations.add(productConfigurationList.get(1));
+                        }
                     } else {
                         var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(colorId, colorValueFromRequest);
 
@@ -468,6 +482,7 @@ public class IProductService implements ProductService {
                     productItem.setProductConfigurations(productConfigurations);
                     productItems.add(productItem);
                     productItemRequests.remove(0);
+                    productConfigurations2.addAll(productConfigurations);
                 }
 
                 product.setName(productEditRequest.getName());
@@ -478,6 +493,8 @@ public class IProductService implements ProductService {
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 productRepository.save(product);
+                productItemRepository.saveAll(productItems);
+                productConfigurationRepository.saveAll(productConfigurations2);
                 return "Successfully update product";
             } else
                 return "This category is not available to update product. Please try a sub-category of this category or another!";
