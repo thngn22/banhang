@@ -1,18 +1,23 @@
-/*
 package com.ecomerce.roblnk.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.thymeleaf.spring4.SpringTemplateEngine;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 @Configuration
+@ConfigurationProperties(prefix = "spring.mail")
 public class EmailConfiguration {
 
     @Value("${spring.mail.host}")
@@ -27,7 +32,7 @@ public class EmailConfiguration {
     @Value("${spring.mail.port}")
     private int port;
 
-    @Value("${spring.mail.protocol}")
+    @Value("${spring.mail.properties.mail.transport.protocol}")
     private String protocol;
 
     @Value("${spring.mail.properties.mail.smtp.auth}")
@@ -37,7 +42,6 @@ public class EmailConfiguration {
     private String enable;
 
     //@Value("false")
-    private String debug;
 
     @Bean
     public JavaMailSender getMailSender() {
@@ -48,27 +52,29 @@ public class EmailConfiguration {
         mailSender.setPassword(password);
         Properties mailProperties = mailSender.getJavaMailProperties();
         mailProperties.setProperty("mail.transport.protocol", protocol);
-        mailProperties.setProperty("mail.debug", debug);
+        mailProperties.setProperty("mail.debug", String.valueOf(false));
         mailProperties.setProperty("mail.smtp.auth", auth);
         mailProperties.setProperty("mail.smtp.starttls.enable", enable);
         return mailSender;
     }
 
-    @Bean
-    public ITemplateResolver thymeleafTemplateResolver() {
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("mail-templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("HTML");
-        templateResolver.setCharacterEncoding("UTF-8");
-        return templateResolver;
+    public ClassLoaderTemplateResolver thymeleafTemplateResolver() {
+        ClassLoaderTemplateResolver emailTemplateResolver = new ClassLoaderTemplateResolver();
+        emailTemplateResolver.setPrefix("/mail-templates/");
+        emailTemplateResolver.setSuffix(".html");
+        emailTemplateResolver.setTemplateMode(TemplateMode.HTML);
+        emailTemplateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        emailTemplateResolver.setCacheable(false);
+        return emailTemplateResolver;
     }
-
     @Bean
     public SpringTemplateEngine thymeleafTemplateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(thymeleafTemplateResolver());
         return templateEngine;
     }
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }
-*/

@@ -6,8 +6,10 @@ import com.ecomerce.roblnk.dto.cart.PaymentMethodResponse;
 import com.ecomerce.roblnk.dto.cart.UserCart;
 import com.ecomerce.roblnk.dto.cartItem.CartItemDTO;
 import com.ecomerce.roblnk.dto.cartItem.CartItemEditRequest;
+import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.CartMapper;
+import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.service.*;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -45,6 +48,9 @@ public class ICartService implements CartService {
     private final UserAddressRepository userAddressRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderMapper orderMapper;
+    private final EmailService emailService;
+    private final ProductItemRepository productItemRepository;
 
     @Override
     public ResponseEntity<?> getUserCart(Principal principal) {
@@ -170,10 +176,10 @@ public class ICartService implements CartService {
                                     cartItem.setTotalPrice(0);
                                 } else {
                                     cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                    cartItem.setTotalPrice(cartItem.getPrice() * cartItemEditRequest.getQuantity());
+                                    cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
                                 }
-                                cartItem.setPrice(productItem.getPrice());
                                 cartItem = cartItemRepository.save(cartItem);
+                                userCart.getCartItems().add(cartItem);
                             }
                         } else {
                             CartItem cartItem = new CartItem();
@@ -193,10 +199,10 @@ public class ICartService implements CartService {
                                 cartItem.setTotalPrice(0);
                             } else {
                                 cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                cartItem.setTotalPrice(cartItem.getPrice() * cartItemEditRequest.getQuantity());
+                                cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
                             }
-                            cartItem.setPrice(productItem.getPrice());
-                            cartItem = cartItemRepository.save(cartItem);
+                            cartItemRepository.save(cartItem);
+                            userCart.getCartItems().add(cartItem);
                         }
 
                     } else {
@@ -217,7 +223,6 @@ public class ICartService implements CartService {
 
 
             }
-            userCart = cartRepository.save(userCart);
             for (CartItem cartItem : userCart.getCartItems()) {
                 totalQuantity += cartItem.getQuantity();
                 totalPrice += cartItem.getTotalPrice();
@@ -263,6 +268,14 @@ public class ICartService implements CartService {
             if (!flag) {
                 return "Payment method invalid! Please try another payment method!";
             } else {
+                int count = 0;
+                for (Long id : list.getCartItemId()) {
+                    var cartItem = cartItemService.getCartItem(id);
+                    count += cartItem.getQuantity();
+                }
+                if (count == 0){
+                    return "Cart empty, please add some shoes to check out!";
+                }
                 //COD
                 if (list.getPaymentMethodId().equals(2L)) {
                     var paymentMethod = paymentMethodService.getPaymentEntity(list.getPaymentMethodId());
@@ -339,12 +352,12 @@ public class ICartService implements CartService {
                         address = addressRepository.save(address);
                         orders.setAddress(address);
                         orders.setUser(user);
+                        orders.setOrderItems(orderItems);
                         userAddress.setDefault(false);
                         userAddress.setUser(user);
                         userAddress.setAddress(address);
                         userAddressRepository.save(userAddress);
                         userRepository.save(user);
-                        orderItemRepository.saveAll(orderItems);
                         for (Long id : list.getCartItemId()) {
                             var cartItem = cartItemService.getCartItem(id);
                             if (cartItem != null && cartItem.getCart().getId().equals(userCart.getId())) {
@@ -361,6 +374,34 @@ public class ICartService implements CartService {
                     } else {
                         return "Product is not added to cart, please add shoes first!";
                     }
+                    var orderDetail = orderMapper.toOrderResponse(orders);
+                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                        var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        } else {
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        }
+                    }
+                    var userEmail = orderDetail.getUser().getEmail();
+                    var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
+                    var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
+                    var orderDate = orderDetail.getCreatedAt();
+                    var orderItemDTOList = orderDetail.getOrderItems();
+                    System.out.println(orderItemDTOList.size());
+                    var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24) * orderDetail.getDelivery().getEstimatedShippingTime());
+
+                    Context context = new Context();
+                    context.setVariable("userEmail", userEmail);
+                    context.setVariable("userName", name);
+                    context.setVariable("orders", orderDetail);
+                    context.setVariable("orderItems", orderItemDTOList);
+                    context.setVariable("shippingTime", shippingTime);
+                    context.setVariable("orderDate", orderDate);
+                    context.setVariable("orderEstimateDate", orderEstimateDate);
+                    emailService.sendEmailWithHtmlTemplate(userEmail, "Đặt hàng thành công!", "confirm-order", context);
 
                 }
                 //VNPAY

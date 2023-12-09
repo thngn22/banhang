@@ -21,6 +21,7 @@ public interface OrderMapper {
 
     @Mapping(source = "productItem.id", target = "productItemId")
     @Mapping(source = "productItem.productImage", target = "productItemImage")
+    @Mapping(source = "productItem.name", target = "productItemName")
     OrderItemDTO toOrderItemDTO(OrderItem orderItem);
     List<OrderItemDTO> toOrderItemDTOs(List<OrderItem> orderItems);
     @Mapping(source = "statusOrder.orderStatus", target = "statusOrder")

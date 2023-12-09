@@ -23,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
 import java.security.Principal;
 import java.util.Date;
@@ -384,22 +385,40 @@ public class IUserService implements UserService {
                     statusOrderRepository.save(statusOrder);
                     userOrders.get().setStatusOrder(statusOrder);
                     orderRepository.save(userOrders.get());
+                    var orderDetail = orderMapper.toOrderResponse(userOrders.get());
+                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                        var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        } else {
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        }
+                    }
+                    var userEmail = orderDetail.getUser().getEmail();
+                    var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
+                    var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
+                    var orderDate = orderDetail.getCreatedAt();
+                    var orderItems = orderDetail.getOrderItems();
+                    var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24)*orderDetail.getDelivery().getEstimatedShippingTime());
                     if (sendMail){
-                        EmailDetails emailDetails = new EmailDetails();
-                        emailDetails.setSubject("Xác nhận hoàn tất đơn hàng!");
-                        emailDetails.setRecipient(user.getEmail());
-                        emailDetails.setMsgBody("Chào " + user.getEmail() +
-                                ",\nChúng tôi rất vui khi thông báo rằng đơn hàng của bạn đã được giao thành công. Vui lòng quay lại website và bấm xác nhận đơn hàng ngay thôi nào!"
-                                + "\n\nTrân trọng,\n" +
-                                "Vũ Nguyễn Trung Khang");
-                        emailService.sendSimpleMail(emailDetails);
+                        Context context = new Context();
+                        context.setVariable("userEmail", userEmail);
+                        context.setVariable("userName", name);
+                        context.setVariable("orders", orderDetail);
+                        context.setVariable("orderItems", orderItems);
+                        context.setVariable("shippingTime", shippingTime);
+                        context.setVariable("orderDate", orderDate);
+                        context.setVariable("orderEstimateDate", orderEstimateDate);
+                        emailService.sendEmailWithHtmlTemplate(userEmail, "Xác nhận hoàn tất đơn hàng!", "confirm-order", context);
                     }
                     return "Successfully updated status of this order!";
                 }
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
                     return "This order already canceled!";
                 }
-                else return "You do not have permission to change this status!";
+                else return "Status can not be changed!";
             }
             else return "Did not found any order, please try again!";
         }

@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.HashMap;
@@ -25,7 +27,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class ApplicationConfiguration {
+public class ApplicationConfiguration implements WebMvcConfigurer {
 
     private final UserRepository userRepository;
     @Bean
@@ -51,4 +53,9 @@ public class ApplicationConfiguration {
         return authConfig.getAuthenticationManager();
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/assets/js/**").addResourceLocations("classpath:/static/assets/js/");
+        registry.addResourceHandler("/assets/css/**").addResourceLocations("classpath:/static/assets/css/");
+    }
 }
