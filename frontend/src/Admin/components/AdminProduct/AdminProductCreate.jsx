@@ -64,12 +64,16 @@ const AdminProductCreate = () => {
       onSuccess: () => {
         // Hiển thị thông báo thành công
         message.success("Thêm mới sản phẩm thành công");
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       },
       onError: (error) => {
         // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       },
     });
   };

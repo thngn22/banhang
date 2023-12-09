@@ -11,9 +11,9 @@ export const orderSlice = createSlice({
   },
   reducers: {
     updateDetailOrder: (state, action) => {
-      state.multilevelCate.currentCate = action.payload;
-      state.multilevelCate.isFetching = false;
-      state.multilevelCate.error = false;
+      state.detailOrder.currentOrder = action.payload;
+      state.detailOrder.isFetching = false;
+      state.detailOrder.error = false;
     },
   },
 });

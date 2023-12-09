@@ -42,7 +42,7 @@ export const getProfileUser = async (accessToken) => {
 //Mới viết
 export const getAllUser = async (accessToken) => {
   const res = await axiosJWT.get(
-    `${process.env.REACT_APP_API_URL}admin/`,
+    `${process.env.REACT_APP_API_URL}admin/users`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

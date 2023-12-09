@@ -34,7 +34,6 @@ const AdminProductEdit = (props) => {
 
   const [dataAPICreate, setDataAPICreate] = useState(null);
 
-
   useEffect(() => {
     setDataCategory(productDetail.categoryId);
     setDataDescription(productDetail.description);
@@ -43,8 +42,6 @@ const AdminProductEdit = (props) => {
     setCombinedData(productDetail.productItems);
   }, [productDetail]);
 
-
-
   const handleDefaultImageChange = (imageData) => {
     setDefaultImage(imageData);
   };
@@ -52,16 +49,11 @@ const AdminProductEdit = (props) => {
     setCombinedData(data);
   };
 
-
-
-
   const mutation = useMutationHook((data) => {
     const res = ProductService.editProduct(data, auth.accessToken);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
-
-
 
   const handleCreateProductClick = () => {
     const productCreateRequest = {
@@ -97,18 +89,26 @@ const AdminProductEdit = (props) => {
         // Hiển thị thông báo thành công
         message.success("Chỉnh sửa sản phẩm thành công");
         props.setIsModalOpen(false);
-        window.location.reload();
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       },
       onError: (error) => {
         // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
         props.setIsModalOpen(false);
-        window.location.reload();
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       },
     });
   };
 
-
+  // if (isSuccess || isError) {
+  //   window.location.reload();
+  // }
 
   const handleMenuItemClick = (id, name) => {
     setDataCategory({ id, name });

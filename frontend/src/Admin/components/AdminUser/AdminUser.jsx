@@ -43,21 +43,26 @@ const AdminUser = () => {
 
   const columns = [
     {
+      title: "Mã người dùng",
+      dataIndex: "id",
+      render: (text) => <a>{text}</a>,
+    },
+    {
       title: "Email",
       dataIndex: "email",
       render: (text) => <a>{text}</a>,
     },
-    {
-      title: "User Image",
-      dataIndex: "userImage",
-      render: (userImage) => (
-        <img
-          src={userImage}
-          alt="userImage"
-          style={{ maxWidth: "50px", maxHeight: "50px" }}
-        />
-      ),
-    },
+    // {
+    //   title: "User Image",
+    //   dataIndex: "userImage",
+    //   render: (userImage) => (
+    //     <img
+    //       src={userImage}
+    //       alt="userImage"
+    //       style={{ maxWidth: "50px", maxHeight: "50px" }}
+    //     />
+    //   ),
+    // },
     {
       title: "Phone",
       dataIndex: "phone",

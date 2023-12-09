@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosJWT = axios.create();
 
-export const getAllOrder = async (accessToken) => {
+export const getAllOrderAdmin = async (accessToken) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/orders`,
     {
@@ -15,9 +15,9 @@ export const getAllOrder = async (accessToken) => {
 };
 
 
-export const getDetailOrder = async (id, accessToken) => {
+export const getDetailOrderAdmin = async (id, accessToken) => {
     const res = await axiosJWT.get(
-      `${process.env.REACT_APP_API_URL}`,
+      `${process.env.REACT_APP_API_URL}admin/orders/${id}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

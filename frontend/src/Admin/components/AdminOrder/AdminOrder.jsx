@@ -1,18 +1,30 @@
 import React, { useState } from "react";
 import { WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
-import { useSelector } from "react-redux";
-import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+// import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
 import { Modal } from "antd";
-import * as OrderService from "../../../services/OrderService"
+import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
+// import {} from "icons"
+import { Popover } from "antd";
 
+import {
+  DeleteOutlined,
+  EditOutlined,
+  QuestionCircleOutlined,
+  EllipsisOutlined,
+} from "@ant-design/icons";
+import AdminOrderDetail from "./AdminOrderDetail";
+import { updateDetailOrder } from "../../../redux/slides/orderSlice";
 
 const AdminOrder = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
 
+  const dispatch = useDispatch();
+
   const getAllOrdersAdmin = async () => {
-    const res = await OrderService.getAllOrder(auth.accessToken);
+    const res = await OrderService.getAllOrderAdmin(auth.accessToken);
     return res;
   };
   const { data: orders } = useQuery({
@@ -20,8 +32,32 @@ const AdminOrder = () => {
     queryFn: getAllOrdersAdmin,
   });
 
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [popoverFieldValue, setPopoverFieldValue] = useState(null);
+  const handlePopoverClick = (orderId) => {
+    console.log("Clicked on order ID in Popover:", orderId);
+    // Thực hiện xử lý khi click vào dòng trong Popover, bạn có thể làm gì đó ở đây
+  };
+  const handlePopoverEnter = (orderId) => {
+    setSelectedRow(orderId);
+  };
+  const handlePopoverFieldClick = (value) => {
+    console.log("Clicked on Popover field:", value);
+    // Thực hiện xử lý khi click vào field trong Popover, bạn có thể làm gì đó ở đây
+    setPopoverFieldValue(value);
+  };
 
   const renderAction = (key) => {
+    const content = (
+      <div>
+        <p className="font-semibold text-yellow-600" onClick={() => handlePopoverFieldClick("DANG_VAN_CHUYEN")}>Đang vận chuyển</p>
+        <p className="font-semibold text-pink-600" onClick={() => handlePopoverFieldClick("DA_GIAO_HANG")}>Đã giao hàng</p>
+        <p className="font-semibold text-gray-600" onClick={() => handlePopoverFieldClick("BI_TU_CHOI")}>Giao thất bại</p>
+        <p className="font-semibold text-green-600" onClick={() => handlePopoverFieldClick("HOAN_TAT")}>Hoàn thành đơn</p>
+        <p className="font-semibold text-red-600" onClick={() => handlePopoverFieldClick("DA_BI_HE_THONG_HUY")}>Hủy</p>
+      </div>
+    );
+
     return (
       <div
         style={{
@@ -30,14 +66,17 @@ const AdminOrder = () => {
           width: "80%",
         }}
       >
-        <DeleteOutlined
-          style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-          onClick={() => inActive(key)}
-        />
-        <EditOutlined
-          style={{ color: "blue", fontSize: "26px", cursor: "pointer" }}
+        <QuestionCircleOutlined
+          style={{ color: "#000", fontSize: "26px", cursor: "pointer" }}
           onClick={() => showModal(key)}
         />
+
+        <Popover content={content}>
+          <EllipsisOutlined
+            style={{ fontWeight: "bold", fontSize: "24px" }}
+            onMouseEnter={() => handlePopoverEnter(key)}
+          />
+        </Popover>
       </div>
     );
   };
@@ -50,7 +89,7 @@ const AdminOrder = () => {
     },
     {
       title: "Người mua",
-      dataIndex: "userId",
+      dataIndex: "user",
       render: (text) => <a>{text}</a>,
     },
     {
@@ -60,45 +99,62 @@ const AdminOrder = () => {
     {
       title: "Giá đơn",
       dataIndex: "finalPayment",
+      render: (text) => <p style={{ fontWeight: "bold" }}>{text}</p>,
     },
     {
       title: "Phương thức",
       dataIndex: "userPaymentMethod",
+      render: (text) => (
+        <p
+          style={{
+            fontWeight: "bold",
+            textAlign: "center",
+            color: text === "COD" ? "blue" : "red",
+          }}
+        >
+          {text}
+        </p>
+      ),
     },
     {
       title: "Tình trạng",
       dataIndex: "statusOrder",
-      render: (text) => <a>{text}</a>
+      render: (text) => <a>{text}</a>,
     },
     {
       title: "Hành động",
       dataIndex: "key",
-      // render: (key) => renderAction(key),
+      render: (key) => renderAction(key),
     },
   ];
-
   const dataTable =
     orders?.length &&
-    orders.map((order) => {
-      return { ...orders, key: orders.id };
-    });
+    orders.map((order) => ({
+      ...order,
+      key: order.id,
+      user: order.user.email,
+      address: `${order.address.zipCode}/${order.address.streetAddress}/${order.address.city}`,
+      userPaymentMethod: order.userPaymentMethod.nameMethod,
+    }));
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const inActive = async (key)=>{
-    console.log("key delete",key);
 
-    // try {
-    //   const deleteProduct = await ProductService.deleteProduct({key}, auth.accessToken);
-    //   console.log("Detail Product Data:", deleteProduct);
-    //   // Do something with the detailProduct data if needed
-    // } catch (error) {
-    //   console.error("Error fetching product details:", error);
-    // }
-  }
 
-  const showModal = async (key) => {
-    console.log("key edit", key);
+
+  const showModal = async (orderId) => {
+    console.log("key edit", orderId);
+    try {
+      const detailOrder = await OrderService.getDetailOrderAdmin(
+        orderId,
+        auth.accessToken
+      );
+      // console.log("Detail Product Data:", detailProduct);
+      dispatch(updateDetailOrder({}));
+      dispatch(updateDetailOrder(detailOrder));
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+    }
     setIsModalOpen(true);
   };
   const handleOk = () => {
@@ -108,19 +164,17 @@ const AdminOrder = () => {
     setIsModalOpen(false);
   };
 
-  const handleRowClick = async (productId) => {
 
-  };
+
 
   return (
     <div>
       <WrapperHeader>Quản lý Đơn hàng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
-        <TableComponent columns={columns} data={dataTable} onRowClick={handleRowClick} />
+        <TableComponent columns={columns} data={dataTable} />
       </div>
 
       <Modal
-        title="Basic Modal"
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -129,8 +183,9 @@ const AdminOrder = () => {
         }}
         okText="Update"
         footer={null}
-        width={1000}
+        width={800}
       >
+        <AdminOrderDetail />
       </Modal>
     </div>
   );
