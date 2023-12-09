@@ -25,3 +25,15 @@ export const getCartItems = async (accessToken) => {
     );
     return res.data;
 };
+export const checkOutCarts = async (data, accessToken) => {
+    const res = await axiosJWT.post(
+        `${process.env.REACT_APP_API_URL}cart/checkout`,
+        data,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        }
+    );
+    return res.data;
+};
