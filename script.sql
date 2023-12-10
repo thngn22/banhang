@@ -65,7 +65,7 @@ CREATE TABLE `cart` (
 
 LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (7,0,0,1),(8,0,0,2),(10,0,0,5);
+INSERT INTO `cart` VALUES (7,0,0,1),(8,6,2562000,2),(10,2,920000,5);
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,7 +91,7 @@ CREATE TABLE `cart_item` (
   CONSTRAINT `FK1uobyhgl1wvgt1jpccia8xxs3` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`),
   CONSTRAINT `FKj46f52s31n4pbpgucd6x2ci46` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKjf5jd3pbctwr3xerd2hlsa6m1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +100,7 @@ CREATE TABLE `cart_item` (
 
 LOCK TABLES `cart_item` WRITE;
 /*!40000 ALTER TABLE `cart_item` DISABLE KEYS */;
-INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0,NULL),(21,427000,0,8,280,0,NULL),(22,358000,0,8,283,0,NULL),(23,358000,0,8,284,0,NULL),(24,358000,0,8,291,0,NULL),(25,358000,0,8,292,0,NULL),(26,358000,0,8,294,0,NULL),(33,358000,0,10,293,0,NULL),(34,358000,0,10,294,0,NULL),(35,358000,0,10,289,0,NULL);
+INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0,NULL),(21,427000,0,8,280,0,NULL),(22,358000,0,8,283,0,NULL),(23,358000,0,8,284,0,NULL),(24,358000,0,8,291,0,NULL),(25,358000,0,8,292,0,NULL),(26,358000,0,8,294,0,NULL),(33,358000,0,10,293,0,NULL),(34,358000,0,10,294,0,NULL),(35,358000,0,10,289,0,NULL),(36,460000,2,10,237,920000,NULL),(37,460000,0,8,237,0,NULL),(38,460000,0,8,245,0,NULL),(39,427000,3,8,271,1281000,NULL),(40,427000,3,8,272,1281000,NULL);
 /*!40000 ALTER TABLE `cart_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -301,6 +301,8 @@ CREATE TABLE `product` (
   `created_date` datetime(6) DEFAULT NULL,
   `modified_date` datetime(6) DEFAULT NULL,
   `is_active` bit(1) DEFAULT NULL,
+  `rating` double DEFAULT NULL,
+  `sold` int DEFAULT NULL,
   PRIMARY KEY (`product_id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
@@ -313,7 +315,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (37,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Si Cao Su Nam BRM000900','https://res.cloudinary.com/dmvncmrci/image/upload/v1701705255/Product/brm000900den1_e3c8a7b5cd884a39a6d185ae286dc2fb_1024x1024_ttrl23.webp',4,'2023-12-04 23:04:37.236000','2023-12-04 23:04:37.236000',_binary ''),(38,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam BEM001500','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706211/Product/bem001500den1_187bb7816a2446f4b64cb800bfe6ea5a_1024x1024_wqugkh.webp',4,'2023-12-04 23:09:28.981000','2023-12-04 23:09:28.981000',_binary ''),(39,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam HEM000700','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706548/Product/hem000700kem1_2e0a521c4112491ea8a254c8fc622c1d_1024x1024_l6rij2.webp',4,'2023-12-04 23:18:24.903000','2023-12-04 23:18:24.903000',_binary ''),(40,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Thông Dụng Nam Basic BSM000600','https://res.cloudinary.com/dmvncmrci/image/upload/v1701707546/bsm000600den__2__77fab7e22db04fdfac9bf6543e74612a_3f58b358b0a64aaaaaa20ddc8af0c849_1024x1024_zhg7bs.jpg',8,'2023-12-04 23:40:20.460000','2023-12-07 23:24:31.441000',_binary ''),(41,'Chất liệu quai: da bò cao cấp, đường chỉ may tinh tế, đẹp mắt. Chất liệu đế: TPR có các rãnh chống trơn trượt. Độ cao: 2cm. Mặt lót  mềm tạo sự thoải mái trong khi di chuyển. Sabo sẽ trở thành một trợ thủ đắc lực không thể thiếu trong những ngày thời tiết thất thường hay trong những buổi đi chơi, đi du lịch cùng bạn bè và người thân.','Giày Sabo 7299','https://res.cloudinary.com/dmvncmrci/image/upload/v1702018481/Product/kfl3qiytnznk16emwspu.jpg',8,'2023-12-04 23:47:56.516000','2023-12-08 13:54:43.752000',_binary ''),(42,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Nam DSM074500','https://res.cloudinary.com/dmvncmrci/image/upload/v1700207260/cld-sample-5.jpg',8,'2023-12-05 02:01:58.807000','2023-12-05 02:01:58.807000',_binary '');
+INSERT INTO `product` VALUES (37,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Si Cao Su Nam BRM000900','https://res.cloudinary.com/dmvncmrci/image/upload/v1701705255/Product/brm000900den1_e3c8a7b5cd884a39a6d185ae286dc2fb_1024x1024_ttrl23.webp',4,'2023-12-04 23:04:37.236000','2023-12-04 23:04:37.236000',_binary '',0,0),(38,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam BEM001500','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706211/Product/bem001500den1_187bb7816a2446f4b64cb800bfe6ea5a_1024x1024_wqugkh.webp',4,'2023-12-04 23:09:28.981000','2023-12-04 23:09:28.981000',_binary '',0,0),(39,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam HEM000700','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706548/Product/hem000700kem1_2e0a521c4112491ea8a254c8fc622c1d_1024x1024_l6rij2.webp',4,'2023-12-04 23:18:24.903000','2023-12-04 23:18:24.903000',_binary '',0,0),(40,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Thông Dụng Nam Basic BSM000600','https://res.cloudinary.com/dmvncmrci/image/upload/v1701707546/bsm000600den__2__77fab7e22db04fdfac9bf6543e74612a_3f58b358b0a64aaaaaa20ddc8af0c849_1024x1024_zhg7bs.jpg',8,'2023-12-04 23:40:20.460000','2023-12-07 23:24:31.441000',_binary '',0,0),(41,'Chất liệu quai: da bò cao cấp, đường chỉ may tinh tế, đẹp mắt. Chất liệu đế: TPR có các rãnh chống trơn trượt. Độ cao: 2cm. Mặt lót  mềm tạo sự thoải mái trong khi di chuyển. Sabo sẽ trở thành một trợ thủ đắc lực không thể thiếu trong những ngày thời tiết thất thường hay trong những buổi đi chơi, đi du lịch cùng bạn bè và người thân.','Giày Sabo 7299','https://res.cloudinary.com/dmvncmrci/image/upload/v1702018481/Product/kfl3qiytnznk16emwspu.jpg',8,'2023-12-04 23:47:56.516000','2023-12-08 13:54:43.752000',_binary '',5,0),(42,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Nam DSM074500','https://res.cloudinary.com/dmvncmrci/image/upload/v1700207260/cld-sample-5.jpg',8,'2023-12-05 02:01:58.807000','2023-12-05 02:01:58.807000',_binary '',0,0);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -416,18 +418,22 @@ DROP TABLE IF EXISTS `review`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `review` (
   `review_id` bigint NOT NULL AUTO_INCREMENT,
-  `comment` mediumtext,
   `created_at` datetime(6) DEFAULT NULL,
-  `rating` double DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `product_id` bigint DEFAULT NULL,
   `user_id` bigint DEFAULT NULL,
+  `feedback` varchar(10000) DEFAULT NULL,
+  `image_feedback` varchar(255) DEFAULT NULL,
+  `rating` int DEFAULT NULL,
+  `order_item_id` bigint DEFAULT NULL,
   PRIMARY KEY (`review_id`),
+  UNIQUE KEY `UK_fi19ihqypou1atahgbq3a0508` (`order_item_id`),
   KEY `FKiyof1sindb9qiqr9o8npj8klt` (`product_id`),
   KEY `FKiyf57dy48lyiftdrf7y87rnxi` (`user_id`),
+  CONSTRAINT `FKcpceqmajrln2x7iqc4jua0hu1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`),
   CONSTRAINT `FKiyf57dy48lyiftdrf7y87rnxi` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKiyof1sindb9qiqr9o8npj8klt` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -436,6 +442,7 @@ CREATE TABLE `review` (
 
 LOCK TABLES `review` WRITE;
 /*!40000 ALTER TABLE `review` DISABLE KEYS */;
+INSERT INTO `review` VALUES (3,'2023-12-10 08:37:04.150000','2023-12-10 08:37:04.150000',41,5,'test feedback',NULL,5,30);
 /*!40000 ALTER TABLE `review` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -702,4 +709,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-09 10:23:19
+-- Dump completed on 2023-12-10  9:33:41
