@@ -198,21 +198,31 @@ public class IProductService implements ProductService {
             var productResponse = productMapper.toProductDetailResponsev2(productDetail);
             productResponse.setProductItemResponses(productItemResponses);
             var userReviews = reviewService.findAllByProductId(productId);
-            var reviewResponse = reviewMapper.toReviewResponseForUsers(userReviews);
-            var productItems = product.get().getProductItems();
-
+            List<Review> reviews = new ArrayList<>();
+            List<Long> ids = new ArrayList<>();
+            for (Review review : userReviews) {
+                if (review.getOrderItem().getProductItem().getProduct().getId().equals(productId)) {
+                    reviews.add(review);
+                    ids.add(review.getOrderItem().getProductItem().getId());
+                }
+            }
+            var reviewResponse = reviewMapper.toReviewResponseForUsers(reviews);
+            var productItems = productItemRepository.findAllById(ids);
             while (!productItems.isEmpty()) {
                 for (ReviewResponseForUser reviewResponseForUser : reviewResponse) {
                     var productItem = productItems.get(0);
-                    if (reviewResponseForUser.getProductId().equals(productItem.getId()) &&
+                    if (reviewResponseForUser.getProductId().equals(productItem.getProduct().getId()) &&
                             productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         reviewResponseForUser.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         reviewResponseForUser.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                         reviewResponseForUser.setProductItemId(productItem.getId());
-                    } else {
+                        break;
+                    } else if (reviewResponseForUser.getProductId().equals(productItem.getProduct().getId()) &&
+                            productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")){
                         reviewResponseForUser.setProductItemId(productItem.getId());
                         reviewResponseForUser.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                         reviewResponseForUser.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        break;
                     }
 
                 }
