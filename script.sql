@@ -28,7 +28,7 @@ CREATE TABLE `address` (
   `street_address` mediumtext,
   `zip_code` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -37,7 +37,7 @@ CREATE TABLE `address` (
 
 LOCK TABLES `address` WRITE;
 /*!40000 ALTER TABLE `address` DISABLE KEYS */;
-INSERT INTO `address` VALUES (24,'lmao','darrk','darrk burh'),(25,'lmao','darrk','darrk burh'),(26,'lmao','darrk','darrk burh'),(27,'lmao','darrk','darrk burh'),(31,'lmao','darrk','darrk burh'),(33,'lmao','darrk','darrk burh'),(34,'lmao','darrk','darrk burh'),(35,'lmao','darrk','darrk burh'),(36,'lmao','darrk','darrk burh'),(37,'lmao','darrk','darrk burh'),(38,'lmao','darrk','darrk burh'),(39,'lmao','darrk','darrk burh'),(40,'lmao','darrk','darrk burh'),(41,'lmao','darrk','darrk burh'),(42,'lmao','darrk','darrk burh'),(43,'lmao','darrk','darrk burh'),(44,'lmao','darrk','darrk burh'),(45,'lmao','darrk','darrk burh'),(46,'lmao','darrk','darrk burh'),(47,'lmao','darrk','darrk burh'),(48,'lmao','darrk','darrk burh'),(49,'lmao','darrk','darrk burh'),(50,'lmao','darrk','darrk burh'),(51,'lmao','darrk','darrk burh'),(52,'lmao','darrk','darrk burh'),(53,'lmao','darrk','darrk burh'),(54,'lmao','darrk','darrk burh'),(55,'lmao','darrk','darrk burh'),(56,'lmao','darrk','darrk burh'),(57,'lmao','darrk','darrk burh'),(58,'lmao','darrk','darrk burh'),(59,'lmao','darrk','darrk burh'),(60,'lmao','darrk','darrk burh'),(61,'lmao','darrk','darrk burh'),(62,'lmao','darrk','darrk burh'),(63,'lmao','darrk','darrk burh'),(64,'lmao','darrk','darrk burh'),(65,'lmao','darrk','darrk burh'),(66,'lmao','darrk','darrk burh'),(67,'lmao','darrk','darrk burh'),(68,'lmao','darrk','darrk burh'),(69,'lmao','darrk','darrk burh'),(70,'lmao','darrk','darrk burh');
+INSERT INTO `address` VALUES (24,'lmao','darrk','darrk burh'),(25,'lmao','darrk','darrk burh'),(26,'lmao','darrk','darrk burh'),(27,'lmao','darrk','darrk burh'),(31,'lmao','darrk','darrk burh'),(33,'lmao','darrk','darrk burh'),(34,'lmao','darrk','darrk burh'),(35,'lmao','darrk','darrk burh'),(36,'lmao','darrk','darrk burh'),(37,'lmao','darrk','darrk burh'),(38,'lmao','darrk','darrk burh'),(39,'lmao','darrk','darrk burh'),(40,'lmao','darrk','darrk burh'),(41,'lmao','darrk','darrk burh'),(42,'lmao','darrk','darrk burh'),(43,'lmao','darrk','darrk burh'),(44,'lmao','darrk','darrk burh'),(45,'lmao','darrk','darrk burh'),(46,'lmao','darrk','darrk burh'),(47,'lmao','darrk','darrk burh'),(48,'lmao','darrk','darrk burh'),(49,'lmao','darrk','darrk burh'),(50,'lmao','darrk','darrk burh'),(51,'lmao','darrk','darrk burh'),(52,'lmao','darrk','darrk burh'),(53,'lmao','darrk','darrk burh'),(54,'lmao','darrk','darrk burh'),(55,'lmao','darrk','darrk burh'),(56,'lmao','darrk','darrk burh'),(57,'lmao','darrk','darrk burh'),(58,'lmao','darrk','darrk burh'),(59,'lmao','darrk','darrk burh'),(60,'lmao','darrk','darrk burh'),(61,'lmao','darrk','darrk burh'),(62,'lmao','darrk','darrk burh'),(63,'lmao','darrk','darrk burh'),(64,'lmao','darrk','darrk burh'),(65,'lmao','darrk','darrk burh'),(66,'lmao','darrk','darrk burh'),(67,'lmao','darrk','darrk burh'),(68,'lmao','darrk','darrk burh'),(69,'lmao','darrk','darrk burh'),(70,'lmao','darrk','darrk burh'),(71,'lmao','darrk','darrk burh');
 /*!40000 ALTER TABLE `address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `cart` (
 
 LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (7,0,0,1),(8,6,2562000,2),(10,2,920000,5);
+INSERT INTO `cart` VALUES (7,0,0,1),(8,6,2562000,2),(10,0,0,5);
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -100,7 +100,7 @@ CREATE TABLE `cart_item` (
 
 LOCK TABLES `cart_item` WRITE;
 /*!40000 ALTER TABLE `cart_item` DISABLE KEYS */;
-INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0,NULL),(21,427000,0,8,280,0,NULL),(22,358000,0,8,283,0,NULL),(23,358000,0,8,284,0,NULL),(24,358000,0,8,291,0,NULL),(25,358000,0,8,292,0,NULL),(26,358000,0,8,294,0,NULL),(33,358000,0,10,293,0,NULL),(34,358000,0,10,294,0,NULL),(35,358000,0,10,289,0,NULL),(36,460000,2,10,237,920000,NULL),(37,460000,0,8,237,0,NULL),(38,460000,0,8,245,0,NULL),(39,427000,3,8,271,1281000,NULL),(40,427000,3,8,272,1281000,NULL);
+INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0,NULL),(21,427000,0,8,280,0,NULL),(22,358000,0,8,283,0,NULL),(23,358000,0,8,284,0,NULL),(24,358000,0,8,291,0,NULL),(25,358000,0,8,292,0,NULL),(26,358000,0,8,294,0,NULL),(33,358000,0,10,293,0,NULL),(34,358000,0,10,294,0,NULL),(35,358000,0,10,289,0,NULL),(36,460000,0,10,237,0,NULL),(37,460000,0,8,237,0,NULL),(38,460000,0,8,245,0,NULL),(39,427000,3,8,271,1281000,NULL),(40,427000,3,8,272,1281000,NULL);
 /*!40000 ALTER TABLE `cart_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,7 +204,7 @@ CREATE TABLE `order_item` (
   KEY `FKcdqml0b87oh0ukk87wjx9fk86` (`product_item_id`),
   CONSTRAINT `FKcdqml0b87oh0ukk87wjx9fk86` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKt4dc2r9nbvbujrljv3e23iibt` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +213,7 @@ CREATE TABLE `order_item` (
 
 LOCK TABLES `order_item` WRITE;
 /*!40000 ALTER TABLE `order_item` DISABLE KEYS */;
-INSERT INTO `order_item` VALUES (23,'2023-12-07 15:54:17.812000',358000,2,31,716000,283),(25,'2023-12-07 16:16:58.117000',358000,3,33,1074000,283),(26,'2023-12-07 16:16:58.118000',358000,1,33,358000,296),(27,'2023-12-07 20:13:20.531000',358000,1,34,358000,294),(28,'2023-12-07 20:13:20.533000',358000,1,34,358000,296),(29,'2023-12-08 04:15:08.326000',358000,2,35,716000,294),(30,'2023-12-09 03:16:03.462000',358000,1,36,358000,293),(90,'2023-12-09 10:08:41.177000',358000,1,67,358000,293),(91,'2023-12-09 10:08:41.179000',358000,1,67,358000,289),(92,'2023-12-09 10:15:44.981000',358000,1,68,358000,293),(93,'2023-12-09 10:15:44.982000',358000,1,68,358000,289);
+INSERT INTO `order_item` VALUES (23,'2023-12-07 15:54:17.812000',358000,2,31,716000,283),(25,'2023-12-07 16:16:58.117000',358000,3,33,1074000,283),(26,'2023-12-07 16:16:58.118000',358000,1,33,358000,296),(27,'2023-12-07 20:13:20.531000',358000,1,34,358000,294),(28,'2023-12-07 20:13:20.533000',358000,1,34,358000,296),(29,'2023-12-08 04:15:08.326000',358000,2,35,716000,294),(30,'2023-12-09 03:16:03.462000',358000,1,36,358000,293),(94,'2023-12-10 09:47:54.397000',460000,2,69,920000,237);
 /*!40000 ALTER TABLE `order_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -247,7 +247,7 @@ CREATE TABLE `orders` (
   CONSTRAINT `FKf5464gxwc32ongdvka2rtvw96` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKqippj57d958yt8kaefy29bv8q` FOREIGN KEY (`user_payment_method_id`) REFERENCES `user_payment_method` (`id`),
   CONSTRAINT `FKtkrur7wg4d8ax0pwgo0vmy20c` FOREIGN KEY (`delivery_id`) REFERENCES `delivery` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -256,7 +256,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (31,'2023-12-07 15:54:17.817000',2,716000,'2023-12-07 15:54:17.817000',33,1,2,2,734000,1),(33,'2023-12-07 16:16:58.119000',4,1432000,'2023-12-07 16:16:58.119000',35,1,2,1,1450000,1),(34,'2023-12-07 20:13:20.536000',2,716000,'2023-12-07 20:13:20.536000',36,1,2,1,734000,1),(35,'2023-12-08 04:15:08.329000',2,716000,'2023-12-08 04:15:08.329000',37,1,2,11,734000,1),(36,'2023-12-09 03:16:03.475000',1,358000,'2023-12-09 03:16:03.475000',38,1,5,2,376000,4),(67,'2023-12-09 10:08:41.190000',2,716000,'2023-12-09 10:08:41.190000',69,1,5,9,734000,4),(68,'2023-12-09 10:15:45.004000',2,716000,'2023-12-09 10:15:45.004000',70,1,5,9,734000,4);
+INSERT INTO `orders` VALUES (31,'2023-12-07 15:54:17.817000',2,716000,'2023-12-07 15:54:17.817000',33,1,2,2,734000,1),(33,'2023-12-07 16:16:58.119000',4,1432000,'2023-12-07 16:16:58.119000',35,1,2,1,1450000,1),(34,'2023-12-07 20:13:20.536000',2,716000,'2023-12-07 20:13:20.536000',36,1,2,1,734000,1),(35,'2023-12-08 04:15:08.329000',2,716000,'2023-12-08 04:15:08.329000',37,1,2,11,734000,1),(36,'2023-12-09 03:16:03.475000',1,358000,'2023-12-09 03:16:03.475000',38,1,5,2,376000,4),(69,'2023-12-10 09:47:54.411000',2,920000,'2023-12-10 09:47:54.411000',71,1,5,2,938000,4);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -315,7 +315,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (37,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Si Cao Su Nam BRM000900','https://res.cloudinary.com/dmvncmrci/image/upload/v1701705255/Product/brm000900den1_e3c8a7b5cd884a39a6d185ae286dc2fb_1024x1024_ttrl23.webp',4,'2023-12-04 23:04:37.236000','2023-12-04 23:04:37.236000',_binary '',0,0),(38,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam BEM001500','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706211/Product/bem001500den1_187bb7816a2446f4b64cb800bfe6ea5a_1024x1024_wqugkh.webp',4,'2023-12-04 23:09:28.981000','2023-12-04 23:09:28.981000',_binary '',0,0),(39,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam HEM000700','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706548/Product/hem000700kem1_2e0a521c4112491ea8a254c8fc622c1d_1024x1024_l6rij2.webp',4,'2023-12-04 23:18:24.903000','2023-12-04 23:18:24.903000',_binary '',0,0),(40,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Thông Dụng Nam Basic BSM000600','https://res.cloudinary.com/dmvncmrci/image/upload/v1701707546/bsm000600den__2__77fab7e22db04fdfac9bf6543e74612a_3f58b358b0a64aaaaaa20ddc8af0c849_1024x1024_zhg7bs.jpg',8,'2023-12-04 23:40:20.460000','2023-12-07 23:24:31.441000',_binary '',0,0),(41,'Chất liệu quai: da bò cao cấp, đường chỉ may tinh tế, đẹp mắt. Chất liệu đế: TPR có các rãnh chống trơn trượt. Độ cao: 2cm. Mặt lót  mềm tạo sự thoải mái trong khi di chuyển. Sabo sẽ trở thành một trợ thủ đắc lực không thể thiếu trong những ngày thời tiết thất thường hay trong những buổi đi chơi, đi du lịch cùng bạn bè và người thân.','Giày Sabo 7299','https://res.cloudinary.com/dmvncmrci/image/upload/v1702018481/Product/kfl3qiytnznk16emwspu.jpg',8,'2023-12-04 23:47:56.516000','2023-12-08 13:54:43.752000',_binary '',5,0),(42,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Nam DSM074500','https://res.cloudinary.com/dmvncmrci/image/upload/v1700207260/cld-sample-5.jpg',8,'2023-12-05 02:01:58.807000','2023-12-05 02:01:58.807000',_binary '',0,0);
+INSERT INTO `product` VALUES (37,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Si Cao Su Nam BRM000900','https://res.cloudinary.com/dmvncmrci/image/upload/v1701705255/Product/brm000900den1_e3c8a7b5cd884a39a6d185ae286dc2fb_1024x1024_ttrl23.webp',4,'2023-12-04 23:04:37.236000','2023-12-04 23:04:37.236000',_binary '',0,0),(38,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam BEM001500','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706211/Product/bem001500den1_187bb7816a2446f4b64cb800bfe6ea5a_1024x1024_wqugkh.webp',4,'2023-12-04 23:09:28.981000','2023-12-04 23:09:28.981000',_binary '',0,0),(39,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Sandal Eva Phun Nam HEM000700','https://res.cloudinary.com/dmvncmrci/image/upload/v1701706548/Product/hem000700kem1_2e0a521c4112491ea8a254c8fc622c1d_1024x1024_l6rij2.webp',4,'2023-12-04 23:18:24.903000','2023-12-04 23:18:24.903000',_binary '',5,0),(40,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Thông Dụng Nam Basic BSM000600','https://res.cloudinary.com/dmvncmrci/image/upload/v1701707546/bsm000600den__2__77fab7e22db04fdfac9bf6543e74612a_3f58b358b0a64aaaaaa20ddc8af0c849_1024x1024_zhg7bs.jpg',8,'2023-12-04 23:40:20.460000','2023-12-07 23:24:31.441000',_binary '',0,0),(41,'Chất liệu quai: da bò cao cấp, đường chỉ may tinh tế, đẹp mắt. Chất liệu đế: TPR có các rãnh chống trơn trượt. Độ cao: 2cm. Mặt lót  mềm tạo sự thoải mái trong khi di chuyển. Sabo sẽ trở thành một trợ thủ đắc lực không thể thiếu trong những ngày thời tiết thất thường hay trong những buổi đi chơi, đi du lịch cùng bạn bè và người thân.','Giày Sabo 7299','https://res.cloudinary.com/dmvncmrci/image/upload/v1702018481/Product/kfl3qiytnznk16emwspu.jpg',8,'2023-12-04 23:47:56.516000','2023-12-08 13:54:43.752000',_binary '',5,0),(42,'Chất liệu quai: chất liệu vải thấm hút tốt được gia công tỉ mỉ sẽ là sự lựa chọn mới mẻ cho tủ đồ của bạn. Chất liệu đế: EVA với các rãnh chống trơn trượt. Mặt lót mềm mại mang đến cho người dùng trải nghiệm thoải mái. Kiểu dáng: trẻ trung năng động, dễ dàng phối hợp cùng nhiều set đồ khác nhau.','Giày Thể Thao Nam DSM074500','https://res.cloudinary.com/dmvncmrci/image/upload/v1700207260/cld-sample-5.jpg',8,'2023-12-05 02:01:58.807000','2023-12-05 02:01:58.807000',_binary '',0,0);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -433,7 +433,7 @@ CREATE TABLE `review` (
   CONSTRAINT `FKcpceqmajrln2x7iqc4jua0hu1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`),
   CONSTRAINT `FKiyf57dy48lyiftdrf7y87rnxi` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKiyof1sindb9qiqr9o8npj8klt` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -442,7 +442,7 @@ CREATE TABLE `review` (
 
 LOCK TABLES `review` WRITE;
 /*!40000 ALTER TABLE `review` DISABLE KEYS */;
-INSERT INTO `review` VALUES (3,'2023-12-10 08:37:04.150000','2023-12-10 08:37:04.150000',41,5,'test feedback',NULL,5,30);
+INSERT INTO `review` VALUES (4,'2023-12-10 09:55:23.625000','2023-12-10 09:55:23.625000',39,5,'test from khang',NULL,5,94);
 /*!40000 ALTER TABLE `review` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -577,7 +577,7 @@ CREATE TABLE `user_address` (
   KEY `FKk2ox3w9jm7yd6v1m5f68xibry` (`user_id`),
   CONSTRAINT `FKdaaxogn1ss81gkcsdn05wi6jp` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKk2ox3w9jm7yd6v1m5f68xibry` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -586,7 +586,7 @@ CREATE TABLE `user_address` (
 
 LOCK TABLES `user_address` WRITE;
 /*!40000 ALTER TABLE `user_address` DISABLE KEYS */;
-INSERT INTO `user_address` VALUES (23,_binary '\0',24,2),(24,_binary '\0',25,2),(25,_binary '\0',26,2),(26,_binary '\0',27,2),(27,_binary '\0',31,2),(28,_binary '\0',33,2),(29,_binary '\0',34,2),(30,_binary '\0',35,2),(31,_binary '\0',36,2),(32,_binary '\0',37,2),(33,_binary '\0',38,5),(34,_binary '\0',39,5),(35,_binary '\0',40,5),(36,_binary '\0',41,5),(37,_binary '\0',42,5),(38,_binary '\0',43,5),(39,_binary '\0',44,5),(40,_binary '\0',45,5),(41,_binary '\0',46,5),(42,_binary '\0',47,5),(43,_binary '\0',48,5),(44,_binary '\0',49,5),(45,_binary '\0',50,5),(46,_binary '\0',51,5),(47,_binary '\0',52,5),(48,_binary '\0',53,5),(49,_binary '\0',54,5),(50,_binary '\0',55,5),(51,_binary '\0',56,5),(52,_binary '\0',57,5),(53,_binary '\0',58,5),(54,_binary '\0',59,5),(55,_binary '\0',60,5),(56,_binary '\0',61,5),(57,_binary '\0',62,5),(58,_binary '\0',63,5),(59,_binary '\0',64,5),(60,_binary '\0',65,5),(61,_binary '\0',66,5),(62,_binary '\0',67,5),(63,_binary '\0',68,5),(64,_binary '\0',69,5),(65,_binary '\0',70,5);
+INSERT INTO `user_address` VALUES (23,_binary '\0',24,2),(24,_binary '\0',25,2),(25,_binary '\0',26,2),(26,_binary '\0',27,2),(27,_binary '\0',31,2),(28,_binary '\0',33,2),(29,_binary '\0',34,2),(30,_binary '\0',35,2),(31,_binary '\0',36,2),(32,_binary '\0',37,2),(33,_binary '\0',38,5),(34,_binary '\0',39,5),(35,_binary '\0',40,5),(36,_binary '\0',41,5),(37,_binary '\0',42,5),(38,_binary '\0',43,5),(39,_binary '\0',44,5),(40,_binary '\0',45,5),(41,_binary '\0',46,5),(42,_binary '\0',47,5),(43,_binary '\0',48,5),(44,_binary '\0',49,5),(45,_binary '\0',50,5),(46,_binary '\0',51,5),(47,_binary '\0',52,5),(48,_binary '\0',53,5),(49,_binary '\0',54,5),(50,_binary '\0',55,5),(51,_binary '\0',56,5),(52,_binary '\0',57,5),(53,_binary '\0',58,5),(54,_binary '\0',59,5),(55,_binary '\0',60,5),(56,_binary '\0',61,5),(57,_binary '\0',62,5),(58,_binary '\0',63,5),(59,_binary '\0',64,5),(60,_binary '\0',65,5),(61,_binary '\0',66,5),(62,_binary '\0',67,5),(63,_binary '\0',68,5),(64,_binary '\0',69,5),(65,_binary '\0',70,5),(66,_binary '\0',71,5);
 /*!40000 ALTER TABLE `user_address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -709,4 +709,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-10  9:33:41
+-- Dump completed on 2023-12-10 10:44:26
