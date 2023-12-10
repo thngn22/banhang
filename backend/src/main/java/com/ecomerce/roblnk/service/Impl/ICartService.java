@@ -378,11 +378,11 @@ public class ICartService implements CartService {
                     for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
                         var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
                         if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
-                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                        } else {
-                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                             orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")){
+                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         }
                     }
                     var userEmail = orderDetail.getUser().getEmail();

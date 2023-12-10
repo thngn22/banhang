@@ -211,11 +211,11 @@ public class IUserService implements UserService {
                 for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                     var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
                     if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
-                        orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                        orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                    } else {
-                        orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                         orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else {
+                        orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                     }
                 }
                 return orderDetail;
@@ -256,9 +256,10 @@ public class IUserService implements UserService {
                 while (!reviewRequests.isEmpty()) {
                     var review = reviewRequests.get(0);
                     boolean flag = false;
+                    var orderItems = orderItemRepository.findAllByOrders_Id(userOrders.get().getId());
                     loop:
                     {
-                        for (OrderItem orderItem : userOrders.get().getOrderItems()) {
+                        for (OrderItem orderItem : orderItems) {
                             if (orderItem.getId().equals(review.getOrderItemId()) &&
                                     userOrders.get().getStatusOrder().getOrderStatus().equals(HOAN_TAT.toString())) {
                                 flag = true;
@@ -266,8 +267,9 @@ public class IUserService implements UserService {
                             }
                         }
                     }
+                    System.out.println(userOrders.get().getOrderItems().size());
                     if (flag) {
-                        for (OrderItem orderItem : userOrders.get().getOrderItems()) {
+                        for (OrderItem orderItem : orderItems) {
                             if (orderItem.getId().equals(review.getOrderItemId()) &&
                                     userOrders.get().getStatusOrder().getOrderStatus().equals(HOAN_TAT.toString())) {
                                 Review review1 = new Review();
@@ -282,13 +284,13 @@ public class IUserService implements UserService {
                                 try {
                                     var product = productRepository.findById(review.getProductId()).orElseThrow();
                                     review1.setProduct(product);
-                                    product.getReviews().add(review1);
                                     if (product.getRating().equals(0.0)) {
                                         product.setRating((double) review.getRatingStars());
                                     } else {
-                                        var rating = (product.getRating() * product.getReviews().size() + review.getRatingStars()) / (product.getReviews().size() + 1);
+                                        var rating = (double) (product.getRating() * product.getReviews().size() + review.getRatingStars()) / (product.getReviews().size() + 1);
                                         product.setRating(rating);
                                     }
+                                    product.getReviews().add(review1);
                                     reviewRepository.save(review1);
                                     productRepository.save(product);
                                     orderItemRepository.save(orderItem);
@@ -326,27 +328,21 @@ public class IUserService implements UserService {
 
             var reviewResponse = reviewMapper.toReviewResponseForUsers(reviews);
             var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
-            if (userOrders.isPresent()) {
-                var orderDetail = orderMapper.toOrderResponse(userOrders.get()).getOrderItems();
-                while (!orderDetail.isEmpty()) {
-                    for (ReviewResponseForUser reviewResponseForUser : reviewResponse) {
-                        var productItem = productItemRepository.findById(orderDetail.get(0).getProductItemId()).orElseThrow();
-                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
-                            reviewResponseForUser.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                            reviewResponseForUser.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                            reviewResponseForUser.setProductItemId(productItem.getId());
-                        } else {
-                            reviewResponseForUser.setProductItemId(productItem.getId());
-                            reviewResponseForUser.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                            reviewResponseForUser.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                        }
-
-
-                    }
-
-                    orderDetail.remove(0);
+            var orderDetail = orderMapper.toOrderResponse(userOrders.get());
+            for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
+                var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                    orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                    orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                 }
+            }
 
+            for (int i = 0; i < reviewResponse.size(); i++){
+                reviewResponse.get(i).setColor(orderDetail.getOrderItems().get(i).getColor());
+                reviewResponse.get(i).setSize(orderDetail.getOrderItems().get(i).getSize());
             }
             return reviewResponse;
         } else return null;
@@ -363,11 +359,11 @@ public class IUserService implements UserService {
                 for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                     var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
                     if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
-                        orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                        orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                    } else {
-                        orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                         orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else {
+                        orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                     }
                 }
                 return orderDetail;
@@ -497,11 +493,11 @@ public class IUserService implements UserService {
                     for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                         var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
                         if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
-                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                        } else {
-                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                             orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        } else {
+                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         }
                     }
                     var userEmail = orderDetail.getUser().getEmail();

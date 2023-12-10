@@ -1,7 +1,9 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.product.*;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
+import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.model.*;
@@ -35,6 +37,8 @@ public class IProductService implements ProductService {
     private final ReviewMapper reviewMapper;
     private final ReviewService reviewService;
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderMapper orderMapper;
 
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId) {
@@ -200,34 +204,32 @@ public class IProductService implements ProductService {
             var userReviews = reviewService.findAllByProductId(productId);
             List<Review> reviews = new ArrayList<>();
             List<Long> ids = new ArrayList<>();
+            List<Long> orderItemIds = new ArrayList<>();
             for (Review review : userReviews) {
                 if (review.getOrderItem().getProductItem().getProduct().getId().equals(productId)) {
                     reviews.add(review);
                     ids.add(review.getOrderItem().getProductItem().getId());
+                    orderItemIds.add(review.getOrderItem().getId());
                 }
             }
             var reviewResponse = reviewMapper.toReviewResponseForUsers(reviews);
-            var productItems = productItemRepository.findAllById(ids);
-            while (!productItems.isEmpty()) {
-                for (ReviewResponseForUser reviewResponseForUser : reviewResponse) {
-                    var productItem = productItems.get(0);
-                    if (reviewResponseForUser.getProductId().equals(productItem.getProduct().getId()) &&
-                            productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
-                        reviewResponseForUser.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                        reviewResponseForUser.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                        reviewResponseForUser.setProductItemId(productItem.getId());
-                        break;
-                    } else if (reviewResponseForUser.getProductId().equals(productItem.getProduct().getId()) &&
-                            productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")){
-                        reviewResponseForUser.setProductItemId(productItem.getId());
-                        reviewResponseForUser.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                        reviewResponseForUser.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                        break;
-                    }
 
+            var userOrders = orderItemRepository.findAllById(orderItemIds);
+            var orderDetail = orderMapper.toOrderItemDTOs(userOrders);
+            for (OrderItemDTO orderItemDTO : orderDetail) {
+                var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                    orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                    orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                 }
+            }
 
-                productItems.remove(0);
+            for (int i = 0; i < reviewResponse.size(); i++){
+                reviewResponse.get(i).setColor(orderDetail.get(i).getColor());
+                reviewResponse.get(i).setSize(orderDetail.get(i).getSize());
             }
             var reviewList = reviewMapper.toReviewResponseForProducts(reviewResponse);
             productResponse.setReviews(reviewList);
