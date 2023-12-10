@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,9 +24,14 @@ public class Review {
     @Column(name = "review_id")
     private Long id;
 
-    @Column(name = "comment", length = 100000)
-    private String comment;
-    private Double rating;
+    @Column(name = "feedback", length = 10000)
+    private String feedback;
+
+    @Column(name = "rating")
+    private Integer rating;
+
+    @JoinColumn(name = "image_feedback")
+    private String imageFeedback;
 
     @Column(name = "created_at")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
@@ -47,4 +53,7 @@ public class Review {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "order_item_id")
+    private OrderItem orderItem;
 }

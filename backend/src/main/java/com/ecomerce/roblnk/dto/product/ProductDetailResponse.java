@@ -31,6 +31,8 @@ public class ProductDetailResponse {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
-    private List<ReviewDTO> reviews;
     private List<ProductItemDTO> productItems;
+    private Integer sold;
+    private Double rating;
+    private List<ReviewDTO> reviews;
 }

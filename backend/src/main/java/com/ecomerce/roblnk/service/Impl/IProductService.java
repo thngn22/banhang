@@ -1,11 +1,14 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.product.*;
+import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.mapper.ProductMapper;
+import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.service.CloudinaryService;
 import com.ecomerce.roblnk.service.ProductService;
+import com.ecomerce.roblnk.service.ReviewService;
 import com.ecomerce.roblnk.util.ByteMultipartFile;
 import com.ecomerce.roblnk.util.FileUtil;
 import com.ecomerce.roblnk.util.ImageUtil;
@@ -29,6 +32,9 @@ public class IProductService implements ProductService {
     private final VariationOptionRepository variationOptionRepository;
     private final ProductConfigurationRepository productConfigurationRepository;
     private final CloudinaryService cloudinaryService;
+    private final ReviewMapper reviewMapper;
+    private final ReviewService reviewService;
+    private final OrderRepository orderRepository;
 
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId) {
@@ -89,7 +95,7 @@ public class IProductService implements ProductService {
             while (!productDetail.getProductItems().isEmpty()) {
                 System.out.println(productDetail.getProductItems().size());
 
-                String optionColor = "";
+                String optionColor;
                 String optionSize = "";
                 if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
@@ -144,8 +150,8 @@ public class IProductService implements ProductService {
                 List<ProductItemDTOv3> productItemDTOv3List = new ArrayList<>();
                 List<Integer> indexes = new ArrayList<>();
 
-                String optionColor = "";
-                String optionSize = "";
+                String optionColor;
+                String optionSize;
                 if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
                 } else {
@@ -191,7 +197,32 @@ public class IProductService implements ProductService {
             }
             var productResponse = productMapper.toProductDetailResponsev2(productDetail);
             productResponse.setProductItemResponses(productItemResponses);
+            var userReviews = reviewService.findAllByProductId(productId);
+            var reviewResponse = reviewMapper.toReviewResponseForUsers(userReviews);
+            var productItems = product.get().getProductItems();
+
+            while (!productItems.isEmpty()) {
+                for (ReviewResponseForUser reviewResponseForUser : reviewResponse) {
+                    var productItem = productItems.get(0);
+                    if (reviewResponseForUser.getProductId().equals(productItem.getId()) &&
+                            productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        reviewResponseForUser.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        reviewResponseForUser.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        reviewResponseForUser.setProductItemId(productItem.getId());
+                    } else {
+                        reviewResponseForUser.setProductItemId(productItem.getId());
+                        reviewResponseForUser.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        reviewResponseForUser.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
+
+                }
+
+                productItems.remove(0);
+            }
+            var reviewList = reviewMapper.toReviewResponseForProducts(reviewResponse);
+            productResponse.setReviews(reviewList);
             return productResponse;
+
         } else
             return null;
     }
@@ -206,10 +237,10 @@ public class IProductService implements ProductService {
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemRequest> productItemRequests = request.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(request.getCategoryId());
-                Long sizeId = 0L;
-                String sizeName = "";
-                Long colorId = 0L;
-                String colorName = "";
+                Long sizeId;
+                String sizeName;
+                Long colorId;
+                String colorName;
                 if (variations.get(0).getName().startsWith("K")) {
                     sizeId = variations.get(0).getId();
                     sizeName = variations.get(0).getName();
@@ -222,6 +253,8 @@ public class IProductService implements ProductService {
                     colorName = variations.get(0).getName();
 
                 }
+                String productItemImage = "";
+                String url = "";
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
@@ -294,12 +327,27 @@ public class IProductService implements ProductService {
 
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
-                    productItem.setProduct(product);
                     var image = p.getProductImage();
-
+                    assert productItemImage != null;
+                    if (productItemImage.isEmpty()) {
+                        productItemImage = image;
+                        if (image != null) {
+                            url = getURLPictureAndUploadToCloudinary(image);
+                        } else url = ImageUtil.urlImage;
+                    }
                     if (image != null) {
-                        product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
-                    } else product.setProductImage(ImageUtil.urlImage);
+                        if (!productItemImage.equals(image)) {
+                            productItemImage = image;
+                            var ImageUrl = getURLPictureAndUploadToCloudinary(image);
+                            if (ImageUrl != null) {
+                                productItem.setProductImage(ImageUrl);
+                                url = ImageUrl;
+                            } else url = ImageUtil.urlImage;
+                        } else {
+                            productItem.setProductImage(url);
+                        }
+
+                    } else productItem.setProductImage(ImageUtil.urlImage);
                     productItem.setActive(true);
                     productItem.setCreatedDate(new Date(System.currentTimeMillis()));
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
@@ -314,11 +362,10 @@ public class IProductService implements ProductService {
                 product.setDescription(request.getDescription());
                 product.setCategory(category.get());
                 var image = request.getProductImage();
-
                 if (image != null) {
-                    product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
+                    var urlImage = getURLPictureAndUploadToCloudinary(image);
+                    product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
                 } else product.setProductImage(ImageUtil.urlImage);
-
                 product.setCreatedDate(new Date(System.currentTimeMillis()));
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
@@ -350,13 +397,12 @@ public class IProductService implements ProductService {
         if (category.isPresent()) {
             if (cateList.isEmpty()) {
                 var product = productRepository.findById(productEditRequest.getId()).orElseThrow();
-                List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemDTOv2> productItemRequests = productEditRequest.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(productEditRequest.getCategoryId());
-                Long sizeId = 0L;
-                String sizeName = "";
-                Long colorId = 0L;
-                String colorName = "";
+                Long sizeId;
+                String sizeName;
+                Long colorId;
+                String colorName;
                 if (variations.get(0).getName().startsWith("K")) {
                     sizeId = variations.get(0).getId();
                     sizeName = variations.get(0).getName();
@@ -369,6 +415,8 @@ public class IProductService implements ProductService {
                     colorName = variations.get(0).getName();
 
                 }
+                String productItemImage = "";
+                String url = "";
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     String sizeValueFromRequest = p.getSize();
@@ -378,20 +426,14 @@ public class IProductService implements ProductService {
                     String name = "";
                     var size = variationOptionRepository.findAllByVariation_Id(sizeId);
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
-                    String sizeValue = "";
-                    String colorValue = "";
                     boolean sizeFlag = false;
                     boolean colorFlag = false;
-                    Long sizeOptionId = 0L;
-                    Long colorOptionId = 0L;
                     loop:
                     {
                         if (!size.isEmpty()) {
                             for (VariationOption variationOption : size) {
                                 if (variationOption.getValue().equals(p.getSize())) {
                                     sizeFlag = true;
-                                    sizeOptionId = variationOption.getId();
-                                    sizeValue = variationOption.getValue();
                                     break loop;
                                 }
                             }
@@ -403,8 +445,6 @@ public class IProductService implements ProductService {
                             for (VariationOption variationOption : color) {
                                 if (variationOption.getValue().equals(p.getColor())) {
                                     colorFlag = true;
-                                    colorValue = variationOption.getValue();
-                                    colorOptionId = variationOption.getId();
                                     break loop2;
                                 }
                             }
@@ -422,7 +462,7 @@ public class IProductService implements ProductService {
                             productConfigurationList.get(0).setVariationOption(variationOption);
                             productConfigurationList.get(0).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(0));
-                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(sizeName)){
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(sizeName)) {
                             productConfigurationList.get(1).setVariationOption(variationOption);
                             productConfigurationList.get(1).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(1));
@@ -435,7 +475,7 @@ public class IProductService implements ProductService {
                             productConfigurationList.get(0).setVariationOption(variationOption);
                             productConfigurationList.get(0).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(0));
-                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)){
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)) {
                             productConfigurationList.get(1).setVariationOption(variationOption);
                             productConfigurationList.get(1).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(1));
@@ -454,7 +494,7 @@ public class IProductService implements ProductService {
                             productConfigurationList.get(0).setVariationOption(variationOption);
                             productConfigurationList.get(0).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(0));
-                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)){
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)) {
                             productConfigurationList.get(1).setVariationOption(variationOption);
                             productConfigurationList.get(1).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(1));
@@ -467,7 +507,7 @@ public class IProductService implements ProductService {
                             productConfigurationList.get(0).setVariationOption(variationOption);
                             productConfigurationList.get(0).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(0));
-                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)){
+                        } else if (productConfigurationList.get(1).getVariationOption().getVariation().getName().equals(colorName)) {
                             productConfigurationList.get(1).setVariationOption(variationOption);
                             productConfigurationList.get(1).setProductItem(productItem);
                             productConfigurations.add(productConfigurationList.get(1));
@@ -476,17 +516,32 @@ public class IProductService implements ProductService {
 
                     productItem.setName(productEditRequest.getName() + name);
                     var image = p.getProductImage();
+                    assert productItemImage != null;
+                    if (productItemImage.isEmpty()) {
+                        productItemImage = image;
+                        if (image != null) {
+                            url = getURLPictureAndUploadToCloudinary(image);
+                        } else url = ImageUtil.urlImage;
+                    }
                     if (image != null) {
-                        productItem.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
-                    } else productItem.setProductImage(ImageUtil.urlImage);
+                        if (!productItemImage.equals(image)) {
+                            productItemImage = image;
+                            var ImageUrl = getURLPictureAndUploadToCloudinary(image);
+                            if (ImageUrl != null) {
+                                productItem.setProductImage(ImageUrl);
+                                url = ImageUrl;
+                            } else url = ImageUtil.urlImage;
+                        } else {
+                            productItem.setProductImage(url);
+                        }
 
+                    } else productItem.setProductImage(ImageUtil.urlImage);
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());
                     productItem.setQuantityInStock(p.getQuantityInStock());
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setProduct(product);
                     productItem.setProductConfigurations(productConfigurations);
-                    productItems.add(productItem);
                     productItemRequests.remove(0);
                 }
 
@@ -494,11 +549,12 @@ public class IProductService implements ProductService {
                 product.setDescription(productEditRequest.getDescription());
                 product.setCategory(category.get());
                 var image = productEditRequest.getProductImage();
-
                 if (image != null) {
-                    product.setProductImage(getURLPictureAndUploadToCloudinary(image) != null ? getURLPictureAndUploadToCloudinary(image) : ImageUtil.urlImage);
-                } else product.setProductImage(ImageUtil.urlImage);
-
+                    var urlImage = getURLPictureAndUploadToCloudinary(image);
+                    if (urlImage != null) {
+                        product.setProductImage(urlImage);
+                    }
+                }
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 productRepository.save(product);
@@ -513,19 +569,18 @@ public class IProductService implements ProductService {
     @Override
     public String deleteProduct(@Valid Long id) {
         var product = productRepository.findById(id);
-        if (product.isPresent()){
+        if (product.isPresent()) {
             product.get().setModifiedDate(new Date(System.currentTimeMillis()));
-            if (product.get().isActive()){
+            if (product.get().isActive()) {
                 product.get().setActive(false);
                 productRepository.save(product.get());
                 return "Successfully deactive product";
-            }else {
+            } else {
                 product.get().setActive(true);
                 productRepository.save(product.get());
                 return "Successfully active product";
             }
-        }
-        else
+        } else
             return "Product not found or not available to delete!";
     }
 
@@ -563,7 +618,7 @@ public class IProductService implements ProductService {
         return list;
     }
 
-
+    @Override
     public String getURLPictureAndUploadToCloudinary(String base64Content) {
         try {
             byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
@@ -581,5 +636,6 @@ public class IProductService implements ProductService {
         }
 
     }
+
 
 }

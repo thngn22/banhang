@@ -1,6 +1,8 @@
 package com.ecomerce.roblnk.dto.product;
 
 import com.ecomerce.roblnk.dto.category.CategoryDTO;
+import com.ecomerce.roblnk.dto.review.ReviewResponseForProduct;
+import com.ecomerce.roblnk.model.Review;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,12 +24,14 @@ public class ProductDetailResponsev2 {
     private Integer quantityOfVariation;
     private Integer quantity;
     private boolean active;
+    private Integer sold;
+    private Double rating;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifiedDate;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
-    private List<ReviewDTO> reviews;
-    List<ProductItemResponse> productItemResponses;
+    private List<ReviewResponseForProduct> reviews;
+    private List<ProductItemResponse> productItemResponses;
 }

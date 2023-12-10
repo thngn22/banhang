@@ -2,6 +2,8 @@ package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
+import com.ecomerce.roblnk.dto.review.ReviewRequest;
+import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
@@ -45,4 +47,8 @@ public interface UserService {
     String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
 
     List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser);
+
+    String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests);
+
+    List<ReviewResponseForUser> getRatingProduct(Principal connectedUser, Long id);
 }

@@ -1,11 +1,16 @@
 package com.ecomerce.roblnk.dto.review;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReviewRequest {
+    private Long orderItemId;
     private Long productId;
-    private String review;
+    private Integer ratingStars;
+    private String feedback;
+    private String imageFeedback;
 }

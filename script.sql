@@ -28,7 +28,7 @@ CREATE TABLE `address` (
   `street_address` mediumtext,
   `zip_code` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -37,7 +37,7 @@ CREATE TABLE `address` (
 
 LOCK TABLES `address` WRITE;
 /*!40000 ALTER TABLE `address` DISABLE KEYS */;
-INSERT INTO `address` VALUES (24,'lmao','darrk','darrk burh'),(25,'lmao','darrk','darrk burh'),(26,'lmao','darrk','darrk burh'),(27,'lmao','darrk','darrk burh'),(31,'lmao','darrk','darrk burh'),(33,'lmao','darrk','darrk burh'),(34,'lmao','darrk','darrk burh'),(35,'lmao','darrk','darrk burh'),(36,'lmao','darrk','darrk burh'),(37,'lmao','darrk','darrk burh');
+INSERT INTO `address` VALUES (24,'lmao','darrk','darrk burh'),(25,'lmao','darrk','darrk burh'),(26,'lmao','darrk','darrk burh'),(27,'lmao','darrk','darrk burh'),(31,'lmao','darrk','darrk burh'),(33,'lmao','darrk','darrk burh'),(34,'lmao','darrk','darrk burh'),(35,'lmao','darrk','darrk burh'),(36,'lmao','darrk','darrk burh'),(37,'lmao','darrk','darrk burh'),(38,'lmao','darrk','darrk burh'),(39,'lmao','darrk','darrk burh'),(40,'lmao','darrk','darrk burh'),(41,'lmao','darrk','darrk burh'),(42,'lmao','darrk','darrk burh'),(43,'lmao','darrk','darrk burh'),(44,'lmao','darrk','darrk burh'),(45,'lmao','darrk','darrk burh'),(46,'lmao','darrk','darrk burh'),(47,'lmao','darrk','darrk burh'),(48,'lmao','darrk','darrk burh'),(49,'lmao','darrk','darrk burh'),(50,'lmao','darrk','darrk burh'),(51,'lmao','darrk','darrk burh'),(52,'lmao','darrk','darrk burh'),(53,'lmao','darrk','darrk burh'),(54,'lmao','darrk','darrk burh'),(55,'lmao','darrk','darrk burh'),(56,'lmao','darrk','darrk burh'),(57,'lmao','darrk','darrk burh'),(58,'lmao','darrk','darrk burh'),(59,'lmao','darrk','darrk burh'),(60,'lmao','darrk','darrk burh'),(61,'lmao','darrk','darrk burh'),(62,'lmao','darrk','darrk burh'),(63,'lmao','darrk','darrk burh'),(64,'lmao','darrk','darrk burh'),(65,'lmao','darrk','darrk burh'),(66,'lmao','darrk','darrk burh'),(67,'lmao','darrk','darrk burh'),(68,'lmao','darrk','darrk burh'),(69,'lmao','darrk','darrk burh'),(70,'lmao','darrk','darrk burh');
 /*!40000 ALTER TABLE `address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -56,7 +56,7 @@ CREATE TABLE `cart` (
   PRIMARY KEY (`cart_id`),
   KEY `FKl70asp4l4w0jmbm1tqyofho4o` (`user_id`),
   CONSTRAINT `FKl70asp4l4w0jmbm1tqyofho4o` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +65,7 @@ CREATE TABLE `cart` (
 
 LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (7,0,0,1),(8,0,0,2);
+INSERT INTO `cart` VALUES (7,0,0,1),(8,0,0,2),(10,0,0,5);
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,7 +91,7 @@ CREATE TABLE `cart_item` (
   CONSTRAINT `FK1uobyhgl1wvgt1jpccia8xxs3` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`),
   CONSTRAINT `FKj46f52s31n4pbpgucd6x2ci46` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKjf5jd3pbctwr3xerd2hlsa6m1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +100,7 @@ CREATE TABLE `cart_item` (
 
 LOCK TABLES `cart_item` WRITE;
 /*!40000 ALTER TABLE `cart_item` DISABLE KEYS */;
-INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0,NULL),(21,427000,0,8,280,0,NULL),(22,358000,0,8,283,0,NULL),(23,358000,0,8,284,0,NULL),(24,358000,0,8,291,0,NULL),(25,358000,0,8,292,0,NULL),(26,358000,0,8,294,0,NULL);
+INSERT INTO `cart_item` VALUES (20,358000,0,8,296,0,NULL),(21,427000,0,8,280,0,NULL),(22,358000,0,8,283,0,NULL),(23,358000,0,8,284,0,NULL),(24,358000,0,8,291,0,NULL),(25,358000,0,8,292,0,NULL),(26,358000,0,8,294,0,NULL),(33,358000,0,10,293,0,NULL),(34,358000,0,10,294,0,NULL),(35,358000,0,10,289,0,NULL);
 /*!40000 ALTER TABLE `cart_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,7 +204,7 @@ CREATE TABLE `order_item` (
   KEY `FKcdqml0b87oh0ukk87wjx9fk86` (`product_item_id`),
   CONSTRAINT `FKcdqml0b87oh0ukk87wjx9fk86` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKt4dc2r9nbvbujrljv3e23iibt` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +213,7 @@ CREATE TABLE `order_item` (
 
 LOCK TABLES `order_item` WRITE;
 /*!40000 ALTER TABLE `order_item` DISABLE KEYS */;
-INSERT INTO `order_item` VALUES (23,'2023-12-07 15:54:17.812000',358000,2,31,716000,283),(25,'2023-12-07 16:16:58.117000',358000,3,33,1074000,283),(26,'2023-12-07 16:16:58.118000',358000,1,33,358000,296),(27,'2023-12-07 20:13:20.531000',358000,1,34,358000,294),(28,'2023-12-07 20:13:20.533000',358000,1,34,358000,296),(29,'2023-12-08 04:15:08.326000',358000,2,35,716000,294);
+INSERT INTO `order_item` VALUES (23,'2023-12-07 15:54:17.812000',358000,2,31,716000,283),(25,'2023-12-07 16:16:58.117000',358000,3,33,1074000,283),(26,'2023-12-07 16:16:58.118000',358000,1,33,358000,296),(27,'2023-12-07 20:13:20.531000',358000,1,34,358000,294),(28,'2023-12-07 20:13:20.533000',358000,1,34,358000,296),(29,'2023-12-08 04:15:08.326000',358000,2,35,716000,294),(30,'2023-12-09 03:16:03.462000',358000,1,36,358000,293),(90,'2023-12-09 10:08:41.177000',358000,1,67,358000,293),(91,'2023-12-09 10:08:41.179000',358000,1,67,358000,289),(92,'2023-12-09 10:15:44.981000',358000,1,68,358000,293),(93,'2023-12-09 10:15:44.982000',358000,1,68,358000,289);
 /*!40000 ALTER TABLE `order_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -247,7 +247,7 @@ CREATE TABLE `orders` (
   CONSTRAINT `FKf5464gxwc32ongdvka2rtvw96` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKqippj57d958yt8kaefy29bv8q` FOREIGN KEY (`user_payment_method_id`) REFERENCES `user_payment_method` (`id`),
   CONSTRAINT `FKtkrur7wg4d8ax0pwgo0vmy20c` FOREIGN KEY (`delivery_id`) REFERENCES `delivery` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -256,7 +256,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (31,'2023-12-07 15:54:17.817000',2,716000,'2023-12-07 15:54:17.817000',33,1,2,2,734000,1),(33,'2023-12-07 16:16:58.119000',4,1432000,'2023-12-07 16:16:58.119000',35,1,2,1,1450000,1),(34,'2023-12-07 20:13:20.536000',2,716000,'2023-12-07 20:13:20.536000',36,1,2,1,734000,1),(35,'2023-12-08 04:15:08.329000',2,716000,'2023-12-08 04:15:08.329000',37,1,2,11,734000,1);
+INSERT INTO `orders` VALUES (31,'2023-12-07 15:54:17.817000',2,716000,'2023-12-07 15:54:17.817000',33,1,2,2,734000,1),(33,'2023-12-07 16:16:58.119000',4,1432000,'2023-12-07 16:16:58.119000',35,1,2,1,1450000,1),(34,'2023-12-07 20:13:20.536000',2,716000,'2023-12-07 20:13:20.536000',36,1,2,1,734000,1),(35,'2023-12-08 04:15:08.329000',2,716000,'2023-12-08 04:15:08.329000',37,1,2,11,734000,1),(36,'2023-12-09 03:16:03.475000',1,358000,'2023-12-09 03:16:03.475000',38,1,5,2,376000,4),(67,'2023-12-09 10:08:41.190000',2,716000,'2023-12-09 10:08:41.190000',69,1,5,9,734000,4),(68,'2023-12-09 10:15:45.004000',2,716000,'2023-12-09 10:15:45.004000',70,1,5,9,734000,4);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -570,7 +570,7 @@ CREATE TABLE `user_address` (
   KEY `FKk2ox3w9jm7yd6v1m5f68xibry` (`user_id`),
   CONSTRAINT `FKdaaxogn1ss81gkcsdn05wi6jp` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKk2ox3w9jm7yd6v1m5f68xibry` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -579,7 +579,7 @@ CREATE TABLE `user_address` (
 
 LOCK TABLES `user_address` WRITE;
 /*!40000 ALTER TABLE `user_address` DISABLE KEYS */;
-INSERT INTO `user_address` VALUES (23,_binary '\0',24,2),(24,_binary '\0',25,2),(25,_binary '\0',26,2),(26,_binary '\0',27,2),(27,_binary '\0',31,2),(28,_binary '\0',33,2),(29,_binary '\0',34,2),(30,_binary '\0',35,2),(31,_binary '\0',36,2),(32,_binary '\0',37,2);
+INSERT INTO `user_address` VALUES (23,_binary '\0',24,2),(24,_binary '\0',25,2),(25,_binary '\0',26,2),(26,_binary '\0',27,2),(27,_binary '\0',31,2),(28,_binary '\0',33,2),(29,_binary '\0',34,2),(30,_binary '\0',35,2),(31,_binary '\0',36,2),(32,_binary '\0',37,2),(33,_binary '\0',38,5),(34,_binary '\0',39,5),(35,_binary '\0',40,5),(36,_binary '\0',41,5),(37,_binary '\0',42,5),(38,_binary '\0',43,5),(39,_binary '\0',44,5),(40,_binary '\0',45,5),(41,_binary '\0',46,5),(42,_binary '\0',47,5),(43,_binary '\0',48,5),(44,_binary '\0',49,5),(45,_binary '\0',50,5),(46,_binary '\0',51,5),(47,_binary '\0',52,5),(48,_binary '\0',53,5),(49,_binary '\0',54,5),(50,_binary '\0',55,5),(51,_binary '\0',56,5),(52,_binary '\0',57,5),(53,_binary '\0',58,5),(54,_binary '\0',59,5),(55,_binary '\0',60,5),(56,_binary '\0',61,5),(57,_binary '\0',62,5),(58,_binary '\0',63,5),(59,_binary '\0',64,5),(60,_binary '\0',65,5),(61,_binary '\0',66,5),(62,_binary '\0',67,5),(63,_binary '\0',68,5),(64,_binary '\0',69,5),(65,_binary '\0',70,5);
 /*!40000 ALTER TABLE `user_address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -599,7 +599,7 @@ CREATE TABLE `user_payment_method` (
   KEY `FKjj97m3tgdq73q80p2xh4xe5rn` (`payment_method_id`),
   CONSTRAINT `FKjj97m3tgdq73q80p2xh4xe5rn` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`),
   CONSTRAINT `FKm3fq7vaahnq9eb7al7cdxh519` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -608,7 +608,7 @@ CREATE TABLE `user_payment_method` (
 
 LOCK TABLES `user_payment_method` WRITE;
 /*!40000 ALTER TABLE `user_payment_method` DISABLE KEYS */;
-INSERT INTO `user_payment_method` VALUES (1,2,2);
+INSERT INTO `user_payment_method` VALUES (1,2,2),(4,2,5);
 /*!40000 ALTER TABLE `user_payment_method` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -702,4 +702,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-08 22:43:16
+-- Dump completed on 2023-12-09 10:23:19

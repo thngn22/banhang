@@ -46,6 +46,13 @@ public class Product {
 
     @Column(name = "is_active")
     private boolean active;
+
+    @Column(name = "sold")
+    private Integer sold;
+
+    @Column(name = "rating")
+    private Double rating;
+
     //Category
     @ManyToOne
     @JoinColumn(name = "category_id")

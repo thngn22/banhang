@@ -22,4 +22,5 @@ public interface ProductService {
     List<ProductResponse> getAllProductV2();
 
     List<ProductResponse> getAllProductV3();
+    String getURLPictureAndUploadToCloudinary(String base64Content);
 }

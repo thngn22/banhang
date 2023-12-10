@@ -49,4 +49,8 @@ public class OrderItem {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_item_id")
     private ProductItem productItem;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "orderItem")
+    @JsonIgnore
+    private Review review;
 }

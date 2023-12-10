@@ -1,47 +1,56 @@
-/*
 package com.ecomerce.roblnk.service.Impl;
 
-import com.ecomerce.roblnk.exception.ProductException;
-import com.ecomerce.roblnk.model.Product;
 import com.ecomerce.roblnk.model.Review;
-import com.ecomerce.roblnk.model.User;
-import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.repository.ReviewRepository;
-import com.ecomerce.roblnk.dto.review.ReviewRequest;
-import com.ecomerce.roblnk.service.ProductService;
+import com.ecomerce.roblnk.service.CloudinaryService;
 import com.ecomerce.roblnk.service.ReviewService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.ecomerce.roblnk.util.ByteMultipartFile;
+import com.ecomerce.roblnk.util.FileUtil;
+import com.ecomerce.roblnk.util.ImageUtil;
+import lombok.RequiredArgsConstructor;
+import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class IReviewService implements ReviewService {
 
-    private ReviewRepository reviewRepository;
-    private ProductService productService;
-    private ProductRepository productRepository;
+    private final CloudinaryService cloudinaryService;
+    private final ReviewRepository reviewRepository;
     @Override
-    public Review createReview(ReviewRequest req, User user) throws ProductException {
-
-        Product product = productService.findProductById(req.getProductId());
-
-        Review review = new Review();
-        review.setUser(user);
-        review.setProduct(product);
-        review.setReview(review.getReview());
-        review.setCreatedAt(LocalDateTime.now());
-
-        return reviewRepository.save(review);
+    public String getURLPictureAndUploadToCloudinaryReview(String base64Content) {
+        try {
+            byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
+            MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
+            Tika tika = new Tika();
+            String mimetype = tika.detect(fileBytes);
+            if (mimetype.contains("image")) {
+                Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Review");
+                return (String) map.get("secure_url");
+            } else
+                return ImageUtil.urlImage;
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
     @Override
-    public List<Review> getAllReviewOfProduct(Long productId) {
-        return reviewRepository.getAllProductsReview(productId);
+    public List<Review> findAllByUser_Email(String user_email) {
+        return reviewRepository.findAllByUser_Email(user_email);
+    }
+
+    @Override
+    public Review findReviewByUser_EmailAndOrderItemId(String user_email, Long orderItemId) {
+        return reviewRepository.findAllByOrderItem_IdAndUser_Email(orderItemId, user_email).orElseThrow();
+    }
+
+    @Override
+    public List<Review> findAllByProductId(Long id) {
+        return reviewRepository.findReviewsByProduct_Id(id);
     }
 }
-*/

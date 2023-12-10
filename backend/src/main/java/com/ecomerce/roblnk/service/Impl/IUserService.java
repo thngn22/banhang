@@ -1,17 +1,20 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
-import com.ecomerce.roblnk.dto.auth.EmailDetails;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
+import com.ecomerce.roblnk.dto.review.ReviewRequest;
+import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.mapper.OrderMapper;
+import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.mapper.UserMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.EmailService;
+import com.ecomerce.roblnk.service.ReviewService;
 import com.ecomerce.roblnk.service.UserService;
 import com.ecomerce.roblnk.util.Status;
 import lombok.AllArgsConstructor;
@@ -26,11 +29,13 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.*;
+import static com.ecomerce.roblnk.util.Status.HOAN_TAT;
 
 @Service("IUserService")
 @AllArgsConstructor
@@ -44,10 +49,16 @@ public class IUserService implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final ProductItemRepository productItemRepository;
     private final StatusOrderRepository statusOrderRepository;
     private final EmailService emailService;
+    private final ProductRepository productRepository;
+    private final ReviewService reviewService;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
+
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
         var user = userRepository.findById(userId).orElseThrow(() ->
@@ -77,15 +88,14 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setDob(request.getDob());
             user.setAvatar(request.getAvatar());
             userRepository.save(user);
             return ResponseEntity.ok("successfully saved!");
-        }
-        else
+        } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any user! Something went wrong...");
     }
 
@@ -115,14 +125,13 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> updateUserAddress(Principal connectedUser, Long id, UserAddressRequest userUpdateAddressRequest) {
         var addressId = addressRepository.findById(id);
-        if (addressId.isPresent()){
+        if (addressId.isPresent()) {
             addressId.get().setCity(userUpdateAddressRequest.getCity());
             addressId.get().setStreetAddress(userUpdateAddressRequest.getStreetAddress());
             addressId.get().setZipCode(userUpdateAddressRequest.getZipCode());
             addressRepository.save(addressId.get());
             return ResponseEntity.ok("Updated address!");
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found address to update!");
         }
     }
@@ -131,12 +140,11 @@ public class IUserService implements UserService {
     public ResponseEntity<?> deleteUserAddress(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         var userAddresses = userAddressRepository.findUserAddressByAddress_IdAndUser_Email(id, user.getEmail());
-        if (userAddresses.isPresent()){
+        if (userAddresses.isPresent()) {
             System.out.println(userAddresses.get().getId());
             userAddressRepository.delete(userAddresses.get());
             return ResponseEntity.ok("Deleted address!");
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found address to delete!");
         }
     }
@@ -144,23 +152,21 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> deActiveOrActiveUser(Principal connectedUser, Long id) {
         var admin = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (admin == null){
+        if (admin == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid account, please login again!");
         }
         var user = userRepository.findById(id);
-        if (user.isPresent()){
-            if (user.get().isActive()){
+        if (user.isPresent()) {
+            if (user.get().isActive()) {
                 user.get().setActive(false);
                 userRepository.save(user.get());
                 return ResponseEntity.status(HttpStatus.ACCEPTED).body("Deactive user successfully!");
-            }
-            else {
+            } else {
                 user.get().setActive(true);
                 userRepository.save(user.get());
                 return ResponseEntity.status(HttpStatus.ACCEPTED).body("Active user successfully!");
             }
-        }
-        else
+        } else
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Something went wrong, user is not existed!");
 
     }
@@ -168,7 +174,7 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> createUser(Principal principal, UserCreateRequest userCreateRequest) {
         var admin = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (admin == null){
+        if (admin == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid account, please login again!");
         }
         var existedUser = userRepository.findByEmail(userCreateRequest.getEmail());
@@ -198,13 +204,13 @@ public class IUserService implements UserService {
     @Override
     public OrdersResponse getUserHistoryOrderForAdmin(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findById(id);
-            if (userOrders.isPresent()){
+            if (userOrders.isPresent()) {
                 var orderDetail = orderMapper.toOrderResponse(userOrders.get());
-                for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                     var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
-                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                     } else {
@@ -222,9 +228,9 @@ public class IUserService implements UserService {
     @Override
     public List<OrderResponsev2> getAllUserHistoryOrders(Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findAllByUser_Email(user.getEmail());
-            if (userOrders != null){
+            if (userOrders != null) {
                 return orderMapper.toOrderResponsev2s(userOrders);
             }
         }
@@ -234,24 +240,129 @@ public class IUserService implements UserService {
     @Override
     public List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findAll();
             return orderMapper.toOrderResponsev2s(userOrders);
         }
         return null;
     }
 
+    @Override
+    public String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null) {
+            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
+            if (userOrders.isPresent()) {
+                while (!reviewRequests.isEmpty()) {
+                    var review = reviewRequests.get(0);
+                    boolean flag = false;
+                    loop:
+                    {
+                        for (OrderItem orderItem : userOrders.get().getOrderItems()) {
+                            if (orderItem.getId().equals(review.getOrderItemId()) &&
+                                    userOrders.get().getStatusOrder().getOrderStatus().equals(HOAN_TAT.toString())) {
+                                flag = true;
+                                break loop;
+                            }
+                        }
+                    }
+                    if (flag) {
+                        for (OrderItem orderItem : userOrders.get().getOrderItems()) {
+                            if (orderItem.getId().equals(review.getOrderItemId()) &&
+                                    userOrders.get().getStatusOrder().getOrderStatus().equals(HOAN_TAT.toString())) {
+                                Review review1 = new Review();
+                                review1.setRating(review.getRatingStars());
+                                review1.setUser(user);
+                                review1.setFeedback(review.getFeedback());
+                                review1.setImageFeedback(reviewService.getURLPictureAndUploadToCloudinaryReview(review1.getImageFeedback()));
+                                review1.setCreatedAt(new Date(System.currentTimeMillis()));
+                                review1.setUpdatedAt(new Date(System.currentTimeMillis()));
+                                review1.setOrderItem(orderItem);
+                                orderItem.setReview(review1);
+                                try {
+                                    var product = productRepository.findById(review.getProductId()).orElseThrow();
+                                    review1.setProduct(product);
+                                    product.getReviews().add(review1);
+                                    if (product.getRating().equals(0.0)) {
+                                        product.setRating((double) review.getRatingStars());
+                                    } else {
+                                        var rating = (product.getRating() * product.getReviews().size() + review.getRatingStars()) / (product.getReviews().size() + 1);
+                                        product.setRating(rating);
+                                    }
+                                    reviewRepository.save(review1);
+                                    productRepository.save(product);
+                                    orderItemRepository.save(orderItem);
+                                } catch (Exception e) {
+                                    return "Product not found or has been inactive! Please try again later!";
+                                }
+                            }
+                        }
+
+                    } else {
+                        return "Order is not shipped or order item is not available for this user!";
+                    }
+                    reviewRequests.remove(0);
+
+                }
+                return "Thank you for your feedback!";
+            } else
+                return "Order not found!";
+        } else
+            return "You're not valid to rate this product!";
+
+    }
+
+    @Override
+    public List<ReviewResponseForUser> getRatingProduct(Principal connectedUser, Long id) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null) {
+            var userReviews = reviewService.findAllByUser_Email(user.getEmail());
+            List<Review> reviews = new ArrayList<>();
+            for (Review review : userReviews) {
+                if (review.getOrderItem().getOrders().getId().equals(id)) {
+                    reviews.add(review);
+                }
+            }
+
+            var reviewResponse = reviewMapper.toReviewResponseForUsers(reviews);
+            var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
+            if (userOrders.isPresent()) {
+                var orderDetail = orderMapper.toOrderResponse(userOrders.get()).getOrderItems();
+                while (!orderDetail.isEmpty()) {
+                    for (ReviewResponseForUser reviewResponseForUser : reviewResponse) {
+                        var productItem = productItemRepository.findById(orderDetail.get(0).getProductItemId()).orElseThrow();
+                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                            reviewResponseForUser.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            reviewResponseForUser.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            reviewResponseForUser.setProductItemId(productItem.getId());
+                        } else {
+                            reviewResponseForUser.setProductItemId(productItem.getId());
+                            reviewResponseForUser.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            reviewResponseForUser.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        }
+
+
+                    }
+
+                    orderDetail.remove(0);
+                }
+
+            }
+            return reviewResponse;
+        } else return null;
+    }
+
     //Detail
     @Override
     public OrdersResponse getUserHistoryOrderForUser(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
-            if (userOrders.isPresent()){
+            if (userOrders.isPresent()) {
                 var orderDetail = orderMapper.toOrderResponse(userOrders.get());
-                for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                     var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
-                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                     } else {
@@ -269,11 +380,11 @@ public class IUserService implements UserService {
     @Override
     public String cancelOrdersFromUser(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findOrdersByUser_EmailAndId(user.getEmail(), id);
-            if (userOrders.isPresent()){
+            if (userOrders.isPresent()) {
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DANG_CHO_XU_LY.toString())
-                || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DANG_XU_LY.toString())){
+                        || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DANG_XU_LY.toString())) {
                     var status = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DA_BI_NGUOI_DUNG_HUY.toString()).orElseThrow();
                     System.out.println(status.getOrderStatus());
                     status.getOrders().add(userOrders.get());
@@ -282,12 +393,10 @@ public class IUserService implements UserService {
                     orderRepository.save(userOrders.get());
                     return "Successfully canceled this order!";
                 }
-                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {
                     return "This order already canceled!";
-                }
-                else return "Order is deliveried, you don't have permission to cancel it!";
-            }
-            else return "Did not found any order, please try again!";
+                } else return "Order is deliveried, you don't have permission to cancel it!";
+            } else return "Did not found any order, please try again!";
         }
         return "You don't have permission to access this resource!";
     }
@@ -295,12 +404,12 @@ public class IUserService implements UserService {
     @Override
     public String confirmOrdersFromUser(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findById(id);
-            if (userOrders.isPresent()){
+            if (userOrders.isPresent()) {
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_GIAO_HANG.toString())
-                        || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.CHO_XAC_NHAN.toString())){
-                    var status = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.HOAN_TAT.toString()).orElseThrow();
+                        || userOrders.get().getStatusOrder().getOrderStatus().equals(Status.CHO_XAC_NHAN.toString())) {
+                    var status = statusOrderRepository.findStatusOrderByOrderStatusContaining(HOAN_TAT.toString()).orElseThrow();
                     System.out.println(status.getOrderStatus());
                     status.getOrders().add(userOrders.get());
                     statusOrderRepository.save(status);
@@ -308,21 +417,20 @@ public class IUserService implements UserService {
                     orderRepository.save(userOrders.get());
                     return "Successfully confirm this order!";
                 }
-                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {
                     return "This order already canceled!";
-                }
-                else return "Order is deliveried, you don't have permission to cancel it!";
-            }
-            else return "Did not found any order, please try again!";
+                } else return "Order is deliveried, you don't have permission to cancel it!";
+            } else return "Did not found any order, please try again!";
         }
-        return "You don't have permission to access this resource!";    }
+        return "You don't have permission to access this resource!";
+    }
 
     @Override
     public String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if (user != null){
+        if (user != null) {
             var userOrders = orderRepository.findById(orderId);
-            if (userOrders.isPresent()){
+            if (userOrders.isPresent()) {
                 boolean flag = false;
                 boolean sendMail = false;
                 switch (status) {
@@ -378,7 +486,7 @@ public class IUserService implements UserService {
 
                     }
                 }
-                if (flag){
+                if (flag) {
                     var statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(status).orElseThrow();
                     System.out.println(statusOrder.getOrderStatus());
                     statusOrder.getOrders().add(userOrders.get());
@@ -386,9 +494,9 @@ public class IUserService implements UserService {
                     userOrders.get().setStatusOrder(statusOrder);
                     orderRepository.save(userOrders.get());
                     var orderDetail = orderMapper.toOrderResponse(userOrders.get());
-                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                         var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
-                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                             orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                             orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                         } else {
@@ -401,8 +509,8 @@ public class IUserService implements UserService {
                     var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
                     var orderDate = orderDetail.getCreatedAt();
                     var orderItems = orderDetail.getOrderItems();
-                    var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24)*orderDetail.getDelivery().getEstimatedShippingTime());
-                    if (sendMail){
+                    var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24) * orderDetail.getDelivery().getEstimatedShippingTime());
+                    if (sendMail) {
                         Context context = new Context();
                         context.setVariable("userEmail", userEmail);
                         context.setVariable("userName", name);
@@ -415,12 +523,10 @@ public class IUserService implements UserService {
                     }
                     return "Successfully updated status of this order!";
                 }
-                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {
                     return "This order already canceled!";
-                }
-                else return "Status can not be changed!";
-            }
-            else return "Did not found any order, please try again!";
+                } else return "Status can not be changed!";
+            } else return "Did not found any order, please try again!";
         }
         return "You don't have permission to access this resource!";
     }
