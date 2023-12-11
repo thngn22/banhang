@@ -5,7 +5,9 @@ import { useSelector } from "react-redux";
 import * as UserService from "../../../services/UserService";
 import { useQuery } from "@tanstack/react-query";
 
-import { EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { useMutationHook } from "../../../hooks/useMutationHook";
+import { message } from "antd";
 
 const AdminUser = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -14,15 +16,41 @@ const AdminUser = () => {
     const res = await UserService.getAllUser(auth.accessToken);
     return res;
   };
-
   const { data: users } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUser,
   });
+  // console.log("users", users)
+  const mutation = useMutationHook((data) => {
+    const res = UserService.changeStatusUser(data, auth.accessToken);
+    return res;
+  });
+  const { data, status, isSuccess, isError } = mutation;
 
-  console.log("users", users);
+  const inActiveORActive = async (id) => {
+    console.log("key delete", id);
 
-  const renderAction = () => {
+    mutation.mutate(id, {
+      onSuccess: () => {
+        // Hiển thị thông báo thành công
+        message.success("Chỉnh sửa trạng thái thành công");
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+      onError: (error) => {
+        // Hiển thị thông báo lỗi
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+    });
+  };
+
+  const renderAction = (key, user) => {
     return (
       <div
         style={{
@@ -31,12 +59,17 @@ const AdminUser = () => {
           width: "80%",
         }}
       >
-        <QuestionCircleOutlined
-          style={{ color: "#000", fontSize: "26px", cursor: "pointer" }}
-        />
-        <EditOutlined
-          style={{ color: "blue", fontSize: "26px", cursor: "pointer" }}
-        />
+        {user.active ? (
+          <DeleteOutlined
+            style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
+            onClick={() => inActiveORActive(key)}
+          />
+        ) : (
+          <CheckCircleOutlined
+            style={{ color: "green", fontSize: "26px", cursor: "pointer" }}
+            onClick={() => inActiveORActive(key)}
+          />
+        )}
       </div>
     );
   };
@@ -71,15 +104,15 @@ const AdminUser = () => {
       title: "Active",
       dataIndex: "active",
       render: (active) => (
-        <p style={{ color: active ? "orange" : "gray" }}>
+        <span style={{ color: active ? "green" : "red", fontWeight: "bold" }}>
           {active ? "Active" : "Inactive"}
-        </p>
+        </span>
       ),
     },
     {
       title: "Action",
-      dataIndex: "action",
-      render: renderAction,
+      dataIndex: "key",
+      render: (key, product) => renderAction(key, product),
     },
   ];
 

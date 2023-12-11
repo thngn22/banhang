@@ -51,3 +51,21 @@ export const getAllUser = async (accessToken) => {
   );
   return res.data;
 };
+
+
+export const changeStatusUser = async (id, accessToken) => {
+  const res = await axiosJWT.post(
+    `${process.env.REACT_APP_API_URL}admin/users/active`,
+    null, // Body là null vì bạn đang sử dụng query parameter
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      params: {
+        id: id,
+      },
+    }
+  );
+
+  return res.data;
+};
