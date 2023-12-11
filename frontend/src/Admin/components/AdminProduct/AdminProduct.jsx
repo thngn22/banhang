@@ -4,17 +4,18 @@ import TableComponent from "../TableComponent/TableComponent";
 import * as ProductService from "../../../services/ProductService";
 import * as CategoryService from "../../../services/CategoryService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Modal } from "antd";
+import { Modal, message } from "antd";
 
 import {
   DeleteOutlined,
   EditOutlined,
-  QuestionCircleOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import AdminProductEdit from "./AdminProductEdit";
 import { updateProductDetail } from "../../../redux/slides/productSlice";
 import { getCategory } from "../../../redux/slides/categorySlice";
+import { useMutationHook } from "../../../hooks/useMutationHook";
 
 const AdminProduct = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -37,6 +38,11 @@ const AdminProduct = () => {
     queryKey: ["products"],
     queryFn: getAllProductsAdmin,
   });
+  const mutation = useMutationHook((data) => {
+    const res = ProductService.changeStatusProduct(data, auth.accessToken);
+    return res;
+  });
+  const { data, status, isSuccess, isError } = mutation;
 
   useEffect(() => {
     if (categoriesRes) {
@@ -44,7 +50,7 @@ const AdminProduct = () => {
     }
   }, [categoriesRes]);
 
-  const renderAction = (key) => {
+  const renderAction = (key, product) => {
     return (
       <div
         style={{
@@ -53,10 +59,17 @@ const AdminProduct = () => {
           width: "80%",
         }}
       >
-        <DeleteOutlined
-          style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-          onClick={() => inActive(key)}
-        />
+        {product.active ? (
+          <DeleteOutlined
+            style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
+            onClick={() => inActiveORActive(key)}
+          />
+        ) : (
+          <CheckCircleOutlined
+            style={{ color: "green", fontSize: "26px", cursor: "pointer" }}
+            onClick={() => inActiveORActive(key)}
+          />
+        )}
         <EditOutlined
           style={{ color: "blue", fontSize: "26px", cursor: "pointer" }}
           onClick={() => showModal(key)}
@@ -102,7 +115,7 @@ const AdminProduct = () => {
     {
       title: "Hành động",
       dataIndex: "key",
-      render: (key) => renderAction(key),
+      render: (key, product) => renderAction(key, product),
     },
   ];
 
@@ -114,16 +127,27 @@ const AdminProduct = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const inActive = async (key) => {
-    console.log("key delete", key);
+  const inActiveORActive = async (id) => {
+    console.log("key delete", id);
 
-    // try {
-    //   const deleteProduct = await ProductService.deleteProduct({key}, auth.accessToken);
-    //   console.log("Detail Product Data:", deleteProduct);
-    //   // Do something with the detailProduct data if needed
-    // } catch (error) {
-    //   console.error("Error fetching product details:", error);
-    // }
+    mutation.mutate(id, {
+      onSuccess: () => {
+        // Hiển thị thông báo thành công
+        message.success("Chỉnh sửa trạng thái thành công");
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+      onError: (error) => {
+        // Hiển thị thông báo lỗi
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+    });
   };
 
   const showModal = async (key) => {
@@ -135,8 +159,8 @@ const AdminProduct = () => {
         auth.accessToken
       );
       // console.log("Detail Product Data:", detailProduct);
-      dispatch(updateProductDetail({}))
-      dispatch(updateProductDetail(detailProduct))
+      dispatch(updateProductDetail({}));
+      dispatch(updateProductDetail(detailProduct));
     } catch (error) {
       console.error("Error fetching product details:", error);
     }
@@ -149,39 +173,6 @@ const AdminProduct = () => {
   };
   const handleCancel = () => {
     setIsModalOpen(false);
-  };
-
-  const fakeAPI = {
-    id: 21,
-    name: "Giày Sabo 7299",
-    description:
-      "Chất liệu quai: da bò cao cấp, đường chỉ may tinh tế, đẹp mắt. Chất liệu đế: TPR có các rãnh chống trơn trượt. \nĐộ cao: 2cm. \nMặt lót  mềm tạo sự thoải mái trong khi di chuyển. \nSabo sẽ trở thành một trợ thủ đắc lực không thể thiếu trong những ngày thời tiết thất thường hay trong những buổi đi chơi, đi du lịch cùng bạn bè và người thân.",
-    productImage:
-      "https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp",
-    categoryId: 10,
-    active: true,
-    productItems: [
-      {
-        id: 108,
-        price: 299000,
-        quantityInStock: 18,
-        productImage:
-          "https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp",
-        active: true,
-        size: "39",
-        color: "Đỏ",
-      },
-      {
-        id: 112,
-        price: 298000,
-        quantityInStock: 15,
-        productImage:
-          "https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp",
-        active: true,
-        size: "33",
-        color: "Đỏ",
-      },
-    ],
   };
 
   const handleRowClick = async (productId) => {};
@@ -209,7 +200,7 @@ const AdminProduct = () => {
         footer={null}
         width={1000}
       >
-        {isModalOpen && <AdminProductEdit setIsModalOpen={setIsModalOpen}/>}
+        {isModalOpen && <AdminProductEdit setIsModalOpen={setIsModalOpen} />}
       </Modal>
     </div>
   );

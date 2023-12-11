@@ -88,3 +88,14 @@ export const getDetailProductForAdmin = async (id, accessToken) => {
   });
   return res.data;
 };
+
+
+
+export const changeStatusProduct = async (id, accessToken) => {
+  const res = await axios.delete(`${process.env.REACT_APP_API_URL}product/${id}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return res.data;
+};

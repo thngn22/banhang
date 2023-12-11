@@ -54,7 +54,6 @@ const AdminOrder = () => {
       onSuccess: () => {
         // Hiển thị thông báo thành công
         message.success("Chỉnh sửa sản phẩm thành công");
-        // props.setIsModalOpen(false);
 
         setTimeout(() => {
           window.location.reload();
@@ -63,7 +62,6 @@ const AdminOrder = () => {
       onError: (error) => {
         // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
-        // props.setIsModalOpen(false);
 
         setTimeout(() => {
           window.location.reload();
