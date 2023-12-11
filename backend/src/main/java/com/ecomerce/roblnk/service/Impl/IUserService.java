@@ -276,7 +276,7 @@ public class IUserService implements UserService {
                                 review1.setRating(review.getRatingStars());
                                 review1.setUser(user);
                                 review1.setFeedback(review.getFeedback());
-                                review1.setImageFeedback(reviewService.getURLPictureAndUploadToCloudinaryReview(review1.getImageFeedback()));
+                                review1.setImageFeedback(reviewService.getURLPictureAndUploadToCloudinaryReview(review.getImageFeedback()));
                                 review1.setCreatedAt(new Date(System.currentTimeMillis()));
                                 review1.setUpdatedAt(new Date(System.currentTimeMillis()));
                                 review1.setOrderItem(orderItem);
