@@ -23,7 +23,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["auth"], // chỉ lưu trữ slice 'auth'
+  whitelist: ["auth", "user"] // chỉ lưu trữ slice 'auth'
 };
 
 const rootReducer = combineReducers({
