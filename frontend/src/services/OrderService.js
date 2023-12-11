@@ -49,3 +49,50 @@ export const getDetailOrderUser = async (id, accessToken) => {
   );
   return res.data;
 };
+export const cancelOrder = async (id, accessToken) => {
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}user/account/orders/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+export const confirmOrder = async (id, accessToken) => {
+  const res = await axiosJWT.post(
+    `${process.env.REACT_APP_API_URL}user/account/orders/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+export const ratingProductOrdered = async (orderId, data, accessToken) => {
+
+  const res = await axiosJWT.post(
+    `${process.env.REACT_APP_API_URL}user/account/orders/${orderId}/rating`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+}
+export const getRatingProductOrdered = async (orderId, accessToken) => {
+
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_API_URL}user/account/orders/${orderId}/rating`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+}

@@ -26,6 +26,7 @@
     "antd": "^5.11.5",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
+    "iconsax-react": "^0.0.8",
     "jwt-decode": "^4.0.0",
     "query-string": "^8.1.0",
     "react": "^18.2.0",
