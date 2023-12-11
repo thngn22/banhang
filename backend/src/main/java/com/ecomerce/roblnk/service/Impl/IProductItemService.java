@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class IProductItem implements ProductItemService {
+public class IProductItemService implements ProductItemService {
     private final ProductItemRepository productItemRepository;
     @Override
     public List<?> getAllProductItem() {

@@ -19,6 +19,7 @@ import java.util.List;
 public class ProductDetailResponse {
     private Long id;
     private String name;
+    private String estimatedPrice;
     private String description;
     private String productImage;
     private CategoryDTO categoryId;

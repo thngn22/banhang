@@ -48,9 +48,7 @@ public class IAuthenticationService implements AuthenticationService {
     private final RoleRepository roleRepository;
     private final TokenRepository tokenRepository;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
     private final EmailService emailService;
     private final CartRepository cartRepository;
 
@@ -91,7 +89,6 @@ public class IAuthenticationService implements AuthenticationService {
                     + "\n\nTrân trọng,\n" +
                     "Vũ Nguyễn Trung Khang");
             emailService.sendSimpleMail(emailDetails);
-            //saveUserToken(savedUser, refreshToken);
             userRepository.save(user);
             cartRepository.save(cart);
             return ResponseEntity.ok(ApiResponse.builder()
@@ -222,6 +219,8 @@ public class IAuthenticationService implements AuthenticationService {
             } else {
                 var jwtToken = jwtService.generateToken(user, user);
                 var refreshToken = jwtService.generateRefreshToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, jwtToken);
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
                         .refreshToken(refreshToken)
@@ -236,8 +235,6 @@ public class IAuthenticationService implements AuthenticationService {
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
 
-        //revokeAllUserTokens(user);
-        //saveUserToken(user, refreshToken);
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -250,7 +247,7 @@ public class IAuthenticationService implements AuthenticationService {
         tokenRepository.save(token);
     }
 
-    private void revokeAllUserTokens(User user) {
+    public void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;

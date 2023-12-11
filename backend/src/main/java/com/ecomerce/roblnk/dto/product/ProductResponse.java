@@ -15,6 +15,7 @@ import java.util.Date;
 public class ProductResponse {
     private Long id;
     private String name;
+    private String estimatedPrice;
     private String productImage;
     private Long categoryId;
     private String categoryName;

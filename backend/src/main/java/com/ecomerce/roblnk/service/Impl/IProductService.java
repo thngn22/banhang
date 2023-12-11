@@ -227,7 +227,7 @@ public class IProductService implements ProductService {
                 }
             }
 
-            for (int i = 0; i < reviewResponse.size(); i++){
+            for (int i = 0; i < reviewResponse.size(); i++) {
                 reviewResponse.get(i).setColor(orderDetail.get(i).getColor());
                 reviewResponse.get(i).setSize(orderDetail.get(i).getSize());
             }
@@ -267,6 +267,8 @@ public class IProductService implements ProductService {
                 }
                 String productItemImage = "";
                 String url = "";
+                Integer minPrice = Integer.MAX_VALUE;
+                Integer maxPrice = 0;
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
@@ -274,6 +276,13 @@ public class IProductService implements ProductService {
                     String name = "";
                     var size = variationOptionRepository.findAllByVariation_Id(sizeId);
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
+                    if (p.getPrice() > maxPrice) {
+                        maxPrice = p.getPrice();
+                    }
+                    if (p.getPrice() < minPrice) {
+                        minPrice = p.getPrice();
+                    }
+
                     String sizeValue = "";
                     String colorValue = "";
                     boolean sizeFlag = false;
@@ -382,6 +391,13 @@ public class IProductService implements ProductService {
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 product.setProductItems(productItems);
+                if (!minPrice.equals(maxPrice)) {
+
+                    product.setEstimatedPrice(minPrice + " - " + maxPrice);
+                }
+                else {
+                    product.setEstimatedPrice(minPrice.toString());
+                }
                 productRepository.save(product);
 
                 return "Successfully save product";
@@ -429,6 +445,8 @@ public class IProductService implements ProductService {
                 }
                 String productItemImage = "";
                 String url = "";
+                Integer minPrice = Integer.MAX_VALUE;
+                Integer maxPrice = 0;
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     String sizeValueFromRequest = p.getSize();
@@ -440,6 +458,12 @@ public class IProductService implements ProductService {
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
                     boolean sizeFlag = false;
                     boolean colorFlag = false;
+                    if (p.getPrice() > maxPrice) {
+                        maxPrice = p.getPrice();
+                    }
+                    if (p.getPrice() < minPrice) {
+                        minPrice = p.getPrice();
+                    }
                     loop:
                     {
                         if (!size.isEmpty()) {
@@ -528,8 +552,7 @@ public class IProductService implements ProductService {
 
                     productItem.setName(productEditRequest.getName() + name);
                     var image = p.getProductImage();
-                    assert productItemImage != null;
-                    if (productItemImage.isEmpty()) {
+                    if (productItemImage != null && productItemImage.isEmpty()) {
                         productItemImage = image;
                         if (image != null) {
                             url = getURLPictureAndUploadToCloudinary(image);
@@ -566,6 +589,13 @@ public class IProductService implements ProductService {
                     if (urlImage != null) {
                         product.setProductImage(urlImage);
                     }
+                }
+                if (!minPrice.equals(maxPrice)) {
+
+                    product.setEstimatedPrice(minPrice + " - " + maxPrice);
+                }
+                else {
+                    product.setEstimatedPrice(minPrice.toString());
                 }
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);

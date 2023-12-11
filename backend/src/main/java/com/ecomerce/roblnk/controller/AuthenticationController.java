@@ -23,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -82,5 +83,10 @@ public class AuthenticationController {
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
         logoutService.logout(request, response, authentication);
         return ResponseEntity.ok("Log out successfully!");
+    }
+    @PostMapping("/refresh")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public void refresh(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+        authenticationService.refreshToken(request, response);
     }
 }

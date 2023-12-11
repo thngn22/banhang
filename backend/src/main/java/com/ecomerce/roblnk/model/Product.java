@@ -28,6 +28,9 @@ public class Product {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "estimated_price")
+    private String estimatedPrice;
+
     @Column(name = "description", length = 100000)
     private String description;
 

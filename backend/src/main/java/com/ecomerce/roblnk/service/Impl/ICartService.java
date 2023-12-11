@@ -51,6 +51,7 @@ public class ICartService implements CartService {
     private final OrderMapper orderMapper;
     private final EmailService emailService;
     private final ProductItemRepository productItemRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public ResponseEntity<?> getUserCart(Principal principal) {
@@ -271,9 +272,13 @@ public class ICartService implements CartService {
                 int count = 0;
                 for (Long id : list.getCartItemId()) {
                     var cartItem = cartItemService.getCartItem(id);
-                    count += cartItem.getQuantity();
+                    if (cartItem != null) {
+                        count += cartItem.getQuantity();
+                    }
+                    else
+                        return "Cart item is not valid, please add some shoes to your cart first!";
                 }
-                if (count == 0){
+                if (count == 0) {
                     return "Cart empty, please add some shoes to check out!";
                 }
                 //COD
@@ -295,9 +300,12 @@ public class ICartService implements CartService {
                         for (Long id : list.getCartItemId()) {
                             OrderItem orderItem = new OrderItem();
                             var cartItem = cartItemService.getCartItem(id);
+                            if (cartItem.getQuantity() > cartItem.getProductItem().getQuantityInStock()) {
+                                return "Oopss... One of the items in your cart has a larger quantity than it actually has. Please edit your quantity and try again!";
+                            }
                             List<CartItem> cartItems = new ArrayList<>();
                             cartItems.add(cartItem);
-                            if (cartItem != null && cartItem.getCart().getId().equals(userCart.getId())) {
+                            if (cartItem.getCart().getId().equals(userCart.getId())) {
                                 orderItem.setCartItems(cartItems);
                                 orderItem.setPrice(cartItem.getPrice());
                                 orderItem.setQuantity(cartItem.getQuantity());
@@ -360,10 +368,16 @@ public class ICartService implements CartService {
                         userRepository.save(user);
                         for (Long id : list.getCartItemId()) {
                             var cartItem = cartItemService.getCartItem(id);
-                            if (cartItem != null && cartItem.getCart().getId().equals(userCart.getId())) {
+                            if (cartItem.getCart().getId().equals(userCart.getId())) {
+                                var productItem = productItemService.getProductItem(cartItem.getProductItem().getId());
+                                productItem.setQuantityInStock(productItem.getQuantityInStock() - cartItem.getQuantity());
+                                productItemRepository.save(productItem);
+                                var product = productRepository.findById(cartItem.getProductItem().getProduct().getId()).orElseThrow();
+                                product.setSold(product.getSold() + cartItem.getQuantity());
                                 cartItem.setQuantity(0);
                                 cartItem.setTotalPrice(0);
                                 cartItem.setOrderItem(null);
+                                productRepository.save(product);
                                 cartItemRepository.save(cartItem);
                             }
                         }
@@ -375,12 +389,12 @@ public class ICartService implements CartService {
                         return "Product is not added to cart, please add shoes first!";
                     }
                     var orderDetail = orderMapper.toOrderResponse(orders);
-                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()){
+                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
                         var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
-                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")){
+                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                             orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                             orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                        } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")){
+                        } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
                             orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                             orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         }
