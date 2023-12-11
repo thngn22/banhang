@@ -14,14 +14,14 @@
 */
 import React, { Fragment, useEffect, useState } from "react";
 import { Dialog, Popover, Tab, Transition } from "@headlessui/react";
-import { Popover as PopoverAntd } from 'antd'
+import { Button, Popover as PopoverAntd } from "antd";
 import {
   Bars3Icon,
   MagnifyingGlassIcon,
   ShoppingBagIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -175,11 +175,11 @@ export default function Navigation({
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth.login.currentUser);
   const { data: cart } = useQuery({
-    queryKey: ['cart'],
+    queryKey: ["cart"],
     queryFn: () => {
-      return CartService.getCartItems(auth.accessToken)
-    }
-  })
+      return CartService.getCartItems(auth.accessToken);
+    },
+  });
 
   ///const cartItems = useSelector((state) => state.user.cart)
   // const totalPrice = React.useMemo(
@@ -205,18 +205,31 @@ export default function Navigation({
     console.log("vao dc login");
     navigate("/login");
   };
-
   const handleSignUp = () => {
     navigate("/register");
   };
+
+  const handleProfile = () => {
+    navigate("/profile");
+  };
+  const handleOrder = () => {
+    navigate("/history-order");
+  };
+  const handleLogout = () => {
+    console.log("vao dc Logout");
+    // navigate("/register");
+  };
+  const handleLogo = () => {
+    navigate("/");
+  };
+
   const fetchAllCategory = async () => {
     console.log("vao dc category");
-    const res = await CategoryService.getAllTreeCategory()
-    setListCategories(res)
+    const res = await CategoryService.getAllTreeCategory();
+    setListCategories(res);
 
     return res;
   };
-
 
   // const data = fetchProductAll()
   // console.log(data);
@@ -226,13 +239,13 @@ export default function Navigation({
   //   queryFn: () => fetchAllCategory(),
   // });
 
-  const [listCategories, setListCategories] = React.useState([])
+  const [listCategories, setListCategories] = React.useState([]);
   React.useEffect(() => {
-    fetchAllCategory()
-  }, [])
+    fetchAllCategory();
+  }, []);
 
   return (
-    <div className="bg-white">
+    <div className="bg-white border-b border-solid border-gray-300">
       {/* Mobile menu */}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-40 lg:hidden" onClose={setOpen}>
@@ -294,37 +307,34 @@ export default function Navigation({
                   </div>
                   <Tab.Panels as={Fragment}>
                     {listCategories.map((listCategory) => (
-                      <Tab.Panel
-                        key={listCategory.name}
-                        className="space-y-10"
-                      >
-
-
+                      <Tab.Panel key={listCategory.name} className="space-y-10">
                         <ul
                           role="list"
                           aria-labelledby={`${listCategory.id}--heading-mobile`}
                           className="mt-6 flex flex-col space-y-6"
                         >
-                          {
-                            listCategory.categories.map((item, index) => (
-                              <li key={item.name} className={`flow-root ${index === listCategory.categories.length - 1 ? '' : 'border-b-[1px]'} px-4`}>
-                                <a
-                                  href={'1123'}
-                                  className="-m-2 block p-2 text-gray-500"
-                                >
-                                  {item.name}
-                                </a>
-                              </li>
-                            ))
-                          }
+                          {listCategory.categories.map((item, index) => (
+                            <li
+                              key={item.name}
+                              className={`flow-root ${
+                                index === listCategory.categories.length - 1
+                                  ? ""
+                                  : "border-b-[1px]"
+                              } px-4`}
+                            >
+                              <a
+                                href={"1123"}
+                                className="-m-2 block p-2 text-gray-500"
+                              >
+                                {item.name}
+                              </a>
+                            </li>
+                          ))}
                         </ul>
-
                       </Tab.Panel>
                     ))}
                   </Tab.Panels>
                 </Tab.Group>
-
-
 
                 <div className="space-y-6 border-t border-gray-200 px-4 py-6">
                   <div className="flow-root">
@@ -366,7 +376,7 @@ export default function Navigation({
 
       <header className="relative bg-white">
         <p className="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">
-          Get free delivery on orders over $100
+          Welcome to THE BEST SHOES SHOP
         </p>
 
         <nav
@@ -387,14 +397,14 @@ export default function Navigation({
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                <a href="#">
+                <p onClick={handleLogo}>
                   <span className="sr-only">Your Company</span>
                   <img
-                    className="h-8 w-auto"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                    alt=""
+                    className="h-[64px] w-auto"
+                    src="https://cdn.printgo.vn/uploads/media/772948/thiet-ke-logo-shop-giay-10_1583990006.jpg"
+                    alt="https://cdn.printgo.vn/uploads/media/772948/thiet-ke-logo-shop-giay-10_1583990006.jpg"
                   />
-                </a>
+                </p>
               </div>
 
               {/* Flyout menus */}
@@ -429,7 +439,6 @@ export default function Navigation({
                               leaveTo="opacity-0"
                             >
                               <Popover.Panel className="absolute  top-full text-sm text-gray-500">
-
                                 <div
                                   className="absolute inset-0 top-1/2 bg-white shadow"
                                   aria-hidden="true"
@@ -437,7 +446,6 @@ export default function Navigation({
 
                                 <div className="relative bg-white shadow-lg">
                                   <div className="mx-auto max-w-7xl ">
-
                                     <ul
                                       role="list"
                                       aria-labelledby={`${listCategory.name}-heading`}
@@ -458,9 +466,6 @@ export default function Navigation({
                                         </li>
                                       ))}
                                     </ul>
-
-
-
                                   </div>
                                 </div>
                               </Popover.Panel>
@@ -469,41 +474,91 @@ export default function Navigation({
                         )}
                       </Popover>
                     ))}
-
-
                   </div>
                 </Popover.Group>
               )}
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  {auth?.email ? (
-                    <>
-                      <FontAwesomeIcon icon={faCircleUser} />
-                      <div>{auth.email}</div>
-                    </>
-                  ) : (
-                    <>
-                      <a
-                        style={{ cursor: "pointer" }}
-                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                        onClick={handleLogin}
-                      >
-                        Log in
-                      </a>
-                      <span
-                        className="h-6 w-px bg-gray-200"
-                        aria-hidden="true"
-                      />
-                      <a
-                        style={{ cursor: "pointer" }}
-                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                        onClick={handleSignUp}
-                      >
-                        Sign up
-                      </a>
-                    </>
-                  )}
+                  {/* Thông tin người dùng với Popover từ headlessui/react */}
+                  <Popover style={{ position: "relative" }}>
+                    {({ open }) => (
+                      <>
+                        <Popover.Button>
+                          {auth?.email ? (
+                            <div
+                              className={classNames(
+                                "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
+                                { "text-indigo-600": open }
+                              )}
+                            >
+                              <FontAwesomeIcon icon={faCircleUser} />
+                              <div>{auth.email}</div>
+                            </div>
+                          ) : (
+                            <div
+                              className={classNames(
+                                "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
+                                { "text-indigo-600": open }
+                              )}
+                            >
+                              Bạn chưa đăng nhập? Hãy Click vào đây
+                            </div>
+                          )}
+                        </Popover.Button>
+
+                        <Transition
+                          show={open}
+                          as={Fragment}
+                          enter="transition ease-out duration-200"
+                          enterFrom="opacity-0 scale-95"
+                          enterTo="opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="opacity-100 scale-100"
+                          leaveTo="opacity-0 scale-95"
+                        >
+                          <Popover.Panel
+                            static
+                            className="absolute z-10 top-[36px] right-[-22px] mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
+                          >
+                            <div className="py-1">
+                              {auth?.email ? (
+                                <>
+                                  <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                  onClick={handleProfile}>
+                                    Thông tin tài khoản
+                                  </p>
+                                  <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                  onClick={handleOrder}>
+                                    Đơn hàng
+                                  </p>
+                                  <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                  onClick={handleLogout}>
+                                    Đăng xuất
+                                  </p>
+                                </>
+                              ) : (
+                                <>
+                                  <p
+                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    onClick={handleLogin}
+                                  >
+                                    Đăng nhập
+                                  </p>
+                                  <p
+                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    onClick={handleSignUp}
+                                  >
+                                    Đăng ký
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                          </Popover.Panel>
+                        </Transition>
+                      </>
+                    )}
+                  </Popover>
                 </div>
 
                 <div className="hidden lg:ml-8 lg:flex">
@@ -575,66 +630,85 @@ export default function Navigation({
                     </a>
                   </div>
                 )} */}
-                {
-                  !isHiddenCart && (
-                    <PopoverAntd placement="bottom" content={<>
-                      <div className='dropdown-cart_content p-5 overflow-hidden lg:w-[420px]'>
-                        <div>
-                          <p className='text-center uppercase font-bold border-b-[1px] pb-2'>Giỏ hàng</p>
-                          <div className='content-cart'>
-                            <div className='list-cart py-4'>
-                              {cart?.cartItems?.length > 0 ? (cart?.cartItems?.map((item, index) => {
-
-                                return <div key={index} className='flex mb-4'>
-                                  <div className='flex-shrink-0'>
-                                    <img src={`${item?.productItem?.productImage}`} className='w-20 h-20 mr-2 object-cover' alt='giaybitis' />
+                {!isHiddenCart && (
+                  <PopoverAntd
+                    placement="bottom"
+                    content={
+                      <>
+                        <div className="dropdown-cart_content p-5 overflow-hidden lg:w-[420px]">
+                          <div>
+                            <p className="text-center uppercase font-bold border-b-[1px] pb-2">
+                              Giỏ hàng
+                            </p>
+                            <div className="content-cart">
+                              <div className="list-cart py-4">
+                                {cart?.cartItems?.length > 0 ? (
+                                  cart?.cartItems?.map((item, index) => {
+                                    return (
+                                      <div key={index} className="flex mb-4">
+                                        <div className="flex-shrink-0">
+                                          <img
+                                            src={`${item?.productItem?.productImage}`}
+                                            className="w-20 h-20 mr-2 object-cover"
+                                            alt="giaybitis"
+                                          />
+                                        </div>
+                                        <div className="flex-grow">
+                                          <div>
+                                            <p>{item?.productItem?.name}</p>
+                                            {/* <p>{item?.colorBuy} / {item?.sizeBuy}</p> */}
+                                          </div>
+                                          <div className="flex mt-2 justify-between">
+                                            <div>{item.quantity}</div>
+                                            <div>{item.totalPrice}đ</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <div className="text-center">
+                                    HIện chưa có sản phẩm
                                   </div>
-                                  <div className='flex-grow'>
-                                    <div>
-                                      <p>{item?.productItem?.name}</p>
-                                      {/* <p>{item?.colorBuy} / {item?.sizeBuy}</p> */}
-                                    </div>
-                                    <div className='flex mt-2 justify-between'>
-                                      <div>{item.quantity}</div>
-                                      <div>{item.totalPrice}đ</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              })) : <div className='text-center'>
-                                HIện chưa có sản phẩm
-                              </div>}
-
-
-                            </div>
-                            <div className='line border-b-[1px] w-full mb-1'></div>
-                            <div className='cart-total'>
-                              <div className='flex justify-between items-center py-3'>
-                                <p className='uppercase'>Tổng tiền</p>
-                                <p className='text-red-500'>{cart?.totalPrice}đ</p>
+                                )}
                               </div>
-                              <Link to='/carts' className='uppercase p-2 w-full block text-white bg-black text-center'>
-                                Xem giỏ hàng
-                              </Link>
+                              <div className="line border-b-[1px] w-full mb-1"></div>
+                              <div className="cart-total">
+                                <div className="flex justify-between items-center py-3">
+                                  <p className="uppercase">Tổng tiền</p>
+                                  <p className="text-red-500">
+                                    {cart?.totalPrice}đ
+                                  </p>
+                                </div>
+                                <Link
+                                  to="/carts"
+                                  className="uppercase p-2 w-full block text-white bg-black text-center"
+                                >
+                                  Xem giỏ hàng
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </>}>
-                      <div className="ml-4 flow-root lg:ml-6">
-                        <a href="#" className="group -m-2 flex items-center p-2">
-                          <ShoppingBagIcon
-                            className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                            aria-hidden="true"
-                          />
-                          <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                            {cart?.cartItems?.length > 0 ? cart.cartItems.length : 0}
-                          </span>
-                          <span className="sr-only">items in cart, view bag</span>
-                        </a>
-                      </div>
-                    </PopoverAntd>
-                  )
-                }
+                      </>
+                    }
+                  >
+                    <div className="ml-4 flow-root lg:ml-6">
+                      <a href="#" className="group -m-2 flex items-center p-2">
+                        <ShoppingBagIcon
+                          className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                          aria-hidden="true"
+                        />
+                        <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                          {cart?.cartItems?.length > 0
+                            ? cart.cartItems.length
+                            : 0}
+                        </span>
+                        <span className="sr-only">items in cart, view bag</span>
+                      </a>
+                    </div>
+                  </PopoverAntd>
+                )}
               </div>
             </div>
           </div>

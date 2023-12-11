@@ -14,17 +14,20 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import orderSlice from "./slides/orderSlice";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
+  whitelist: ["auth", "user"] // chỉ lưu trữ slice 'auth'
 };
 
 const rootReducer = combineReducers({
   counter: counterSlice.reducer,
   user: userSlice.reducer,
   auth: authSlice,
+  order: orderSlice,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

@@ -21,33 +21,14 @@ import ProductPage from "./customer/pages/ProductPage/ProductPage.jsx";
 import Cart from "./customer/components/Cart/Cart.jsx";
 import NotFoundPage from "./customer/pages/NotFoundPage/NotFoundPage.jsx";
 import AdminPage from "./Admin/page/AdminPage.jsx";
+import ProfilePage from "./customer/pages/ProfilePage/ProfilePage.jsx";
+import HistoryOrderPage from "./customer/pages/HistoryOrderPage/HistotyOrderPage.jsx";
 
 function App() {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth.login.currentUser);
   console.log(auth);
 
-  // useEffect(() => {
-  //   if (auth.isAdmin) {
-  //     navigate("/admin");
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   let storageData = localStorage.getItem("token");
-  //   if (storageData) {
-  //     handleGetProfileUser(storageData);
-  //   }
-  // }, []);
-
-  // const handleGetProfileUser = async (accessToken) => {
-  //   const res = await UserSerVice.getProfileUser(accessToken);
-  //   const decode = jwtDecode(accessToken);
-  //   const isAdmin = decode.role[0] === "ROLE_ADMINISTRATOR";
-  //   // console.log("isAdmin in handle", isAdmin);
-  //   dispatch(loginSuccess({ ...res, accessToken, isAdmin }));
-  // };
 
   const location = useLocation(); // Sử dụng hook useLocation để lấy thông tin về địa chỉ hiện tại
   const currentPath = location.pathname;
@@ -93,6 +74,22 @@ function App() {
           element={
             <DefaultComponent>
               <Cart />
+            </DefaultComponent>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <DefaultComponent>
+              <ProfilePage />
+            </DefaultComponent>
+          }
+        />
+        <Route
+          path="/history-order"
+          element={
+            <DefaultComponent>
+              <HistoryOrderPage />
             </DefaultComponent>
           }
         />
