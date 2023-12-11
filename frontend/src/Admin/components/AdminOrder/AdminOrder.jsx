@@ -3,7 +3,7 @@ import { WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
 import { useDispatch, useSelector } from "react-redux";
 // import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
-import { Modal } from "antd";
+import { Modal, message } from "antd";
 import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
 // import {} from "icons"
@@ -17,10 +17,10 @@ import {
 } from "@ant-design/icons";
 import AdminOrderDetail from "./AdminOrderDetail";
 import { updateDetailOrder } from "../../../redux/slides/orderSlice";
+import { useMutationHook } from "../../../hooks/useMutationHook";
 
 const AdminOrder = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
-
   const dispatch = useDispatch();
 
   const getAllOrdersAdmin = async () => {
@@ -31,6 +31,11 @@ const AdminOrder = () => {
     queryKey: ["orders"],
     queryFn: getAllOrdersAdmin,
   });
+  const mutation = useMutationHook((data) => {
+    const res = OrderService.editStatusOrderAdmin(data, auth.accessToken);
+    return res;
+  });
+  const { data, status, isSuccess, isError } = mutation;
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [popoverFieldValue, setPopoverFieldValue] = useState(null);
@@ -41,22 +46,88 @@ const AdminOrder = () => {
   const handlePopoverEnter = (orderId) => {
     setSelectedRow(orderId);
   };
-  const handlePopoverFieldClick = (value) => {
+  const handlePopoverFieldClick = (value, orderId) => {
     console.log("Clicked on Popover field:", value);
-    // Thực hiện xử lý khi click vào field trong Popover, bạn có thể làm gì đó ở đây
+    console.log("Order ID:", orderId); // In ra id của order
+
+    mutation.mutate({ id: orderId, status: value }, {
+      onSuccess: () => {
+        // Hiển thị thông báo thành công
+        message.success("Chỉnh sửa sản phẩm thành công");
+        // props.setIsModalOpen(false);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+      onError: (error) => {
+        // Hiển thị thông báo lỗi
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        // props.setIsModalOpen(false);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+    });
+
     setPopoverFieldValue(value);
   };
 
-  const renderAction = (key) => {
-    const content = (
-      <div>
-        <p className="font-semibold text-yellow-600" onClick={() => handlePopoverFieldClick("DANG_VAN_CHUYEN")}>Đang vận chuyển</p>
-        <p className="font-semibold text-pink-600" onClick={() => handlePopoverFieldClick("DA_GIAO_HANG")}>Đã giao hàng</p>
-        <p className="font-semibold text-gray-600" onClick={() => handlePopoverFieldClick("BI_TU_CHOI")}>Giao thất bại</p>
-        <p className="font-semibold text-green-600" onClick={() => handlePopoverFieldClick("HOAN_TAT")}>Hoàn thành đơn</p>
-        <p className="font-semibold text-red-600" onClick={() => handlePopoverFieldClick("DA_BI_HE_THONG_HUY")}>Hủy</p>
-      </div>
-    );
+  const renderAction = (key, status) => {
+    const getContentBasedOnStatus = (currentStatus) => {
+      switch (currentStatus) {
+        case "DANG_XU_LY" || "DANG_CHO_XU_LY":
+          return (
+            <>
+              <p
+                className="font-semibold text-yellow-600"
+                onClick={() => handlePopoverFieldClick("DANG_VAN_CHUYEN", key)}
+              >
+                Đang vận chuyển
+              </p>
+              <p
+                className="font-semibold text-red-600"
+                onClick={() => handlePopoverFieldClick("HUY", key)}
+              >
+                Hủy
+              </p>
+            </>
+          );
+        case "DANG_VAN_CHUYEN":
+          return (
+            <>
+              <p
+                className="font-semibold text-pink-600"
+                onClick={() => handlePopoverFieldClick("DA_GIAO_HANG", key)}
+              >
+                Đã giao hàng
+              </p>
+              <p
+                className="font-semibold text-gray-600"
+                onClick={() => handlePopoverFieldClick("BI_TU_CHOI", key)}
+              >
+                Giao thất bại
+              </p>
+            </>
+          );
+        case "DA_GIAO_HANG":
+          return (
+            <>
+              <p
+                className="font-semibold text-green-600"
+                onClick={() => handlePopoverFieldClick("HOAN_TAT", key)}
+              >
+                Hoàn tất đơn
+              </p>
+            </>
+          );
+        default:
+          return null; // Trường hợp còn lại không hiển thị gì cả
+      }
+    };
+  
+    const content = getContentBasedOnStatus(status.statusOrder);
 
     return (
       <div
@@ -124,7 +195,7 @@ const AdminOrder = () => {
     {
       title: "Hành động",
       dataIndex: "key",
-      render: (key) => renderAction(key),
+      render: (key, status) => renderAction(key, status),
     },
   ];
   const dataTable =
@@ -138,12 +209,7 @@ const AdminOrder = () => {
     }));
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-
-
-
   const showModal = async (orderId) => {
-    console.log("key edit", orderId);
     try {
       const detailOrder = await OrderService.getDetailOrderAdmin(
         orderId,
@@ -163,9 +229,6 @@ const AdminOrder = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
-
-
 
   return (
     <div>

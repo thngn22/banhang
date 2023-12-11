@@ -224,7 +224,6 @@ export default function Navigation({
   };
 
   const fetchAllCategory = async () => {
-    console.log("vao dc category");
     const res = await CategoryService.getAllTreeCategory();
     setListCategories(res);
 
