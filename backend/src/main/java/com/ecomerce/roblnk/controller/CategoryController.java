@@ -37,23 +37,7 @@ public class CategoryController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
-    @GetMapping("/search")
-    public ResponseEntity<?> getAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
-                                                     @RequestParam(value = "size", required = false) List<String> size,
-                                                     @RequestParam(value = "color", required = false) List<String> color,
-                                                     @RequestParam(value = "min_price", required = false) String minPrice,
-                                                     @RequestParam(value = "max_price", required = false) String maxPrice,
-                                                     @RequestParam(value = "search", required = false) String search,
-                                                     @RequestParam(value = "sort", required = false, defaultValue = "rating_desc") String sort,
-                                                     @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
-    ){
-        var productDetail = productService.getAllProductFilter(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber);
-        if (productDetail != null){
-            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
-        }
-        else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
-    }
+
     @PostMapping("/{id}/products")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request, BindingResult bindingResult){
