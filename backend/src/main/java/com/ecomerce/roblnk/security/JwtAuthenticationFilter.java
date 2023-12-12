@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -31,28 +32,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected final void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                          @NonNull HttpServletResponse response,
+                                          @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader(JwtConstant.JWT_HEADER);
         final String jwt;
         final String userEmail;
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             userEmail = jwtService.extractEmail(jwt);
-        }else{
-            if (authHeader != null){
+        } else {
+            if (authHeader != null) {
                 logger.error("JWT Token does not begin with Bearer String");
-            }
-            else
+            } else
                 filterChain.doFilter(request, response);
             return;
         }
-        try{
+        try {
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                if (jwtService.isTokenValid(jwt, userDetails) && tokenRepository.findTokenByExpiredTrueAndRevokedTrueAndToken(jwt).isEmpty()) {
+                if (jwtService.isTokenValid(jwt, userDetails) && tokenRepository.findTokenByExpiredTrueAndRevokedTrueAndToken(jwt).isEmpty()
+                        && !jwtService.getRolesFromToken(jwt).isEmpty()) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -61,9 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
+                else {
+                    final String tokenType = jwtService.extractClaim(jwt, claims -> claims.get("token_type", String.class));
+                    if (tokenType.equals("refreshToken")){
+                        System.out.println("Đã dùng refreshToken vào dc");
+                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                                null, null, null);
+                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    }
+                }
             }
-        }
-        catch (ExpiredJwtException exception){
+        } catch (ExpiredJwtException exception) {
             String isRefreshToken = request.getHeader("refresh_token");
             String requestURL = request.getRequestURL().toString();
             // allow for Refresh Token creation if following conditions are true.

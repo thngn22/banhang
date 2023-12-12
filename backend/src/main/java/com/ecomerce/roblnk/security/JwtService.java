@@ -75,15 +75,26 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String email = extractEmail(token);
+        final String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
         try {
-            final String email = extractEmail(token);
-            final String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
             if (tokenType.equals("accessToken")) {
                 return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
-            } else if (tokenType.equals("refreshToken")) {
-                if (isTokenExpired(tokenType)) {
-                    throw new JwtAuthenticationException("Refresh token is expired. Please login again!");
-                }
+            }
+        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
+            throw new BadCredentialsException("INVALID_CREDENTIALS", ex);
+        } catch (ExpiredJwtException ex) {
+            throw new JwtAuthenticationException("Token is expired!");
+        }
+        return false;
+    }
+
+    public boolean isFreshTokenValid(String token, UserDetails userDetails) {
+        final String email = extractEmail(token);
+        final String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
+        try {
+            if (tokenType.equals("refreshToken")) {
+                return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
             }
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
             throw new BadCredentialsException("INVALID_CREDENTIALS", ex);
@@ -108,18 +119,8 @@ public class JwtService {
         return String.valueOf(claims.get("email"));
     }
 
-    public List<SimpleGrantedAuthority> getRolesFromToken(String token) {
+    public List<?> getRolesFromToken(String token) {
         Claims claims = extractAllClaims(token);
-        List<SimpleGrantedAuthority> roles = new ArrayList<>();
-        List<?> rolesFromClaims = (List<?>) claims.get("role");
-
-        if (rolesFromClaims != null) {
-            for (var ro : rolesFromClaims) {
-                roles.add((SimpleGrantedAuthority) rolesFromClaims.get(rolesFromClaims.indexOf(ro)));
-            }
-        }
-
-        return roles;
-
+        return (List<?>) claims.get("role");
     }
 }

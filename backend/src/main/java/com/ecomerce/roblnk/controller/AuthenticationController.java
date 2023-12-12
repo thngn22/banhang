@@ -85,7 +85,6 @@ public class AuthenticationController {
         return ResponseEntity.ok("Log out successfully!");
     }
     @PostMapping("/refresh")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public void refresh(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         authenticationService.refreshToken(request, response);
     }

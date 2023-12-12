@@ -268,18 +268,20 @@ public class IAuthenticationService implements AuthenticationService {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
+        System.out.println("Đã vào dc service refresh");
         refreshToken = authHeader.substring(7);
         userEmail = jwtService.extractEmail(refreshToken);
         if (userEmail != null) {
             var user = userRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user)) {
+            if (jwtService.isFreshTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user, user);
+                var newRefreshToken = jwtService.generateRefreshToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
+                        .refreshToken(newRefreshToken)
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
