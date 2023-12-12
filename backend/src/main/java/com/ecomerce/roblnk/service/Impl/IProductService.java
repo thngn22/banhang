@@ -140,13 +140,13 @@ public class IProductService implements ProductService {
         System.out.println("size đầu: " + products.size());
         while (i < products.size()) {
             var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
-            boolean flag = true;
+            boolean flag = false;
             loop:
             {
                 for (ProductItem productItem : items) {
                     if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("K")) {
                         if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
-                            flag = false;
+                            flag = true;
                             System.out.println("dmsize1 " + i);
                             System.out.println(size);
                             System.out.println(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
@@ -154,19 +154,19 @@ public class IProductService implements ProductService {
                         }
                     } else if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
-                            flag = false;
+                            flag = true;
                             System.out.println("dmsize2 " + i);
                             break loop;
                         }
                     } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("K")) {
                         if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
-                            flag = false;
+                            flag = true;
                             System.out.println("dmcolor1 " + i);
                             break loop;
                         }
                     } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
                         if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
-                            flag = false;
+                            flag = true;
                             System.out.println("dmcolor2 " + i);
                             System.out.println(color);
                             System.out.println(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
@@ -176,20 +176,20 @@ public class IProductService implements ProductService {
                     } else if (flagMinPrice && flagMaxPrice) {
                         if ((productItem.getPrice() >= Integer.parseInt(minPrice)) && (productItem.getPrice() <= Integer.parseInt(maxPrice))) {
                             System.out.println("dm " + i);
-                            flag = false;
+                            flag = true;
                             break loop;
                         }
                     } else if (flagMinPrice) {
                         if (productItem.getPrice() >= Integer.parseInt(minPrice)) {
                             System.out.println("dm1 " + i);
 
-                            flag = false;
+                            flag = true;
                             break loop;
                         }
                     } else if (flagMaxPrice) {
                         if (productItem.getPrice() <= Integer.parseInt(maxPrice)) {
                             System.out.println("dm2 " + i);
-                            flag = false;
+                            flag = true;
                             break loop;
                         }
 
@@ -201,9 +201,10 @@ public class IProductService implements ProductService {
             System.out.println("flagSize: " + flagSize);
             System.out.println("flagMaxPrice: " + flagMaxPrice);
             System.out.println("flagMinPrice: " + flagMinPrice);
+            Boolean temp = (flag || flagColor || flagSize || flagMinPrice || flagMaxPrice) && !flag;
+            System.out.println(temp);
 
-            if ((!flag && (!flagColor || !flagSize || !flagMaxPrice || !flagMinPrice)) ||
-                    (flag && (flagColor && flagSize && flagMinPrice && flagMaxPrice))) {
+            if (!temp) {
                 i = i + 1;
             } else
                 products.remove(i);
