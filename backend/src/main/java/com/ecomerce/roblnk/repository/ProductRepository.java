@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long>, Specification<Product> {
-    Page<Product> findAllByCategory_Id(Specification<Product> specification,Long category_id, Pageable pageable);
-
+public interface ProductRepository extends JpaRepository<Product, Long>{
     List<Product> findAllByCategoryId(Long id);
 }

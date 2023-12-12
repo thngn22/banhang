@@ -40,7 +40,6 @@ public class IProductService implements ProductService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
-
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
 
@@ -88,11 +87,63 @@ public class IProductService implements ProductService {
         for (int i = 0; i < productResponseList.size(); i++) {
             productResponseList.get(i).setQuantity(list.get(i));
         }
-        productResponseList.sort((d1, d2) -> d2.getRating().compareTo(d1.getRating()));
+        switch (sort){
+            case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
+            case "name_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName).reversed());
+            case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
+            case "old_to_new" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
+            case "price_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice));
+            case "price_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());
+            case "rating_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating));
+            case "rating_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
+            case "sold_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold));
+            case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
+            default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
+        }
+
         return productResponseList;
 
     }
 
+
+
+    private Specification<Product> specification(String name, String description) {
+        Specification<Product> nameSpec = hasName(name);
+        Specification<Product> descriptionSpec = hasDescription(description);
+        Specification<Product> specification = Specification.where(null);
+        if (!name.isEmpty() && !description.isEmpty()) {
+            specification = specification.and(nameSpec).or(descriptionSpec);
+        }
+        return specification;
+
+
+    }
+
+    private Specification<Product> hasName(String name) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("name"), "%" + name + "%");
+    }
+
+    private Specification<Product> hasDescription(String description) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("description"), "%" + description + "%");
+    }
+
+    private Sort sort(String sort) {
+        return switch (sort) {
+            case "name_asc" -> Sort.by("name").ascending();
+            case "name_desc" -> Sort.by("name").descending();
+            case "new_to_old" -> Sort.by("modifiedDate").ascending();
+            case "old_to_new" -> Sort.by("modifiedDate").descending();
+            case "price_asc" -> Sort.by("estimatedPrice").ascending();
+            case "price_desc" -> Sort.by("estimatedPrice").descending();
+            case "rating_asc" -> Sort.by("rating").ascending();
+            case "rating_desc" -> Sort.by("rating").descending();
+            case "sold_asc" -> Sort.by("sold").ascending();
+            case "sold_desc" -> Sort.by("sold").descending();
+            default -> Sort.by("rating").descending();
+        };
+    }
     @Override
     public ProductDetailResponsev3 getDetailProductForAdmin(Long productId) {
         var product = productRepository.findById(productId);
@@ -687,63 +738,4 @@ public class IProductService implements ProductService {
 
     }
 
-
-    private Specification<Product> specification(List<String> size, List<String> color, String minPrice, String maxPrice) {
-        Specification<Product> sizeSpec = hasSizes(size);
-        Specification<Product> colorSpec = hasColor(color);
-        Specification<Product> minPriceSpec = hasMinPrice(minPrice);
-        Specification<Product> maxPriceSpec = hasMaxPrice(maxPrice);
-        Specification<Product> specification = Specification.where(null);
-        if (!size.isEmpty()) {
-            System.out.println(sizeSpec);
-            specification = specification.and(sizeSpec);
-        }
-        if (!color.isEmpty()) {
-            System.out.println(colorSpec);
-            specification = specification.and(colorSpec);
-        }
-        if (!minPrice.isEmpty()) {
-            System.out.println(minPriceSpec);
-            specification = specification.and(minPriceSpec);
-        }
-        if (!maxPrice.isEmpty()) {
-            System.out.println(maxPriceSpec);
-            specification = specification.and(maxPriceSpec);
-        }
-        return specification;
-
-
-    }
-
-    private Specification<Product> hasMaxPrice(String maxPrice) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("maxPrice"), maxPrice);
-    }
-
-    private Specification<Product> hasMinPrice(String minPrice) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("minPrice"), minPrice);
-    }
-
-    private Specification<Product> hasColor(List<String> color) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("color"), color);
-    }
-
-    private Specification<Product> hasSizes(List<String> size) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("size"), size);
-    }
-
-    private Sort sort(String sort) {
-        return switch (sort) {
-            case "size_asc" -> Sort.by("size").ascending();
-            case "size_desc" -> Sort.by("size").descending();
-            case "color_asc" -> Sort.by("color").ascending();
-            case "color_desc" -> Sort.by("color").descending();
-            case "price_asc" -> Sort.by("price").ascending();
-            case "price_desc" -> Sort.by("price_desc").descending();
-            default -> Sort.by("rating").descending();
-        };
-    }
 }
