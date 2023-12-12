@@ -29,16 +29,25 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllProductInCategory(@RequestParam(value = "category_id", required = false, defaultValue = "1") Long categoryId,
+    public ResponseEntity<?> getAllProductInCategory(@RequestParam(value = "category_id", required = false) Long categoryId){
+        var productDetail = productService.getAllProduct(categoryId);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
+    @GetMapping("/search")
+    public ResponseEntity<?> getAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
                                                      @RequestParam(value = "size", required = false) List<String> size,
                                                      @RequestParam(value = "color", required = false) List<String> color,
                                                      @RequestParam(value = "min_price", required = false) String minPrice,
                                                      @RequestParam(value = "max_price", required = false) String maxPrice,
                                                      @RequestParam(value = "search", required = false) String search,
-                                                     @RequestParam(value = "sort", required = false, defaultValue = "asc_rating") String sort,
+                                                     @RequestParam(value = "sort", required = false, defaultValue = "rating_desc") String sort,
                                                      @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
-                                                     ){
-        var productDetail = productService.getAllProduct(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber);
+    ){
+        var productDetail = productService.getAllProductFilter(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }

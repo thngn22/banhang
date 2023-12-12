@@ -95,7 +95,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
 
-    @PostMapping("/account/orders/{id}")
+    @PutMapping("/account/orders/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> confirmOrdersFromUser(Principal connectedUser, @PathVariable("id") Long id) {
         var userOrders = userService.confirmOrdersFromUser(connectedUser, id);

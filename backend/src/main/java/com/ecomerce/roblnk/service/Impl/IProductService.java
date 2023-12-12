@@ -7,9 +7,7 @@ import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
-import com.ecomerce.roblnk.service.CloudinaryService;
-import com.ecomerce.roblnk.service.ProductService;
-import com.ecomerce.roblnk.service.ReviewService;
+import com.ecomerce.roblnk.service.*;
 import com.ecomerce.roblnk.util.ByteMultipartFile;
 import com.ecomerce.roblnk.util.FileUtil;
 import com.ecomerce.roblnk.util.ImageUtil;
@@ -40,9 +38,10 @@ public class IProductService implements ProductService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
-    @Override
-    public List<ProductResponse> getAllProduct(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
+    private final CategoryService categoryService;
 
+    @Override
+    public List<ProductResponse> getAllProduct(Long categoryId) {
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Product> products = new ArrayList<>();
@@ -53,7 +52,7 @@ public class IProductService implements ProductService {
         cate.add(21L);
         cate.add(22L);
         var cates = categoryRepository.findAll();
-        if (categoryId == null) {
+        if (categoryId == null ) {
             categories.addAll(categoryRepository.findAllById(cate));
         } else
             categories.add(categoryRepository.findById(categoryId).orElseThrow());
@@ -73,9 +72,12 @@ public class IProductService implements ProductService {
                 categories.remove(0);
             }
         }
+
         for (Category category : categoryList) {
             products.addAll(productRepository.findAllByCategoryId(category.getId()));
         }
+
+        System.out.println("size đầu: " + products.size());
         for (Product product : products) {
             var items = productItemRepository.findAllByProduct_Id(product.getId());
             for (ProductItem productItem : items) {
@@ -84,39 +86,174 @@ public class IProductService implements ProductService {
 
         }
         var productResponseList = productMapper.toProductResponseList(products);
-        for (int i = 0; i < productResponseList.size(); i++) {
-            productResponseList.get(i).setQuantity(list.get(i));
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
         }
-        switch (sort){
+        return productResponseList;
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
+
+        List<Category> categories = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+        List<Long> cate = new ArrayList<>();
+        cate.add(1L);
+        cate.add(2L);
+        cate.add(21L);
+        cate.add(22L);
+        boolean flagSize = size != null && !size.isEmpty();
+        boolean flagColor = color != null && !color.isEmpty();
+        boolean flagMinPrice = minPrice != null && !minPrice.isEmpty();
+        boolean flagMaxPrice = maxPrice != null && !maxPrice.isEmpty();
+        var cates = categoryRepository.findAll();
+        if (categoryId == null ) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else
+            categories.add(categoryRepository.findById(categoryId).orElseThrow());
+        while (!categories.isEmpty()) {
+            Long id = categories.get(0).getId();
+            boolean flag = false;
+            for (Category category : cates) {
+                if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(id)) {
+                    flag = true;
+                    categories.add(category);
+                }
+            }
+            if (flag) {
+                categories.remove(0);
+            } else {
+                categoryList.add(categories.get(0));
+                categories.remove(0);
+            }
+        }
+
+        for (Category category : categoryList) {
+            Specification<Product> specification = specification(search, category.getId());
+            products.addAll(productRepository.findAll(specification, sort(sort)));
+        }
+
+
+        int i = 0;
+        System.out.println("size đầu: " + products.size());
+        while (i < products.size()) {
+            var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            boolean flag = true;
+            loop:
+            {
+                for (ProductItem productItem : items) {
+                    if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("K")) {
+                        if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
+                            flag = false;
+                            System.out.println("dmsize1 " + i);
+                            System.out.println(size);
+                            System.out.println(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            break loop;
+                        }
+                    } else if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
+                            flag = false;
+                            System.out.println("dmsize2 " + i);
+                            break loop;
+                        }
+                    } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("K")) {
+                        if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
+                            flag = false;
+                            System.out.println("dmcolor1 " + i);
+                            break loop;
+                        }
+                    } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
+                            flag = false;
+                            System.out.println("dmcolor2 " + i);
+                            System.out.println(color);
+                            System.out.println(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            break loop;
+                        }
+
+                    } else if (flagMinPrice && flagMaxPrice) {
+                        if ((productItem.getPrice() >= Integer.parseInt(minPrice)) && (productItem.getPrice() <= Integer.parseInt(maxPrice))) {
+                            System.out.println("dm " + i);
+                            flag = false;
+                            break loop;
+                        }
+                    } else if (flagMinPrice) {
+                        if (productItem.getPrice() >= Integer.parseInt(minPrice)) {
+                            System.out.println("dm1 " + i);
+
+                            flag = false;
+                            break loop;
+                        }
+                    } else if (flagMaxPrice) {
+                        if (productItem.getPrice() <= Integer.parseInt(maxPrice)) {
+                            System.out.println("dm2 " + i);
+                            flag = false;
+                            break loop;
+                        }
+
+                    }
+                }
+            }
+            System.out.println("flag: " + flag);
+            System.out.println("flagColor: " + flagColor);
+            System.out.println("flagSize: " + flagSize);
+            System.out.println("flagMaxPrice: " + flagMaxPrice);
+            System.out.println("flagMinPrice: " + flagMinPrice);
+
+            if ((!flag && (!flagColor || !flagSize || !flagMaxPrice || !flagMinPrice)) ||
+                    (flag && (flagColor && flagSize && flagMinPrice && flagMaxPrice))) {
+                i = i + 1;
+            } else
+                products.remove(i);
+        }
+        System.out.println("size cuối: " + products.size());
+        for (Product product : products) {
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            for (ProductItem productItem : items) {
+                list.add(productItem.getQuantityInStock());
+            }
+
+        }
+        var productResponseList = productMapper.toProductResponseList(products);
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+        }
+        switch (sort) {
             case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
             case "name_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName).reversed());
             case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
-            case "old_to_new" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
+            case "old_to_new" ->
+                    productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
             case "price_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice));
-            case "price_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());
+            case "price_desc" ->
+                    productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());
             case "rating_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating));
             case "rating_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
             case "sold_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold));
             case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
             default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
         }
-
         return productResponseList;
 
     }
 
 
-
-    private Specification<Product> specification(String name, String description) {
+    private Specification<Product> specification(String name, Long id) {
         Specification<Product> nameSpec = hasName(name);
-        Specification<Product> descriptionSpec = hasDescription(description);
+        Specification<Product> categorySpec = hasCategoryId(id);
         Specification<Product> specification = Specification.where(null);
-        if (!name.isEmpty() && !description.isEmpty()) {
-            specification = specification.and(nameSpec).or(descriptionSpec);
+        specification = specification.and(categorySpec);
+        if (name != null && !name.isEmpty()) {
+            specification = specification.and(nameSpec);
         }
         return specification;
+    }
 
-
+    private Specification<Product> hasCategoryId(Long id) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("category").get("id"), id);
     }
 
     private Specification<Product> hasName(String name) {
@@ -144,6 +281,7 @@ public class IProductService implements ProductService {
             default -> Sort.by("rating").descending();
         };
     }
+
     @Override
     public ProductDetailResponsev3 getDetailProductForAdmin(Long productId) {
         var product = productRepository.findById(productId);
