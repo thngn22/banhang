@@ -14,4 +14,8 @@ public interface CategoryService {
     List<?> addVariationIntoCategory(Long id, List<String> variationRequest);
 
     List<?> getVariationInCategory(Long id);
+
+    List<?> getAllSizeInCategory(Long categoryId);
+
+    Object getAllColorInCategory(Long categoryId);
 }

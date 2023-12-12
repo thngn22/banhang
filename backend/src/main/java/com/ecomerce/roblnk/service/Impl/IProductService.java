@@ -2,7 +2,6 @@ package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.product.*;
-import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.ReviewMapper;
@@ -17,6 +16,8 @@ import com.ecomerce.roblnk.util.ImageUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,18 +42,26 @@ public class IProductService implements ProductService {
     private final OrderMapper orderMapper;
 
     @Override
-    public List<ProductResponse> getAllProduct(Long categoryId) {
+    public List<ProductResponse> getAllProduct(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
+
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Product> products = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
-        var cate = categoryRepository.findAll();
-        var cateTarget = categoryRepository.findById(categoryId).orElseThrow();
-        categories.add(cateTarget);
+        List<Long> cate = new ArrayList<>();
+        cate.add(1L);
+        cate.add(2L);
+        cate.add(21L);
+        cate.add(22L);
+        var cates = categoryRepository.findAll();
+        if (categoryId == null) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else
+            categories.add(categoryRepository.findById(categoryId).orElseThrow());
         while (!categories.isEmpty()) {
             Long id = categories.get(0).getId();
             boolean flag = false;
-            for (Category category : cate) {
+            for (Category category : cates) {
                 if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(id)) {
                     flag = true;
                     categories.add(category);
@@ -71,7 +80,7 @@ public class IProductService implements ProductService {
         for (Product product : products) {
             var items = productItemRepository.findAllByProduct_Id(product.getId());
             for (ProductItem productItem : items) {
-                list.add(Math.toIntExact(productItem.getQuantityInStock()));
+                list.add(productItem.getQuantityInStock());
             }
 
         }
@@ -79,8 +88,9 @@ public class IProductService implements ProductService {
         for (int i = 0; i < productResponseList.size(); i++) {
             productResponseList.get(i).setQuantity(list.get(i));
         }
-        productResponseList.sort((d1, d2) -> d2.getModifiedDate().compareTo(d1.getModifiedDate()));
+        productResponseList.sort((d1, d2) -> d2.getRating().compareTo(d1.getRating()));
         return productResponseList;
+
     }
 
     @Override
@@ -394,8 +404,7 @@ public class IProductService implements ProductService {
                 if (!minPrice.equals(maxPrice)) {
 
                     product.setEstimatedPrice(minPrice + " - " + maxPrice);
-                }
-                else {
+                } else {
                     product.setEstimatedPrice(minPrice.toString());
                 }
                 productRepository.save(product);
@@ -593,8 +602,7 @@ public class IProductService implements ProductService {
                 if (!minPrice.equals(maxPrice)) {
 
                     product.setEstimatedPrice(minPrice + " - " + maxPrice);
-                }
-                else {
+                } else {
                     product.setEstimatedPrice(minPrice.toString());
                 }
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
@@ -680,4 +688,62 @@ public class IProductService implements ProductService {
     }
 
 
+    private Specification<Product> specification(List<String> size, List<String> color, String minPrice, String maxPrice) {
+        Specification<Product> sizeSpec = hasSizes(size);
+        Specification<Product> colorSpec = hasColor(color);
+        Specification<Product> minPriceSpec = hasMinPrice(minPrice);
+        Specification<Product> maxPriceSpec = hasMaxPrice(maxPrice);
+        Specification<Product> specification = Specification.where(null);
+        if (!size.isEmpty()) {
+            System.out.println(sizeSpec);
+            specification = specification.and(sizeSpec);
+        }
+        if (!color.isEmpty()) {
+            System.out.println(colorSpec);
+            specification = specification.and(colorSpec);
+        }
+        if (!minPrice.isEmpty()) {
+            System.out.println(minPriceSpec);
+            specification = specification.and(minPriceSpec);
+        }
+        if (!maxPrice.isEmpty()) {
+            System.out.println(maxPriceSpec);
+            specification = specification.and(maxPriceSpec);
+        }
+        return specification;
+
+
+    }
+
+    private Specification<Product> hasMaxPrice(String maxPrice) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("maxPrice"), maxPrice);
+    }
+
+    private Specification<Product> hasMinPrice(String minPrice) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("minPrice"), minPrice);
+    }
+
+    private Specification<Product> hasColor(List<String> color) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("color"), color);
+    }
+
+    private Specification<Product> hasSizes(List<String> size) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("size"), size);
+    }
+
+    private Sort sort(String sort) {
+        return switch (sort) {
+            case "size_asc" -> Sort.by("size").ascending();
+            case "size_desc" -> Sort.by("size").descending();
+            case "color_asc" -> Sort.by("color").ascending();
+            case "color_desc" -> Sort.by("color").descending();
+            case "price_asc" -> Sort.by("price").ascending();
+            case "price_desc" -> Sort.by("price_desc").descending();
+            default -> Sort.by("rating").descending();
+        };
+    }
 }

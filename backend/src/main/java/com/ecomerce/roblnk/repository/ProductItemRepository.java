@@ -9,6 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductItemRepository extends JpaRepository<ProductItem, Long> {
+public interface ProductItemRepository extends JpaRepository<ProductItem, Long>{
     List<ProductItem> findAllByProduct_Id(Long product_id);
 }

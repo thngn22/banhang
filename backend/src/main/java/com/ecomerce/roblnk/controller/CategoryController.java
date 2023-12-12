@@ -29,8 +29,16 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllProductInCategory(@RequestParam(value = "id", defaultValue = "1") Long id){
-        var productDetail = productService.getAllProduct(id);
+    public ResponseEntity<?> getAllProductInCategory(@RequestParam(value = "category_id", required = false, defaultValue = "1") Long categoryId,
+                                                     @RequestParam(value = "size", required = false) List<String> size,
+                                                     @RequestParam(value = "color", required = false) List<String> color,
+                                                     @RequestParam(value = "min_price", required = false) String minPrice,
+                                                     @RequestParam(value = "max_price", required = false) String maxPrice,
+                                                     @RequestParam(value = "search", required = false) String search,
+                                                     @RequestParam(value = "sort", required = false, defaultValue = "asc_rating") String sort,
+                                                     @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+                                                     ){
+        var productDetail = productService.getAllProduct(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }
@@ -117,16 +125,24 @@ public class CategoryController {
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
         }
-    }
+    }*/
 
-    @GetMapping("/{id}/variation")
-    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> variationInCategory(@PathVariable("id") Long id){
-        var listVariation = categoryService.getVariationInCategory(id);
+    @GetMapping("/size")
+    public ResponseEntity<?> getAllSizeInCategory(@RequestParam(value = "category_id", required = false) Long categoryId){
+        var listVariation = categoryService.getAllSizeInCategory(categoryId);
         if (listVariation != null){
             return ResponseEntity.status(HttpStatus.OK).body(listVariation);
         }
         else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
-    }*/
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any size!");
+    }
+    @GetMapping("/color")
+    public ResponseEntity<?> getAllColorInCategory(@RequestParam(value = "category_id", required = false) Long categoryId){
+        var listVariation = categoryService.getAllColorInCategory(categoryId);
+        if (listVariation != null){
+            return ResponseEntity.status(HttpStatus.OK).body(listVariation);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any color!");
+    }
 }

@@ -444,6 +444,7 @@ public class IUserService implements UserService {
                     case "DA_GIAO_HANG" -> {
                         if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_VAN_CHUYEN")) {
                             flag = true;
+                            sendMail = true;
                         }
 
                     }
@@ -464,13 +465,6 @@ public class IUserService implements UserService {
                     case "BI_TU_CHOI" -> {
                         if (!userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
                             flag = true;
-                        }
-
-                    }
-                    case "CHO_XAC_NHAN" -> {
-                        if (userOrders.get().getStatusOrder().getOrderStatus().equals("DA_GIAO_HANG")) {
-                            flag = true;
-                            sendMail = true;
                         }
 
                     }

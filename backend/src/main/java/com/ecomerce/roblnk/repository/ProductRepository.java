@@ -6,14 +6,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long>{
-    List<Product> findAllByCategoryId(Long category_id);
+public interface ProductRepository extends JpaRepository<Product, Long>, Specification<Product> {
+    Page<Product> findAllByCategory_Id(Specification<Product> specification,Long category_id, Pageable pageable);
 
+    List<Product> findAllByCategoryId(Long id);
 }
