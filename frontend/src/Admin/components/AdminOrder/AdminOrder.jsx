@@ -47,27 +47,27 @@ const AdminOrder = () => {
     setSelectedRow(orderId);
   };
   const handlePopoverFieldClick = (value, orderId) => {
-    console.log("Clicked on Popover field:", value);
-    console.log("Order ID:", orderId); // In ra id của order
+    mutation.mutate(
+      { id: orderId, status: value },
+      {
+        onSuccess: () => {
+          // Hiển thị thông báo thành công
+          message.success("Chỉnh sửa sản phẩm thành công");
 
-    mutation.mutate({ id: orderId, status: value }, {
-      onSuccess: () => {
-        // Hiển thị thông báo thành công
-        message.success("Chỉnh sửa sản phẩm thành công");
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        },
+        onError: (error) => {
+          // Hiển thị thông báo lỗi
+          message.error(`Đã xảy ra lỗi: ${error.message}`);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      },
-      onError: (error) => {
-        // Hiển thị thông báo lỗi
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      },
-    });
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        },
+      }
+    );
 
     setPopoverFieldValue(value);
   };
@@ -75,18 +75,22 @@ const AdminOrder = () => {
   const renderAction = (key, status) => {
     const getContentBasedOnStatus = (currentStatus) => {
       switch (currentStatus) {
-        case "DANG_XU_LY" || "DANG_CHO_XU_LY":
+        case "DANG_XU_LY":
           return (
             <>
               <p
                 className="font-semibold text-yellow-600"
+                style={{ cursor: "pointer" }}
                 onClick={() => handlePopoverFieldClick("DANG_VAN_CHUYEN", key)}
               >
                 Đang vận chuyển
               </p>
               <p
                 className="font-semibold text-red-600"
-                onClick={() => handlePopoverFieldClick("HUY", key)}
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  handlePopoverFieldClick("DA_BI_HE_THONG_HUY", key)
+                }
               >
                 Hủy
               </p>
@@ -97,12 +101,14 @@ const AdminOrder = () => {
             <>
               <p
                 className="font-semibold text-pink-600"
+                style={{ cursor: "pointer" }}
                 onClick={() => handlePopoverFieldClick("DA_GIAO_HANG", key)}
               >
                 Đã giao hàng
               </p>
               <p
                 className="font-semibold text-gray-600"
+                style={{ cursor: "pointer" }}
                 onClick={() => handlePopoverFieldClick("BI_TU_CHOI", key)}
               >
                 Giao thất bại
@@ -114,6 +120,7 @@ const AdminOrder = () => {
             <>
               <p
                 className="font-semibold text-green-600"
+                style={{ cursor: "pointer" }}
                 onClick={() => handlePopoverFieldClick("HOAN_TAT", key)}
               >
                 Hoàn tất đơn
@@ -124,7 +131,7 @@ const AdminOrder = () => {
           return null; // Trường hợp còn lại không hiển thị gì cả
       }
     };
-  
+
     const content = getContentBasedOnStatus(status.statusOrder);
 
     return (
@@ -132,7 +139,6 @@ const AdminOrder = () => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          width: "80%",
         }}
       >
         <QuestionCircleOutlined

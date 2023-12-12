@@ -61,8 +61,11 @@ export const cancelOrder = async (id, accessToken) => {
   return res.data;
 };
 export const confirmOrder = async (id, accessToken) => {
-  const res = await axiosJWT.post(
+  console.log("accessToken", accessToken);
+  console.log("id", id);
+  const res = await axiosJWT.put(
     `${process.env.REACT_APP_API_URL}user/account/orders/${id}`,
+    {},
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -72,7 +75,6 @@ export const confirmOrder = async (id, accessToken) => {
   return res.data;
 };
 export const ratingProductOrdered = async (orderId, data, accessToken) => {
-
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}user/account/orders/${orderId}/rating`,
     data,
@@ -83,9 +85,8 @@ export const ratingProductOrdered = async (orderId, data, accessToken) => {
     }
   );
   return res.data;
-}
+};
 export const getRatingProductOrdered = async (orderId, accessToken) => {
-
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}user/account/orders/${orderId}/rating`,
     {
@@ -95,9 +96,8 @@ export const getRatingProductOrdered = async (orderId, accessToken) => {
     }
   );
   return res.data;
-}
+};
 export const editStatusOrderAdmin = async (data, accessToken) => {
-  console.log("accessToken", accessToken);
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}admin/orders/${data.id}`,
     null, // Body là null vì bạn đang sử dụng query parameter

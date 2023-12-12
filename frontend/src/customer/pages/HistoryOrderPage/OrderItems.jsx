@@ -21,7 +21,7 @@ const OrderItems = () => {
 
 
   const onSelectedStar = (stars) => {
-
+  
     setCountStar(stars)
   }
 

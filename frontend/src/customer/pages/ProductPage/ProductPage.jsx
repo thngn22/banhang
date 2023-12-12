@@ -13,7 +13,7 @@ export default function ProductPage() {
   const { data: products } = useQuery({
     queryKey: ['category', categoryId],
     queryFn: () => {
-      return ProductService.getAllProductByCategory({ id: categoryId })
+      return ProductService.getAllProductByCategory({ category_id: categoryId })
     }
   })
 

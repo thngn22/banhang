@@ -23,7 +23,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 // import { faEnvelope, faCircleUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -31,6 +31,11 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import * as CategoryService from "../../../services/CategoryService";
 import * as CartService from "../../../services/CartService";
+import * as UserService from "../../../services/UserService";
+import { logoutSuccess } from "../../../redux/slides/authSlice";
+import { resetUser } from "../../../redux/slides/userSlide";
+import Loading from "../LoadingComponent/Loading";
+
 const navigation = {
   categories: [
     {
@@ -172,12 +177,16 @@ export default function Navigation({
 }) {
   const [open, setOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch();
+
   const { data: cart } = useQuery({
     queryKey: ["cart"],
     queryFn: () => {
-      return CartService.getCartItems(auth.accessToken);
+      return CartService.getCartItems(auth?.accessToken);
     },
   });
 
@@ -202,7 +211,6 @@ export default function Navigation({
   };
 
   const handleLogin = () => {
-    console.log("vao dc login");
     navigate("/login");
   };
   const handleSignUp = () => {
@@ -215,9 +223,23 @@ export default function Navigation({
   const handleOrder = () => {
     navigate("/history-order");
   };
-  const handleLogout = () => {
-    console.log("vao dc Logout");
-    // navigate("/register");
+  const handleComeToAdmin = () => {
+    console.log("Vào đc admin");
+  };
+  const handleLogout = async () => {
+    setIsLoading(true);
+
+    const res = await UserService.logout(auth?.accessToken);
+    dispatch(logoutSuccess());
+    dispatch(resetUser());
+
+    setIsLoading(false);
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+
+    return res;
   };
   const handleLogo = () => {
     navigate("/");
@@ -480,84 +502,100 @@ export default function Navigation({
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                   {/* Thông tin người dùng với Popover từ headlessui/react */}
-                  <Popover style={{ position: "relative" }}>
-                    {({ open }) => (
-                      <>
-                        <Popover.Button>
-                          {auth?.email ? (
-                            <div
-                              className={classNames(
-                                "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
-                                { "text-indigo-600": open }
-                              )}
-                            >
-                              <FontAwesomeIcon icon={faCircleUser} />
-                              <div>{auth.email}</div>
-                            </div>
-                          ) : (
-                            <div
-                              className={classNames(
-                                "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
-                                { "text-indigo-600": open }
-                              )}
-                            >
-                              Bạn chưa đăng nhập? Hãy Click vào đây
-                            </div>
-                          )}
-                        </Popover.Button>
+                  <Loading isLoading={isLoading}>
+                    <Popover style={{ position: "relative" }}>
+                      {({ open }) => (
+                        <>
+                          <Popover.Button>
+                            {auth?.email ? (
+                              <div
+                                className={classNames(
+                                  "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
+                                  { "text-indigo-600": open }
+                                )}
+                              >
+                                <FontAwesomeIcon icon={faCircleUser} />
+                                <div>{auth.email}</div>
+                              </div>
+                            ) : (
+                              <div
+                                className={classNames(
+                                  "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
+                                  { "text-indigo-600": open }
+                                )}
+                              >
+                                Bạn chưa đăng nhập? Hãy Click vào đây
+                              </div>
+                            )}
+                          </Popover.Button>
 
-                        <Transition
-                          show={open}
-                          as={Fragment}
-                          enter="transition ease-out duration-200"
-                          enterFrom="opacity-0 scale-95"
-                          enterTo="opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="opacity-100 scale-100"
-                          leaveTo="opacity-0 scale-95"
-                        >
-                          <Popover.Panel
-                            static
-                            className="absolute z-10 top-[36px] right-[-22px] mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
+                          <Transition
+                            show={open}
+                            as={Fragment}
+                            enter="transition ease-out duration-200"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
                           >
-                            <div className="py-1">
-                              {auth?.email ? (
-                                <>
-                                  <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                  onClick={handleProfile}>
-                                    Thông tin tài khoản
-                                  </p>
-                                  <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                  onClick={handleOrder}>
-                                    Đơn hàng
-                                  </p>
-                                  <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                  onClick={handleLogout}>
-                                    Đăng xuất
-                                  </p>
-                                </>
-                              ) : (
-                                <>
-                                  <p
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    onClick={handleLogin}
-                                  >
-                                    Đăng nhập
-                                  </p>
-                                  <p
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    onClick={handleSignUp}
-                                  >
-                                    Đăng ký
-                                  </p>
-                                </>
-                              )}
-                            </div>
-                          </Popover.Panel>
-                        </Transition>
-                      </>
-                    )}
-                  </Popover>
+                            <Popover.Panel
+                              static
+                              className="absolute z-10 top-[36px] right-[-22px] mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
+                            >
+                              <div className="py-1">
+                                {auth?.email ? (
+                                  <>
+                                    <p
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                      onClick={handleProfile}
+                                    >
+                                      Thông tin tài khoản
+                                    </p>
+                                    <p
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                      onClick={handleOrder}
+                                    >
+                                      Đơn hàng
+                                    </p>
+                                    {auth.isAdmin && (
+                                      <p
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                        onClick={handleComeToAdmin}
+                                      >
+                                        Vào trang quản lý
+                                      </p>
+                                    )}
+                                    <p
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                                      onClick={handleLogout}
+                                    >
+                                      Đăng xuất
+                                    </p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <p
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                      onClick={handleLogin}
+                                    >
+                                      Đăng nhập
+                                    </p>
+                                    <p
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                      onClick={handleSignUp}
+                                    >
+                                      Đăng ký
+                                    </p>
+                                  </>
+                                )}
+                              </div>
+                            </Popover.Panel>
+                          </Transition>
+                        </>
+                      )}
+                    </Popover>
+                  </Loading>
                 </div>
 
                 <div className="hidden lg:ml-8 lg:flex">

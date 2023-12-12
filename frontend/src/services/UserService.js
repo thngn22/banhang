@@ -26,6 +26,19 @@ export const sendOTP = async (data) => {
   return res.data;
 };
 
+export const logout = async (accessToken) => {
+  console.log("accessToken",accessToken);
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}auth/logout`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
 export const getProfileUser = async (accessToken) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}user/account/profile`,
@@ -37,7 +50,6 @@ export const getProfileUser = async (accessToken) => {
   );
   return res.data;
 };
-
 
 //Mới viết
 export const getAllUser = async (accessToken) => {
@@ -51,7 +63,6 @@ export const getAllUser = async (accessToken) => {
   );
   return res.data;
 };
-
 
 export const changeStatusUser = async (id, accessToken) => {
   const res = await axiosJWT.post(

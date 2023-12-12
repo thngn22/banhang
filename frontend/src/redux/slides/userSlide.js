@@ -48,11 +48,20 @@ export const userSlice = createSlice({
       const deleteItem = action.payload
       const itemIndex = state.cart.findIndex(item => item.id === deleteItem.id && item.sizeBuy === deleteItem.sizeBuy && item.colorBuy === deleteItem.colorBuy);
       state.cart.splice(itemIndex, 1)
-    }
+    },
+    resetUser: (state) => {
+      state.userName = '';
+      state.email = '';
+      state.phone = '';
+      state.avatar = '';
+      state.accessToken = '';
+      state.isAdmin = false;
+      state.cart = []
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { updateUser, addToCart, updateQuantity, removeItem } = userSlice.actions;
+export const { updateUser, addToCart, updateQuantity, removeItem, resetUser } = userSlice.actions;
 
 export default userSlice.reducer;

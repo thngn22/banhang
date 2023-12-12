@@ -9,7 +9,7 @@ import * as OrderService from "../../../services/OrderService";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDetailOrder } from "../../../redux/slides/orderSlice";
 import { useQuery } from "@tanstack/react-query";
-import { useMutationHook } from '../../../hooks/useMutationHook';
+import { useMutationHook } from "../../../hooks/useMutationHook";
 
 const HistotyOrderPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -180,7 +180,6 @@ const HistotyOrderPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = async (orderId) => {
-
     try {
       const detailOrder = await OrderService.getDetailOrderUser(
         orderId,
@@ -200,16 +199,18 @@ const HistotyOrderPage = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+
+
+
+
   const getStatusColor = (orderStatus) => {
     switch (orderStatus) {
-      case "HOAN_TAT":
+      case "DA_GIAO_HANG":
         return "blue";
-      case "CHO_XAC_NHAN":
-        return "green";
-      case "DA_BI_NGUOI_DUNG_HUY":
-        return "gray";
-      default:
+      case "DANG_XU_LY":
         return "red";
+      default:
+        return "gray";
     }
   };
   const mutationCancel = useMutationHook((data) => {
@@ -217,9 +218,14 @@ const HistotyOrderPage = () => {
     return res;
   });
   const mutationConfirm = useMutationHook((data) => {
-    const res = OrderService.cancelOrder(data, auth.accessToken);
+    const res = OrderService.confirmOrder(data, auth.accessToken);
     return res;
   });
+
+
+
+
+
   return (
     <div>
       <div style={{ backgroundColor: "rgba(169, 169, 169, 0.2)" }}>
@@ -294,7 +300,6 @@ const HistotyOrderPage = () => {
                     style={{
                       display: "flex",
                       alignItems: "flex-start",
-                      marginRight: "10px",
                       backgroundColor: "orange",
                       color: "white",
                       fontWeight: "600",
@@ -305,18 +310,18 @@ const HistotyOrderPage = () => {
                   >
                     <span>Xem chi tiết</span>
                   </Button>
-                  <Button
+                  {/* <Button
                     style={{
                       display: "flex",
                       alignItems: "flex-start",
-                      backgroundColor: getStatusColor(order?.statusOrder),
-                      color: "white",
+                      // backgroundColor: getStatusColor(order?.statusOrder),
+                      // color: "white",
                       fontWeight: "600",
                       fontSize: "16px",
                       height: "40px",
                     }}
                     onClick={() => {
-                      if (order?.statusOrder === "DANG_CHO_XU_LY") {
+                      if (order?.statusOrder === "DANG_XU_LY") {
                         mutationCancel.mutate(order?.id, {
                           onSuccess: () => {
                             alert("Hủy đơn hàng thành công")
@@ -339,7 +344,48 @@ const HistotyOrderPage = () => {
                     {order?.statusOrder === "DA_BI_NGUOI_DUNG_HUY" && <span>Đã hủy</span>}
                     {order?.statusOrder === "DANG_CHO_XU_LY" && <span>Hủy</span>}
                     {order?.statusOrder === "CHO_XAC_NHAN" && <span>Xác nhận đơn hàng</span>}
-                  </Button>
+                  </Button> */}
+
+                  {order?.statusOrder === "DANG_XU_LY" ||
+                  order?.statusOrder === "DA_GIAO_HANG" ? (
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        backgroundColor: getStatusColor(order?.statusOrder),
+                        color: "white",
+                        marginLeft: "10px",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                        height: "40px",
+                      }}
+                      onClick={() => {
+                        if (order?.statusOrder === "DANG_XU_LY") {
+                          mutationCancel.mutate(order?.id, {
+                            onSuccess: () => {
+                              alert("Hủy đơn hàng thành công");
+                              refetch();
+                            },
+                          });
+                        } else if (order?.statusOrder === "DA_GIAO_HANG") {
+                          mutationConfirm.mutate(order?.id, {
+                            onSuccess: () => {
+                              alert("Hoàn thành đơn hàng thành công");
+                              refetch();
+                            },
+                            onError:()=>{
+                              console.log("lỗi");
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      {order?.statusOrder === "DANG_XU_LY" && <span>Hủy</span>}
+                      {order?.statusOrder === "DA_GIAO_HANG" && (
+                        <span>Xác nhận đơn hàng</span>
+                      )}
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             ))
