@@ -9,6 +9,7 @@ import * as OrderService from "../../../services/OrderService";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDetailOrder } from "../../../redux/slides/orderSlice";
 import { useQuery } from "@tanstack/react-query";
+import { useMutationHook } from '../../../hooks/useMutationHook';
 
 const HistotyOrderPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -158,12 +159,11 @@ const HistotyOrderPage = () => {
     return res;
   };
 
-  const { data: historyOrder } = useQuery({
+  const { data: historyOrder, refetch } = useQuery({
     queryKey: ["historyOrder"],
     queryFn: getHistoryOrder,
   });
 
-  // console.log("historyOrder", historyOrder);
   const styleInputField = {
     width: "388px",
   };
@@ -180,7 +180,7 @@ const HistotyOrderPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = async (orderId) => {
-    console.log("key edit", orderId);
+
     try {
       const detailOrder = await OrderService.getDetailOrderUser(
         orderId,
@@ -200,7 +200,26 @@ const HistotyOrderPage = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
+  const getStatusColor = (orderStatus) => {
+    switch (orderStatus) {
+      case "HOAN_TAT":
+        return "blue";
+      case "CHO_XAC_NHAN":
+        return "green";
+      case "DA_BI_NGUOI_DUNG_HUY":
+        return "gray";
+      default:
+        return "red";
+    }
+  };
+  const mutationCancel = useMutationHook((data) => {
+    const res = OrderService.cancelOrder(data, auth.accessToken);
+    return res;
+  });
+  const mutationConfirm = useMutationHook((data) => {
+    const res = OrderService.cancelOrder(data, auth.accessToken);
+    return res;
+  });
   return (
     <div>
       <div style={{ backgroundColor: "rgba(169, 169, 169, 0.2)" }}>
@@ -215,8 +234,9 @@ const HistotyOrderPage = () => {
         >
           <WrapperHeader>Lịch sử đơn hàng</WrapperHeader>
           {historyOrder ? (
-            historyOrder.map((order) => (
+            historyOrder.map((order, index) => (
               <div
+                key={index}
                 className="rounded-md"
                 style={{
                   boxShadow: "0 0 4px rgba(0, 0, 0, 0.1)",
@@ -289,14 +309,36 @@ const HistotyOrderPage = () => {
                     style={{
                       display: "flex",
                       alignItems: "flex-start",
-                      backgroundColor: "red",
+                      backgroundColor: getStatusColor(order?.statusOrder),
                       color: "white",
                       fontWeight: "600",
                       fontSize: "16px",
                       height: "40px",
                     }}
+                    onClick={() => {
+                      if (order?.statusOrder === "DANG_CHO_XU_LY") {
+                        mutationCancel.mutate(order?.id, {
+                          onSuccess: () => {
+                            alert("Hủy đơn hàng thành công")
+                            refetch()
+                          }
+                        })
+                      } else if (order?.statusOrder === "CHO_XAC_NHAN") {
+                        mutationConfirm.mutate(order?.id, {
+                          onSuccess: () => {
+                            alert("Xác nhận đơn hàng thành công")
+                            refetch()
+                          }
+                        })
+
+                      }
+                    }}
+                    disabled={order?.statusOrder === "HOAN_TAT" || order?.statusOrder === "DA_BI_NGUOI_DUNG_HUY"}
                   >
-                    <span>Hủy</span>
+                    {order?.statusOrder === "HOAN_TAT" && <span>Hoàn thành</span>}
+                    {order?.statusOrder === "DA_BI_NGUOI_DUNG_HUY" && <span>Đã hủy</span>}
+                    {order?.statusOrder === "DANG_CHO_XU_LY" && <span>Hủy</span>}
+                    {order?.statusOrder === "CHO_XAC_NHAN" && <span>Xác nhận đơn hàng</span>}
                   </Button>
                 </div>
               </div>
