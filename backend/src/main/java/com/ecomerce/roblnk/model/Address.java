@@ -5,30 +5,36 @@ import lombok.*;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "street_address")
+    @Column(name = "street_address", length = 100000)
     private String streetAddress;
 
-    @Column(name = "city")
+    @Column(name = "city", length = 100000)
     private String city;
 
     @Column(name = "zip_code")
     private String zipCode;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    //User Address
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private User user;
+    private List<UserAddress> userAddresses;
 
+    //Order
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Orders> orders;
 }

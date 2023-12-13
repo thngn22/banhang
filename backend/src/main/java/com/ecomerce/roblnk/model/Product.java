@@ -1,72 +1,75 @@
 package com.ecomerce.roblnk.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
+@Table(name = "product")
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long id;
 
-    @Column(name = "title")
-    private String title;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "description")
+    @Column(name = "estimated_price")
+    private String estimatedPrice;
+
+    @Column(name = "description", length = 100000)
     private String description;
 
-    @Column(name= "price")
-    private int price;
+    @Column(name = "product_image", length = 100000)
+    private String productImage;
 
-    @Column(name = "discounted_price")
-    private int discountedPrice;
+    @Column(name = "created_date")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createdDate;
 
-    @Column(name = "discount_persent")
-    private int discountPersent;
+    @Column(name = "modified_date")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifiedDate;
 
-    @Column(name = "quantity")
-    private int quantity;
+    @Column(name = "is_active")
+    private boolean active;
 
-    @Column(name = "brand")
-    private String brand;
+    @Column(name = "sold")
+    private Integer sold;
 
-    @Column(name = "color")
-    private String color;
+    @Column(name = "rating")
+    private Double rating;
 
-
-    @ElementCollection
-    @Column(name = "sizes")
-    @CollectionTable(name = "sizes", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<Size> sizes = new HashSet<>();
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rating> ratings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
-
-    @Column(name = "num_ratings")
-    private int numRatings;
-
+    //Category
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    private LocalDateTime createdAt;
+    //Review
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Review> reviews;
+
+    //Product Item
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<ProductItem> productItems = new ArrayList<>();
+
 
 }

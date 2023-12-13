@@ -1,21 +1,27 @@
 package com.ecomerce.roblnk.service;
 
-import com.ecomerce.roblnk.exception.ProductException;
-import com.ecomerce.roblnk.model.Product;
-import com.ecomerce.roblnk.request.CreateProductRequest;
-import org.springframework.data.domain.Page;
+import com.ecomerce.roblnk.dto.product.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
 public interface ProductService {
-    Product createProduct(CreateProductRequest req);
+    List<ProductResponse> getAllProduct(Long categoryId);
+    List<ProductResponse> getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber);
 
-    //    Product createProduct(CreateProductRequest req);
-    String deleteProduct(Long productId) throws ProductException;
-    Product updateProduct(Long productId, Product req) throws ProductException;
-    Product findProductById(Long productid) throws ProductException;
-    List<Product> findProductByCategory(String category);
-    Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice,
-                                       Integer maxPrice, Integer minDiscount, String sort, String stock,
-                                       Integer pageNumber, Integer pageSize);
+    ProductDetailResponsev3 getDetailProductForAdmin(Long productId);
+    ProductDetailResponsev2 getDetailProduct(Long productId);
+
+    String createProduct(@Valid ProductRequest request);
+
+    String createProductFromCategory(Long id, ProductRequest request);
+
+    String editProduct(ProductEditRequest productEditRequest);
+
+    String deleteProduct(Long productDeleteRequest);
+
+    List<ProductResponse> getAllProductV2();
+
+    List<ProductResponse> getAllProductV3();
+    String getURLPictureAndUploadToCloudinary(String base64Content);
 }
