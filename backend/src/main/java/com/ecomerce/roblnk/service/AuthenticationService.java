@@ -14,7 +14,7 @@ import org.springframework.security.core.Authentication;
 import java.security.Principal;
 
 public interface AuthenticationService {
-    ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication);
+    ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) throws java.io.IOException;
     ResponseEntity<?> register(RegisterRequest request);
 
     ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal connectedUser);

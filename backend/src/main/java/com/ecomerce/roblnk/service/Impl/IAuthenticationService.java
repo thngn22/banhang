@@ -192,7 +192,7 @@ public class IAuthenticationService implements AuthenticationService {
 
 
     @Override
-    public ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) {
+    public ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) throws IOException {
 
         var user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user != null) {
@@ -219,6 +219,7 @@ public class IAuthenticationService implements AuthenticationService {
                 Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
                 refreshTokenCookie.setHttpOnly(true);
                 response.addCookie(refreshTokenCookie);
+                response.sendRedirect("http://localhost:3000");
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
                         .build());
