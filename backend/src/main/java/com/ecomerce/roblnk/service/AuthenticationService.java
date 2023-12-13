@@ -9,11 +9,12 @@ import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
 
 public interface AuthenticationService {
-    ResponseEntity<?> authenticate(AuthenticationRequest request);
+    ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication);
     ResponseEntity<?> register(RegisterRequest request);
 
     ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal connectedUser);
