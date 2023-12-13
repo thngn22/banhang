@@ -265,7 +265,7 @@ public class IAuthenticationService implements AuthenticationService {
         for (Cookie cookie : Cookies){
             System.out.println(cookie.getName());
 
-            if (cookie.isHttpOnly() && cookie.getName().equals("refreshToken")){
+            if (cookie.getName().equals("refreshToken")){
                 cookie_ = cookie.getValue();
                 System.out.println("name: " + cookie.getName());
                 System.out.println("value: " + cookie.getValue());
