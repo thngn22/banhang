@@ -14,12 +14,14 @@ import com.ecomerce.roblnk.util.ImageUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +95,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
+    public PageProductResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -217,6 +219,8 @@ public class IProductService implements ProductService {
             }
 
         }
+
+
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
             productResponseList.get(j).setQuantity(list.get(j));
@@ -236,7 +240,25 @@ public class IProductService implements ProductService {
             case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
             default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
         }
-        return productResponseList;
+
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
+        System.out.println(start);
+        System.out.println(end);
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end){
+            pageContent = productResponseList.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
+        PageProductResponse productResponse = new PageProductResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
 
     }
 
