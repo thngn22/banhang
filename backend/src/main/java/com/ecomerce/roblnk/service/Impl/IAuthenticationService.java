@@ -259,23 +259,31 @@ public class IAuthenticationService implements AuthenticationService {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
+        Cookie[] Cookies = request.getCookies();
+        String cookie_ = null;
+        String userEmail = null;
+        for (Cookie cookie : Cookies){
+            System.out.println(cookie.getName());
+
+            if (cookie.isHttpOnly() && cookie.getName().equals("refreshToken")){
+                cookie_ = cookie.getValue();
+                System.out.println("name: " + cookie.getName());
+                System.out.println("value: " + cookie.getValue());
+                System.out.println("attribute: " + cookie.getAttribute("refreshToken"));
+                System.out.println("secure: " + cookie.getSecure());
+                System.out.println(cookie_);
+            }
         }
-        System.out.println("Đã vào dc service refresh");
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractEmail(refreshToken);
+        userEmail = jwtService.extractEmail(cookie_);
         if (userEmail != null) {
             var user = userRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if (jwtService.isFreshTokenValid(refreshToken, user)) {
+            if (jwtService.isFreshTokenValid(cookie_, user)) {
                 var accessToken = jwtService.generateToken(user, user);
-                Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-                refreshTokenCookie.setHttpOnly(true);
-                response.addCookie(refreshTokenCookie);
+                var refreshToken = jwtService.generateRefreshToken(user);
+                Cookie newCookie = new Cookie("refreshToken", refreshToken);
+                newCookie.setHttpOnly(true);
+                response.addCookie(newCookie);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
