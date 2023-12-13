@@ -216,10 +216,10 @@ public class IAuthenticationService implements AuthenticationService {
                 var refreshToken = jwtService.generateRefreshToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, jwtToken);
+
                 Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
                 refreshTokenCookie.setHttpOnly(true);
                 response.addCookie(refreshTokenCookie);
-                response.sendRedirect("http://localhost:3000");
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
                         .build());

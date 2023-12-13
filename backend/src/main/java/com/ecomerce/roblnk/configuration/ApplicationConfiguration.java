@@ -58,4 +58,5 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
         registry.addResourceHandler("/assets/js/**").addResourceLocations("classpath:/static/assets/js/");
         registry.addResourceHandler("/assets/css/**").addResourceLocations("classpath:/static/assets/css/");
     }
+
 }

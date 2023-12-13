@@ -100,7 +100,6 @@ public class SecurityConfiguration{
                         //.addLogoutHandler(logoutService)
                         //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())
                 .build();
 
     }
