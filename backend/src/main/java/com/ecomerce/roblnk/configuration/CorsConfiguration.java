@@ -16,8 +16,9 @@ public class CorsConfiguration implements WebMvcConfigurer {
                         "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
                         "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
                         ) // Thay bằng URL của ứng dụng React
+                .allowedHeaders("*")
                 .allowedMethods("*")
-                .allowCredentials(true)
-                .allowedHeaders("*");
+                .allowCredentials(true);
+
     }
 }

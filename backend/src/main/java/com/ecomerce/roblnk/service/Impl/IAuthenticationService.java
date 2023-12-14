@@ -193,7 +193,7 @@ public class IAuthenticationService implements AuthenticationService {
 
     @Override
     public ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) throws IOException {
-
+        System.out.println("dâdw");
         var user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user != null) {
             if (!user.isEmailActive()) {
@@ -216,10 +216,12 @@ public class IAuthenticationService implements AuthenticationService {
                 var refreshToken = jwtService.generateRefreshToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, jwtToken);
-
+                System.out.println("đã vào dc");
                 Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
                 refreshTokenCookie.setHttpOnly(true);
                 response.addCookie(refreshTokenCookie);
+                httpServletRequest.getCookies();
+                System.out.println("đã vào dc response add cookie");
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
                         .build());
@@ -263,18 +265,30 @@ public class IAuthenticationService implements AuthenticationService {
         Cookie[] Cookies = request.getCookies();
         String cookie_ = null;
         String userEmail = null;
-        for (Cookie cookie : Cookies){
-            System.out.println(cookie.getName());
+        if (Cookies.length > 0){
+            for (Cookie cookie : Cookies){
+                System.out.println(cookie.getName());
 
-            if (cookie.getName().equals("refreshToken")){
-                cookie_ = cookie.getValue();
-                System.out.println("name: " + cookie.getName());
-                System.out.println("value: " + cookie.getValue());
-                System.out.println("attribute: " + cookie.getAttribute("refreshToken"));
-                System.out.println("secure: " + cookie.getSecure());
-                System.out.println(cookie_);
+                if (cookie.getName().equals("refreshToken")){
+                    cookie_ = cookie.getValue();
+                    System.out.println("name: " + cookie.getName());
+                    System.out.println("value: " + cookie.getValue());
+                    System.out.println("attribute: " + cookie.getAttribute("refreshToken"));
+                    System.out.println("secure: " + cookie.getSecure());
+                    System.out.println(cookie_);
+                }
             }
         }
+        else {
+            var authResponse = ErrorResponse.builder()
+                    .statusCode(400)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description("Did not found any cookies!")
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build();
+            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+        }
+
         userEmail = jwtService.extractEmail(cookie_);
         if (userEmail != null) {
             var user = userRepository.findByEmail(userEmail)

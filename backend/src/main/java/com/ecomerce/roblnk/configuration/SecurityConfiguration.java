@@ -43,9 +43,12 @@ public class SecurityConfiguration{
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final LogoutService logoutService;
     @Bean
-    public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 
         return http
+                .cors(withDefaults())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
@@ -69,6 +72,7 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/api/v1/product/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/auth/sendOTP"),
                             new AntPathRequestMatcher("/api/v1/auth/login"),
+                            new AntPathRequestMatcher("/api/v1/auth/refresh"),
                             new AntPathRequestMatcher("/swagger-ui/**"),
                             new AntPathRequestMatcher("/swagger-ui.html"),
                             new AntPathRequestMatcher("/configuration/ui"),
@@ -86,8 +90,7 @@ public class SecurityConfiguration{
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 //                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
 //                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
 //                        )
 //                        .invalidateHttpSession(true)
