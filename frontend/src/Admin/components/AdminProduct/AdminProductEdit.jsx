@@ -11,6 +11,10 @@ import * as ProductService from "../../../services/ProductService";
 import { updateProductDetail } from "../../../redux/slides/productSlice";
 
 import MultilevelDropdown from "../MultilevelDropdown/MultilevelDropdown";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import axios from "axios";
+import * as AuthService from "../../../services/AuthService"
 
 const AdminProductEdit = (props) => {
   // console.log("key", props.idDetailProduct);
@@ -49,30 +53,68 @@ const AdminProductEdit = (props) => {
     setCombinedData(data);
   };
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      // console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          // console.log("data in axiosJWT", data);
+          // console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const mutation = useMutationHook((data) => {
-    const res = ProductService.editProduct(data, auth.accessToken);
+    const res = ProductService.editProduct(data, auth.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
 
   const handleCreateProductClick = () => {
     const productCreateRequest = {
-      id: productDetail.id,
-      active: productDetail.active,
+      id: productDetail?.id,
+      active: productDetail?.active,
       name: dataNameProduct,
       description: dataDescription,
       productImage: defaultImage,
-      categoryId: parseInt(dataCategory.id), // Giả sử dataCategory là ID dưới dạng chuỗi
+      categoryId: parseInt(dataCategory?.id), // Giả sử dataCategory là ID dưới dạng chuỗi
     };
 
-    const productItems = combinedData.map((item) => ({
-      id: item.id,
-      price: item.price,
-      quantityInStock: item.quantity,
-      productImage: item.productImage, // Giả sử 'image' là trường tương ứng trong combinedData
-      active: item.active,
-      size: item.size,
-      color: item.color,
+    const productItems = combinedData?.map((item) => ({
+      id: item?.id,
+      price: item?.price,
+      quantityInStock: item?.quantity,
+      productImage: item?.productImage, // Giả sử 'image' là trường tương ứng trong combinedData
+      active: item?.active,
+      size: item?.size,
+      color: item?.color,
     }));
 
     const apiPayload = {
@@ -93,15 +135,17 @@ const AdminProductEdit = (props) => {
         setTimeout(() => {
           window.location.reload();
         }, 1000);
+        // props.refetch({ queryKey: ["products"] });
       },
       onError: (error) => {
         // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
         props.setIsModalOpen(false);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 1000);
+        // props.refetch({ queryKey: ["products"] });
       },
     });
   };

@@ -1,28 +1,71 @@
 import React from "react";
 import { WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../../services/UserService";
 import { useQuery } from "@tanstack/react-query";
 
 import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { message } from "antd";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import * as AuthService from "../../../services/AuthService";
+import { loginSuccess } from "../../../redux/slides/authSlice";
 
 const AdminUser = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch();
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      // console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          // console.log("data in axiosJWT", data);
+          // console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
   const getAllUser = async () => {
-    const res = await UserService.getAllUser(auth.accessToken);
+    const res = await UserService.getAllUser(auth.accessToken, axiosJWT);
     return res;
   };
-  const { data: users } = useQuery({
+  const { data: users, refetch } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUser,
+    enabled: Boolean(auth?.accessToken),
   });
   // console.log("users", users)
   const mutation = useMutationHook((data) => {
-    const res = UserService.changeStatusUser(data, auth.accessToken);
+    const res = UserService.changeStatusUser(data, auth.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
@@ -34,18 +77,12 @@ const AdminUser = () => {
       onSuccess: () => {
         // Hiển thị thông báo thành công
         message.success("Chỉnh sửa trạng thái thành công");
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        refetch({ queryKey: ["users"] });
       },
       onError: (error) => {
         // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        refetch({ queryKey: ["users"] });
       },
     });
   };

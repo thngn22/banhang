@@ -18,21 +18,64 @@ import {
 import AdminOrderDetail from "./AdminOrderDetail";
 import { updateDetailOrder } from "../../../redux/slides/orderSlice";
 import { useMutationHook } from "../../../hooks/useMutationHook";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import * as AuthService from "../../../services/AuthService"
 
 const AdminOrder = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      // console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          // console.log("data in axiosJWT", data);
+          // console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const getAllOrdersAdmin = async () => {
-    const res = await OrderService.getAllOrderAdmin(auth.accessToken);
+    const res = await OrderService.getAllOrderAdmin(auth.accessToken, axiosJWT);
     return res;
   };
-  const { data: orders } = useQuery({
+  const { data: orders, refetch } = useQuery({
     queryKey: ["orders"],
     queryFn: getAllOrdersAdmin,
+    enabled: Boolean(auth?.accessToken),
   });
   const mutation = useMutationHook((data) => {
-    const res = OrderService.editStatusOrderAdmin(data, auth.accessToken);
+    const res = OrderService.editStatusOrderAdmin(data, auth.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
@@ -53,18 +96,12 @@ const AdminOrder = () => {
         onSuccess: () => {
           // Hiển thị thông báo thành công
           message.success("Chỉnh sửa sản phẩm thành công");
-
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          refetch({ queryKey: ["orders"] });
         },
         onError: (error) => {
           // Hiển thị thông báo lỗi
           message.error(`Đã xảy ra lỗi: ${error.message}`);
-
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          refetch({ queryKey: ["orders"] });
         },
       }
     );

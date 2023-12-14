@@ -32,9 +32,12 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import * as CategoryService from "../../../services/CategoryService";
 import * as CartService from "../../../services/CartService";
 import * as UserService from "../../../services/UserService";
-import { logoutSuccess } from "../../../redux/slides/authSlice";
+import { loginSuccess, logoutSuccess } from "../../../redux/slides/authSlice";
 import { resetUser } from "../../../redux/slides/userSlide";
 import Loading from "../LoadingComponent/Loading";
+import * as AuthService from "../../../services/AuthService";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const navigation = {
   categories: [
@@ -183,22 +186,52 @@ export default function Navigation({
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      console.log("vao lai");
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          console.log("data in axiosJWT", data);
+          console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const { data: cart } = useQuery({
     queryKey: ["cart"],
     queryFn: () => {
-      return CartService.getCartItems(auth?.accessToken);
+      return CartService.getCartItems(auth?.accessToken, axiosJWT);
     },
+    enabled: Boolean(auth?.accessToken),
   });
-
-  ///const cartItems = useSelector((state) => state.user.cart)
-  // const totalPrice = React.useMemo(
-  //   () =>
-  //     cartItems?.reduce((result, current) => {
-  //       return result + current.price
-  //     }, 0),
-  //   [cartItems]
-  // )
-  // console.log(user);
 
   const toggleSearch = () => {
     console.log("vao dc");
@@ -224,12 +257,12 @@ export default function Navigation({
     navigate("/history-order");
   };
   const handleComeToAdmin = () => {
-    console.log("Vào đc admin");
+    navigate("/admin")
   };
   const handleLogout = async () => {
     setIsLoading(true);
 
-    const res = await UserService.logout(auth?.accessToken);
+    const res = await AuthService.logout(auth?.accessToken, axiosJWT);
     dispatch(logoutSuccess());
     dispatch(resetUser());
 
@@ -237,9 +270,7 @@ export default function Navigation({
 
     setTimeout(() => {
       window.location.reload();
-    }, 500);
-
-    return res;
+    });
   };
   const handleLogo = () => {
     navigate("/");
@@ -251,14 +282,6 @@ export default function Navigation({
 
     return res;
   };
-
-  // const data = fetchProductAll()
-  // console.log(data);
-
-  // const { data: categories, isSuccess } = useQuery({
-  //   queryKey: ["categories"],
-  //   queryFn: () => fetchAllCategory(),
-  // });
 
   const [listCategories, setListCategories] = React.useState([]);
   React.useEffect(() => {

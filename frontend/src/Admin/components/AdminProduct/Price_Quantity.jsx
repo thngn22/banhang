@@ -19,10 +19,10 @@ const Price_Quantity = (props) => {
       if (combinedData.length > 0 && values.length === 0) {
         const defaultValues = combinedData.reduce((acc, item, index) => {
           acc[index] = {
-            price: item.price,
-            quantity: item.quantityInStock,
-            active: item.active,
-            id: item.id,
+            price: item?.price,
+            quantity: item?.quantityInStock,
+            active: item?.active,
+            id: item?.id,
           };
           return acc;
         }, {});

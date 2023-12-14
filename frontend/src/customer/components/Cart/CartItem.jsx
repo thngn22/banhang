@@ -7,12 +7,60 @@ import { removeItem, updateQuantity } from '../../../redux/slides/userSlide';
 import { useMutationHook } from '../../../hooks/useMutationHook';
 import * as CartService from "../../../services/CartService";
 import { useQueryClient } from '@tanstack/react-query'
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import * as AuthService from "../../../services/AuthService"
+
+
 const CartItem = ({ product }) => {
   const queryClient = useQueryClient()
   const dispatch = useDispatch()
   const auth = useSelector((state) => state.auth.login.currentUser);
+
+
+
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      console.log("vao lai");
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          console.log("data in axiosJWT", data);
+          console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const mutation = useMutationHook((data) => {
-    const res = CartService.updateCart(data, auth.accessToken);
+    const res = CartService.updateCart(data, auth.accessToken, axiosJWT);
     return res;
   });
 
@@ -25,6 +73,8 @@ const CartItem = ({ product }) => {
     //   quantity: newQuantity,
     //   price: newPrice
     // }))
+
+    
     mutation.mutate([{
       productItemId: product?.productItem?.id,
       quantity: 1

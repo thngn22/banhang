@@ -18,6 +18,8 @@ const GroupVariation = (props) => {
     productItemsDetail,
   } = props;
 
+  console.log("productItemsDetail", productItemsDetail);
+
   let colorArray = [];
   let sizeArray = [];
   let priceQuantityActiveIDArray = [];
@@ -47,6 +49,9 @@ const GroupVariation = (props) => {
     // test = null;
     // productItemsDetail = null;
   }
+
+  console.log("sizeArray", sizeArray);
+  console.log("colorArray", colorArray);
 
   const [dataSize, setDataSize] = useState(sizeArray);
   const [dataColor, setDataColor] = useState(colorArray);
@@ -96,13 +101,15 @@ const GroupVariation = (props) => {
     let newCombined = [];
 
     if (isEdit) {
+      console.log("priceQuantityActiveIDArray", priceQuantityActiveIDArray);
       newCombined = combined.map((item, index) => {
+        // console.log(`item`, {...item});
         return {
           ...item,
-          price: priceQuantityActiveIDArray[index].price,
-          quantityInStock: priceQuantityActiveIDArray[index].quantityInStock,
-          active: priceQuantityActiveIDArray[index].active,
-          id: priceQuantityActiveIDArray[index].id,
+          price: priceQuantityActiveIDArray[index]?.price,
+          quantityInStock: priceQuantityActiveIDArray[index]?.quantityInStock,
+          active: priceQuantityActiveIDArray[index]?.active,
+          id: priceQuantityActiveIDArray[index]?.id,
         };
       });
     } else {
@@ -112,6 +119,8 @@ const GroupVariation = (props) => {
         };
       });
     }
+
+    console.log("newCombined", newCombined);
 
     setCombinedData(newCombined);
   };

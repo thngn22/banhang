@@ -1,11 +1,64 @@
 import React, { useEffect, useState } from "react";
 import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import * as AuthService from "../../../services/AuthService";
 
-const Order = ({ orderId, accessToken }) => {
+const Order = ({ orderId, auth }) => {
+  const dispatch = useDispatch();
+  
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      console.log("vao lai");
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          console.log("data in axiosJWT", data);
+          console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
   const { data: detailOrder } = useQuery({
     queryKey: ["detailOrder", orderId], // Sử dụng order.id làm một phần của key
-    queryFn: () => OrderService.getDetailOrderUser(orderId, accessToken),
+    queryFn: () => {
+      return OrderService.getDetailOrderUser(
+        orderId,
+        auth?.accessToken,
+        axiosJWT
+      );
+    },
+    retry: false,
+    enabled: Boolean(auth?.accessToken),
   });
 
   const [orderItems, setOrderItems] = useState([]);

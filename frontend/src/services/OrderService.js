@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosJWT = axios.create();
 
-export const getAllOrderAdmin = async (accessToken) => {
+export const getAllOrderAdmin = async (accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/orders`,
     {
@@ -26,7 +26,7 @@ export const getDetailOrderAdmin = async (id, accessToken) => {
   return res.data;
 };
 
-export const getHistoryOrderUser = async (accessToken) => {
+export const getHistoryOrderUser = async (accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}user/account/orders`,
     {
@@ -38,7 +38,7 @@ export const getHistoryOrderUser = async (accessToken) => {
   return res.data;
 };
 
-export const getDetailOrderUser = async (id, accessToken) => {
+export const getDetailOrderUser = async (id, accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}user/account/orders/${id}`,
     {
@@ -49,7 +49,7 @@ export const getDetailOrderUser = async (id, accessToken) => {
   );
   return res.data;
 };
-export const cancelOrder = async (id, accessToken) => {
+export const cancelOrder = async (id, accessToken, axiosJWT) => {
   const res = await axiosJWT.delete(
     `${process.env.REACT_APP_API_URL}user/account/orders/${id}`,
     {
@@ -60,7 +60,7 @@ export const cancelOrder = async (id, accessToken) => {
   );
   return res.data;
 };
-export const confirmOrder = async (id, accessToken) => {
+export const confirmOrder = async (id, accessToken, axiosJWT) => {
   console.log("accessToken", accessToken);
   console.log("id", id);
   const res = await axiosJWT.put(
@@ -97,7 +97,7 @@ export const getRatingProductOrdered = async (orderId, accessToken) => {
   );
   return res.data;
 };
-export const editStatusOrderAdmin = async (data, accessToken) => {
+export const editStatusOrderAdmin = async (data, accessToken, axiosJWT) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}admin/orders/${data.id}`,
     null, // Body là null vì bạn đang sử dụng query parameter

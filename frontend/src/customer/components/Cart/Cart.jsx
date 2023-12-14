@@ -7,6 +7,11 @@ import * as CartService from "../../../services/CartService";
 import { Modal, Input, Radio } from 'antd';
 import { useMutationHook } from '../../../hooks/useMutationHook';
 import { useQueryClient } from '@tanstack/react-query'
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import * as AuthService from "../../../services/AuthService"
+import { loginSuccess } from "../../../redux/slides/authSlice";
+
 const objectPrice = {
   1: 18000,
   2: 45000,
@@ -22,17 +27,58 @@ const Cart = () => {
     streetAddress: '',
     zipCode: ''
   })
+  const dispatch = useDispatch()
+
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      console.log("vao lai");
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          console.log("data in axiosJWT", data);
+          console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const queryClient = useQueryClient()
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => {
-      return CartService.getCartItems(auth.accessToken)
+      return CartService.getCartItems(auth.accessToken,axiosJWT)
     }
   })
 
 
   const mutation = useMutationHook((data) => {
-    const res = CartService.checkOutCarts(data, auth.accessToken);
+    const res = CartService.checkOutCarts(data, auth.accessToken, axiosJWT);
     return res;
   });
   const onChangeText = (name) => (e) => {

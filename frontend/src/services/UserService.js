@@ -26,18 +26,18 @@ export const sendOTP = async (data) => {
   return res.data;
 };
 
-export const logout = async (accessToken) => {
-  console.log("accessToken",accessToken);
-  const res = await axiosJWT.delete(
-    `${process.env.REACT_APP_API_URL}auth/logout`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-  return res.data;
-};
+// export const logout = async (accessToken) => {
+//   console.log("accessToken",accessToken);
+//   const res = await axiosJWT.delete(
+//     `${process.env.REACT_APP_API_URL}auth/logout`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     }
+//   );
+//   return res.data;
+// };
 
 export const getProfileUser = async (accessToken) => {
   const res = await axiosJWT.get(
@@ -52,7 +52,7 @@ export const getProfileUser = async (accessToken) => {
 };
 
 //Mới viết
-export const getAllUser = async (accessToken) => {
+export const getAllUser = async (accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/users`,
     {
@@ -64,7 +64,7 @@ export const getAllUser = async (accessToken) => {
   return res.data;
 };
 
-export const changeStatusUser = async (id, accessToken) => {
+export const changeStatusUser = async (id, accessToken, axiosJWT) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}admin/users/active`,
     null, // Body là null vì bạn đang sử dụng query parameter

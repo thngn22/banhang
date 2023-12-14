@@ -10,6 +10,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateDetailOrder } from "../../../redux/slides/orderSlice";
 import { useQuery } from "@tanstack/react-query";
 import { useMutationHook } from "../../../hooks/useMutationHook";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import * as AuthService from "../../../services/AuthService";
 
 const HistotyOrderPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -154,14 +158,58 @@ const HistotyOrderPage = () => {
     },
   ];
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      console.log("vao lai");
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          console.log("data in axiosJWT", data);
+          console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const getHistoryOrder = async () => {
-    const res = await OrderService.getHistoryOrderUser(auth.accessToken);
+    const res = await OrderService.getHistoryOrderUser(
+      auth.accessToken,
+      axiosJWT
+    );
     return res;
   };
 
   const { data: historyOrder, refetch } = useQuery({
     queryKey: ["historyOrder"],
     queryFn: getHistoryOrder,
+    retry: false,
+    enabled: Boolean(auth?.accessToken),
   });
 
   const styleInputField = {
@@ -183,7 +231,8 @@ const HistotyOrderPage = () => {
     try {
       const detailOrder = await OrderService.getDetailOrderUser(
         orderId,
-        auth.accessToken
+        auth.accessToken,
+        axiosJWT
       );
       // console.log("Detail Product Data:", detailProduct);
       dispatch(updateDetailOrder({}));
@@ -200,9 +249,6 @@ const HistotyOrderPage = () => {
     setIsModalOpen(false);
   };
 
-
-
-
   const getStatusColor = (orderStatus) => {
     switch (orderStatus) {
       case "DA_GIAO_HANG":
@@ -214,17 +260,13 @@ const HistotyOrderPage = () => {
     }
   };
   const mutationCancel = useMutationHook((data) => {
-    const res = OrderService.cancelOrder(data, auth.accessToken);
+    const res = OrderService.cancelOrder(data, auth.accessToken, axiosJWT);
     return res;
   });
   const mutationConfirm = useMutationHook((data) => {
-    const res = OrderService.confirmOrder(data, auth.accessToken);
+    const res = OrderService.confirmOrder(data, auth.accessToken, axiosJWT);
     return res;
   });
-
-
-
-
 
   return (
     <div>
@@ -276,10 +318,7 @@ const HistotyOrderPage = () => {
                   </div>
                 </div>
                 <div style={{ width: "100%" }}>
-                  <OrderItem
-                    orderId={order.id}
-                    accessToken={auth.accessToken}
-                  />
+                  <OrderItem orderId={order.id} auth={auth} />
                 </div>
                 <div style={{ width: "100%", textAlign: "right" }}>
                   <span style={{ marginRight: "10px" }}>Tổng tiền:</span>
@@ -310,41 +349,6 @@ const HistotyOrderPage = () => {
                   >
                     <span>Xem chi tiết</span>
                   </Button>
-                  {/* <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      // backgroundColor: getStatusColor(order?.statusOrder),
-                      // color: "white",
-                      fontWeight: "600",
-                      fontSize: "16px",
-                      height: "40px",
-                    }}
-                    onClick={() => {
-                      if (order?.statusOrder === "DANG_XU_LY") {
-                        mutationCancel.mutate(order?.id, {
-                          onSuccess: () => {
-                            alert("Hủy đơn hàng thành công")
-                            refetch()
-                          }
-                        })
-                      } else if (order?.statusOrder === "CHO_XAC_NHAN") {
-                        mutationConfirm.mutate(order?.id, {
-                          onSuccess: () => {
-                            alert("Xác nhận đơn hàng thành công")
-                            refetch()
-                          }
-                        })
-
-                      }
-                    }}
-                    disabled={order?.statusOrder === "HOAN_TAT" || order?.statusOrder === "DA_BI_NGUOI_DUNG_HUY"}
-                  >
-                    {order?.statusOrder === "HOAN_TAT" && <span>Hoàn thành</span>}
-                    {order?.statusOrder === "DA_BI_NGUOI_DUNG_HUY" && <span>Đã hủy</span>}
-                    {order?.statusOrder === "DANG_CHO_XU_LY" && <span>Hủy</span>}
-                    {order?.statusOrder === "CHO_XAC_NHAN" && <span>Xác nhận đơn hàng</span>}
-                  </Button> */}
 
                   {order?.statusOrder === "DANG_XU_LY" ||
                   order?.statusOrder === "DA_GIAO_HANG" ? (
@@ -373,9 +377,9 @@ const HistotyOrderPage = () => {
                               alert("Hoàn thành đơn hàng thành công");
                               refetch();
                             },
-                            onError:()=>{
+                            onError: () => {
                               console.log("lỗi");
-                            }
+                            },
                           });
                         }
                       }}

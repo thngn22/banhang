@@ -16,30 +16,73 @@ import AdminProductEdit from "./AdminProductEdit";
 import { updateProductDetail } from "../../../redux/slides/productSlice";
 import { getCategory } from "../../../redux/slides/categorySlice";
 import { useMutationHook } from "../../../hooks/useMutationHook";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import * as AuthService from "../../../services/AuthService"
 
 const AdminProduct = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
 
   const dispatch = useDispatch();
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      // console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          // console.log("data in axiosJWT", data);
+          // console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const getAllProductsAdmin = async () => {
-    const res = await ProductService.getProductAdmin(auth.accessToken);
+    const res = await ProductService.getProductAdmin(auth.accessToken, axiosJWT);
     return res;
   };
   const getAllCatesAdmin = async () => {
-    const res = await CategoryService.getAllTreeCategory(auth.accessToken);
+    const res = await CategoryService.getAllTreeCategory();
     return res;
   };
   const { data: categoriesRes } = useQuery({
     queryKey: ["categoriesRes"],
     queryFn: getAllCatesAdmin,
   });
-  const { data: products } = useQuery({
+  const { data: products, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: getAllProductsAdmin,
+    enabled: Boolean(auth?.accessToken),
   });
   const mutation = useMutationHook((data) => {
-    const res = ProductService.changeStatusProduct(data, auth.accessToken);
+    const res = ProductService.changeStatusProduct(data, auth?.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
@@ -134,18 +177,12 @@ const AdminProduct = () => {
       onSuccess: () => {
         // Hiển thị thông báo thành công
         message.success("Chỉnh sửa trạng thái thành công");
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        refetch({ queryKey: ["products"] });
       },
       onError: (error) => {
         // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        refetch({ queryKey: ["products"] });
       },
     });
   };
@@ -156,7 +193,8 @@ const AdminProduct = () => {
     try {
       const detailProduct = await ProductService.getDetailProductForAdmin(
         key,
-        auth.accessToken
+        auth?.accessToken,
+        axiosJWT
       );
       // console.log("Detail Product Data:", detailProduct);
       dispatch(updateProductDetail({}));
@@ -200,7 +238,7 @@ const AdminProduct = () => {
         footer={null}
         width={1000}
       >
-        {isModalOpen && <AdminProductEdit setIsModalOpen={setIsModalOpen} />}
+        {isModalOpen && <AdminProductEdit setIsModalOpen={setIsModalOpen} refetchProducts={refetch} />}
       </Modal>
     </div>
   );

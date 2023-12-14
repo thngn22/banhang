@@ -18,6 +18,10 @@ import { IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useMutationHook } from '../../../hooks/useMutationHook';
 import { useQueryClient } from '@tanstack/react-query'
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import * as AuthService from "../../../services/AuthService"
+import { loginSuccess } from "../../../redux/slides/authSlice";
 const product = {
   name: "Basic Tee 6-Pack",
   price: "$192",
@@ -79,6 +83,7 @@ export default function ProductDetailPage() {
   const { productId } = useParams()
   const queryClient = useQueryClient()
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch()
 
   const simililer_products = [...jacket, ...tShirt];
   const { data: productDetail } = useQuery({
@@ -109,8 +114,47 @@ export default function ProductDetailPage() {
     setSelectedQuantity((prev) => (prev > 1 ? prev - 1 : prev));
 
   }
+
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      console.log("data", data);
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      console.log("vao lai");
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          console.log("data in axiosJWT", data);
+          console.log("refreshUser", refreshUser);
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
   const mutation = useMutationHook((data) => {
-    const res = CartService.updateCart(data, auth.accessToken);
+    const res = CartService.updateCart(data, auth.accessToken, axiosJWT);
     return res;
   });
 

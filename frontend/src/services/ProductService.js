@@ -12,14 +12,18 @@ export const getAllProductUser = async () => {
   return res.data;
 };
 export const getAllProductByCategory = async (params) => {
-  const res = await axios.get(`${process.env.REACT_APP_API_URL}category`, { params });
-  return res.data
-}
-export const getProductDetail = async (productId) => {
-  const res = await axios.get(`${process.env.REACT_APP_API_URL}product/${productId}`);
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}category`, {
+    params,
+  });
   return res.data;
 };
-export const getProductAdmin = async (accessToken) => {
+export const getProductDetail = async (productId) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/${productId}`
+  );
+  return res.data;
+};
+export const getProductAdmin = async (accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/products`,
     {
@@ -44,7 +48,8 @@ export const createProduct = async (data, accessToken) => {
   return res.data;
 };
 
-export const editProduct = async (data, accessToken) => {
+export const editProduct = async (data, accessToken, axiosJWT) => {
+  console.log("data", data);
   const res = await axiosJWT.put(
     `${process.env.REACT_APP_API_URL}product/`,
     data,
@@ -79,23 +84,26 @@ export const getDetailProduct = async (id, accessToken) => {
   return res.data;
 };
 
-
-export const getDetailProductForAdmin = async (id, accessToken) => {
-  const res = await axios.get(`${process.env.REACT_APP_API_URL}admin/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const getDetailProductForAdmin = async (id, accessToken, axiosJWT) => {
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_API_URL}admin/products/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
   return res.data;
 };
 
-
-
-export const changeStatusProduct = async (id, accessToken) => {
-  const res = await axios.delete(`${process.env.REACT_APP_API_URL}product/${id}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const changeStatusProduct = async (id, accessToken, axiosJWT) => {
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}product/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
   return res.data;
 };
