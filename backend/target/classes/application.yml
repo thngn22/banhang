@@ -1,0 +1,69 @@
+application:
+    jwt:
+        expiration: 86400000
+        refresh-token:
+            expiration: 604800000
+    secret-key: roblnkSecretKey1511ebcaccab1555cac46ca878eda68464dawdbipogepmmeopkawkk6a44946opiu
+cloudinary:
+    api-key: 887812432951354
+    api-secret: 2yGg1_La5nS0VVNZH970wYrFiUw
+    cloud-name: dmvncmrci
+    secure: true
+server:
+    port: 8081
+spring:
+    datasource:
+        password: 123456
+        url: jdbc:mysql://localhost:3306/e_commerce_shoes
+        username: root
+    devtools:
+        livereload:
+            enabled: true
+        restart:
+            enabled: true
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQLDialect
+    mail:
+        host: smtp.gmail.com
+        password: kkpqbsfpkzfujufs
+        port: 587
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+                        required: true
+                transport:
+                    protocol: smtp
+        username: vunguyentrungkhang2@gmail.com
+    main:
+        allow-circular-references: true
+    security:
+        filter:
+            order: 0
+        user:
+            name: admin
+            password: password
+    servlet:
+        multipart:
+            enabled: true
+            file-size-threshold: 2MB
+            max-file-size: 10MB
+            max-request-size: 10MB
+    thymeleaf:
+        cache: false
+        mode: HTML
+        prefix: classpath:/templates/
+        suffix: .html
+vn-pay:
+    secretKey: FLGAZRZYBZKROQFGOHKGVYYOQWONBVJF
+    vnp_ApiUrl: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+    vnp_PayUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    vnp_ReturnUrl: /api/v1/vnpay/payment
+    vnp_TmnCode: S2O88S7B
+    vnp_Version: 2.1.0
