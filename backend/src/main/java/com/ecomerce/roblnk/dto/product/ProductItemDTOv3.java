@@ -2,10 +2,8 @@ package com.ecomerce.roblnk.dto.product;
 
 import lombok.*;
 
-@Data
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class ProductItemDTOv3 {
     private String variationSize;

@@ -6,10 +6,8 @@ import com.ecomerce.roblnk.dto.product.ProductItemDTOv3;
 import com.ecomerce.roblnk.model.CartItem;
 import lombok.*;
 
-@Data
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemDTO {
     private Long id;

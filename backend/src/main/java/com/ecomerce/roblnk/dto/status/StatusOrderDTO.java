@@ -2,8 +2,8 @@ package com.ecomerce.roblnk.dto.status;
 
 import lombok.*;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
 public class StatusOrderDTO {
     private Long id;

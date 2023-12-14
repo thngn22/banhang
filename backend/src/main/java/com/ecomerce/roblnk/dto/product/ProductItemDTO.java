@@ -4,13 +4,18 @@ import com.ecomerce.roblnk.model.ProductConfiguration;
 import com.ecomerce.roblnk.model.VariationOption;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class ProductItemDTO {
     private Long id;
     private Integer price;

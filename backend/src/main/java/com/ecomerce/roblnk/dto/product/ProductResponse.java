@@ -7,10 +7,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-@Data
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponse {
     private Long id;

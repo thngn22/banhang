@@ -11,8 +11,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserDetailResponse {
     private Long id;
     private String email;
@@ -31,9 +29,4 @@ public class UserDetailResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private Set<Role> roles;
-    private List<UserAddressDTO> addresses;
-    private List<UserPaymentResponse> paymentMethods;
-    private List<UserReviewDTO> review;
-    private List<Orders> orders;
-
 }

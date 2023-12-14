@@ -1,13 +1,11 @@
 package com.ecomerce.roblnk.dto.product;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
 public class PageProductResponse {
     private Integer pageNumber;

@@ -2,17 +2,16 @@ package com.ecomerce.roblnk.dto.order;
 
 import com.ecomerce.roblnk.dto.user.AddressDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+
 public class OrderResponsev2 {
     private Long id;
     private Integer totalPayment;

@@ -8,10 +8,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 import java.util.List;
 
-@Data
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class OrdersResponse {
     private Long id;

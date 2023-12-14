@@ -1,12 +1,7 @@
 package com.ecomerce.roblnk.mapper;
 
-import com.ecomerce.roblnk.dto.order.OrderItemDTO;
-import com.ecomerce.roblnk.dto.order.OrderResponsev2;
-import com.ecomerce.roblnk.dto.order.OrdersResponse;
-import com.ecomerce.roblnk.dto.order.PaymentMethodDTO;
-import com.ecomerce.roblnk.model.OrderItem;
-import com.ecomerce.roblnk.model.Orders;
-import com.ecomerce.roblnk.model.UserPaymentMethod;
+import com.ecomerce.roblnk.dto.order.*;
+import com.ecomerce.roblnk.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
