@@ -81,11 +81,12 @@ public class IProductService implements ProductService {
 
         System.out.println("size đầu: " + products.size());
         for (Product product : products) {
+            int total = 0;
             var items = productItemRepository.findAllByProduct_Id(product.getId());
             for (ProductItem productItem : items) {
-                list.add(productItem.getQuantityInStock());
+                total += productItem.getQuantityInStock();
             }
-
+            list.add(total);
         }
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
@@ -213,11 +214,12 @@ public class IProductService implements ProductService {
         }
         System.out.println("size cuối: " + products.size());
         for (Product product : products) {
+            int total = 0;
             var items = productItemRepository.findAllByProduct_Id(product.getId());
             for (ProductItem productItem : items) {
-                list.add(productItem.getQuantityInStock());
+                total += productItem.getQuantityInStock();
             }
-
+            list.add(total);
         }
 
 
@@ -571,15 +573,15 @@ public class IProductService implements ProductService {
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
                     var image = p.getProductImage();
-                    assert productItemImage != null;
-                    if (productItemImage.isEmpty()) {
+
+                    if (productItemImage != null && productItemImage.isEmpty()) {
                         productItemImage = image;
                         if (image != null) {
                             url = getURLPictureAndUploadToCloudinary(image);
                         } else url = ImageUtil.urlImage;
                     }
                     if (image != null) {
-                        if (!productItemImage.equals(image)) {
+                        if (productItemImage != null && (!productItemImage.equals(image))) {
                             productItemImage = image;
                             var ImageUrl = getURLPictureAndUploadToCloudinary(image);
                             if (ImageUrl != null) {
@@ -613,6 +615,8 @@ public class IProductService implements ProductService {
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 product.setProductItems(productItems);
+                product.setSold(0);
+                product.setRating(0.0);
                 if (!minPrice.equals(maxPrice)) {
 
                     product.setEstimatedPrice(minPrice + " - " + maxPrice);
@@ -780,7 +784,7 @@ public class IProductService implements ProductService {
                         } else url = ImageUtil.urlImage;
                     }
                     if (image != null) {
-                        if (!productItemImage.equals(image)) {
+                        if (productItemImage != null && (!productItemImage.equals(image))) {
                             productItemImage = image;
                             var ImageUrl = getURLPictureAndUploadToCloudinary(image);
                             if (ImageUrl != null) {
