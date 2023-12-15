@@ -17,6 +17,12 @@ export const getAllProductByCategory = async (params) => {
   });
   return res.data;
 };
+export const getFilterProduct = async (params) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}product/search`, {
+    params,
+  });
+  return res.data;
+};
 export const getProductDetail = async (productId) => {
   const res = await axios.get(
     `${process.env.REACT_APP_API_URL}product/${productId}`

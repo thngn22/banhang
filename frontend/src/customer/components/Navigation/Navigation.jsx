@@ -496,7 +496,7 @@ export default function Navigation({
                                           className="flex border-b-[1px] hover:text-gray-800 px-8"
                                         >
                                           <Link
-                                            to={`/products/category/${item.id}`}
+                                            to={`/products/category/${item.id}/${encodeURIComponent(item.name)}`}
                                             onClick={() => close()}
                                             className=" my-3"
                                           >

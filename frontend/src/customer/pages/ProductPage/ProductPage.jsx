@@ -4,65 +4,193 @@ import ProductCard from "../../components/Product/ProductCard";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import * as ProductService from "../../../services/ProductService";
-import { Pagination } from "antd";
-
-const products = [...jacket, ...tShirt];
+import { Pagination, Select, Slider } from "antd";
+import { useState } from "react";
+import { Option } from "antd/es/mentions";
+import * as FilterService from "../../../services/FilterService";
 
 export default function ProductPage() {
-  const { categoryId } = useParams();
+  const { categoryId, categoryName } = useParams();
 
-  const { data: products } = useQuery({
-    queryKey: ["category", categoryId],
+  const [pageNumber, setPageNumber] = useState(1);
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [size, setSize] = useState("");
+  const [color, setColor] = useState("");
+  const [sort, setSort] = useState("");
+
+  const { data: filterProducts } = useQuery({
+    queryKey: [categoryId, pageNumber, sort, size, color, priceMax, priceMin],
     queryFn: () => {
-      return ProductService.getAllProductByCategory({
+      return ProductService.getFilterProduct({
+        category_id: categoryId,
+        page_number: pageNumber,
+        sort: sort,
+        size: size,
+        color: color,
+        min_price: priceMin,
+        max_price: priceMax,
+      });
+    },
+  });
+
+  const { data: sizeInCate } = useQuery({
+    queryKey: ["sizeInCate", categoryId],
+    queryFn: () => {
+      return FilterService.getSizeInCate({
         category_id: categoryId,
       });
     },
   });
 
-  const onChange = (pageNumber) => {
-  console.log('Page: ', pageNumber);
-};
+  const { data: colorInCate } = useQuery({
+    queryKey: ["colorInCate", categoryId],
+    queryFn: () => {
+      return FilterService.getColorInCate({
+        category_id: categoryId,
+      });
+    },
+  });
 
-  const categoryName = products?.[0]?.categoryName;
+  // console.log("filterProducts", filterProducts);
+  // console.log("sizeInCate", sizeInCate);
+  // console.log("colorInCate", colorInCate);
+
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
+  const handleSizeChange = (value) => {
+    setTimeout(() => {
+      setSize(value);
+    }, 0);
+  };
+
+  const handleColorChange = (value) => {
+    setTimeout(() => {
+      setColor(value);
+    }, 0);
+  };
+
+  const handleSort = (value) => {
+    setTimeout(() => {
+      setSort(value);
+    }, 0);
+  };
+  const handlePriceChange = (value) => {
+    setTimeout(() => {
+      setPriceMin(value[0]);
+      setPriceMax(value[1]);
+    }, 1000);
+  };
+
   return (
     <div className="bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           {categoryName}
         </h2>
 
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-          <Pagination total={10} pageSize={2} current={"123"} />
-          {/* {products?.map((product, index) => (
-            <div key={index} className="group relative">
-              
-              <ProductCard data={product} />
-            </div>
-          ))} */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: "30px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              justifyContent: "space-between",
+              width: "60%", // Chiều rộng cố định cho phần chứa Slider
+            }}
+          >
+            {/* Combo box for Size and Color */}
+            <div style={{ display: "flex" }}>
+              <Select
+                defaultValue=""
+                defaultActiveFirstOption
+                onChange={handleSizeChange}
+                style={{ marginRight: "10px", width: "120px" }}
+              >
+                <Option value="">Chọn Size</Option>
+                {sizeInCate &&
+                  sizeInCate.map((size) => (
+                    <Option value={size}>{size}</Option>
+                  ))}
+              </Select>
 
-          {/* <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                <img
-                  src={product.imageUrl}
-                  alt={product.imageUrl}
-                  className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                />
-              </div>
-              <div className="mt-4 flex justify-between">
-                <div>
-                  <h3 className="text-sm text-gray-700">
-                    <a href={product.href}>
-                      <span aria-hidden="true" className="absolute inset-0" />
-                      {product.name}
-                    </a>
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">{product.color}</p>
-                </div>
-                <p className="text-sm font-medium text-gray-900">
-                  {product.price}
-                </p>
-              </div> */}
+              <Select
+                defaultValue=""
+                defaultActiveFirstOption
+                onChange={handleColorChange}
+                style={{ marginRight: "10px", width: "150px" }}
+              >
+                <Option value="">Chọn màu</Option>
+                {colorInCate &&
+                  colorInCate.map((color) => (
+                    <Option value={color}>{color}</Option>
+                  ))}
+              </Select>
+            </div>
+
+            {/* Slider for Price */}
+            <Slider
+              range
+              defaultValue={[0, 2000000]}
+              min={0}
+              max={2000000}
+              tipFormatter={(value) => `${value.toLocaleString()} VNĐ`}
+              onChange={handlePriceChange}
+              style={{ width: "70%" }} // Chiều rộng cố định cho Slider
+              trackStyle={[{ backgroundColor: "dodgerblue" }]}
+              handleStyle={[{ borderColor: "dodgerblue" }]}
+            />
+          </div>
+
+          {/* Combo box for Sort */}
+          <Select
+            defaultValue="name_asc"
+            defaultActiveFirstOption
+            onChange={handleSort}
+            style={{ width: "200px" }}
+          >
+            <Option value="name_asc">Từ A-Z</Option>
+            <Option value="name_desc">Từ Z-A</Option>
+            <Option value="rating-asc">Rating từ Cao-Thấp</Option>
+            <Option value="rating-desc">Rating từ Thấp-Cao</Option>
+            <Option value="old_to_new">Từ Cũ - Mới</Option>
+            <Option value="new_to_old">Từ Mới - Cũ</Option>
+            <Option value="price_asc">Giá từ Thấp-Cao</Option>
+            <Option value="price_desc">Giá từ Cao-Thấp</Option>
+            <Option value="sold_asc">Số lượng bán từ Cao-Thấp</Option>
+            <Option value="sold_desc">Số lượng bán từ Thấp-Cao</Option>
+          </Select>
         </div>
+
+        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          {filterProducts ? (
+            filterProducts?.contents.map((product, index) => (
+              <div
+                key={index}
+                className="group relative"
+                style={{ marginLeft: "-12px", marginRight: "-12px" }}
+              >
+                <ProductCard data={product} />
+              </div>
+            ))
+          ) : (
+            <>Không có sản phẩm</>
+          )}
+        </div>
+        {filterProducts && (
+          <Pagination
+            total={filterProducts?.totalElements}
+            pageSize={filterProducts?.pageSize}
+            defaultCurrent={filterProducts?.pageNumber}
+            onChange={onChange}
+          />
+        )}
       </div>
     </div>
   );

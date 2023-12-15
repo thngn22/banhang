@@ -27,7 +27,7 @@ import HistoryOrderPage from "./customer/pages/HistoryOrderPage/HistotyOrderPage
 function App() {
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth.login.currentUser);
-  console.log(auth);
+  // console.log(auth);
 
 
   const location = useLocation(); // Sử dụng hook useLocation để lấy thông tin về địa chỉ hiện tại
@@ -62,7 +62,7 @@ function App() {
           }
         />
         <Route
-          path="/products/category/:categoryId"
+          path="/products/category/:categoryId/:categoryName"
           element={
             <DefaultComponent>
               <ProductPage />
