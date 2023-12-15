@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.ecomerce</groupId>
     <artifactId>roblnk</artifactId>
-    <version>1.0</version>
+    <version>1</version>
     <name>roblnk</name>
     <description>A Production Level E Commerce Full Stack Project With Spring Boot, React, MySQL</description>
     <properties>

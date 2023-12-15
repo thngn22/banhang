@@ -1,5 +1,6 @@
-FROM maven:3.8.6-openjdk-17
-WORKDIR /backend
-COPY . .
-RUN mvn clean install
-CMD mvn spring-boot:run
+FROM openjdk:17
+WORKDIR /app
+ARG JAR_FILE=target/roblnk-1.jar
+COPY ${JAR_FILE} app.jar
+EXPOSE 7586
+ENTRYPOINT ["java","-jar","app.jar"]
