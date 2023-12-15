@@ -9,11 +9,10 @@ import * as AuthService from "../../../services/AuthService";
 
 const Order = ({ orderId, auth }) => {
   const dispatch = useDispatch();
-  
+
   const refreshToken = async () => {
     try {
       const data = await AuthService.refreshToken();
-      console.log("data", data);
       return data?.accessToken;
     } catch (err) {
       console.log("err", err);
@@ -23,7 +22,6 @@ const Order = ({ orderId, auth }) => {
   const axiosJWT = axios.create();
   axiosJWT.interceptors.request.use(
     async (config) => {
-      console.log("vao lai");
       let date = new Date();
       if (auth?.accessToken) {
         const decodAccessToken = jwtDecode(auth?.accessToken);
@@ -33,9 +31,6 @@ const Order = ({ orderId, auth }) => {
             ...auth,
             accessToken: data,
           };
-
-          console.log("data in axiosJWT", data);
-          console.log("refreshUser", refreshUser);
 
           dispatch(loginSuccess(refreshUser));
           config.headers["Authorization"] = `Bearer ${data}`;

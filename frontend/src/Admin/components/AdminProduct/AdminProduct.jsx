@@ -29,7 +29,6 @@ const AdminProduct = () => {
   const refreshToken = async () => {
     try {
       const data = await AuthService.refreshToken();
-      // console.log("data", data);
       return data?.accessToken;
     } catch (err) {
       console.log("err", err);
@@ -48,9 +47,6 @@ const AdminProduct = () => {
             ...auth,
             accessToken: data,
           };
-
-          // console.log("data in axiosJWT", data);
-          // console.log("refreshUser", refreshUser);
 
           dispatch(loginSuccess(refreshUser));
           config.headers["Authorization"] = `Bearer ${data}`;

@@ -189,7 +189,6 @@ export default function Navigation({
   const refreshToken = async () => {
     try {
       const data = await AuthService.refreshToken();
-      console.log("data", data);
       return data?.accessToken;
     } catch (err) {
       console.log("err", err);
@@ -199,7 +198,6 @@ export default function Navigation({
   const axiosJWT = axios.create();
   axiosJWT.interceptors.request.use(
     async (config) => {
-      console.log("vao lai");
       let date = new Date();
       if (auth?.accessToken) {
         const decodAccessToken = jwtDecode(auth?.accessToken);
@@ -209,9 +207,6 @@ export default function Navigation({
             ...auth,
             accessToken: data,
           };
-
-          console.log("data in axiosJWT", data);
-          console.log("refreshUser", refreshUser);
 
           dispatch(loginSuccess(refreshUser));
           config.headers["Authorization"] = `Bearer ${data}`;

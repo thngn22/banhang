@@ -5,13 +5,18 @@ import Group from "./Group";
 import GroupVariation from "./GroupVariation";
 import { Button, message } from "antd";
 import { useMutation } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as ProductService from "../../../services/ProductService";
 import MultilevelDropdown from "../MultilevelDropdown/MultilevelDropdown";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import * as AuthService from "../../../services/AuthService"
+import { loginSuccess } from "../../../redux/slides/authSlice";
 
 const AdminProductCreate = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch()
 
   const [dataNameProduct, setDataNameProduct] = useState("");
   const [dataCategory, setDataCategory] = useState("");
@@ -30,8 +35,47 @@ const AdminProductCreate = () => {
     setCombinedData(data);
   };
 
+
+
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
+
+
+
   const mutation = useMutationHook((data) => {
-    const res = ProductService.createProduct(data, auth.accessToken);
+    const res = ProductService.createProduct(data, auth.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;

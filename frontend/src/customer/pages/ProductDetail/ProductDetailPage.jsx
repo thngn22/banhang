@@ -7,20 +7,20 @@ import { jacket } from "../../../Data/jacket";
 import { tShirt } from "../../../Data/t-shirt";
 import HomeSectionCard from "../../components/HomeSectionCard/HomeSectionCard";
 import ProductCard from "../../components/Product/ProductCard";
-import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../../services/ProductService";
 import * as CartService from "../../../services/CartService";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from '../../../redux/slides/userSlide';
+import { addToCart } from "../../../redux/slides/userSlide";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import { useMutationHook } from '../../../hooks/useMutationHook';
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutationHook } from "../../../hooks/useMutationHook";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import * as AuthService from "../../../services/AuthService"
+import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 const product = {
   name: "Basic Tee 6-Pack",
@@ -80,45 +80,47 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState();
   const [selectedSize, setSelectedSize] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const { productId } = useParams()
-  const queryClient = useQueryClient()
+  const { productId } = useParams();
+  const queryClient = useQueryClient();
   const auth = useSelector((state) => state.auth.login.currentUser);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const simililer_products = [...jacket, ...tShirt];
   const { data: productDetail } = useQuery({
-    queryKey: ['category', productId],
+    queryKey: ["category", productId],
     queryFn: () => {
-      return ProductService.getProductDetail(productId)
-    }
-  })
+      return ProductService.getProductDetail(productId);
+    },
+  });
 
   React.useEffect(() => {
-    productDetail && setSelectedColor(productDetail.productItemResponses?.[0].variationColor)
-    productDetail && setSelectedSize(productDetail.productItemResponses?.[0].listProductItem?.[0].variationSize)
-  }, [productDetail])
-
+    productDetail &&
+      setSelectedColor(productDetail.productItemResponses?.[0].variationColor);
+    productDetail &&
+      setSelectedSize(
+        productDetail.productItemResponses?.[0].listProductItem?.[0]
+          .variationSize
+      );
+  }, [productDetail]);
 
   // Find the element with the matching variationColor
-  const selectedElement = productDetail?.productItemResponses?.find(item => item.variationColor === selectedColor);
+  const selectedElement = productDetail?.productItemResponses?.find(
+    (item) => item.variationColor === selectedColor
+  );
 
   // If the element is found, map over its listProductItem
   const selectedItems = selectedElement ? selectedElement.listProductItem : [];
 
   const handlePlusQuantity = () => {
     setSelectedQuantity((prev) => prev + 1);
-
-
-  }
+  };
   const handleSubQuantity = () => {
     setSelectedQuantity((prev) => (prev > 1 ? prev - 1 : prev));
-
-  }
+  };
 
   const refreshToken = async () => {
     try {
       const data = await AuthService.refreshToken();
-      console.log("data", data);
       return data?.accessToken;
     } catch (err) {
       console.log("err", err);
@@ -128,7 +130,6 @@ export default function ProductDetailPage() {
   const axiosJWT = axios.create();
   axiosJWT.interceptors.request.use(
     async (config) => {
-      console.log("vao lai");
       let date = new Date();
       if (auth?.accessToken) {
         const decodAccessToken = jwtDecode(auth?.accessToken);
@@ -138,9 +139,6 @@ export default function ProductDetailPage() {
             ...auth,
             accessToken: data,
           };
-
-          console.log("data in axiosJWT", data);
-          console.log("refreshUser", refreshUser);
 
           dispatch(loginSuccess(refreshUser));
           config.headers["Authorization"] = `Bearer ${data}`;
@@ -157,9 +155,6 @@ export default function ProductDetailPage() {
     const res = CartService.updateCart(data, auth.accessToken, axiosJWT);
     return res;
   });
-
-
-
 
   return (
     <div className="bg-white">
@@ -216,7 +211,10 @@ export default function ProductDetailPage() {
             </div>
             <div className="flex flex-wrap space-x-5 justify-center">
               {product.images.map((image, index) => (
-                <div key={index} className="overflow-hidden rounded-lg max-w-[5rem] max-h-[5rem] mt-4">
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-lg max-w-[5rem] max-h-[5rem] mt-4"
+                >
                   <img
                     src={image.src}
                     alt={image.alt}
@@ -273,32 +271,37 @@ export default function ProductDetailPage() {
                       Choose a color
                     </RadioGroup.Label>
                     <div className="flex items-center space-x-3">
-                      {productDetail?.productItemResponses.map((item, index) => {
-
-                        return <RadioGroup.Option
-                          key={index}
-                          value={item?.variationColor}
-                          className={({ active, checked }) =>
-                            classNames(
-                              "ring-green-500",
-                              active && checked ? "ring ring-offset-1" : "",
-                              !active && checked ? "ring-2" : "",
-                              "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
-                            )
-                          }
-                        >
-                          <RadioGroup.Label as="span" className="sr-only">
-                            {item?.variationColor}
-                          </RadioGroup.Label>
-                          <span
-                            aria-hidden="true"
-                            style={{ background: `${item?.variationColor.toLowerCase()}` }}
-                            className={
-                              "h-8 w-8 rounded-full border border-black border-opacity-10 "
-                            }
-                          />
-                        </RadioGroup.Option>
-                      })}
+                      {productDetail?.productItemResponses.map(
+                        (item, index) => {
+                          return (
+                            <RadioGroup.Option
+                              key={index}
+                              value={item?.variationColor}
+                              className={({ active, checked }) =>
+                                classNames(
+                                  "ring-green-500",
+                                  active && checked ? "ring ring-offset-1" : "",
+                                  !active && checked ? "ring-2" : "",
+                                  "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
+                                )
+                              }
+                            >
+                              <RadioGroup.Label as="span" className="sr-only">
+                                {item?.variationColor}
+                              </RadioGroup.Label>
+                              <span
+                                aria-hidden="true"
+                                style={{
+                                  background: `${item?.variationColor.toLowerCase()}`,
+                                }}
+                                className={
+                                  "h-8 w-8 rounded-full border border-black border-opacity-10 "
+                                }
+                              />
+                            </RadioGroup.Option>
+                          );
+                        }
+                      )}
                     </div>
                   </RadioGroup>
                 </div>
@@ -383,17 +386,21 @@ export default function ProductDetailPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                <div className='mt-10'>
+                <div className="mt-10">
                   <div className="flex items-center space-x-2">
                     <IconButton onClick={() => handleSubQuantity()}>
                       <RemoveCircleOutlineIcon />
                     </IconButton>
-                    <span className="py-1 px-7 border rounded-sm">{selectedQuantity}</span>
-                    <IconButton onClick={() => handlePlusQuantity()} sx={{ color: "RGB(145,85,253)" }}>
+                    <span className="py-1 px-7 border rounded-sm">
+                      {selectedQuantity}
+                    </span>
+                    <IconButton
+                      onClick={() => handlePlusQuantity()}
+                      sx={{ color: "RGB(145,85,253)" }}
+                    >
                       <AddCircleOutlineIcon />
                     </IconButton>
                   </div>
-
                 </div>
                 <div className="flex space-x-10 pt-8">
                   <Button
@@ -405,25 +412,32 @@ export default function ProductDetailPage() {
                       flexGrow: "1",
                     }}
                     onClick={() => {
-                      const resultItem = productDetail.productItemResponses.find(item =>
-                        item.variationColor === selectedColor &&
-                        item.listProductItem.some(subItem => subItem.variationSize === selectedSize)
-                      );
+                      const resultItem =
+                        productDetail.productItemResponses.find(
+                          (item) =>
+                            item.variationColor === selectedColor &&
+                            item.listProductItem.some(
+                              (subItem) =>
+                                subItem.variationSize === selectedSize
+                            )
+                        );
 
-                      const idProductBuy = resultItem ? resultItem.listProductItem.find(subItem => subItem.variationSize === selectedSize).id : null;
+                      const idProductBuy = resultItem
+                        ? resultItem.listProductItem.find(
+                            (subItem) => subItem.variationSize === selectedSize
+                          ).id
+                        : null;
                       const dataToUpdate = {
                         productItemId: idProductBuy,
-                        quantity: selectedQuantity
-                      }
+                        quantity: selectedQuantity,
+                      };
 
-                      mutation.mutate([dataToUpdate],
-                        {
-                          onSuccess: (data) => {
-
-                            queryClient.invalidateQueries({ queryKey: ['cart'] })
-                          }
-                        });
-                      alert("thêm vào giỏ hàng thành công")
+                      mutation.mutate([dataToUpdate], {
+                        onSuccess: (data) => {
+                          queryClient.invalidateQueries({ queryKey: ["cart"] });
+                        },
+                      });
+                      alert("thêm vào giỏ hàng thành công");
                     }}
                   >
                     Add to Cart

@@ -79,8 +79,10 @@ const Variations = (props) => {
     console.log("variations", variations);
     const newData = variations.map((variation) => {
       if (name === "color") {
+        console.log("variations color", variations);
         return { color: variation.text, productImage: variation.image };
       } else {
+        console.log("variations size", variations);
         return { size: variation.text };
       }
     });

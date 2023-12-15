@@ -35,7 +35,7 @@ export const getProductAdmin = async (accessToken, axiosJWT) => {
   return res.data;
 };
 
-export const createProduct = async (data, accessToken) => {
+export const createProduct = async (data, accessToken, axiosJWT) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}product/`,
     data,

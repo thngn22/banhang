@@ -19,149 +19,9 @@ const HistotyOrderPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
 
-  const fakeAPI = [
-    {
-      id: 31,
-      totalPayment: 716000,
-      totalItem: 2,
-      createdAt: "2023-12-07 08:54:17",
-      updateAt: "2023-12-07 08:54:17",
-      user: {
-        id: 2,
-        email: "admin1@gmail.com",
-        firstName: "Admin",
-        lastName: "test",
-        phone: "0216495242",
-      },
-      address: {
-        id: 33,
-        city: "lmao",
-        streetAddress: "darrk",
-        zipCode: "darrk burh",
-      },
-      userPaymentMethod: {
-        id: 1,
-        nameMethod: "COD",
-        paymentMethodId: 2,
-      },
-      delivery: {
-        id: 1,
-        name: "Chuyển phát nhanh",
-        price: 18000,
-        description: "Chuyển phát trong vòng 5 ngày kể từ khi đặt hàng",
-        estimatedShippingTime: 5,
-      },
-      statusOrder: "HOAN_TAT",
-      finalPayment: 734000,
-    },
-    {
-      id: 33,
-      totalPayment: 1432000,
-      totalItem: 4,
-      createdAt: "2023-12-07 09:16:58",
-      updateAt: "2023-12-07 09:16:58",
-      user: {
-        id: 2,
-        email: "admin1@gmail.com",
-        firstName: "Admin",
-        lastName: "test",
-        phone: "0216495242",
-      },
-      address: {
-        id: 35,
-        city: "lmao",
-        streetAddress: "darrk",
-        zipCode: "darrk burh",
-      },
-      userPaymentMethod: {
-        id: 1,
-        nameMethod: "COD",
-        paymentMethodId: 2,
-      },
-      delivery: {
-        id: 1,
-        name: "Chuyển phát nhanh",
-        price: 18000,
-        description: "Chuyển phát trong vòng 5 ngày kể từ khi đặt hàng",
-        estimatedShippingTime: 5,
-      },
-      statusOrder: "DANG_CHO_XU_LY",
-      finalPayment: 1450000,
-    },
-    {
-      id: 34,
-      totalPayment: 716000,
-      totalItem: 2,
-      createdAt: "2023-12-07 13:13:20",
-      updateAt: "2023-12-07 13:13:20",
-      user: {
-        id: 2,
-        email: "admin1@gmail.com",
-        firstName: "Admin",
-        lastName: "test",
-        phone: "0216495242",
-      },
-      address: {
-        id: 36,
-        city: "lmao",
-        streetAddress: "darrk",
-        zipCode: "darrk burh",
-      },
-      userPaymentMethod: {
-        id: 1,
-        nameMethod: "COD",
-        paymentMethodId: 2,
-      },
-      delivery: {
-        id: 1,
-        name: "Chuyển phát nhanh",
-        price: 18000,
-        description: "Chuyển phát trong vòng 5 ngày kể từ khi đặt hàng",
-        estimatedShippingTime: 5,
-      },
-      statusOrder: "DANG_CHO_XU_LY",
-      finalPayment: 734000,
-    },
-    {
-      id: 35,
-      totalPayment: 716000,
-      totalItem: 2,
-      createdAt: "2023-12-07 21:15:08",
-      updateAt: "2023-12-07 21:15:08",
-      user: {
-        id: 2,
-        email: "admin1@gmail.com",
-        firstName: "Admin",
-        lastName: "test",
-        phone: "0216495242",
-      },
-      address: {
-        id: 37,
-        city: "lmao",
-        streetAddress: "darrk",
-        zipCode: "darrk burh",
-      },
-      userPaymentMethod: {
-        id: 1,
-        nameMethod: "COD",
-        paymentMethodId: 2,
-      },
-      delivery: {
-        id: 1,
-        name: "Chuyển phát nhanh",
-        price: 18000,
-        description: "Chuyển phát trong vòng 5 ngày kể từ khi đặt hàng",
-        estimatedShippingTime: 5,
-      },
-      statusOrder: "DA_BI_NGUOI_DUNG_HUY",
-      finalPayment: 734000,
-    },
-  ];
-
   const refreshToken = async () => {
     try {
       const data = await AuthService.refreshToken();
-      console.log("data", data);
       return data?.accessToken;
     } catch (err) {
       console.log("err", err);
@@ -171,7 +31,6 @@ const HistotyOrderPage = () => {
   const axiosJWT = axios.create();
   axiosJWT.interceptors.request.use(
     async (config) => {
-      console.log("vao lai");
       let date = new Date();
       if (auth?.accessToken) {
         const decodAccessToken = jwtDecode(auth?.accessToken);
@@ -181,9 +40,6 @@ const HistotyOrderPage = () => {
             ...auth,
             accessToken: data,
           };
-
-          console.log("data in axiosJWT", data);
-          console.log("refreshUser", refreshUser);
 
           dispatch(loginSuccess(refreshUser));
           config.headers["Authorization"] = `Bearer ${data}`;
