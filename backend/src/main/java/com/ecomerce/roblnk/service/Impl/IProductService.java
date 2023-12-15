@@ -598,6 +598,7 @@ public class IProductService implements ProductService {
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setPrice(p.getPrice());
                     productItem.setQuantityInStock(p.getQuantityInStock());
+                    productItem.setProduct(product);
                     productItems.add(productItem);
                     productItemRequests.remove(0);
                 }
@@ -824,7 +825,6 @@ public class IProductService implements ProductService {
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 productRepository.save(product);
-
                 return "Successfully update product";
             } else
                 return "This category is not available to update product. Please try a sub-category of this category or another!";
