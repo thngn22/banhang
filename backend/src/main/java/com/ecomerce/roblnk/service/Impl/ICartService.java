@@ -455,33 +455,34 @@ public class ICartService implements CartService {
                         orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                     }
                 }
-                var userEmail = orderDetail.getUser().getEmail();
-                var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
-                var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
-                var orderDate = orderDetail.getCreatedAt();
-                var orderItemDTOList = orderDetail.getOrderItems();
-                var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24) * orderDetail.getDelivery().getEstimatedShippingTime());
-                var note = "";
-                var title = "";
-                if (orderDetail.getStatusOrder().equals(Status.BI_TU_CHOI.toString())
-                        || orderDetail.getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString()) ||
-                        orderDetail.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {
-                    title = "Thông báo hủy đơn!";
-                    note = "We are sorry to notify that your order has been canceled. Reason: " + Status.valueOf(orderDetail.getStatusOrder()).describe();
-                } else {
-                    title = "Đặt hàng thành công!";
-                    note = "Your order has been confirmed and will be shipped in next " + shippingTime + " days!";
-                }
-                Context context = new Context();
-                context.setVariable("userEmail", userEmail);
-                context.setVariable("userName", name);
-                context.setVariable("orders", orderDetail);
-                context.setVariable("orderItems", orderItemDTOList);
-                context.setVariable("note", note);
-                context.setVariable("orderDate", orderDate);
-                context.setVariable("orderEstimateDate", orderEstimateDate);
-                emailService.sendEmailWithHtmlTemplate(userEmail, title, "confirm-order", context);
                 if (list.getPaymentMethodId().equals(2L)) {
+
+                    var userEmail = orderDetail.getUser().getEmail();
+                    var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
+                    var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
+                    var orderDate = orderDetail.getCreatedAt();
+                    var orderItemDTOList = orderDetail.getOrderItems();
+                    var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24) * orderDetail.getDelivery().getEstimatedShippingTime());
+                    var note = "";
+                    var title = "";
+                    if (orderDetail.getStatusOrder().equals(Status.BI_TU_CHOI.toString())
+                            || orderDetail.getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString()) ||
+                            orderDetail.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {
+                        title = "Thông báo hủy đơn!";
+                        note = "We are sorry to notify that your order has been canceled. Reason: " + Status.valueOf(orderDetail.getStatusOrder()).describe();
+                    } else {
+                        title = "Đặt hàng thành công!";
+                        note = "Your order has been confirmed and will be shipped in next " + shippingTime + " days!";
+                    }
+                    Context context = new Context();
+                    context.setVariable("userEmail", userEmail);
+                    context.setVariable("userName", name);
+                    context.setVariable("orders", orderDetail);
+                    context.setVariable("orderItems", orderItemDTOList);
+                    context.setVariable("note", note);
+                    context.setVariable("orderDate", orderDate);
+                    context.setVariable("orderEstimateDate", orderEstimateDate);
+                    emailService.sendEmailWithHtmlTemplate(userEmail, title, "confirm-order", context);
                     return ResponseEntity.status(HttpStatus.OK).body("Order created successfully!");
                 }
 
@@ -492,7 +493,7 @@ public class ICartService implements CartService {
                     System.out.println(redirectURL);
                     HttpHeaders headers = new HttpHeaders();
                     headers.add("Location", redirectURL);
-                    return new ResponseEntity<byte []>(null,headers,HttpStatus.FOUND);
+                    return new ResponseEntity<byte[]>(null, headers, HttpStatus.FOUND);
                 }
 
                 //MOMO
