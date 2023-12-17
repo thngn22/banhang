@@ -73,6 +73,20 @@ public class VnPayController {
             }
             return "order_fail";
         } else {
+            StatusOrder statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DA_BI_NGUOI_DUNG_HUY.toString()).orElseThrow();
+            order.setStatusOrder(statusOrder);
+            orderRepository.save(order);
+            var orderItems = order.getOrderItems();
+            for (OrderItem orderItem : orderItems) {
+                var productItem = productItemService.getProductItem(orderItem.getProductItem().getId());
+                productItem.setQuantityInStock(productItem.getQuantityInStock() + orderItem.getQuantity());
+
+                //Sau nay se fix lai
+                var product = productRepository.findById(orderItem.getProductItem().getProduct().getId()).orElseThrow();
+                product.setSold(product.getSold() - orderItem.getQuantity());
+                productItemRepository.save(productItem);
+                productRepository.save(product);
+            }
             model.addAttribute("path", request.getServletPath());
             model.addAttribute("method", request.getMethod());
             return "error";
