@@ -1,8 +1,10 @@
 import React from "react";
 import "./ProductCard.css";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const ProductCard = ({ data }) => {
+  // console.log("data", data);
+
   return (
     <div className="productCard w-[15rem] m-3 transition-all cursor-pointer">
       <Link to={`/product/${data.id}`}>
@@ -16,10 +18,7 @@ const ProductCard = ({ data }) => {
 
         <div className="textPart bg-white p-3">
           <div className="">
-            <p className="font-bold opacity-60">
-              {data?.name}
-            </p>
-
+            <p className="font-bold opacity-60">{data?.name}</p>
           </div>
 
           <div className="flex items-center justify-center space-x-2">
@@ -30,7 +29,8 @@ const ProductCard = ({ data }) => {
           <p className="line-through opacity-50">{data.quantity}</p>
           <p className="text-green-600 font-semibold">{data.categoryId}</p> */}
           </div>
-        </div></Link>
+        </div>
+      </Link>
     </div>
   );
 };

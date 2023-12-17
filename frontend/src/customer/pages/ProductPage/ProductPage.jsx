@@ -83,6 +83,8 @@ export default function ProductPage() {
     }, 1000);
   };
 
+  // console.log("filterProducts", filterProducts);
+
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:max-w-7xl lg:px-8">
