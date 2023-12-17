@@ -487,8 +487,8 @@ public class ICartService implements CartService {
 
                 //VNPAY
                 else {
-
-                    String redirectURL = "http://localhost:8081/api/v1/vnpay/submit_order?amount=" + orders.getFinalPayment().toString() + "&order_infor=" + orders.getId().toString();
+                    String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+                    String redirectURL = baseUrl + "/api/v1/vnpay/submit_order?amount=" + orders.getFinalPayment().toString() + "&order_infor=" + orders.getId().toString();
                     System.out.println(redirectURL);
                     HttpHeaders headers = new HttpHeaders();
                     headers.add("Location", redirectURL);
