@@ -14,6 +14,7 @@ import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.EmailService;
+import com.ecomerce.roblnk.service.ProductItemService;
 import com.ecomerce.roblnk.service.ReviewService;
 import com.ecomerce.roblnk.service.UserService;
 import com.ecomerce.roblnk.util.Status;
@@ -58,6 +59,7 @@ public class IUserService implements UserService {
     private final ReviewService reviewService;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final ProductItemService productItemService;
 
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
@@ -340,7 +342,7 @@ public class IUserService implements UserService {
                 }
             }
 
-            for (int i = 0; i < reviewResponse.size(); i++){
+            for (int i = 0; i < reviewResponse.size(); i++) {
                 reviewResponse.get(i).setColor(orderDetail.getOrderItems().get(i).getColor());
                 reviewResponse.get(i).setSize(orderDetail.getOrderItems().get(i).getSize());
             }
@@ -429,6 +431,8 @@ public class IUserService implements UserService {
             if (userOrders.isPresent()) {
                 boolean flag = false;
                 boolean sendMail = false;
+                boolean repay = false;
+                boolean reCalculate = false;
                 switch (status) {
                     case "DANG_XU_LY" -> {
                         if (userOrders.get().getStatusOrder().getOrderStatus().equals("DANG_CHO_XU_LY")) {
@@ -450,21 +454,42 @@ public class IUserService implements UserService {
                     }
                     case "DA_BI_HE_THONG_HUY" -> {
                         if (!userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_NGUOI_DUNG_HUY")
-                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("BI_TU_CHOI")) {
                             flag = true;
+                            reCalculate = true;
+
+                            //Thanh toan bang vnPay
+                            if (userOrders.get().getUserPaymentMethod().getId().equals(1L)) {
+                                repay = true;
+                            }
                         }
 
                     }
                     case "DA_BI_NGUOI_DUNG_HUY" -> {
                         if (!userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_HE_THONG_HUY")
-                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("BI_TU_CHOI")) {
                             flag = true;
+                            reCalculate = true;
+                            //Thanh toan bang vnPay
+                            if (userOrders.get().getUserPaymentMethod().getId().equals(1L)) {
+                                repay = true;
+                            }
                         }
 
                     }
+                    //Bom Hang
                     case "BI_TU_CHOI" -> {
-                        if (!userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")) {
+                        if (!userOrders.get().getStatusOrder().getOrderStatus().equals("HOAN_TAT")
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_HE_THONG_HUY")
+                                && !userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_NGUOI_DUNG_HUY")) {
                             flag = true;
+                            reCalculate = true;
+                        }
+                        //Thanh toan bang vnPay
+                        if (userOrders.get().getUserPaymentMethod().getId().equals(1L)) {
+                            repay = true;
                         }
 
                     }
@@ -483,24 +508,39 @@ public class IUserService implements UserService {
                     statusOrderRepository.save(statusOrder);
                     userOrders.get().setStatusOrder(statusOrder);
                     orderRepository.save(userOrders.get());
-                    var orderDetail = orderMapper.toOrderResponse(userOrders.get());
-                    for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
-                        var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
-                        if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
-                            orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                            orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                        } else {
-                            orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
-                            orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
-                        }
-                    }
-                    var userEmail = orderDetail.getUser().getEmail();
-                    var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
-                    var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
-                    var orderDate = orderDetail.getCreatedAt();
-                    var orderItems = orderDetail.getOrderItems();
-                    var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24) * orderDetail.getDelivery().getEstimatedShippingTime());
+
+
+                    //Send mail
                     if (sendMail) {
+                        var orderDetail = orderMapper.toOrderResponse(userOrders.get());
+                        for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
+                            var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                            if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                                orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                                orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                            } else {
+                                orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                                orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                            }
+                        }
+                        var userEmail = orderDetail.getUser().getEmail();
+                        var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
+                        var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
+                        var orderDate = orderDetail.getCreatedAt();
+                        var orderItems = orderDetail.getOrderItems();
+                        var orderEstimateDate = new Date(orderDate.getTime() + (1000 * 60 * 60 * 24) * orderDetail.getDelivery().getEstimatedShippingTime());
+                        var note = "";
+                        var title = "";
+                        if (orderDetail.getStatusOrder().equals(Status.BI_TU_CHOI.toString())
+                                || orderDetail.getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString()) ||
+                                orderDetail.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                            title = "Thông báo hủy đơn!";
+                            note = "We are sorry to notify that your order has been canceled. Reason: " + Status.valueOf(orderDetail.getStatusOrder()).describe();
+                        }
+                        else {
+                            title = "Xác nhận hàng tất đơn hàng!";
+                            note = "Your order have been deliveried. Please confirm order!";
+                        }
                         Context context = new Context();
                         context.setVariable("userEmail", userEmail);
                         context.setVariable("userName", name);
@@ -509,8 +549,29 @@ public class IUserService implements UserService {
                         context.setVariable("shippingTime", shippingTime);
                         context.setVariable("orderDate", orderDate);
                         context.setVariable("orderEstimateDate", orderEstimateDate);
-                        emailService.sendEmailWithHtmlTemplate(userEmail, "Xác nhận hoàn tất đơn hàng!", "confirm-order", context);
+                        context.setVariable("note", note);
+                        emailService.sendEmailWithHtmlTemplate(userEmail, title, "confirm-order", context);
                     }
+
+
+                    if (reCalculate) {
+                        var orderItems = userOrders.get().getOrderItems();
+                        for (OrderItem orderItem : orderItems) {
+                            var productItem = productItemService.getProductItem(orderItem.getProductItem().getId());
+                            productItem.setQuantityInStock(productItem.getQuantityInStock() + orderItem.getQuantity());
+
+                            //Sau nay se fix lai
+                            var product = productRepository.findById(orderItem.getProductItem().getProduct().getId()).orElseThrow();
+                            product.setSold(product.getSold() - orderItem.getQuantity());
+                            productItemRepository.save(productItem);
+                            productRepository.save(product);
+                        }
+                    }
+                    if (repay) {
+
+                    }
+
+
                     return "Successfully updated status of this order!";
                 }
                 if (userOrders.get().getStatusOrder().getOrderStatus().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {

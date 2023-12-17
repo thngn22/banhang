@@ -16,6 +16,8 @@ public enum Status implements Serializable {
     YEU_CAU_XAC_MINH_THU_CONG,
     CHO_XAC_NHAN;
 
+
+
     public String toString() {
         switch (this) {
             case DANG_CHO_XU_LY -> {
@@ -78,7 +80,7 @@ public enum Status implements Serializable {
             }
 
             case DA_BI_NGUOI_DUNG_HUY -> {
-                return "Đơn hàng đã bị người dùng hủy vì các lý do cá nhân";
+                return "Đơn hàng đã bị người dùng hủy";
             }
             case DANG_VAN_CHUYEN -> {
                 return "Đơn hàng đang được vận chuyển đến địa chỉ giao hàng.";

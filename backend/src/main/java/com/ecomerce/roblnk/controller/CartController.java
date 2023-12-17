@@ -7,13 +7,16 @@ import com.ecomerce.roblnk.service.CartService;
 import com.ecomerce.roblnk.service.DeliveryService;
 import com.ecomerce.roblnk.service.PaymentMethodService;
 import com.ecomerce.roblnk.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
@@ -41,40 +44,12 @@ public class CartController {
 
     @PostMapping("/checkout")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> checkout(Principal principal, @RequestBody @Valid CheckoutRequest list) {
-        var cartCheckout = cartService.checkoutCart(principal, list);
-        if (cartCheckout.startsWith("Not")){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                    ErrorResponse.builder()
-                            .statusCode(403)
-                            .message("Not thing to check out, please add shoes to cart first!")
-                            .description("Not thing to check out, please add shoes to cart first!")
-                            .timestamp(new Date(System.currentTimeMillis()))
-                            .build()
-            );
-        }
-        else if (cartCheckout.startsWith("Product")){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                    ErrorResponse.builder()
-                            .statusCode(403)
-                            .message("Product is not added to cart, please add shoes first!")
-                            .description("Product is not added to cart, please add shoes first!")
-                            .timestamp(new Date(System.currentTimeMillis()))
-                            .build()
-            );
-        }
-        else if (cartCheckout.startsWith("Bad")){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    ErrorResponse.builder()
-                            .statusCode(400)
-                            .message("Bad request, please login first!")
-                            .description("Bad request, please login first!")
-                            .timestamp(new Date(System.currentTimeMillis()))
-                            .build()
-            );
-        }
-        else
-        return ResponseEntity.status(HttpStatus.OK).body(cartCheckout);
+    public ResponseEntity<?> checkout(Principal principal, @RequestBody @Valid CheckoutRequest list,
+                                      HttpServletRequest request,
+                                      RedirectAttributes redirectAttributes) throws URISyntaxException {
+        return cartService.checkoutCart(principal, list, request, redirectAttributes);
+
+
 
     }
 

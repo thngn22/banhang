@@ -60,7 +60,7 @@ public class EmailConfiguration {
 
     public ClassLoaderTemplateResolver thymeleafTemplateResolver() {
         ClassLoaderTemplateResolver emailTemplateResolver = new ClassLoaderTemplateResolver();
-        emailTemplateResolver.setPrefix("/mail-templates/");
+        emailTemplateResolver.setPrefix("/templates/");
         emailTemplateResolver.setSuffix(".html");
         emailTemplateResolver.setTemplateMode(TemplateMode.HTML);
         emailTemplateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
