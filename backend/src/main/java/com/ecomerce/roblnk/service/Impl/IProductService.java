@@ -546,7 +546,7 @@ public class IProductService implements ProductService {
                         productConfiguration.setVariationOption(variationOption);
                         productConfigurations.add(productConfiguration);
                     } else {
-                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(sizeId, sizeValue);
+                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueEquals(sizeId, sizeValue);
                         ProductConfiguration productConfiguration = new ProductConfiguration();
                         productConfiguration.setProductItem(productItem);
                         productConfiguration.setVariationOption(variationOption);
@@ -563,7 +563,7 @@ public class IProductService implements ProductService {
                         productConfiguration.setVariationOption(variationOption);
                         productConfigurations.add(productConfiguration);
                     } else {
-                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(colorId, colorValue);
+                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueEquals(colorId, colorValue);
                         ProductConfiguration productConfiguration = new ProductConfiguration();
                         productConfiguration.setProductItem(productItem);
                         productConfiguration.setVariationOption(variationOption);
@@ -730,7 +730,7 @@ public class IProductService implements ProductService {
                             productConfigurations.add(productConfigurationList.get(1));
                         }
                     } else {
-                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(sizeId, sizeValueFromRequest);
+                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueEquals(sizeId, sizeValueFromRequest);
 
                         var productConfigurationList = productConfigurationRepository.findAllByProductItem_Id(productItem.getId());
                         if (productConfigurationList.get(0).getVariationOption().getVariation().getName().equals(sizeName)) {
@@ -762,7 +762,7 @@ public class IProductService implements ProductService {
                             productConfigurations.add(productConfigurationList.get(1));
                         }
                     } else {
-                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueContainingIgnoreCase(colorId, colorValueFromRequest);
+                        var variationOption = variationOptionRepository.findVariationOptionByVariation_IdAndValueEquals(colorId, colorValueFromRequest);
 
                         var productConfigurationList = productConfigurationRepository.findAllByProductItem_Id(productItem.getId());
                         if (productConfigurationList.get(0).getVariationOption().getVariation().getName().equals(colorName)) {

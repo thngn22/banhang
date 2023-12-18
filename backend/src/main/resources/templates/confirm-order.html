@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+
 <div class="container mt-5 mb-5">
     <div class="row d-flex justify-content-center">
         <div class="col-md-8">
@@ -18,90 +19,75 @@
                          width="50" alt="lmao">
                 </div>
                 <div id=":n1" class="a3s aiL ">
-                    <h5>Your order Confirmed!</h5>
+                    <h5>Đơn hàng của bạn đã được xác nhận</h5>
                     <span class="font-weight-bold d-block mt-4"
-                          th:text="'Hello, ' + ${userName} + '.'">Hello, Ricardo</span>
+                          th:text="'Xin chào, ' + ${userName} + '.'">Hello, Ricardo</span>
                     <span th:text="${note}">Thông báo</span>
+                    <p class="font-weight-bold mb-0">Đây là thông tin về đơn hàng của bạn: </p>
                     <div dir="ltr">
-                        <table border="0" cellpadding="0" cellspacing="0" width="409"
-                               style="border-collapse:collapse;width:500pt">
-                            <colgroup>
-                                <col width="154" style="width:60pt">
-                                <col width="154" style="width:100pt">
-                                <col width="154" style="width:100pt">
-                                <col width="154" style="width:100pt">
-                                <col width="154" style="width:130pt">
-                            </colgroup>
-
-                            <tbody>
-                            <tr height="43" style="height:32.4pt">
-                                <td height="43" width="154"
-                                    style="height:32.4pt;width:30pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-                                    <span class="d-block text-muted">Order ID</span>
-                                    <span th:text="${orders.getId()}">1</span>
-                                </td>
-                                <td width="139"
-                                    style="border-left:none;width:100pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-top:1.5pt solid windowtext;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-                                    <div class="py-2">
-                                        <span class="d-block text-muted">Order Date</span>
-                                        <span th:text="${orderDate}">12 Jan,2018</span>
-                                    </div>
-                                </td>
-                                <td width="150"
-                                    style="border-left:none;width:100pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-top:1.5pt solid windowtext;border-right:1.5pt solid windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-                                    <div class="py-2">
-                                        <span class="d-block text-muted">Delivery Estimate Date</span>
-                                        <span th:text="${orderEstimateDate}">12 Jan,2018</span>
-                                    </div>
-                                </td>
-
-                                <td width="139"
-                                    style="border-left:none;width:20pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-top:1.5pt solid windowtext;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-
-                                    <div class="py-2">
-                                        <span class="d-block text-muted">Payment</span>
-                                        <span th:text="${orders.getUserPaymentMethod().getNameMethod()}">COD</span>
-                                    </div>
-                                </td>
-                                <td width="500"
-                                    style="border-left:none;width:50pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-top:1.5pt solid windowtext;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-
-                                    <div class="py-2">
-                                        <span class="d-block text-muted">Shiping Address</span>
-                                        <span th:text="${orders.getAddress().getStreetAddress() + ', ' +
+                        <span class="d-block text-muted">Mã đơn:</span>
+                        <span th:text="${orders.getId()}">1</span>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Ngày đặt hàng: </span>
+                            <span th:text="${orderDate}">12 Jan, 2018</span>
+                        </div>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Thời gian giao hàng dự kiến: </span>
+                            <span th:text="${orderEstimateDate}">12 Jan,2018</span>
+                        </div>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Phương thức thanh toán:</span>
+                            <span th:text="${orders.getUserPaymentMethod().getNameMethod()}">COD</span>
+                        </div>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Địa chỉ thanh toán:</span>
+                            <span th:text="${orders.getAddress().getStreetAddress() + ', ' +
                                         orders.getAddress().getCity() + ', ' +
                                         orders.getAddress().getZipCode()}">414 Advert Avenue, NY,USA</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        </div>
+                        <p class="font-weight-bold mb-0"></p>
                     </div>
 
                     <div class="payment border-top mt-3 mb-3 border-bottom table-responsive">
                         <table border="0" cellpadding="0" cellspacing="0" width="409"
                                style="border-collapse:collapse;width:500pt">
                             <colgroup>
-                                <col width="154" style="width:350pt">
+                                <col width="154" style="width:200pt">
+                                <col width="154" style="width:150pt">
                                 <col width="154" style="width:150pt">
                             </colgroup>
                             <tbody>
                             <tr height="22" style="height:16.8pt" th:each="order : ${orderItems}">
 
-                                <td height="22"
-                                    style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;border-left:1.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                 <td height="43" width="154"
+                                    style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
                                     <span class="font-weight-bold" th:text="${order.getProductItemName()}">Men's Sports cap</span>
+
                                     <div class="product-qty">
-                                        <span class="d-block" th:text="'Quantity: ' + ${order.getQuantity()}">Quantity: 1</span>
-                                        <span th:text="'Color: ' + ${order.getColor()}">Color: Dark</span>
-                                        <span th:text="'Size: ' + ${order.getSize()}">Men</span>
+
+                                        <div th:text="'Màu sắc: ' + ${order.getColor()}">Color: Dark</div>
+                                        <div th:text="'Kích thước: ' + ${order.getSize()}">Men</div>
+
                                     </div>
+
                                 </td>
-                                <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                <td height="43" width="154"
+                                    style="height:32.4pt;width:30pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <img th:src="${order.getProductItemImage()}" alt="image.png" width="150"
+                                         height="135" data-image-whitelisted="">
+                                </td>
+                                <td height="43" width="154"
+                                    style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <div class="text-right">
+                                        <span class="font-weight-bold"
+                                              th:text="'Đơn giá: ' + ${order.getPrice()} + 'VNĐ'">$67.50</span>
+                                    </div>
+                                    <div class="d-block" th:text="'Số lượng: ' + ${order.getQuantity()}">Quantity:1
+                                    </div>
 
                                     <div class="text-right">
                                         <span class="font-weight-bold"
-                                              th:text="'Price: ' + ${order.getPrice()} + 'VNĐ'">$67.50</span>
+                                              th:text="'Thành tiền: ' + ${order.getTotalPrice()} + 'VNĐ'">$67.50</span>
                                     </div>
                                 </td>
 
@@ -118,27 +104,27 @@
                                     <col width="154" style="width:150pt">
                                 </colgroup>
                                 <tbody class="totals">
-                                <tr height="22" style="height:16.8pt" th:each="order : ${orderItems}">
+                                <tr >
 
-                                    <td height="22"
-                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;border-left:1.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
                                         <div class="text-left">
-                                            <span class="text-muted">Subtotal</span>
+                                            <span class="text-muted">Tổng giá sản phẩm</span>
                                         </div>
                                     </td>
-                                    <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
 
-                                        <div class="text-right">
+                                    <div class="text-right">
                                             <span th:text="${orders.getTotalPayment()} + 'VNĐ'">$168.50</span>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td height="22"
-                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;border-left:1.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-
-                                        <div class="text-left">
-                                            <span class="text-muted">Shipping Fee</span>
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <div class="text-left">
+                                            <span class="text-muted">Phí vận chuyển</span>
                                         </div>
                                     </td>
                                     <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
@@ -150,11 +136,11 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td height="22"
-                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;border-left:1.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
 
-                                        <div class="text-left">
-                                            <span class="text-muted">Tax Fee</span>
+                                    <div class="text-left">
+                                            <span class="text-muted">Phí thuế</span>
                                         </div>
                                     </td>
                                     <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
@@ -165,32 +151,18 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td height="22"
-                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;border-left:1.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-
-                                        <div class="text-left">
-                                            <span class="text-muted">Discount</span>
-                                        </div>
-                                    </td>
-                                    <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
-                                        <div class="text-right">
-                                            <span class="text-success" th:text="${orders.getTotalPayment()} + 'VNĐ'">$168.50</span>
-                                        </div>
-                                    </td>
-                                </tr>
                                 <tr class="border-top border-bottom">
-                                    <td height="22"
-                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;border-left:1.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
 
-                                        <div class="text-left">
-                                            <span class="font-weight-bold">Total</span>
+                                    <div class="text-left">
+                                            <span class="font-weight-bold">Tổng số tiền</span>
                                         </div>
                                     </td>
-                                    <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
 
-
-                                        <div class="text-right">
+                                    <div class="text-right">
                                             <span class="font-weight-bold"
                                                   th:text="${orders.getFinalPayment()} + 'VNĐ'">$238.50</span>
                                         </div>
@@ -200,15 +172,10 @@
                             </table>
                         </div>
                     </div>
-                    <p class="font-weight-bold mb-0">Thanks for shopping with us!</p>
+                    <p class="font-weight-bold mb-0">Cảm ơn đã mua sắm tại cửa hàng chúng tôi!</p>
                     <span>Shoes Shop Vip Pro</span>
                 </div>
 
-
-                <div class="d-flex justify-content-between footer p-3">
-                    <span>Need Help? visit our <a href="http://localhost:3000"> Help center</a></span>
-                    <span th:text="${orderDate}"></span>
-                </div>
 
             </div>
         </div>
