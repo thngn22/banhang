@@ -2,7 +2,6 @@ package com.ecomerce.roblnk.dto.product;
 
 import com.ecomerce.roblnk.dto.category.CategoryDTO;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForProduct;
-import com.ecomerce.roblnk.model.Review;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,11 +9,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Setter
 @Getter
+@NoArgsConstructor
 public class ProductDetailResponsev2 {
     private Long id;
     private String name;

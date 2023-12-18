@@ -39,8 +39,5 @@ public interface ProductMapper {
     @Mapping(source = "variationOption.variation.name", target = "variationName")
     ProductConfigurationDTO toProductConfigurationDTO(ProductConfiguration productConfiguration);
 
-    @Mapping(source = "variationName", target = "variationOption.variation.name")
-    ProductConfiguration toProductConfiguration (ProductConfigurationRequest productConfigurationRequest);
-
 
  }

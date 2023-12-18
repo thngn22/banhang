@@ -21,6 +21,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -40,17 +43,21 @@ public class SecurityConfiguration{
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final LogoutService logoutService;
     @Bean
-    public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 
         return http
+                .cors(withDefaults())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
-                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay"),
-                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay**"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/**"),
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/submit_order"),
-                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/submit_order**"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment**"),
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register"),
@@ -66,6 +73,7 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/api/v1/product/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/auth/sendOTP"),
                             new AntPathRequestMatcher("/api/v1/auth/login"),
+                            new AntPathRequestMatcher("/api/v1/auth/refresh"),
                             new AntPathRequestMatcher("/swagger-ui/**"),
                             new AntPathRequestMatcher("/swagger-ui.html"),
                             new AntPathRequestMatcher("/configuration/ui"),
@@ -81,10 +89,9 @@ public class SecurityConfiguration{
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
+//                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
 //                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
 //                        )
 //                        .invalidateHttpSession(true)
@@ -96,7 +103,6 @@ public class SecurityConfiguration{
                         //.addLogoutHandler(logoutService)
                         //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())
                 .build();
 
     }

@@ -3,7 +3,6 @@ package com.ecomerce.roblnk.service.Impl;
 import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.auth.*;
 import com.ecomerce.roblnk.exception.ErrorResponse;
-import com.ecomerce.roblnk.mapper.UserMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.CartRepository;
 import com.ecomerce.roblnk.repository.RoleRepository;
@@ -14,26 +13,22 @@ import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
@@ -197,8 +192,8 @@ public class IAuthenticationService implements AuthenticationService {
 
 
     @Override
-    public ResponseEntity<?> authenticate(AuthenticationRequest request) {
-
+    public ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) throws IOException {
+        System.out.println("dâdw");
         var user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user != null) {
             if (!user.isEmailActive()) {
@@ -221,9 +216,14 @@ public class IAuthenticationService implements AuthenticationService {
                 var refreshToken = jwtService.generateRefreshToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, jwtToken);
+                System.out.println("đã vào dc");
+                Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+                refreshTokenCookie.setHttpOnly(true);
+                response.addCookie(refreshTokenCookie);
+                httpServletRequest.getCookies();
+                System.out.println("đã vào dc response add cookie");
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
-                        .refreshToken(refreshToken)
                         .build());
             }
 
@@ -262,26 +262,47 @@ public class IAuthenticationService implements AuthenticationService {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
+        Cookie[] Cookies = request.getCookies();
+        String cookie_ = null;
+        String userEmail = null;
+        if (Cookies.length > 0){
+            for (Cookie cookie : Cookies){
+                System.out.println(cookie.getName());
+
+                if (cookie.getName().equals("refreshToken")){
+                    cookie_ = cookie.getValue();
+                    System.out.println("name: " + cookie.getName());
+                    System.out.println("value: " + cookie.getValue());
+                    System.out.println("attribute: " + cookie.getAttribute("refreshToken"));
+                    System.out.println("secure: " + cookie.getSecure());
+                    System.out.println(cookie_);
+                }
+            }
         }
-        System.out.println("Đã vào dc service refresh");
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractEmail(refreshToken);
+        else {
+            var authResponse = ErrorResponse.builder()
+                    .statusCode(400)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description("Did not found any cookies!")
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build();
+            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+        }
+
+        userEmail = jwtService.extractEmail(cookie_);
         if (userEmail != null) {
             var user = userRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if (jwtService.isFreshTokenValid(refreshToken, user)) {
+            if (jwtService.isFreshTokenValid(cookie_, user)) {
                 var accessToken = jwtService.generateToken(user, user);
-                var newRefreshToken = jwtService.generateRefreshToken(user);
+                var refreshToken = jwtService.generateRefreshToken(user);
+                Cookie newCookie = new Cookie("refreshToken", refreshToken);
+                newCookie.setHttpOnly(true);
+                response.addCookie(newCookie);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(newRefreshToken)
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }

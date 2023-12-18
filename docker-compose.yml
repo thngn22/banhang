@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  mysqldb:
+    image: mysql
+    env_file: /.env
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+      - MYSQL_USER=$MYSQLDB_USER
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8
+    ports:
+      - ${MYSQLDB_LOCAL_PORT}:${MYSQLDB_DOCKER_PORT}
+    expose:
+      - ${MYSQLDB_DOCKER_PORT}
+    volumes:
+      - db:/var/lib/script
+    networks:
+      - default
+  app:
+    depends_on:
+      - mysqldb
+    build:
+      context: .
+      dockerfile: Dockerfile
+      #context: /backend
+    env_file: /.env
+    #restart: on-failure
+    ports:
+      - ${SPRING_LOCAL_PORT}:${SPRING_DOCKER_PORT}
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:$MYSQLDB_DOCKER_PORT/$MYSQLDB_DATABASE?useSSL=false&enabledTLSProtocols=TLSv1.2
+      - SPRING_DATASOURCE_USERNAME=$MYSQLDB_USER
+      - SPRING_DATASOURCE_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+    networks:
+      - default
+    volumes:
+      - .m2:/root/.m2
+    stdin_open: true
+    tty: true
+volumes:
+  db:
+networks:
+  default:
+    external: true
+    name: banhang_default

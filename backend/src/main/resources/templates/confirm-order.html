@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vn"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<div class="container mt-5 mb-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="text-left logo p-2 px-5">
+                    <img src="https://res.cloudinary.com/dmvncmrci/image/upload/v1701198998/Product/rricardo_jw6e0b.webp"
+                         width="50" alt="lmao">
+                </div>
+                <div id=":n1" class="a3s aiL ">
+                    <h5>Đơn hàng của bạn đã được xác nhận</h5>
+                    <span class="font-weight-bold d-block mt-4"
+                          th:text="'Xin chào, ' + ${userName} + '.'">Hello, Ricardo</span>
+                    <span th:text="${note}">Thông báo</span>
+                    <p class="font-weight-bold mb-0">Đây là thông tin về đơn hàng của bạn: </p>
+                    <div dir="ltr">
+                        <span class="d-block text-muted">Mã đơn:</span>
+                        <span th:text="${orders.getId()}">1</span>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Ngày đặt hàng: </span>
+                            <span th:text="${orderDate}">12 Jan, 2018</span>
+                        </div>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Thời gian giao hàng dự kiến: </span>
+                            <span th:text="${orderEstimateDate}">12 Jan,2018</span>
+                        </div>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Phương thức thanh toán:</span>
+                            <span th:text="${orders.getUserPaymentMethod().getNameMethod()}">COD</span>
+                        </div>
+                        <div class="py-2">
+                            <span class="d-block text-muted">Địa chỉ thanh toán:</span>
+                            <span th:text="${orders.getAddress().getStreetAddress() + ', ' +
+                                        orders.getAddress().getCity() + ', ' +
+                                        orders.getAddress().getZipCode()}">414 Advert Avenue, NY,USA</span>
+                        </div>
+                        <p class="font-weight-bold mb-0"></p>
+                    </div>
+
+                    <div class="payment border-top mt-3 mb-3 border-bottom table-responsive">
+                        <table border="0" cellpadding="0" cellspacing="0" width="409"
+                               style="border-collapse:collapse;width:500pt">
+                            <colgroup>
+                                <col width="154" style="width:200pt">
+                                <col width="154" style="width:150pt">
+                                <col width="154" style="width:150pt">
+                            </colgroup>
+                            <tbody>
+                            <tr height="22" style="height:16.8pt" th:each="order : ${orderItems}">
+
+                                 <td height="43" width="154"
+                                    style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <span class="font-weight-bold" th:text="${order.getProductItemName()}">Men's Sports cap</span>
+
+                                    <div class="product-qty">
+
+                                        <div th:text="'Màu sắc: ' + ${order.getColor()}">Color: Dark</div>
+                                        <div th:text="'Kích thước: ' + ${order.getSize()}">Men</div>
+
+                                    </div>
+
+                                </td>
+                                <td height="43" width="154"
+                                    style="height:32.4pt;width:30pt;color:maroon;font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:center;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <img th:src="${order.getProductItemImage()}" alt="image.png" width="150"
+                                         height="135" data-image-whitelisted="">
+                                </td>
+                                <td height="43" width="154"
+                                    style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <div class="text-right">
+                                        <span class="font-weight-bold"
+                                              th:text="'Đơn giá: ' + ${order.getPrice()} + 'VNĐ'">$67.50</span>
+                                    </div>
+                                    <div class="d-block" th:text="'Số lượng: ' + ${order.getQuantity()}">Quantity:1
+                                    </div>
+
+                                    <div class="text-right">
+                                        <span class="font-weight-bold"
+                                              th:text="'Thành tiền: ' + ${order.getTotalPrice()} + 'VNĐ'">$67.50</span>
+                                    </div>
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row d-flex justify-content-end">
+                        <div class="col-md-5">
+                            <table border="0" cellpadding="0" cellspacing="0" width="409"
+                                   style="border-collapse:collapse;width:500pt">
+                                <colgroup>
+                                    <col width="154" style="width:350pt">
+                                    <col width="154" style="width:150pt">
+                                </colgroup>
+                                <tbody class="totals">
+                                <tr >
+
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                        <div class="text-left">
+                                            <span class="text-muted">Tổng giá sản phẩm</span>
+                                        </div>
+                                    </td>
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+
+                                    <div class="text-right">
+                                            <span th:text="${orders.getTotalPayment()} + 'VNĐ'">$168.50</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+                                    <div class="text-left">
+                                            <span class="text-muted">Phí vận chuyển</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+
+
+                                        <div class="text-right">
+                                            <span th:text="${orders.getDelivery().getPrice()} + 'VNĐ'">$22</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+
+                                    <div class="text-left">
+                                            <span class="text-muted">Phí thuế</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-top:none;border-left:none;color:rgb(0,51,102);font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;vertical-align:middle;border-right:2pt double windowtext;border-bottom:2pt double windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+
+
+                                        <div class="text-right">
+                                            <span>0VNĐ</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="border-top border-bottom">
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+
+                                    <div class="text-left">
+                                            <span class="font-weight-bold">Tổng số tiền</span>
+                                        </div>
+                                    </td>
+                                    <td height="43" width="154"
+                                        style="height:16.8pt;border-top:none;color:rgb(0,51,102);font-size:12pt;font-weight:700;font-family:&quot;Times New Roman&quot;,serif;text-align:left;vertical-align:middle;border-width:1.5pt 2pt 2pt 1.5pt;border-style:solid double double solid;border-color:windowtext;padding-top:1px;padding-right:1px;padding-left:1px">
+
+                                    <div class="text-right">
+                                            <span class="font-weight-bold"
+                                                  th:text="${orders.getFinalPayment()} + 'VNĐ'">$238.50</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="font-weight-bold mb-0">Cảm ơn đã mua sắm tại cửa hàng chúng tôi!</p>
+                    <span>Shoes Shop Vip Pro</span>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

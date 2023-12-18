@@ -1,11 +1,9 @@
 package com.ecomerce.roblnk.dto.variationOption;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
 public class VariationOptionResponse {
     private Long id;

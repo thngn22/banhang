@@ -2,10 +2,8 @@ package com.ecomerce.roblnk.dto.order;
 
 import lombok.*;
 
-@Data
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
     private Long id;

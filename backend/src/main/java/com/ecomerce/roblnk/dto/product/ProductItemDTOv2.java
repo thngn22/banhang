@@ -4,9 +4,6 @@ import lombok.*;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Setter
 @Getter
 public class ProductItemDTOv2 {

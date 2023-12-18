@@ -51,11 +51,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest request, BindingResult bindingResult){
+    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest authenticationRequest, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
-        return authenticationService.authenticate(request);
+        return authenticationService.authenticate(authenticationRequest, request, response, authentication);
     }
 
     @PostMapping("/sendOTP")
@@ -78,7 +78,7 @@ public class AuthenticationController {
         return authenticationService.updatePassword(updatePasswordRequest, connectedUser);
     }
 
-    @PostMapping("/logout")
+    @DeleteMapping("/logout")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
         logoutService.logout(request, response, authentication);
