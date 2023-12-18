@@ -53,10 +53,11 @@ public class SecurityConfiguration{
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
-                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay"),
-                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay**"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/**"),
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/submit_order"),
-                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/submit_order**"),
+                            new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment**"),
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay/payment/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register/**"),
                             new AntPathRequestMatcher("/api/v1/auth/register"),
@@ -102,7 +103,6 @@ public class SecurityConfiguration{
                         //.addLogoutHandler(logoutService)
                         //.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())
                 .build();
 
     }
