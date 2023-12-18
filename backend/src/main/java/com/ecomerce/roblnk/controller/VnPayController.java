@@ -61,6 +61,7 @@ public class VnPayController {
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("paymentTime", paymentTime);
         model.addAttribute("transactionId", transactionId);
+        model.addAttribute("clientURL", ClientSide.CLIENT_SITE_URL_ORDER_HISTORY);
         var order = orderRepository.findById(Long.valueOf(orderInfo)).orElseThrow();
         if (paymentStatus == 1 || paymentStatus == 0) {
             var orderDetail = orderMapper.toOrderResponse(order);
@@ -89,7 +90,7 @@ public class VnPayController {
             context.setVariable("note", note);
             context.setVariable("orderDate", orderDate);
             context.setVariable("orderEstimateDate", orderEstimateDate);
-            context.setVariable("clientURL", ClientSide.CLIENT_SITE_URL + "/history-order");
+            System.out.println(context.getVariable("clientURL"));
             emailService.sendEmailWithHtmlTemplate(userEmail, title, "confirm-order", context);
 
 
