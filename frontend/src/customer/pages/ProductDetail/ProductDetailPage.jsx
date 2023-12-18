@@ -43,6 +43,8 @@ export default function ProductDetailPage() {
   const [expanded, setExpanded] = useState(true);
   const [contentHeight, setContentHeight] = useState(0);
   const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
+  const [defaultImage, setDefaultImage] = useState();
+
 
   const simililer_products = [...jacket, ...tShirt];
   const { data: productDetail } = useQuery({
@@ -62,6 +64,7 @@ export default function ProductDetailPage() {
 
       // Đặt màu được chọn ban đầu
       setSelectedColor(defaultColor);
+      setDefaultImage(productDetail?.productImage);
 
       // Tìm phần tử được chọn ban đầu
       const defaultColorElement = productDetail.productItemResponses?.find(
@@ -91,7 +94,6 @@ export default function ProductDetailPage() {
   // If the element is found, map over its listProductItem
   const selectedItems = selectedElement ? selectedElement.listProductItem : [];
 
-  // console.log("selectedItems", selectedItems);
 
   const handlePlusQuantity = () => {
     setSelectedQuantity((prev) => prev + 1);
@@ -110,8 +112,6 @@ export default function ProductDetailPage() {
     }
   };
   const handleColorChange = (selectedColor) => {
-    console.log("selectedColor", selectedColor);
-
     // Tìm phần tử được chọn
     const defaultColorElement = productDetail.productItemResponses?.find(
       (item) => item.variationColor === selectedColor
@@ -122,6 +122,7 @@ export default function ProductDetailPage() {
 
     // Tìm phần tử đầu tiên có quantityInStock > 0
     const defaultItem = defaultItems.find((item) => item.quantityInStock > 0);
+    setDefaultImage(defaultItems[0]?.productImage);
 
     // Nếu có phần tử, đặt variationSize và giá trị khác
     if (defaultItem) {
@@ -198,11 +199,13 @@ export default function ProductDetailPage() {
           {/* Image gallery */}
           <div className="flex flex-col">
             <div className="overflow-hidden rounded-lg max-w-full max-h-[34.3rem]">
-              <img
-                src={productDetail?.productImage}
-                alt={productDetail?.productImage}
-                className="h-full w-full object-cover object-center"
-              />
+              {defaultImage && (
+                <img
+                  src={defaultImage}
+                  alt={defaultImage}
+                  className="h-full w-full object-cover object-center"
+                />
+              )}
             </div>
           </div>
 
