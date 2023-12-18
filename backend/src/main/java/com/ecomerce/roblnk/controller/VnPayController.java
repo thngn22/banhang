@@ -9,15 +9,14 @@ import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.repository.StatusOrderRepository;
 import com.ecomerce.roblnk.service.EmailService;
 import com.ecomerce.roblnk.service.ProductItemService;
+import com.ecomerce.roblnk.util.ClientSide;
 import com.ecomerce.roblnk.util.Status;
 import jakarta.servlet.http.HttpServletRequest;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
 
@@ -36,6 +35,7 @@ public class VnPayController {
     private final ProductItemRepository productItemRepository;
     private final EmailService emailService;
     private final OrderMapper orderMapper;
+
     @GetMapping("/submit_order")
     public String submitOrder(@RequestParam("amount") int orderTotal,
                               @RequestParam("order_infor") String orderInfo,
@@ -62,23 +62,7 @@ public class VnPayController {
         model.addAttribute("paymentTime", paymentTime);
         model.addAttribute("transactionId", transactionId);
         var order = orderRepository.findById(Long.valueOf(orderInfo)).orElseThrow();
-        if (paymentStatus == 1) {
-            return "order_success";
-        } else if (paymentStatus == 0) {
-            StatusOrder statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DA_BI_NGUOI_DUNG_HUY.toString()).orElseThrow();
-            order.setStatusOrder(statusOrder);
-            order = orderRepository.save(order);
-            var orderItems = order.getOrderItems();
-            for (OrderItem orderItem : orderItems) {
-                var productItem = productItemService.getProductItem(orderItem.getProductItem().getId());
-                productItem.setQuantityInStock(productItem.getQuantityInStock() + orderItem.getQuantity());
-
-                //Sau nay se fix lai
-                var product = productRepository.findById(orderItem.getProductItem().getProduct().getId()).orElseThrow();
-                product.setSold(product.getSold() - orderItem.getQuantity());
-                productItemRepository.save(productItem);
-                productRepository.save(product);
-            }
+        if (paymentStatus == 1 || paymentStatus == 0) {
             var orderDetail = orderMapper.toOrderResponse(order);
             var userEmail = orderDetail.getUser().getEmail();
             var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
@@ -105,8 +89,30 @@ public class VnPayController {
             context.setVariable("note", note);
             context.setVariable("orderDate", orderDate);
             context.setVariable("orderEstimateDate", orderEstimateDate);
+            context.setVariable("clientURL", ClientSide.CLIENT_SITE_URL + "/history-order");
             emailService.sendEmailWithHtmlTemplate(userEmail, title, "confirm-order", context);
-            return "order_fail";
+
+
+            if (paymentStatus == 1) {
+                return "order_success";
+            } else {
+                StatusOrder statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DA_BI_NGUOI_DUNG_HUY.toString()).orElseThrow();
+                order.setStatusOrder(statusOrder);
+                order = orderRepository.save(order);
+                var orderItems = order.getOrderItems();
+                for (OrderItem orderItem : orderItems) {
+                    var productItem = productItemService.getProductItem(orderItem.getProductItem().getId());
+                    productItem.setQuantityInStock(productItem.getQuantityInStock() + orderItem.getQuantity());
+
+                    //Sau nay se fix lai
+                    var product = productRepository.findById(orderItem.getProductItem().getProduct().getId()).orElseThrow();
+                    product.setSold(product.getSold() - orderItem.getQuantity());
+                    productItemRepository.save(productItem);
+                    productRepository.save(product);
+                }
+
+                return "order_fail";
+            }
         } else {
             StatusOrder statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DA_BI_NGUOI_DUNG_HUY.toString()).orElseThrow();
             order.setStatusOrder(statusOrder);

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vn">
+<html  lang="vn"
+       xmlns:th="http://www.thymeleaf.org"
+       xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +41,7 @@
                 </tr>
                 </tbody>
             </table>
-            <a href="/api/v1/user/account/orders" class="btn btn-primary">Về trang chủ</a>
+            <a th:href="${clientURL}" class="btn btn-primary">Về trang chủ</a>
         </div>
     </div>
 </div>

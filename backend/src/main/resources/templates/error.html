@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vn">
+<html  lang="vn"
+       xmlns:th="http://www.thymeleaf.org"
+       xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title> Error</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -12,7 +14,7 @@
             <h1 class="my-3 text-danger text-center">Error</h1>
             <p th:text="${'The method is ' + method}"></p>
             <p th:text="${'The path is ' + path}"></p>
-            <a href="/api/v1/user/account/orders" class="btn btn-primary">Về trang chủ</a>
+            <a th:href="${clientURL}" class="btn btn-primary">Về trang chủ</a>
         </div>
     </div>
 </div>
