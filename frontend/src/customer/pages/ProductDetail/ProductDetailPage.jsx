@@ -45,8 +45,6 @@ export default function ProductDetailPage() {
   const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
   const [defaultImage, setDefaultImage] = useState();
 
-
-  const simililer_products = [...jacket, ...tShirt];
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
     queryFn: () => {
@@ -94,7 +92,6 @@ export default function ProductDetailPage() {
   // If the element is found, map over its listProductItem
   const selectedItems = selectedElement ? selectedElement.listProductItem : [];
 
-
   const handlePlusQuantity = () => {
     setSelectedQuantity((prev) => prev + 1);
   };
@@ -109,6 +106,7 @@ export default function ProductDetailPage() {
     if (selectedProductItem) {
       setSelectedQuantityStock(selectedProductItem.quantityInStock);
       setSelectedPrice(selectedProductItem.price);
+      setSelectedQuantity(1);
     }
   };
   const handleColorChange = (selectedColor) => {
@@ -129,6 +127,9 @@ export default function ProductDetailPage() {
       setSelectedSize(defaultItem.variationSize);
       setSelectedQuantityStock(defaultItem.quantityInStock);
       setSelectedPrice(defaultItem.price);
+      setSelectedQuantity(1);
+    } else {
+      setSelectedQuantity(0);
     }
   };
 
@@ -528,15 +529,7 @@ export default function ProductDetailPage() {
         {/* Smililer Products */}
         <section className="text-xl text-left">Sản phẩm bán được nhiều</section>
         <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
-        <section>
-          <div className="flex flex-wrap justify-center">
-            {simililer_products.map((item, index) => (
-              <div key={index} className="group relative">
-                <ProductCard data={item} />
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Smililer Products */}
 
         <Modal
           open={isModalOpen}

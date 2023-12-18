@@ -11,6 +11,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import * as AuthService from "../../../services/AuthService";
+import { CloseOutlined } from "@ant-design/icons";
 
 const CartItem = ({ product }) => {
   const queryClient = useQueryClient();
@@ -127,50 +128,58 @@ const CartItem = ({ product }) => {
     );
   };
   return (
-    <div className="p-5 shadow-lg border rounded-md mb-5">
-      <div className="flex items-center">
-        <div className="w-[5rem] h-[5rem] lg:w-[9rem] lg:h-[9rem]">
-          <img
-            className="w-full h-full object-cover object-top"
-            src={`${product?.productItem.productImage}`}
-            alt={`${product?.productItem.productImage}`}
-          />
-        </div>
-        <div className="ml-5 space-y-1">
-          <p className="font-semibold">{product?.productItem.name}</p>
-          {/* <p className="opavity-70">Size: {product.sizeBuy}, Color: {product.colorBuy}</p> */}
-          {/* <p className="opacity-70 mt-2">Local Brand Teelab Studio</p> */}
-
-          <div className="flex items-center justify-center space-x-5 text-gray-900 pt-6">
-            <p className="font-semibold">Price: {product.totalPrice}đ</p>
-            {/* <p className="line-through opacity-50">250.000đ</p>
-            <p className="text-green-600 font-semibold">-40%</p> */}
-          </div>
+    <div className="p-5 border rounded-md mb-5 flex relative">
+      <div className="w-[3rem] h-[3rem] lg:w-[6rem] lg:h-[6rem]">
+        <img
+          className="w-full h-full object-cover object-top"
+          src={`${product?.productItem.productImage}`}
+          alt={`${product?.productItem.productImage}`}
+        />
+      </div>
+      <div className="ml-2 flex-col">
+        <p className="">{product?.productItem.name}</p>
+        <div className="flex space-x-5 text-gray-900 pt-6">
+          <p className="text-red-600">
+            {product.totalPrice.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </p>
         </div>
       </div>
-      <div className="lg:flex items-center lg:space-x-10 pt-4">
-        <div className="flex items-center space-x-2">
-          <IconButton onClick={() => handleSubQuantity()}>
-            <RemoveCircleOutlineIcon />
-          </IconButton>
-          <span className="py-1 px-7 border rounded-sm">
-            {product.quantity}
-          </span>
-          <IconButton
-            onClick={() => handlePlusQuantity()}
-            sx={{ color: "RGB(145,85,253)" }}
-          >
-            <AddCircleOutlineIcon />
-          </IconButton>
-        </div>
+      <div className="ml-auto flex">
+        {" "}
+        {/* Thêm class ml-auto để đưa phần tử về góc phải */}
+        <div className="lg:flex items-center lg:space-x-10 pt-4">
+          <div className="flex items-center space-x-2">
+            <IconButton onClick={() => handleSubQuantity()}>
+              <RemoveCircleOutlineIcon />
+            </IconButton>
+            <span className="py-1 px-7 border rounded-sm">
+              {product.quantity}
+            </span>
+            <IconButton
+              onClick={() => handlePlusQuantity()}
+              sx={{ color: "RGB(145,85,253)" }}
+            >
+              <AddCircleOutlineIcon />
+            </IconButton>
+          </div>
 
-        <div className="">
-          <Button
-            onClick={() => handleRemove()}
-            sx={{ color: "RGB(220,20,60)", fontWeight: "bold" }}
-          >
-            remove
-          </Button>
+          <div className="">
+            <Button
+              onClick={() => handleRemove()}
+              sx={{
+                color: "RGB(220,20,60)",
+                fontWeight: "bold",
+                position: "absolute",
+                top: 0,
+                right: 0,
+              }}
+            >
+              <CloseOutlined />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Rate, Space } from "antd";
 
 const ProductCard = ({ data }) => {
-  console.log("data", data);
+  // console.log("data", data);
   const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
 
   return (

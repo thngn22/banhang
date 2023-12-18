@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CartItem from "./CartItem";
 import { Button } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,6 +22,7 @@ const Cart = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedPayment, setSelectedPayment] = React.useState(2);
   const [selectedShipment, setSelectedShipment] = React.useState(1);
+  const [totalPrice, setTotalPrice] = useState();
   const [state, setState] = React.useState({
     city: "",
     streetAddress: "",
@@ -37,7 +38,6 @@ const Cart = () => {
       console.log("err", err);
     }
   };
-
   const axiosJWT = axios.create();
   axiosJWT.interceptors.request.use(
     async (config) => {
@@ -75,6 +75,13 @@ const Cart = () => {
     const res = CartService.checkOutCarts(data, auth.accessToken, axiosJWT);
     return res;
   });
+  const { data, status, isSuccess, isError } = mutation;
+  useEffect(() => {
+    if (isSuccess && data) {
+      window.location.href = data;
+    }
+  }, [data, isSuccess]);
+
   const onChangeText = (name) => (e) => {
     setState((s) => ({
       ...s,
@@ -89,6 +96,25 @@ const Cart = () => {
     setSelectedShipment(e.target.value);
   };
   const handleOk = () => {
+    // Kiểm tra nếu city hoặc streetAddress trống
+    if (!state.city.trim() || !state.streetAddress.trim()) {
+      return alert(
+        "Hãy điền đầy đủ thông tin của Thành phố và Địa chỉ giao hàng trước khi đặt hàng"
+      );
+    }
+
+    // Kiểm tra ký tự đặc biệt
+    const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    if (
+      specialCharacterRegex.test(state.streetAddress) ||
+      specialCharacterRegex.test(state.city) ||
+      specialCharacterRegex.test(state.zipCode)
+    ) {
+      return alert(
+        "Không được nhập các ký tự đặc biệt vào Địa chỉ, Thành phố và Zip code"
+      );
+    }
+
     const idCarts = cart?.cartItems.map((item) => item.id);
     mutation.mutate(
       {
@@ -120,134 +146,174 @@ const Cart = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  // const cartItems = useSelector((state) => state.user.cart)
-  // const totalPrice = React.useMemo(
-  //   () =>
-  //     cartItems?.reduce((result, current) => {
-  //       return result + current.price
-  //     }, 0),
-  //   [cartItems]
-  // )
+
+  const calculateTotalPrice = () => {
+    if (cart) {
+      return cart.totalPrice + objectPrice[selectedShipment];
+    }
+    return 0;
+  };
+
+  useEffect(() => {
+    setTotalPrice(calculateTotalPrice());
+  }, [cart, selectedShipment]);
+
+  useEffect(() => {
+    // Lần đầu được mounted
+    setTotalPrice(calculateTotalPrice());
+  }, []);
+
+  // console.log("totalPrice", totalPrice);
 
   return (
-    <div className="lg:grid grid-cols-3 lg:px-16 relative">
-      <div className="col-span-2">
-        {cart?.cartItems?.map((item, index) => (
-          <CartItem key={index} product={item} />
-        ))}
-      </div>
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
+      <section className="text-2xl text-left font-semibold">
+        Giỏ hàng của bạn
+      </section>
+      <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
 
-      <div className="px-5 top-0 h-[100vh] mt-5 lg:mt-0">
-        <div className="border">
-          <p className="uppercase font-bold opacity-60 pb-4">price detail</p>
-          <hr />
+      <div className="lg:grid grid-cols-3 relative">
+        <div className="col-span-2">
+          {cart?.cartItems?.map((item, index) => (
+            <CartItem key={index} product={item} />
+          ))}
+        </div>
 
-          <div className="space-y-3 font-semibold">
-            <div className="flex justify-between pt-3 text-black">
-              <span>Price</span>
-              <span>{cart?.totalPrice}đ</span>
+        <div className="pl-5 top-0 h-[100vh] mt-5 lg:mt-0">
+          <div className="border rounded-md pl-2 pr-2">
+            <p className="uppercase text-xl pb-2 pt-2 text-left">
+              Thông tin đơn hàng
+            </p>
+            <hr class="mt-1 border-t border-gray-300" />
+
+            <div className="space-y-3">
+              <div className="flex text-lg justify-between pt-3 text-black mb-5">
+                <span className="font-semibold">Tổng tiền: </span>
+                <span className="text-red-600 font-semibold">
+                  {cart?.totalPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </span>
+              </div>
             </div>
+            <hr class="mt-1 border-t border-gray-300 pb-3" />
 
-            {/* <div className="flex justify-between pt-3 text-black">
-              <span>Disscount</span>
-              <span className="text-green-600">123đ</span>
-            </div>
+            <ul className="list-disc pl-5 text-sm text-left mb-5">
+              <li>Phí vận chuyển sẽ được tính khi bạn Đặt hàng</li>
+              <li>Hãy điền đầy đủ thông tin khi tiến hàng Đặt hàng</li>
+            </ul>
 
-            <div className="flex justify-between pt-3 text-black">
-              <span>Delivery Charge</span>
-              <span className="text-green-600">123đ</span>
-            </div> */}
+            <Button
+              variant="contained"
+              className="w-full mt-10"
+              sx={{
+                px: "2.5rem",
+                py: ".7rem",
+                bgcolor: "#9155fd",
+                marginBottom: "14px",
+              }}
+              onClick={() => setIsModalOpen(true)}
+            >
+              checkout
+            </Button>
 
-            <div className="flex justify-between pt-3 font-bold">
-              <span>Total Amount</span>
-              <span className="text-green-600">{cart?.totalPrice}đ</span>
-            </div>
+            <Modal
+              title="Đặt hàng"
+              open={isModalOpen}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              okType="default"
+              okText="Đặt hàng"
+              cancelText="Hủy"
+            >
+              <div>
+                <div className="border-[1px] p-2 bg-[#9155fd] text-white ">
+                  Bạn đang đặt hàng cho {cart?.cartItems.length} sản phẩm
+                </div>
+                <h1 className="text-2xl font-bold">Thông tin đặt hàng</h1>
+                <div className="mt-2">
+                  <label>Địa chỉ giao hàng</label>
+                  <Input
+                    value={state.streetAddress}
+                    onChange={onChangeText("streetAddress")}
+                    placeholder="Địa chỉ giao hàng"
+                  />
+                </div>
+                <div className="my-2">
+                  <label>Thành phố</label>
+                  <Input
+                    value={state.city}
+                    onChange={onChangeText("city")}
+                    placeholder="Thành phố"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label>Zip code</label>
+                  <Input
+                    value={state.zipCode}
+                    onChange={onChangeText("zipCode")}
+                    placeholder="Zip code"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="mr-2 block">
+                    Chọn phương thức thanh toán:
+                  </label>
+                  <Radio.Group
+                    onChange={onChangePayment}
+                    value={selectedPayment}
+                  >
+                    <Radio defaultChecked={true} value={2}>
+                      COD
+                    </Radio>
+                    <Radio value={1}>VNPay</Radio>
+                  </Radio.Group>
+                </div>
+                <div className="mb-2">
+                  <label className="mr-2">Chọn phương thức vận chuyển:</label>
+                  <Radio.Group
+                    onChange={onChangeShipment}
+                    value={selectedShipment}
+                  >
+                    <Radio defaultChecked={true} value={1}>
+                      Chuyển phát nhanh
+                    </Radio>
+                    <Radio value={2}>Hỏa tốc</Radio>
+                    <Radio value={3}>Chuyển giao trong ngày</Radio>
+                  </Radio.Group>
+                </div>
+                <div className="flex justify-between pt-3 text-black">
+                  <span>Giá sản phẩm:</span>
+                  <span>
+                    {cart?.totalPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between pt-3 text-black">
+                  <span>Phí vận chuyển:</span>
+                  <span className="opacity-60 text-gray-500">
+                    {objectPrice[selectedShipment].toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between pt-3 text-black">
+                  <span className="font-semibold">Tổng:</span>
+                  <span className="text-red-600 font-semibold">
+                    {totalPrice &&
+                      totalPrice.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                  </span>
+                </div>
+              </div>
+            </Modal>
           </div>
-
-          <Button
-            variant="contained"
-            className="w-full mt-5"
-            sx={{ px: "2.5rem", py: ".7rem", bgcolor: "#9155fd" }}
-            onClick={() => setIsModalOpen(true)}
-          >
-            checkout
-          </Button>
-          <Modal
-            title="Đặt hàng"
-            open={isModalOpen}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            okType="default"
-            okText="Đặt hàng"
-            cancelText="Hủy"
-          >
-            <div>
-              <div className="border-[1px] p-2 bg-[#9155fd] text-white ">
-                Bạn đang đặt hàng cho {cart?.cartItems.length} sản phẩm
-              </div>
-              <h1 className="text-2xl font-bold">Thông tin đặt hàng</h1>
-              <div className="mt-2">
-                <label>Địa chỉ giao hàng</label>
-                <Input
-                  value={state.streetAddress}
-                  onChange={onChangeText("streetAddress")}
-                  placeholder="Địa chỉ giao hàng"
-                />
-              </div>
-              <div className="my-2">
-                <label>Thành phố</label>
-                <Input
-                  value={state.city}
-                  onChange={onChangeText("city")}
-                  placeholder="Thành phố"
-                />
-              </div>
-              <div className="mb-2">
-                <label>Zip code</label>
-                <Input
-                  value={state.zipCode}
-                  onChange={onChangeText("zipCode")}
-                  placeholder="Zip code"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="mr-2 block">
-                  Chọn phương thức thanh toán:
-                </label>
-                <Radio.Group onChange={onChangePayment} value={selectedPayment}>
-                  <Radio value={1}>VNPay</Radio>
-                  <Radio defaultChecked={true} value={2}>
-                    COD
-                  </Radio>
-                </Radio.Group>
-              </div>
-              <div className="mb-2">
-                <label className="mr-2">Chọn phương thức vận chuyển:</label>
-                <Radio.Group
-                  onChange={onChangeShipment}
-                  value={selectedShipment}
-                >
-                  <Radio defaultChecked={true} value={1}>
-                    Chuyển phát nhanh
-                  </Radio>
-                  <Radio value={2}>Hỏa tốc</Radio>
-                  <Radio value={3}>Chuyển giao trong ngày</Radio>
-                </Radio.Group>
-              </div>
-              <div className="flex justify-between pt-3 text-black">
-                <span> Price</span>
-                <span>{cart?.totalPrice}đ</span>
-              </div>
-              <div className="flex justify-between pt-3 text-black">
-                <span>Delivery Charge</span>
-                <span>{objectPrice[selectedShipment]}đ</span>
-              </div>
-              <div className="flex justify-between pt-3 text-black">
-                <span>Total Price</span>
-                <span>{cart?.totalPrice + objectPrice[selectedShipment]}đ</span>
-              </div>
-            </div>
-          </Modal>
         </div>
       </div>
     </div>
