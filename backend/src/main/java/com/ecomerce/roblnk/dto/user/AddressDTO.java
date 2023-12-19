@@ -11,6 +11,7 @@ import lombok.Setter;
 public class AddressDTO {
     private Long id;
     private String city;
-    private String streetAddress;
-    private String zipCode;
+    private String district;
+    private String ward;
+    private String address;
 }
