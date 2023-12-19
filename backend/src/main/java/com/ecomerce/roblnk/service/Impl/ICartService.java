@@ -401,9 +401,10 @@ public class ICartService implements CartService {
                         orders.setUserPaymentMethod(userPaymentMethod1);
                     }
                     Address address = new Address();
-                    address.setStreetAddress(list.getUserAddressRequestv2().getStreetAddress());
                     address.setCity(list.getUserAddressRequestv2().getCity());
-                    address.setZipCode(list.getUserAddressRequestv2().getZipCode());
+                    address.setDistrict(list.getUserAddressRequestv2().getDistrict());
+                    address.setWard(list.getUserAddressRequestv2().getWard());
+                    address.setAddress(list.getUserAddressRequestv2().getAddress());
                     address = addressRepository.save(address);
                     orders.setAddress(address);
                     orders.setUser(user);

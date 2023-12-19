@@ -129,8 +129,9 @@ public class IUserService implements UserService {
         var addressId = addressRepository.findById(id);
         if (addressId.isPresent()) {
             addressId.get().setCity(userUpdateAddressRequest.getCity());
-            addressId.get().setStreetAddress(userUpdateAddressRequest.getStreetAddress());
-            addressId.get().setZipCode(userUpdateAddressRequest.getZipCode());
+            addressId.get().setDistrict(userUpdateAddressRequest.getDistrict());
+            addressId.get().setWard(userUpdateAddressRequest.getWard());
+            addressId.get().setAddress(userUpdateAddressRequest.getAddress());
             addressRepository.save(addressId.get());
             return ResponseEntity.ok("Updated address!");
         } else {

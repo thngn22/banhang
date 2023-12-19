@@ -13,7 +13,7 @@ import org.springframework.format.annotation.NumberFormat;
 @NoArgsConstructor
 public class UserAddressRequestv2 {
     private String city;
-    private String streetAddress;
-    private String zipCode;
-
+    private String district;
+    private String ward;
+    private String address;
 }
