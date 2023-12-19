@@ -22,7 +22,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import { Modal, Rate, Space, Table } from "antd";
+import { Modal, Rate, Space, Table, message } from "antd";
 import Review from "../../components/Product/Review";
 
 function classNames(...classes) {
@@ -458,9 +458,12 @@ export default function ProductDetailPage() {
                       mutation.mutate([dataToUpdate], {
                         onSuccess: (data) => {
                           queryClient.invalidateQueries({ queryKey: ["cart"] });
+                          message.success("Thêm vào giỏ hàng thành công");
+                        },
+                        onError: (err) => {
+                          message.error(`Lỗi ${err}`);
                         },
                       });
-                      alert("thêm vào giỏ hàng thành công");
                     }}
                   >
                     Add to Cart

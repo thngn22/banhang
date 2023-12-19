@@ -4,13 +4,14 @@ import { Button } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import * as CartService from "../../../services/CartService";
-import { Modal, Input, Radio } from "antd";
+import { Modal, Input, Radio, message } from "antd";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
+import ProvinceSelection from "./Address";
 
 const objectPrice = {
   1: 18000,
@@ -25,8 +26,9 @@ const Cart = () => {
   const [totalPrice, setTotalPrice] = useState();
   const [state, setState] = React.useState({
     city: "",
-    streetAddress: "",
-    zipCode: "",
+    district: "",
+    ward: "",
+    address: "",
   });
   const dispatch = useDispatch();
 
@@ -77,17 +79,10 @@ const Cart = () => {
   });
   const { data, status, isSuccess, isError } = mutation;
   useEffect(() => {
-    if (isSuccess && data) {
+    if (isSuccess && data && selectedPayment === 1) {
       window.location.href = data;
     }
   }, [data, isSuccess]);
-
-  const onChangeText = (name) => (e) => {
-    setState((s) => ({
-      ...s,
-      [name]: e?.target?.value || "",
-    }));
-  };
 
   const onChangePayment = (e) => {
     setSelectedPayment(e.target.value);
@@ -96,51 +91,52 @@ const Cart = () => {
     setSelectedShipment(e.target.value);
   };
   const handleOk = () => {
-    // Kiểm tra nếu city hoặc streetAddress trống
-    if (!state.city.trim() || !state.streetAddress.trim()) {
-      return alert(
-        "Hãy điền đầy đủ thông tin của Thành phố và Địa chỉ giao hàng trước khi đặt hàng"
-      );
-    }
 
-    // Kiểm tra ký tự đặc biệt
-    const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
     if (
-      specialCharacterRegex.test(state.streetAddress) ||
-      specialCharacterRegex.test(state.city) ||
-      specialCharacterRegex.test(state.zipCode)
+      state.city !== "" &&
+      state.district !== "" &&
+      state.ward !== "" &&
+      state.address !== ""
     ) {
-      return alert(
-        "Không được nhập các ký tự đặc biệt vào Địa chỉ, Thành phố và Zip code"
-      );
-    }
+      const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+      if (specialCharacterRegex.test(state.address)) {
+        message.error("Địa chỉ không được chứa các ký tự đặc biệt");
+      } else {
+        const idCarts = cart?.cartItems.map((item) => item.id);
 
-    const idCarts = cart?.cartItems.map((item) => item.id);
-    mutation.mutate(
-      {
-        cartItemId: idCarts,
-        userAddressRequestv2: {
-          city: state.city,
-          streetAddress: state.streetAddress,
-          zipCode: state.zipCode,
-        },
-        paymentMethodId: selectedPayment,
-        deliveryId: selectedShipment,
-      },
-      {
-        onSuccess: (data) => {
-          queryClient.invalidateQueries({ queryKey: ["cart"] });
-          alert("Đặt hàng thành công");
-          setIsModalOpen(false);
-          setState((s) => ({
-            ...s,
-            city: "",
-            streetAddress: "",
-            zipCode: "",
-          }));
-        },
+        mutation.mutate(
+          {
+            cartItemId: idCarts,
+            userAddressRequestv2: {
+              city: state.city,
+              district: state.district,
+              ward: state.ward,
+              address: state.address,
+            },
+            paymentMethodId: selectedPayment,
+            deliveryId: selectedShipment,
+          },
+          {
+            onSuccess: (data) => {
+              queryClient.invalidateQueries({ queryKey: ["cart"] });
+              message.success("Đặt hàng thành công");
+              setIsModalOpen(false);
+              setState((s) => ({
+                ...s,
+                city: "",
+                streetAddress: "",
+                zipCode: "",
+              }));
+            },
+            onError: (err) => {
+              message.error(`Lỗi ${err}`);
+            },
+          }
+        );
       }
-    );
+    } else {
+      message.warning("Hãy nhập đầy đủ thông tin địa chỉ trước khi Đặt hàng");
+    }
   };
 
   const handleCancel = () => {
@@ -232,7 +228,7 @@ const Cart = () => {
                   Bạn đang đặt hàng cho {cart?.cartItems.length} sản phẩm
                 </div>
                 <h1 className="text-2xl font-bold">Thông tin đặt hàng</h1>
-                <div className="mt-2">
+                {/* <div className="mt-2">
                   <label>Địa chỉ giao hàng</label>
                   <Input
                     value={state.streetAddress}
@@ -255,9 +251,14 @@ const Cart = () => {
                     onChange={onChangeText("zipCode")}
                     placeholder="Zip code"
                   />
-                </div>
-                <div className="mb-2">
-                  <label className="mr-2 block">
+                </div> */}
+                <ProvinceSelection
+                  state={state}
+                  setState={setState}
+                  isModalOpen={isModalOpen}
+                />
+                <div className="mb-2 mt-4">
+                  <label className="mr-2 block font-semibold">
                     Chọn phương thức thanh toán:
                   </label>
                   <Radio.Group
@@ -270,8 +271,10 @@ const Cart = () => {
                     <Radio value={1}>VNPay</Radio>
                   </Radio.Group>
                 </div>
-                <div className="mb-2">
-                  <label className="mr-2">Chọn phương thức vận chuyển:</label>
+                <div className="mb-2 mt-4">
+                  <label className="mr-2 block font-semibold">
+                    Chọn phương thức vận chuyển:
+                  </label>
                   <Radio.Group
                     onChange={onChangeShipment}
                     value={selectedShipment}

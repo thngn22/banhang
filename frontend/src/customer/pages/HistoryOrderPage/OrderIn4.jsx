@@ -27,9 +27,7 @@ const OrderIn4 = (props) => {
           <div className="flex items-center space-x-2">
             <p className="font-semibold">Địa chỉ:</p>
             <p>
-              {detailOrder.address.zipCode}, đường{" "}
-              {detailOrder.address.streetAddress}, thành phố{" "}
-              {detailOrder.address.city}
+              {detailOrder.address.address},{detailOrder.address.ward}, {detailOrder.address.district}, {detailOrder.address.city}
             </p>
           </div>
         </div>

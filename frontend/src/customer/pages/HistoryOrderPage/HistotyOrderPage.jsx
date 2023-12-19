@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { WrapperHeader } from "./style";
 import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
 import InputField from "../../components/InputField";
-import { Button, Modal } from "antd";
+import { Button, Modal, Select, Slider, Pagination } from "antd";
+import { Option } from "antd/es/mentions";
 import OrderItem from "../../components/Order/OrderItem";
 import OrderDetail from "./OrderDetail";
 import * as OrderService from "../../../services/OrderService";
@@ -18,6 +19,11 @@ import * as AuthService from "../../../services/AuthService";
 const HistotyOrderPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
 
   const refreshToken = async () => {
     try {
@@ -58,7 +64,15 @@ const HistotyOrderPage = () => {
       auth.accessToken,
       axiosJWT
     );
-    return res;
+
+    const filteredHistoryOrder = res
+      .filter((order) => {
+        const orderDate = new Date(order.createdAt);
+        const filterDate = new Date();
+        return orderDate < filterDate;
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return filteredHistoryOrder;
   };
 
   const { data: historyOrder, refetch } = useQuery({
@@ -68,18 +82,12 @@ const HistotyOrderPage = () => {
     enabled: Boolean(auth?.accessToken),
   });
 
-  const styleInputField = {
-    width: "388px",
-  };
-  const titleSpanStyle = {
-    textAlign: "left",
-    width: "100px", // Độ dài cố định của các span "Tiêu đề"
-    marginRight: "10px", // Khoảng cách 10px giữa span "Tiêu đề" và InputField
-    fontWeight: "bold",
-  };
-
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [popoverFieldValue, setPopoverFieldValue] = useState(null);
+  const pageSize = 3;
+  const startIndex = (pageNumber - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const visibleHistoryOrder = historyOrder
+    ? historyOrder.slice(startIndex, endIndex)
+    : [];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -137,8 +145,10 @@ const HistotyOrderPage = () => {
           }}
         >
           <WrapperHeader>Lịch sử đơn hàng</WrapperHeader>
-          {historyOrder ? (
-            historyOrder.map((order, index) => (
+
+          {/* List */}
+          {visibleHistoryOrder ? (
+            visibleHistoryOrder.map((order, index) => (
               <div
                 key={index}
                 className="rounded-md"
@@ -251,6 +261,15 @@ const HistotyOrderPage = () => {
             ))
           ) : (
             <p>Không có đơn hàng để hiển thị.</p>
+          )}
+
+          {historyOrder && (
+            <Pagination
+              total={historyOrder.length}
+              pageSize={pageSize}
+              defaultCurrent={1}
+              onChange={onChange}
+            />
           )}
         </div>
       </div>
