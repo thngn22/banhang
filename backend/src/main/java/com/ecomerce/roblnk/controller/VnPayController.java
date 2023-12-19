@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.model.OrderItem;
 import com.ecomerce.roblnk.model.StatusOrder;
@@ -65,6 +66,16 @@ public class VnPayController {
         var order = orderRepository.findById(Long.valueOf(orderInfo)).orElseThrow();
         if (paymentStatus == 1 || paymentStatus == 0) {
             var orderDetail = orderMapper.toOrderResponse(order);
+            for (OrderItemDTO orderItemDTO : orderDetail.getOrderItems()) {
+                var productItem = productItemRepository.findById(orderItemDTO.getProductItemId()).orElseThrow();
+                if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                    orderItemDTO.setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    orderItemDTO.setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                    orderItemDTO.setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    orderItemDTO.setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                }
+            }
             var userEmail = orderDetail.getUser().getEmail();
             var name = orderDetail.getUser().getFirstName() + " " + orderDetail.getUser().getLastName();
             var shippingTime = orderDetail.getDelivery().getEstimatedShippingTime();
