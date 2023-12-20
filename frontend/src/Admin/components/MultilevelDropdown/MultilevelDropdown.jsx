@@ -50,7 +50,7 @@ const MultilevelDropdown = (props) => {
     <div>
       <Dropdown overlay={menu} trigger={["click"]}>
         <Button>
-          <span>Button</span> <DownOutlined />
+          <span>Chọn Danh mục của sản phẩm</span> <DownOutlined />
         </Button>
       </Dropdown>
     </div>

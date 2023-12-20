@@ -18,9 +18,13 @@ import { useQuery } from "@tanstack/react-query";
 import * as CategoryService from "../../services/CategoryService";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategory } from "../../redux/slides/categorySlice";
+import AdminStatistical from "../components/AdminStatistical/AdminStatistical";
 
 function AdminPage(props) {
+  const dispatch = useDispatch();
+
   const items = [
+    getItem("Thống kê tổng quan", "statisticalOverview", <FileDoneOutlined />),
     getItem("Người dùng", "sub1", <UserOutlined />, [
       getItem("Quản lý User", "listUsers", <FormOutlined />),
     ]),
@@ -32,10 +36,24 @@ function AdminPage(props) {
       getItem("Quản lý Đơn hàng", "listOrders", <FormOutlined />),
     ]),
   ];
-  const rootSubmenuKeys = ["user", "product", "order"];
+  const rootSubmenuKeys = ["user", "product", "order", "statistical"];
 
   const [openKeys, setOpenKeys] = useState(["sub1"]);
   const [keySelected, setKeySelected] = useState("");
+
+  const getAllCatesAdmin = async () => {
+    const res = await CategoryService.getAllTreeCategory();
+    return res;
+  };
+  const { data: categoriesRes } = useQuery({
+    queryKey: ["categoriesRes"],
+    queryFn: getAllCatesAdmin,
+  });
+  useEffect(() => {
+    if (categoriesRes) {
+      dispatch(getCategory(categoriesRes));
+    }
+  }, [categoriesRes]);
 
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
@@ -57,7 +75,7 @@ function AdminPage(props) {
       case "listOrders":
         return <AdminOrder />;
       default:
-        return <WrapperHeader>Trang quản lý</WrapperHeader>;
+        return <AdminStatistical />;
     }
   };
 

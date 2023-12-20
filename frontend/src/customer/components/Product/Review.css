@@ -21,7 +21,7 @@
   }
   
   /* Màu chữ khi hover trên header */
-  .ant-table-thead > tr > th:hover {
+  .review .ant-table-thead > tr > th:hover {
     color: #ffffff; /* Thay đổi màu chữ khi hover nếu cần */
   }
 

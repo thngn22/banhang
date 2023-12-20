@@ -2,7 +2,6 @@ import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
@@ -12,38 +11,16 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
 import { useNavigate } from "react-router-dom";
 import InputField from "../InputField";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import * as UserSerVice from "../../../services/UserService";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { useEffect } from "react";
-import jwt_decode, { jwtDecode } from "jwt-decode";
-import { useDispatch, useSelector } from "react-redux";
-import userSlide, { updateUser } from "../../../redux/slides/userSlide";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
+import * as AuthService from "../../../services/AuthService"
 
 const defaultTheme = createTheme();
 
@@ -52,7 +29,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
 
-  const mutation = useMutationHook((data) => UserSerVice.loginUser(data));
+  const mutation = useMutationHook((data) => AuthService.loginUser(data));
 
   const { data, status, isSuccess, isError } = mutation;
 
@@ -130,7 +107,7 @@ export default function SignIn() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign in
+              Đăng nhập
             </Typography>
             {status === "error" && (
               <Typography style={{ color: "red" }}>
@@ -168,7 +145,7 @@ export default function SignIn() {
                 sx={{ mt: 3, mb: 2 }}
                 onClick={handleSignIn}
               >
-                Sign In
+                Tiến hành Đăng nhập
               </Button>
               <Grid container>
                 <Grid item xs sx={{ textAlign: "left" }}>
@@ -178,7 +155,7 @@ export default function SignIn() {
                     onClick={handleForgot}
                     sx={{ cursor: "pointer" }}
                   >
-                    Forgot password?
+                    Quên mật khẩu?
                   </Link>
                 </Grid>
                 <Grid item>
@@ -188,7 +165,7 @@ export default function SignIn() {
                     onClick={handleSignUp}
                     sx={{ cursor: "pointer" }}
                   >
-                    {"Don't have an account? Sign Up"}
+                    {"Bạn chưa có tài khoản? Đăng ký ở đây"}
                   </Link>
                 </Grid>
               </Grid>

@@ -17,26 +17,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as UserSerVice from "../../../services/UserService";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
+import * as AuthService from "../../../services/AuthService";
+import { message } from "antd";
 
 const defaultTheme = createTheme();
 
@@ -48,7 +30,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const mutation = useMutationHook((data) => UserSerVice.signUp(data));
+  const mutation = useMutationHook((data) => AuthService.signUp(data));
 
   // const { data, status } = mutation;
 
@@ -56,15 +38,6 @@ export default function SignUp() {
 
   const inputFullWidth = {
     width: "100%",
-  };
-
-  const handleSubmit = (event) => {
-    // event.preventDefault();
-    // const data = new FormData(event.currentTarget);
-    // console.log({
-    //   email: data.get("email"),
-    //   password: data.get("password"),
-    // });
   };
 
   const handleOnChangeFirstName = (value) => {
@@ -86,17 +59,23 @@ export default function SignUp() {
     setConfirmPassword(value);
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = (event) => {
+    event.preventDefault();
     mutation.mutate({
       firstName: firstName,
       lastName: lastName,
       userName: userName,
       email: email,
       password: password,
+    },{
+      onSuccess:()=>{
+        message.success("Đã gửi mã OTP")
+      },
+      onError:(error)=>{
+        message.error(`Lỗi ${error.message}`)
+      }
     });
-
-    localStorage.setItem('email', email)
-    navigate("/OTP");
+    navigate(`/otp/${encodeURIComponent(email)}`);
   };
 
   return (
@@ -127,14 +106,9 @@ export default function SignUp() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign up
+              Đăng ký
             </Typography>
-            <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit}
-              sx={{ mt: 3 }}
-            >
+            <form onSubmit={handleSignUp}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   {/* <TextField
@@ -204,7 +178,7 @@ export default function SignUp() {
                   />
                 </Grid>
                 {password !== confirmPassword && (
-                  <Typography style={{ color: "red", marginLeft:"16px" }}>
+                  <Typography style={{ color: "red", marginLeft: "16px" }}>
                     ConfirmPassword không trùng khớp
                   </Typography>
                 )}
@@ -219,22 +193,22 @@ export default function SignUp() {
                   !confirmPassword.length ||
                   !(password === confirmPassword)
                 }
-                type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={handleSignUp}
               >
-                Sign Up
+                Tiến hành Đăng ký
               </Button>
-              <Grid container justifyContent="flex-end">
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    Already have an account? Sign in
-                  </Link>
-                </Grid>
+            </form>
+
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="#" variant="body2">
+                  Bạn đã có tài khoản? Hãy Đăng nhập
+                </Link>
               </Grid>
-            </Box>
+            </Grid>
           </Box>
         </Container>
       </ThemeProvider>

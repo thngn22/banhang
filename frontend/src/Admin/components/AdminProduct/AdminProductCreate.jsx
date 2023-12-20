@@ -11,12 +11,12 @@ import * as ProductService from "../../../services/ProductService";
 import MultilevelDropdown from "../MultilevelDropdown/MultilevelDropdown";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import * as AuthService from "../../../services/AuthService"
+import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 
 const AdminProductCreate = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const [dataNameProduct, setDataNameProduct] = useState("");
   const [dataCategory, setDataCategory] = useState("");
@@ -34,8 +34,6 @@ const AdminProductCreate = () => {
   const handleCombinedDataChange = (data) => {
     setCombinedData(data);
   };
-
-
 
   const refreshToken = async () => {
     try {
@@ -71,9 +69,6 @@ const AdminProductCreate = () => {
     }
   );
 
-
-
-
   const mutation = useMutationHook((data) => {
     const res = ProductService.createProduct(data, auth.accessToken, axiosJWT);
     return res;
@@ -81,51 +76,66 @@ const AdminProductCreate = () => {
   const { data, status, isSuccess, isError } = mutation;
 
   const handleCreateProductClick = () => {
-    const productCreateRequest = {
-      name: dataNameProduct,
-      description: dataDescription,
-      productImage: defaultImage,
-      categoryId: parseInt(dataCategory.id), // Giả sử dataCategory là ID dưới dạng chuỗi
-    };
+    if (
+      dataNameProduct !== "" &&
+      dataDescription !== "" &&
+      defaultImage !== "" &&
+      parseInt(dataCategory.id) !== null
+    ) {
+      const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+      if (
+        specialCharacterRegex.test(dataNameProduct) ||
+        specialCharacterRegex.test(dataDescription)
+      ) {
+        message.error("Không được nhập các ký tự đặc biệt");
+      } else {
+        const productCreateRequest = {
+          name: dataNameProduct,
+          description: dataDescription,
+          productImage: defaultImage,
+          categoryId: parseInt(dataCategory.id),
+        };
 
-    const productItems = combinedData.map((item) => ({
-      price: item.price,
-      quantityInStock: item.quantity,
-      productImage: item.productImage, // Giả sử 'productImage' là trường tương ứng trong combinedData
-      size: item.size,
-      color: item.color,
-    }));
+        const productItems = combinedData.map((item) => ({
+          price: item.price,
+          quantityInStock: item.quantity,
+          productImage: item.productImage,
+          size: item.size,
+          color: item.color,
+        }));
 
-    const apiPayload = {
-      ...productCreateRequest,
-      productItems,
-    };
+        const apiPayload = {
+          ...productCreateRequest,
+          productItems,
+        };
 
-    setDataAPICreate(apiPayload);
-    console.log("API Payload:", apiPayload);
+        setDataAPICreate(apiPayload);
 
-    mutation.mutate(apiPayload, {
-      onSuccess: () => {
-        // Hiển thị thông báo thành công
-        message.success("Thêm mới sản phẩm thành công");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      },
-      onError: (error) => {
-        // Hiển thị thông báo lỗi
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      },
-    });
+        mutation.mutate(apiPayload, {
+          onSuccess: () => {
+            message.success("Thêm mới sản phẩm thành công");
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          onError: (error) => {
+            message.error(`Đã xảy ra lỗi: ${error.message}`);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+        });
+      }
+    } else {
+      message.warning(
+        "Hãy nhập đầy đủ thông tin địa chỉ trước khi Tạo sản phẩm"
+      );
+    }
   };
 
   const handleMenuItemClick = (id, name) => {
     setDataCategory({ id, name });
   };
-
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>

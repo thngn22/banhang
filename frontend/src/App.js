@@ -1,7 +1,7 @@
 import "./App.css";
 
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import AppRouter, { routes } from "./routes/index.js";
+import AppRouter from "./routes/index.js";
 import { Fragment, useEffect, useState } from "react";
 import DefaultComponent from "./customer/components/DefaultComponent/DefaultComponent";
 
@@ -29,7 +29,6 @@ function App() {
   const auth = useSelector((state) => state.auth.login.currentUser);
   // console.log(auth);
 
-
   const location = useLocation(); // Sử dụng hook useLocation để lấy thông tin về địa chỉ hiện tại
   const currentPath = location.pathname;
   useEffect(() => {
@@ -40,62 +39,7 @@ function App() {
 
   return (
     <div className="App">
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <DefaultComponent>
-              <HomePage />
-            </DefaultComponent>
-          }
-        />
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/forgot" element={<ForgotPassword />} />
-        <Route path="/register" element={<SignUp />} />
-        <Route path="/otp" element={<ConfirmOTP />} />
-        <Route
-          path="/product/:productId"
-          element={
-            <DefaultComponent>
-              <ProductDetailPage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/products/category/:categoryId/:categoryName"
-          element={
-            <DefaultComponent>
-              <ProductPage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/carts"
-          element={
-            <DefaultComponent>
-              <Cart />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <DefaultComponent>
-              <ProfilePage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/history-order"
-          element={
-            <DefaultComponent>
-              <HistoryOrderPage />
-            </DefaultComponent>
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Routes>
+      <AppRouter />
     </div>
   );
 }
