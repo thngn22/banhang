@@ -72,7 +72,7 @@ export default function SignIn() {
   }, [isSuccess]);
 
   const handleGetProfileUser = async (accessToken) => {
-    const res = await UserSerVice.getProfileUser(accessToken);
+    const res = await UserSerVice.getProfileUserInLogin(accessToken);
     const decode = jwtDecode(accessToken);
     const isAdmin = decode.role[0] === "ROLE_ADMINISTRATOR";
     dispatch(loginSuccess({ ...res, accessToken, isAdmin }));

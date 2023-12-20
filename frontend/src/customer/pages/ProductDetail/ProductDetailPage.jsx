@@ -24,6 +24,7 @@ import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import { Modal, Rate, Space, Table, message } from "antd";
 import Review from "../../components/Product/Review";
+import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -51,10 +52,6 @@ export default function ProductDetailPage() {
       return ProductService.getProductDetail(productId);
     },
   });
-
-  // console.log("productDetail", productDetail?.reviews);
-
-  // console.log("productDetail", productDetail);
 
   React.useEffect(() => {
     if (productDetail) {
@@ -534,6 +531,7 @@ export default function ProductDetailPage() {
         {/* Smililer Products */}
         <section className="text-xl text-left">Sản phẩm bán được nhiều</section>
         <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
+        <MultiCarousel />
         {/* Smililer Products */}
 
         <Modal
