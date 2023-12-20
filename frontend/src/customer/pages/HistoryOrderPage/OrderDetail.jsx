@@ -18,7 +18,7 @@ const OrderDetail = (props) => {
       <hr className="my-2 border-t-2 border-gray-300" />
 
       <h4 className="text-xl font-semibold mb-2">Danh sách sản phẩm</h4>
-      <OrderItems />
+      <OrderItems setIsModalOpen={props.setIsModalOpen} />
       <hr className="my-2 border-t-2 border-gray-300" />
 
       <h4 className="text-xl font-semibold mb-2">Chi tiết giá</h4>

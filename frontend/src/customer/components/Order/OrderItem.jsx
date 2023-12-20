@@ -86,7 +86,13 @@ const Order = ({ orderId, auth }) => {
                     <p>{`x${item.quantity}`}</p>
                   </div>
                   <div className="flex space-x-2">
-                    <p className="text-red-500">{`${item.totalPrice} vnđ`}</p>
+                    <p className="text-red-500">{`${item.totalPrice.toLocaleString(
+                      "vi-VN",
+                      {
+                        style: "currency",
+                        currency: "VND",
+                      }
+                    )}`}</p>
                   </div>
                 </div>
               </div>

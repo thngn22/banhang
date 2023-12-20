@@ -52,6 +52,8 @@ export default function ProductDetailPage() {
     },
   });
 
+  // console.log("productDetail", productDetail?.reviews);
+
   // console.log("productDetail", productDetail);
 
   React.useEffect(() => {
@@ -526,7 +528,7 @@ export default function ProductDetailPage() {
 
         {/* Recent Review & Ratings */}
         <section className="mt-4 mb-4">
-          <Review dataReviews={[]} />
+          <Review dataReviews={productDetail?.reviews} />
         </section>
 
         {/* Smililer Products */}

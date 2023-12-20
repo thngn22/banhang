@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { WrapperHeader } from "./style";
 import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
 import InputField from "../../components/InputField";
-import { Button, Modal, Select, Slider, Pagination } from "antd";
+import { Button, Modal, Select, Slider, Pagination, message } from "antd";
 import { Option } from "antd/es/mentions";
 import OrderItem from "../../components/Order/OrderItem";
 import OrderDetail from "./OrderDetail";
@@ -67,11 +67,11 @@ const HistotyOrderPage = () => {
 
     const filteredHistoryOrder = res
       .filter((order) => {
-        const orderDate = new Date(order.createdAt);
+        const orderDate = new Date(order.updateAt);
         const filterDate = new Date();
         return orderDate < filterDate;
       })
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort((a, b) => new Date(b.updateAt) - new Date(a.updateAt));
     return filteredHistoryOrder;
   };
 
@@ -123,6 +123,28 @@ const HistotyOrderPage = () => {
         return "gray";
     }
   };
+  const renderTextState = (orderStatus) => {
+    switch (orderStatus) {
+      case "DA_VAN_CHUYEN":
+        return "Đang vận chuyển";
+      case "DA_GIAO_HANG":
+        return "Đã giao hàng";
+      case "GIAO_THAT_BAI":
+        return "Giao thất bại";
+      case "DA_BI_NGUOI_DUNG_HUY":
+        return "Hủy";
+      case "DA_BI_HE_THONG_HUY":
+        return "Hệ thống hủy";
+      case "DANG_XU_LY":
+        return "Đang xử lý";
+      case "DANG_CHO_XU_LY":
+        return "Đang xử lý";
+      case "HOAN_TAT":
+        return "Đơn hoàn thành";
+      default:
+        return "Hoàn tiền";
+    }
+  };
   const mutationCancel = useMutationHook((data) => {
     const res = OrderService.cancelOrder(data, auth.accessToken, axiosJWT);
     return res;
@@ -144,20 +166,22 @@ const HistotyOrderPage = () => {
             minHeight: "70vh",
           }}
         >
-          <WrapperHeader>Lịch sử đơn hàng</WrapperHeader>
+          <section className="text-2xl text-left font-semibold mt-2">
+            Lịch sử mua hàng
+          </section>
+          <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
 
           {/* List */}
           {visibleHistoryOrder ? (
             visibleHistoryOrder.map((order, index) => (
               <div
                 key={index}
-                className="rounded-md"
+                className=""
                 style={{
-                  boxShadow: "0 0 4px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  padding: "0 16px",
                   height: "100%", // Đảm bảo chiếm hết độ cao của cha
                   marginBottom: "30px",
                 }}
@@ -166,12 +190,15 @@ const HistotyOrderPage = () => {
                   style={{
                     height: "20px",
                     width: "100%",
-                    paddingBottom: "4px",
-                    marginTop: "4px",
+                    padding: "0 14px",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    minHeight: "28px",
+                    backgroundColor: "#034ea1",
+                    color: "#fff",
                   }}
+                  className="font-semibold"
                 >
                   <p>{order.createdAt}</p>
                   <div style={{ display: "flex" }}>
@@ -180,16 +207,27 @@ const HistotyOrderPage = () => {
                     >
                       {order.delivery.name}
                     </p>
-                    <p style={{ paddingLeft: "10px" }}>{order.statusOrder}</p>
+                    <p style={{ paddingLeft: "10px" }}>
+                      {renderTextState(order.statusOrder)}
+                    </p>
                   </div>
                 </div>
                 <div style={{ width: "100%" }}>
                   <OrderItem orderId={order.id} auth={auth} />
                 </div>
-                <div style={{ width: "100%", textAlign: "right" }}>
+                <div
+                  style={{
+                    width: "100%",
+                    textAlign: "right",
+                    marginRight: "24px",
+                  }}
+                >
                   <span style={{ marginRight: "10px" }}>Tổng tiền:</span>
                   <span className="font-semibold text-green-600">
-                    {order.finalPayment} vnđ
+                    {order.finalPayment.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
                   </span>
                 </div>
 
@@ -199,6 +237,7 @@ const HistotyOrderPage = () => {
                     width: "100%",
                     justifyContent: "flex-end",
                     margin: "6px 0",
+                    marginRight: "24px",
                   }}
                 >
                   <Button
@@ -233,18 +272,21 @@ const HistotyOrderPage = () => {
                         if (order?.statusOrder === "DANG_XU_LY") {
                           mutationCancel.mutate(order?.id, {
                             onSuccess: () => {
-                              alert("Hủy đơn hàng thành công");
+                              message.success("Hủy đơn hàng thành công");
                               refetch();
+                            },
+                            onError: (err) => {
+                              console.log(`Lỗi ${err}`);
                             },
                           });
                         } else if (order?.statusOrder === "DA_GIAO_HANG") {
                           mutationConfirm.mutate(order?.id, {
                             onSuccess: () => {
-                              alert("Hoàn thành đơn hàng thành công");
+                              message.success("Hoàn thành đơn hàng thành công");
                               refetch();
                             },
-                            onError: () => {
-                              console.log("lỗi");
+                            onError: (err) => {
+                              console.log(`Lỗi ${err}`);
                             },
                           });
                         }
@@ -285,7 +327,7 @@ const HistotyOrderPage = () => {
         footer={null}
         width={800}
       >
-        <OrderDetail />
+        <OrderDetail setIsModalOpen={setIsModalOpen} />
       </Modal>
     </div>
   );
