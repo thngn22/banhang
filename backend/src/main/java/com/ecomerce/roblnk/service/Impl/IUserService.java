@@ -93,15 +93,11 @@ public class IUserService implements UserService {
             user.setLastName(request.getLastName());
             user.setDob(request.getDob());
             var image = request.getAvatar();
-            var oldImage = user.getAvatar();
             if (image != null) {
-                if (oldImage != null && !oldImage.equals(image)){
-                    var urlImage = productService.getURLPictureAndUploadToCloudinary(image);
-                    if (urlImage != null) {
-                        user.setAvatar(urlImage);
-                    }
+                var urlImage = productService.getURLPictureAndUploadToCloudinary(image);
+                if (urlImage != null) {
+                    user.setAvatar(urlImage);
                 }
-
             }
             userRepository.save(user);
             return ResponseEntity.ok("successfully saved!");
