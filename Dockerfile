@@ -1,8 +1,21 @@
-#Build
-#Multi-Staging
+FROM openjdk:17 AS base
+WORKDIR /app/backend
+COPY backend/.mvn/ .mvn
+COPY backend/mvnw mvnw
+COPY backend/src ./src
+COPY backend/mvnw ./
+COPY backend/mvnw.cmd ./
+COPY backend/pom.xml ./
+
+FROM base AS development
+CMD ["./mvnw", "spring-boot:run"]
+
+FROM base AS build
+WORKDIR /app/backend
+RUN ./mvnw clean install -DskipTests
+
 FROM openjdk:17
-WORKDIR /app
-ARG JAR_FILE=backend/target/roblnk-1.jar
-COPY ${JAR_FILE} app.jar
 EXPOSE 7586
-CMD ["java", "-jar", "app.jar"]
+COPY --from=build /app/backend/target/roblnk-1.jar app.jar
+CMD ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+
