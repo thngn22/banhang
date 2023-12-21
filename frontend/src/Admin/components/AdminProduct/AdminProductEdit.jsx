@@ -15,6 +15,7 @@ import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import axios from "axios";
 import * as AuthService from "../../../services/AuthService";
+import CustomInput from "../../../customer/components/CKEditor/customInput";
 
 const AdminProductEdit = (props) => {
   // console.log("key", props.idDetailProduct);
@@ -211,6 +212,7 @@ const AdminProductEdit = (props) => {
             onDataChange={setDataDescription}
             dataDetail={dataDescription}
           />
+          <CustomInput dataDetail={dataDescription} onDataChange={setDataDescription} />
         </div>
 
         <div

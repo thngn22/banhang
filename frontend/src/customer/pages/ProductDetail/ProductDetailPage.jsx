@@ -191,6 +191,8 @@ export default function ProductDetailPage() {
     return res;
   });
 
+  console.log("des",productDetail?.description);
+
   return (
     <div className="bg-white">
       <div className="pt-6 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
@@ -484,14 +486,12 @@ export default function ProductDetailPage() {
               position: "relative",
               overflow: "hidden",
               transition: "height 0.5s ease-in-out", // Thêm hiệu ứng chuyển động
+              textAlign: "left",
             }}
           >
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
+            <div
+              dangerouslySetInnerHTML={{ __html: productDetail?.description }}
+            />
             {contentHeight <= 100 && (
               <div
                 style={{
@@ -519,7 +519,7 @@ export default function ProductDetailPage() {
             }}
             onClick={toggleDescription}
           >
-            {expanded ? "Xem thêm" : "Thu gọn"}
+            {expanded ? "Thu gọn" : "Xem thêm"}
           </Button>
         </section>
 
