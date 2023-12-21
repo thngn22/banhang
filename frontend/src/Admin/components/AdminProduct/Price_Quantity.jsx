@@ -1,4 +1,4 @@
-import { Table, InputNumber, Button, Checkbox } from "antd";
+import { Table, InputNumber, Button, Checkbox, message } from "antd";
 import React, { useEffect, useState } from "react";
 
 const Price_Quantity = (props) => {
@@ -133,6 +133,7 @@ const Price_Quantity = (props) => {
     }));
 
     console.log("updatedData", updatedData);
+    message.success("Lưu biến thể thành công")
 
     // Gọi hàm updateCombinedData để cập nhật combinedData trong GroupVariation
     updateCombinedData(updatedData);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Switch } from "antd";
+import { Switch, message } from "antd";
 import { Button } from "antd";
 import Price_Quantity from "./Price_Quantity";
 import Variations from "./Variations";
@@ -72,7 +72,6 @@ const GroupVariation = (props) => {
     }
   }, [productItemsDetail]);
 
-
   useEffect(() => {
     if (test) {
       setDefaultImage(test);
@@ -87,7 +86,6 @@ const GroupVariation = (props) => {
     }
   };
 
-
   const combineData = () => {
     let combined = [];
 
@@ -96,7 +94,6 @@ const GroupVariation = (props) => {
         combined.push({ ...colorItem, ...sizeItem });
       });
     });
-
 
     let newCombined = [];
 
@@ -125,13 +122,31 @@ const GroupVariation = (props) => {
     setCombinedData(newCombined);
   };
 
-
-
   const handleDoneClick = () => {
     if (dataColor.length > 0 && dataSize.length > 0) {
-      combineData();
-      setShowPriceQuantity(true);
+      const duplicateColor = hasDuplicates(dataColor, "color");
+      const duplicateSize = hasDuplicates(dataSize, "size");
+      if (duplicateColor.length > 0 || duplicateSize.length > 0) {
+        // Display duplicate message
+        if (duplicateColor.length > 0) {
+          message.warning("Có màu trùng lặp trong danh sách!");
+        }
+        if (duplicateSize.length > 0) {
+          message.warning("Có kích thước trùng lặp trong danh sách!");
+        }
+      } else {
+        combineData();
+        setShowPriceQuantity(true);
+      }
     }
+  };
+  const hasDuplicates = (array, property) => {
+    const values = array.map((item) => item[property]);
+    const uniqueValues = [...new Set(values)];
+    const duplicates = values.filter(
+      (value, index) => values.indexOf(value) !== index
+    );
+    return [...new Set(duplicates)];
   };
 
   useEffect(() => {
@@ -147,14 +162,10 @@ const GroupVariation = (props) => {
     onDefaultImageChange(imageData);
   };
 
-
-
   const updateCombinedData = (updatedData) => {
     setCombinedData(updatedData);
     props.onCombinedDataChange(updatedData);
   };
-
-
 
   return (
     <div>

@@ -2,46 +2,36 @@ import axios from "axios";
 
 const axiosJWT = axios.create();
 
-export const loginUser = async (data) => {
-  const res = await axios.post(
-    `${process.env.REACT_APP_API_URL}auth/login`,
-    data
-  );
-  return res.data;
-};
-
-export const signUp = async (data) => {
-  const res = await axios.post(
-    `${process.env.REACT_APP_API_URL}auth/register`,
-    data
-  );
-  return res.data;
-};
-
-export const sendOTP = async (data) => {
-  const res = await axios.post(
-    `${process.env.REACT_APP_API_URL}auth/sendOTP`,
-    data
-  );
-  return res.data;
-};
-
-// export const logout = async (accessToken) => {
-//   console.log("accessToken",accessToken);
-//   const res = await axiosJWT.delete(
-//     `${process.env.REACT_APP_API_URL}auth/logout`,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//       },
-//     }
-//   );
-//   return res.data;
-// };
-
-export const getProfileUser = async (accessToken) => {
+export const getProfileUser = async (accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}user/account/profile`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const getProfileUserInLogin = async (accessToken) => {
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_API_URL}user/account/profile`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const editProfileUser = async (data, accessToken, axiosJWT) => {
+  console.log("data", data);
+  console.log("accessToken", accessToken);
+  const res = await axiosJWT.put(
+    `${process.env.REACT_APP_API_URL}user/account/profile`,
+    data,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -67,7 +57,7 @@ export const getAllUser = async (accessToken, axiosJWT) => {
 export const changeStatusUser = async (id, accessToken, axiosJWT) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}admin/users/active`,
-    null, // Body là null vì bạn đang sử dụng query parameter
+    null,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

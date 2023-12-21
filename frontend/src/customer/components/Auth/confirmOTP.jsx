@@ -17,37 +17,19 @@ import { useState } from "react";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as UserSerVice from "../../../services/UserService";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
+import { useNavigate, useParams } from "react-router-dom";
+import * as AuthService from "../../../services/AuthService";
 
 const defaultTheme = createTheme();
 
 export default function ConfirmOTP() {
   const [otp, setOtp] = useState("");
-  const email = localStorage.getItem("email");
+  const { email } = useParams();
+  console.log(("email", email));
 
   const navigate = useNavigate();
 
-  const mutation = useMutationHook((data) => UserSerVice.sendOTP(data));
+  const mutation = useMutationHook((data) => AuthService.sendOTP(data));
 
   const { isSuccess, isError } = mutation;
 
@@ -66,12 +48,22 @@ export default function ConfirmOTP() {
   };
 
   const handleSubmit = (event) => {
-    mutation.mutate({
-      email: email,
-      oneTimePassword: otp,
-    });
+    mutation.mutate(
+      {
+        email: email,
+        oneTimePassword: otp,
+      },
+      {
+        onSuccess: () => {
+          message.success("Xác thực thành công");
+        },
+        onError: (error) => {
+          message.error(`Lỗi ${error.message}`);
+        },
+      }
+    );
 
-    localStorage.clear()
+    localStorage.clear();
   };
 
   const handleOnChangeOTP = (value) => {
@@ -106,7 +98,7 @@ export default function ConfirmOTP() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Check message OTP in Email
+              Mã OTP đã được gửi, hãy kiểm tra Email
             </Typography>
             <Box
               component="form"

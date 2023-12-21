@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import InputField from "../../../customer/components/InputField";
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
 
 import { DeleteOutlined } from "@ant-design/icons";
 import UploadImage from "../UploadFile/UploadImage";
@@ -12,16 +12,12 @@ const Variations = (props) => {
   let variationsArray = [];
   const [variations, setVariations] = useState(variationsArray);
 
-
   useEffect(() => {
     if (props.isEdit) {
       data.map((item) => variationsArray.push(item));
       setVariations(variationsArray);
     }
   }, [data]);
-
-
-
 
   const addVariation = () => {
     setVariations((prevVariations) => [
@@ -79,32 +75,99 @@ const Variations = (props) => {
     console.log("variations", variations);
     const newData = variations.map((variation) => {
       if (name === "color") {
-        console.log("variations color", variations);
-        return { color: variation.text, productImage: variation.image };
+        if (variation.text !== "" && variation.image !== "") {
+          const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+          if (specialCharacterRegex.test(variation.text)) {
+            message.error("Không được nhập các ký tự đặc biệt");
+          } else {
+            console.log("variations color", variations);
+            return { color: variation.text, productImage: variation.image };
+          }
+        } else {
+          message.warning("Hãy nhập đầy đủ Màu và hình ảnh");
+        }
       } else {
-        console.log("variations size", variations);
-        return { size: variation.text };
+        if (variation.text !== "") {
+          // Sử dụng biểu thức chính quy để kiểm tra xem chuỗi chỉ chứa số hay không
+          const numericRegex = /^\d+$/;
+
+          if (numericRegex.test(variation.text)) {
+            console.log("variations size", variations);
+            return { size: variation.text };
+          } else {
+            message.error("Hãy nhập chỉ số, không nhập ký tự khác");
+          }
+        } else {
+          message.warning("Hãy nhập đầy đủ Size");
+        }
       }
     });
 
-    console.log("newData", newData);
-    
-    updateData(newData);
+    if (newData.length > 0) {
+      let check = false;
+      newData.forEach((item) => {
+        if (item === undefined) {
+          check = true;
+        }
+      });
+      if (!check) {
+        console.log("newData", newData);
+        updateData(newData);
+      } else {
+        check = !check;
+      }
+    }
   };
   const saveDataDetail = () => {
     const newData = variations.map((variation) => {
       if (name === "color") {
-        return { color: variation.color, productImage: variation.productImage };
+        if (variation.color !== "" && variation.productImage !== "") {
+          const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+          if (specialCharacterRegex.test(variation.color)) {
+            message.error("Không được nhập các ký tự đặc biệt");
+          } else {
+            console.log("variations color", variation);
+            return {
+              color: variation.color,
+              productImage: variation.productImage,
+            };
+          }
+        } else {
+          message.warning("Hãy nhập đầy đủ Màu và hình ảnh");
+        }
       } else {
-        return { size: variation.size };
+        if (variation.text !== "") {
+          // Sử dụng biểu thức chính quy để kiểm tra xem chuỗi chỉ chứa số hay không
+          const numericRegex = /^\d+$/;
+
+          if (numericRegex.test(variation.text)) {
+            console.log("variations size", variations);
+            return { size: variation.size };
+          } else {
+            message.error("Hãy nhập chỉ số, không nhập ký tự khác");
+          }
+        } else {
+          message.warning("Hãy nhập đầy đủ Size");
+        }
       }
     });
-    updateData(newData);
+
+    if (newData.length > 0) {
+      let check = false;
+      newData.forEach((item) => {
+        if (item === undefined) {
+          check = true;
+        }
+      });
+      if (!check) {
+        console.log(`newData ${name}`, newData);
+        updateData(newData);
+      } else {
+        check = !check;
+      }
+    }
   };
 
-  const styleInputField = {
-    width: "100%",
-  };
 
   return (
     <div

@@ -14,7 +14,8 @@ import MultilevelDropdown from "../MultilevelDropdown/MultilevelDropdown";
 import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import axios from "axios";
-import * as AuthService from "../../../services/AuthService"
+import * as AuthService from "../../../services/AuthService";
+import CustomInput from "../../../customer/components/CKEditor/customInput";
 
 const AdminProductEdit = (props) => {
   // console.log("key", props.idDetailProduct);
@@ -98,56 +99,66 @@ const AdminProductEdit = (props) => {
   const { data, status, isSuccess, isError } = mutation;
 
   const handleCreateProductClick = () => {
-    const productCreateRequest = {
-      id: productDetail?.id,
-      active: productDetail?.active,
-      name: dataNameProduct,
-      description: dataDescription,
-      productImage: defaultImage,
-      categoryId: parseInt(dataCategory?.id), // Giả sử dataCategory là ID dưới dạng chuỗi
-    };
+    if (
+      dataNameProduct !== "" &&
+      dataDescription !== "" &&
+      defaultImage !== "" &&
+      parseInt(dataCategory.id) !== null
+    ) {
+      const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+      if (
+        specialCharacterRegex.test(dataNameProduct) ||
+        specialCharacterRegex.test(dataDescription)
+      ) {
+        message.error("Không được nhập các ký tự đặc biệt");
+      } else {
+        const productCreateRequest = {
+          id: productDetail?.id,
+          active: productDetail?.active,
+          name: dataNameProduct,
+          description: dataDescription,
+          productImage: defaultImage,
+          categoryId: parseInt(dataCategory?.id),
+        };
 
-    const productItems = combinedData?.map((item) => ({
-      id: item?.id,
-      price: item?.price,
-      quantityInStock: item?.quantity,
-      productImage: item?.productImage, // Giả sử 'image' là trường tương ứng trong combinedData
-      active: item?.active,
-      size: item?.size,
-      color: item?.color,
-    }));
+        const productItems = combinedData?.map((item) => ({
+          id: item?.id,
+          price: item?.price,
+          quantityInStock: item?.quantity,
+          productImage: item?.productImage,
+          active: item?.active,
+          size: item?.size,
+          color: item?.color,
+        }));
 
-    const apiPayload = {
-      ...productCreateRequest,
-      productItems,
-    };
+        const apiPayload = {
+          ...productCreateRequest,
+          productItems,
+        };
 
-    console.log("apiPayload", apiPayload);
+        console.log("apiPayload", apiPayload);
+        setDataAPICreate(apiPayload);
 
-    setDataAPICreate(apiPayload);
+        mutation.mutate(apiPayload, {
+          onSuccess: () => {
+            message.success("Chỉnh sửa sản phẩm thành công");
+            props.setIsModalOpen(false);
 
-    mutation.mutate(apiPayload, {
-      onSuccess: () => {
-        // Hiển thị thông báo thành công
-        message.success("Chỉnh sửa sản phẩm thành công");
-        props.setIsModalOpen(false);
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-        // props.refetch({ queryKey: ["products"] });
-      },
-      onError: (error) => {
-        // Hiển thị thông báo lỗi
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
-        props.setIsModalOpen(false);
-
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 1000);
-        // props.refetch({ queryKey: ["products"] });
-      },
-    });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          onError: (error) => {
+            message.error(`Đã xảy ra lỗi: ${error.message}`);
+            props.setIsModalOpen(false);
+          },
+        });
+      }
+    } else {
+      message.warning(
+        "Hãy nhập đầy đủ thông tin địa chỉ trước khi Chỉnh sửa sản phẩm"
+      );
+    }
   };
 
   // if (isSuccess || isError) {
@@ -168,7 +179,7 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            boxShadow: "rgb(204, 204, 204) 0px 1px 2px 0px",
+            border:"1px solid",
             borderRadius: "10px",
           }}
         >
@@ -191,23 +202,24 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            boxShadow: "rgb(204, 204, 204) 0px 1px 2px 0px",
+            border:"1px solid",
             borderRadius: "10px",
           }}
         >
           <WrapperSubHeader>Chi tiết sản phẩm</WrapperSubHeader>
-          <Group
+          {/* <Group
             title={"Mô tả sản phẩm"}
             onDataChange={setDataDescription}
             dataDetail={dataDescription}
-          />
+          /> */}
+          <CustomInput dataDetail={dataDescription} onDataChange={setDataDescription} />
         </div>
 
         <div
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            boxShadow: "rgb(204, 204, 204) 0px 1px 2px 0px",
+            border:"1px solid",
             borderRadius: "10px",
           }}
         >

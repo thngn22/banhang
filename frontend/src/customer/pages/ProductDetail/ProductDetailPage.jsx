@@ -22,8 +22,10 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import { Modal, Rate, Space, Table } from "antd";
+import { Modal, Rate, Space, Table, message } from "antd";
 import Review from "../../components/Product/Review";
+import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
+// import parse from "html-react-parser";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -45,14 +47,14 @@ export default function ProductDetailPage() {
   const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
   const [defaultImage, setDefaultImage] = useState();
 
+  const parse = require("html-react-parser").default;
+
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
     queryFn: () => {
       return ProductService.getProductDetail(productId);
     },
   });
-
-  // console.log("productDetail", productDetail);
 
   React.useEffect(() => {
     if (productDetail) {
@@ -191,6 +193,8 @@ export default function ProductDetailPage() {
     const res = CartService.updateCart(data, auth.accessToken, axiosJWT);
     return res;
   });
+
+  console.log("des", productDetail?.description);
 
   return (
     <div className="bg-white">
@@ -458,9 +462,12 @@ export default function ProductDetailPage() {
                       mutation.mutate([dataToUpdate], {
                         onSuccess: (data) => {
                           queryClient.invalidateQueries({ queryKey: ["cart"] });
+                          message.success("Thêm vào giỏ hàng thành công");
+                        },
+                        onError: (err) => {
+                          message.error(`Lỗi ${err}`);
                         },
                       });
-                      alert("thêm vào giỏ hàng thành công");
                     }}
                   >
                     Add to Cart
@@ -473,7 +480,7 @@ export default function ProductDetailPage() {
 
         {/* Description */}
         <section className="text-xl text-left">Mô tả sản phẩm</section>
-        <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
+        <hr class="w-full mt-1 border-t border-gray-300" />
         <section>
           <div
             id="productDescription"
@@ -482,14 +489,21 @@ export default function ProductDetailPage() {
               position: "relative",
               overflow: "hidden",
               transition: "height 0.5s ease-in-out", // Thêm hiệu ứng chuyển động
+              textAlign: "left",
             }}
           >
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
-            {productDetail?.description}
+            <iframe
+              title="productDescription"
+              style={{
+                border: "none",
+                width: "100%",
+                height: "100%",
+                fontSize: "inherit",
+                fontWeight: "inherit",
+                // Thêm các thuộc tính CSS khác nếu cần
+              }}
+              srcDoc={productDetail?.description}
+            />
             {contentHeight <= 100 && (
               <div
                 style={{
@@ -523,12 +537,13 @@ export default function ProductDetailPage() {
 
         {/* Recent Review & Ratings */}
         <section className="mt-4 mb-4">
-          <Review dataReviews={[]} />
+          <Review dataReviews={productDetail?.reviews} />
         </section>
 
         {/* Smililer Products */}
         <section className="text-xl text-left">Sản phẩm bán được nhiều</section>
         <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
+        <MultiCarousel />
         {/* Smililer Products */}
 
         <Modal

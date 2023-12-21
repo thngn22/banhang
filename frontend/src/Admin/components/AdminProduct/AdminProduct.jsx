@@ -19,7 +19,7 @@ import { useMutationHook } from "../../../hooks/useMutationHook";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import * as AuthService from "../../../services/AuthService"
+import * as AuthService from "../../../services/AuthService";
 
 const AdminProduct = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -61,33 +61,27 @@ const AdminProduct = () => {
   );
 
   const getAllProductsAdmin = async () => {
-    const res = await ProductService.getProductAdmin(auth.accessToken, axiosJWT);
+    const res = await ProductService.getProductAdmin(
+      auth.accessToken,
+      axiosJWT
+    );
     return res;
   };
-  const getAllCatesAdmin = async () => {
-    const res = await CategoryService.getAllTreeCategory();
-    return res;
-  };
-  const { data: categoriesRes } = useQuery({
-    queryKey: ["categoriesRes"],
-    queryFn: getAllCatesAdmin,
-  });
+
   const { data: products, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: getAllProductsAdmin,
     enabled: Boolean(auth?.accessToken),
   });
   const mutation = useMutationHook((data) => {
-    const res = ProductService.changeStatusProduct(data, auth?.accessToken, axiosJWT);
+    const res = ProductService.changeStatusProduct(
+      data,
+      auth?.accessToken,
+      axiosJWT
+    );
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
-
-  useEffect(() => {
-    if (categoriesRes) {
-      dispatch(getCategory(categoriesRes));
-    }
-  }, [categoriesRes]);
 
   const renderAction = (key, product) => {
     return (
@@ -234,7 +228,12 @@ const AdminProduct = () => {
         footer={null}
         width={1000}
       >
-        {isModalOpen && <AdminProductEdit setIsModalOpen={setIsModalOpen} refetchProducts={refetch} />}
+        {isModalOpen && (
+          <AdminProductEdit
+            setIsModalOpen={setIsModalOpen}
+            refetchProducts={refetch}
+          />
+        )}
       </Modal>
     </div>
   );
