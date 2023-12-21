@@ -73,7 +73,6 @@ export default function AppRouter() {
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
-      ;
     </>
   );
 }

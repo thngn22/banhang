@@ -1,5 +1,3 @@
-import { jacket } from "../../../Data/jacket";
-import { tShirt } from "../../../Data/t-shirt";
 import ProductCard from "../../components/Product/ProductCard";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
@@ -172,7 +170,7 @@ export default function ProductPage() {
 
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
           {filterProducts ? (
-            filterProducts?.contents.map((product, index) => (
+            filterProducts?.contents?.map((product, index) => (
               <div
                 key={index}
                 className="group relative"

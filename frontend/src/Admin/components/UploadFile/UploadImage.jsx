@@ -13,7 +13,7 @@ const UploadImage = (props) => {
     test = `data:image/jpeg;base64,${dataImage}`;
   }
 
-
+  console.log("base64Image", base64Image);
 
   const beforeUpload = (file) => {
     const isImage = file.type.startsWith("image/");
@@ -40,20 +40,15 @@ const UploadImage = (props) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      // Lưu giá trị của base64Data sau khi xử lý
       const processedBase64Data = reader.result.split(
         "data:image/jpeg;base64,"
       )[1];
       setBase64Image(reader.result);
-
-      // Gọi hàm callback để thông báo sự thay đổi của ảnh và truyền giá trị base64Data đã xử lý
+      console.log("processedBase64Data", processedBase64Data);
       onImageChange(processedBase64Data);
     };
   };
   const customRequest = ({ onSuccess, onError, file }) => {
-    // Thực hiện logic tải lên tệp tin của bạn ở đây
-    // Ví dụ: gửi tệp tin đến máy chủ của bạn
-    // Đây chỉ là một promise giả định để mô phỏng việc tải lên bất đồng bộ
     const fakeRequest = new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve();
@@ -68,9 +63,6 @@ const UploadImage = (props) => {
         onError();
       });
   };
-
-
-  
 
   const renderImage = () => {
     if (test && isEdit) {
@@ -118,8 +110,6 @@ const UploadImage = (props) => {
     }
   };
 
-  // console.log(base64Data);
-
   return (
     <div style={{ display: "block", backgroundColor: "#fff" }}>
       <Upload
@@ -127,7 +117,7 @@ const UploadImage = (props) => {
         beforeUpload={beforeUpload}
         onChange={handleChange}
         fileList={fileList}
-        maxCount={1} // Đặt giá trị này là 1 nếu bạn chỉ muốn cho phép một tệp tin
+        maxCount={1}
         showUploadList={false}
       >
         {renderImage(fileList)}

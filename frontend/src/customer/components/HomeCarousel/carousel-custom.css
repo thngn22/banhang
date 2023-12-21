@@ -1,3 +1,13 @@
 .alice-carousel__next-btn{
     text-align: left;
 }
+.alice-carousel{
+    position: relative;
+}
+
+.alice-carousel__dots{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}

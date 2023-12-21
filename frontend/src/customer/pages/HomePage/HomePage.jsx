@@ -1,11 +1,10 @@
 import React from "react";
 import HomeCarousel from "../../components/HomeCarousel/HomeCarousel";
-import HomeSectionCarousel from "../../components/HomeSectionCarousel/HomeSectionCarousel";
-import { tShirt } from "../../../Data/t-shirt";
-import { jacket } from "../../../Data/jacket";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import * as ProductService from "../../../services/ProductService";
 import ProductCard from "../../components/Product/ProductCard";
+import FooterHomePage from "../../components/CustomLayout/FooterHomePage";
+import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
 
 HomePage.propTypes = {};
 
@@ -27,24 +26,22 @@ function HomePage(props) {
     <div className="">
       <HomeCarousel />
 
-      <div className="space-y-10 py-10 px-5 lg:px-10">
-        {/* {isSuccess && (
-          <>
-            <ProductCard data={products} />
-            <ProductCard data={products} />
-            <ProductCard data={products} />
-            <ProductCard data={products} />
-          </>
-        )} */}
+      <div className="py-10">
+        {/* Smililer Products */}
+        <section className="text-xl text-left ml-8 font-semibold">
+          Sản phẩm bán được nhiều
+        </section>
+        <hr class="mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
+        <MultiCarousel homePage={true} />
 
-        {/* <ProductCard data={products} /> */}
-        {/* <ProductCard data={products} />
-         <ProductCard data={products} />
-         <ProductCard data={products} />
-         <ProductCard data={products} /> */}
-        {/* <HomeSectionCarousel data={tShirt} />
-        <HomeSectionCarousel data={jacket}/>  */}
+        {/* High Rating Products */}
+        <section className="text-xl text-left ml-8 font-semibold">
+          Sản phẩm được đánh giá cao
+        </section>
+        <hr class=" mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
+        <MultiCarousel homePage={true} />
       </div>
+      <FooterHomePage />
     </div>
   );
 }

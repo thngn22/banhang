@@ -37,6 +37,8 @@ const AdminProductEdit = (props) => {
   const [combinedData, setCombinedData] = useState([]);
   const [isEdit, setIsEdit] = useState(true);
 
+  console.log("defaultImage", defaultImage);
+
   const [dataAPICreate, setDataAPICreate] = useState(null);
 
   useEffect(() => {
@@ -179,7 +181,7 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            border:"1px solid",
+            border: "1px solid",
             borderRadius: "10px",
           }}
         >
@@ -202,7 +204,7 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            border:"1px solid",
+            border: "1px solid",
             borderRadius: "10px",
           }}
         >
@@ -212,14 +214,17 @@ const AdminProductEdit = (props) => {
             onDataChange={setDataDescription}
             dataDetail={dataDescription}
           /> */}
-          <CustomInput dataDetail={dataDescription} onDataChange={setDataDescription} />
+          <CustomInput
+            dataDetail={dataDescription}
+            onDataChange={setDataDescription}
+          />
         </div>
 
         <div
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            border:"1px solid",
+            border: "1px solid",
             borderRadius: "10px",
           }}
         >

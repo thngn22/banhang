@@ -3,9 +3,6 @@ import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
 import Rating from "@mui/material/Rating";
 import { Button } from "@mui/material";
-import { jacket } from "../../../Data/jacket";
-import { tShirt } from "../../../Data/t-shirt";
-import HomeSectionCard from "../../components/HomeSectionCard/HomeSectionCard";
 import ProductCard from "../../components/Product/ProductCard";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -470,7 +467,7 @@ export default function ProductDetailPage() {
                       });
                     }}
                   >
-                    Add to Cart
+                    Thêm vào giỏ hàng
                   </Button>
                 </div>
               </form>
@@ -541,10 +538,14 @@ export default function ProductDetailPage() {
         </section>
 
         {/* Smililer Products */}
-        <section className="text-xl text-left">Sản phẩm bán được nhiều</section>
-        <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
+        <section className="text-xl text-left ml-8">Sản phẩm bán được nhiều</section>
+        <hr class="mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
         <MultiCarousel />
-        {/* Smililer Products */}
+
+        {/* High Rating Products */}
+        <section className="text-xl text-left ml-8">Sản phẩm được đánh giá cao</section>
+        <hr class=" mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
+        <MultiCarousel />
 
         <Modal
           open={isModalOpen}
