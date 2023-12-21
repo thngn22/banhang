@@ -13,10 +13,7 @@ import com.ecomerce.roblnk.mapper.UserMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
-import com.ecomerce.roblnk.service.EmailService;
-import com.ecomerce.roblnk.service.ProductItemService;
-import com.ecomerce.roblnk.service.ReviewService;
-import com.ecomerce.roblnk.service.UserService;
+import com.ecomerce.roblnk.service.*;
 import com.ecomerce.roblnk.util.Status;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -60,6 +57,7 @@ public class IUserService implements UserService {
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
     private final ProductItemService productItemService;
+    private final ProductService productService;
 
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
@@ -94,7 +92,13 @@ public class IUserService implements UserService {
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setDob(request.getDob());
-            user.setAvatar(request.getAvatar());
+            var image = request.getAvatar();
+            if (image != null) {
+                var urlImage = productService.getURLPictureAndUploadToCloudinary(image);
+                if (urlImage != null) {
+                    user.setAvatar(urlImage);
+                }
+            }
             userRepository.save(user);
             return ResponseEntity.ok("successfully saved!");
         } else
@@ -129,8 +133,9 @@ public class IUserService implements UserService {
         var addressId = addressRepository.findById(id);
         if (addressId.isPresent()) {
             addressId.get().setCity(userUpdateAddressRequest.getCity());
-            addressId.get().setStreetAddress(userUpdateAddressRequest.getStreetAddress());
-            addressId.get().setZipCode(userUpdateAddressRequest.getZipCode());
+            addressId.get().setDistrict(userUpdateAddressRequest.getDistrict());
+            addressId.get().setWard(userUpdateAddressRequest.getWard());
+            addressId.get().setAddress(userUpdateAddressRequest.getAddress());
             addressRepository.save(addressId.get());
             return ResponseEntity.ok("Updated address!");
         } else {

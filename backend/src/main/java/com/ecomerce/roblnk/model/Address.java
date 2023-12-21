@@ -19,14 +19,17 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "street_address", length = 100000)
-    private String streetAddress;
-
-    @Column(name = "city", length = 100000)
+    @Column(name = "city", length = 1000)
     private String city;
 
-    @Column(name = "zip_code")
-    private String zipCode;
+    @Column(name = "district", length = 1000)
+    private String district;
+
+    @Column(name = "ward", length = 1000)
+    private String ward;
+
+    @Column(name = "address")
+    private String address;
 
     //User Address
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

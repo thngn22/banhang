@@ -41,9 +41,10 @@
                         </div>
                         <div class="py-2">
                             <span class="d-block text-muted">Địa chỉ thanh toán:</span>
-                            <span th:text="${orders.getAddress().getStreetAddress() + ', ' +
-                                        orders.getAddress().getCity() + ', ' +
-                                        orders.getAddress().getZipCode()}">414 Advert Avenue, NY,USA</span>
+                            <span th:text="${orders.getAddress().getAddress() + ', ' +
+                                        orders.getAddress().getWard() + ', ' +
+                                        orders.getAddress().getDistrict() + ', ' +
+                                        orders.getAddress().getCity()}">414 Advert Avenue, NY,USA</span>
                         </div>
                         <p class="font-weight-bold mb-0"></p>
                     </div>
