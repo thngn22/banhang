@@ -9,7 +9,7 @@ const Review = (props) => {
     return (
       <>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <span className="user text-lg font-semibold text-gray-900">
+          <span className="user text-sm font-semibold text-gray-900">
             {user}
           </span>
           <Space className="configStar" style={{ marginLeft: "8px" }}>
@@ -36,46 +36,16 @@ const Review = (props) => {
         multiple: 2,
       },
       render: (text, record) =>
-        renderReview(record.user, record.rating, record.content),
+        renderReview(record.userEmail, record.rating, record.feedback),
     },
     {
       title: "Ngày tạo",
       dataIndex: "date",
       sorter: {
-        compare: (a, b) => new Date(a.date) - new Date(b.date), // Sắp xếp theo thời gian ngày
+        compare: (a, b) => new Date(a.createdAt) - new Date(b.createdAt), // Sắp xếp theo thời gian ngày
         multiple: 1,
       },
-      render: (text, record) => renderDate(record.date),
-    },
-  ];
-  const data = [
-    {
-      key: "1",
-      user: "user1",
-      rating: 5,
-      content: "this is content for review",
-      date: "1/12/2023 13:03:54",
-    },
-    {
-      key: "2",
-      user: "user2",
-      rating: 4.5,
-      content: "this is content for review",
-      date: "12/10/2023 13:03:54",
-    },
-    {
-      key: "3",
-      user: "user3",
-      rating: 3,
-      content: "this is content for review",
-      date: "12/3/2023 13:03:54",
-    },
-    {
-      key: "4",
-      user: "user4",
-      rating: 2.5,
-      content: "this is content for review",
-      date: "12/12/2023 13:03:54",
+      render: (text, record) => renderDate(record.createdAt),
     },
   ];
   const onChange = (pagination, filters, sorter, extra) => {
@@ -84,7 +54,12 @@ const Review = (props) => {
 
   return (
     <div>
-      <Table columns={columns} dataSource={data} onChange={onChange} />
+      <Table
+        columns={columns}
+        dataSource={props.dataReviews}
+        onChange={onChange}
+        className="review"
+      />
     </div>
   );
 };
