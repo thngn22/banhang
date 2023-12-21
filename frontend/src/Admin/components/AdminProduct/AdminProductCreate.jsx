@@ -84,10 +84,7 @@ const AdminProductCreate = () => {
       parseInt(dataCategory.id) !== null
     ) {
       const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
-      if (
-        specialCharacterRegex.test(dataNameProduct) ||
-        specialCharacterRegex.test(dataDescription)
-      ) {
+      if (specialCharacterRegex.test(dataNameProduct)) {
         message.error("Không được nhập các ký tự đặc biệt");
       } else {
         const productCreateRequest = {
@@ -111,6 +108,7 @@ const AdminProductCreate = () => {
         };
 
         setDataAPICreate(apiPayload);
+        console.log("", apiPayload);
 
         mutation.mutate(apiPayload, {
           onSuccess: () => {

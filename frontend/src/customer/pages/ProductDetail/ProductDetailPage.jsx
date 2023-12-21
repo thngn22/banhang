@@ -25,6 +25,7 @@ import { loginSuccess } from "../../../redux/slides/authSlice";
 import { Modal, Rate, Space, Table, message } from "antd";
 import Review from "../../components/Product/Review";
 import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
+// import parse from "html-react-parser";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -45,6 +46,8 @@ export default function ProductDetailPage() {
   const [contentHeight, setContentHeight] = useState(0);
   const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
   const [defaultImage, setDefaultImage] = useState();
+
+  const parse = require("html-react-parser").default;
 
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
@@ -191,7 +194,7 @@ export default function ProductDetailPage() {
     return res;
   });
 
-  console.log("des",productDetail?.description);
+  console.log("des", productDetail?.description);
 
   return (
     <div className="bg-white">
@@ -477,7 +480,7 @@ export default function ProductDetailPage() {
 
         {/* Description */}
         <section className="text-xl text-left">Mô tả sản phẩm</section>
-        <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
+        <hr class="w-full mt-1 border-t border-gray-300" />
         <section>
           <div
             id="productDescription"
@@ -489,8 +492,17 @@ export default function ProductDetailPage() {
               textAlign: "left",
             }}
           >
-            <div
-              dangerouslySetInnerHTML={{ __html: productDetail?.description }}
+            <iframe
+              title="productDescription"
+              style={{
+                border: "none",
+                width: "100%",
+                height: "100%",
+                fontSize: "inherit",
+                fontWeight: "inherit",
+                // Thêm các thuộc tính CSS khác nếu cần
+              }}
+              srcDoc={productDetail?.description}
             />
             {contentHeight <= 100 && (
               <div
@@ -519,7 +531,7 @@ export default function ProductDetailPage() {
             }}
             onClick={toggleDescription}
           >
-            {expanded ? "Thu gọn" : "Xem thêm"}
+            {expanded ? "Xem thêm" : "Thu gọn"}
           </Button>
         </section>
 

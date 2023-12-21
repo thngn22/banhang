@@ -179,7 +179,7 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            boxShadow: "rgb(204, 204, 204) 0px 1px 2px 0px",
+            border:"1px solid",
             borderRadius: "10px",
           }}
         >
@@ -202,16 +202,16 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            boxShadow: "rgb(204, 204, 204) 0px 1px 2px 0px",
+            border:"1px solid",
             borderRadius: "10px",
           }}
         >
           <WrapperSubHeader>Chi tiết sản phẩm</WrapperSubHeader>
-          <Group
+          {/* <Group
             title={"Mô tả sản phẩm"}
             onDataChange={setDataDescription}
             dataDetail={dataDescription}
-          />
+          /> */}
           <CustomInput dataDetail={dataDescription} onDataChange={setDataDescription} />
         </div>
 
@@ -219,7 +219,7 @@ const AdminProductEdit = (props) => {
           style={{
             margin: "16px 20px",
             padding: "10px 16px",
-            boxShadow: "rgb(204, 204, 204) 0px 1px 2px 0px",
+            border:"1px solid",
             borderRadius: "10px",
           }}
         >
