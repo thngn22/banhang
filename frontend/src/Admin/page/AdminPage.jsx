@@ -98,7 +98,7 @@ function AdminPage(props) {
             borderTop: "1px solid",
             height: "100%",
             display: "flex",
-            margin: "0 9.4rem",
+            margin: "0 0",
             backgroundColor: "#fff",
           }}
         >
@@ -120,6 +120,7 @@ function AdminPage(props) {
               backgroundColor: "#fff",
               textAlign: "left",
               minHeight: "100vh",
+              padding: "12px 24px",
             }}
           >
             {renderPage(keySelected)}

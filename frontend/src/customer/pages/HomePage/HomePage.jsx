@@ -26,19 +26,19 @@ function HomePage(props) {
     <div className="">
       <HomeCarousel />
 
-      <div className="py-10">
+      <div className="py-10 px-20">
         {/* Smililer Products */}
-        <section className="text-xl text-left ml-8 font-semibold">
+        <section className="text-xl text-left ml-4 font-semibold">
           Sản phẩm bán được nhiều
         </section>
-        <hr class="mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
+        <hr class="mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
         <MultiCarousel homePage={true} />
 
         {/* High Rating Products */}
-        <section className="text-xl text-left ml-8 font-semibold">
+        <section className="text-xl text-left ml-4 font-semibold">
           Sản phẩm được đánh giá cao
         </section>
-        <hr class=" mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
+        <hr class=" mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
         <MultiCarousel homePage={true} />
       </div>
       <FooterHomePage />

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Divider, Radio, Table } from "antd";
-
+import "./styleTableAdmin.css"
 const TableComponent = (props) => {
   const { selection = "checkbox", data = [], columns = [], onRowClick } = props;
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -34,9 +34,9 @@ const TableComponent = (props) => {
   return (
     <div>
       <Table
-        rowSelection={{
-          ...rowSelection,
-        }}
+        // rowSelection={{
+        //   ...rowSelection,
+        // }}
         columns={columns}
         dataSource={data}
         onRow={(record) => ({
