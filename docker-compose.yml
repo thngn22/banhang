@@ -40,10 +40,13 @@ services:
     ports:
       - ${SPRING_LOCAL_PORT}:${SPRING_DOCKER_PORT}
     environment:
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.cj.jdbc.Driver
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container:$MYSQLDB_DOCKER_PORT/$MYSQLDB_DATABASE?useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: $MYSQLDB_USER
       SPRING_DATASOURCE_PASSWORD: $MYSQLDB_ROOT_PASSWORD
       MYSQL_ROOT_PASSWORD: $MYSQLDB_ROOT_PASSWORD
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
     networks:
       - shoes-shop
     restart: on-failure

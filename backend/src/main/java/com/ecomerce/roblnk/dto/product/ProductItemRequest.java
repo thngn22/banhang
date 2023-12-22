@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class ProductItemRequest {
     private Integer price;
+    private Integer warehousePrice;
     private Integer quantityInStock;
     private String productImage;
     private String size;

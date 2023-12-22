@@ -6,9 +6,7 @@ COPY backend/src ./src
 COPY backend/mvnw ./
 COPY backend/mvnw.cmd ./
 COPY backend/pom.xml ./
-
-FROM base AS development
-CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=mysql", "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000'"]
+COPY .env/ .env
 
 FROM base AS build
 WORKDIR /app/backend

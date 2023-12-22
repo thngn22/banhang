@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.ecomerce.roblnk.constants.ErrorMessage.*;
+import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_IN_USE;
 import static com.ecomerce.roblnk.util.Status.HOAN_TAT;
 
 @Service("IUserService")
@@ -464,10 +464,6 @@ public class IUserService implements UserService {
                             flag = true;
                             reCalculate = true;
 
-                            //Thanh toan bang vnPay
-                            if (userOrders.get().getUserPaymentMethod().getId().equals(1L)) {
-                                repay = true;
-                            }
                         }
 
                     }
@@ -477,10 +473,6 @@ public class IUserService implements UserService {
                                 && !userOrders.get().getStatusOrder().getOrderStatus().equals("BI_TU_CHOI")) {
                             flag = true;
                             reCalculate = true;
-                            //Thanh toan bang vnPay
-                            if (userOrders.get().getUserPaymentMethod().getId().equals(1L)) {
-                                repay = true;
-                            }
                         }
 
                     }
@@ -492,9 +484,14 @@ public class IUserService implements UserService {
                             flag = true;
                             reCalculate = true;
                         }
-                        //Thanh toan bang vnPay
-                        if (userOrders.get().getUserPaymentMethod().getId().equals(1L)) {
-                            repay = true;
+
+                    }
+                    case "DA_HOAN_TIEN" -> {
+                        if ((userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_HE_THONG_HUY")
+                                || userOrders.get().getStatusOrder().getOrderStatus().equals("DA_BI_NGUOI_DUNG_HUY")
+                                || userOrders.get().getStatusOrder().getOrderStatus().equals("BI_TU_CHOI")
+                        ) && userOrders.get().getUserPaymentMethod().getPaymentMethod().getId().equals(1L)) {
+                            flag = true;
                         }
 
                     }
@@ -538,11 +535,10 @@ public class IUserService implements UserService {
                         var title = "";
                         if (orderDetail.getStatusOrder().equals(Status.BI_TU_CHOI.toString())
                                 || orderDetail.getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString()) ||
-                                orderDetail.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())){
+                                orderDetail.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString())) {
                             title = "Thông báo hủy đơn!";
                             note = "We are sorry to notify that your order has been canceled. Reason: " + Status.valueOf(orderDetail.getStatusOrder()).describe();
-                        }
-                        else {
+                        } else {
                             title = "Xác nhận hàng tất đơn hàng!";
                             note = "Your order have been deliveried. Please confirm order!";
                         }
@@ -571,9 +567,6 @@ public class IUserService implements UserService {
                             productItemRepository.save(productItem);
                             productRepository.save(product);
                         }
-                    }
-                    if (repay) {
-
                     }
 
 

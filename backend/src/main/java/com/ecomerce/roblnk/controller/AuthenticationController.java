@@ -1,13 +1,11 @@
 package com.ecomerce.roblnk.controller;
 
-import com.ecomerce.roblnk.dto.auth.OtpRequest;
-import com.ecomerce.roblnk.dto.auth.RegisterRequest;
-import com.ecomerce.roblnk.dto.auth.AuthenticationRequest;
-import com.ecomerce.roblnk.dto.auth.UpdatePasswordRequest;
+import com.ecomerce.roblnk.dto.auth.*;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.security.LogoutService;
 import com.ecomerce.roblnk.service.AuthenticationService;
 import com.ecomerce.roblnk.service.CloudinaryService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.Objects;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.INCORRECT_PASSWORD_CONFIRMATION;
 import static com.ecomerce.roblnk.constants.PathConstants.*;
+import static com.ecomerce.roblnk.util.Side.SERVER_SITE_URL;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -58,25 +58,44 @@ public class AuthenticationController {
         return authenticationService.authenticate(authenticationRequest, request, response, authentication);
     }
 
-    @PostMapping("/sendOTP")
-    public ResponseEntity<?> sendOTP(@Valid @RequestBody OtpRequest request, BindingResult bindingResult){
+    @PostMapping("/send_otp")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailRequest email, BindingResult bindingResult) throws MessagingException, UnsupportedEncodingException {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
+        }
+        return authenticationService.forgotPassword(email);
+    }
+    @PostMapping("/check_otp_login")
+    public ResponseEntity<?> checkOtp(@Valid @RequestBody OtpRequest request, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
         return authenticationService.validateLoginOTP(request);
     }
 
-    @PostMapping("/password")
+    @PostMapping("/change_password")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal connectedUser, BindingResult bindingResult){
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal principal, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
         }
         if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(INCORRECT_PASSWORD_CONFIRMATION);
         }
-        return authenticationService.updatePassword(updatePasswordRequest, connectedUser);
+        else
+            return authenticationService.updatePassword(updatePasswordRequest, principal);
     }
+    @PostMapping("/forgot_password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody NewPasswordRequest newPasswordRequest, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
+        }
+        if (!newPasswordRequest.getNewPassword().equals(newPasswordRequest.getNewPasswordConfirm())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(INCORRECT_PASSWORD_CONFIRMATION);
+        }
+        return authenticationService.newPassword(newPasswordRequest);
+    }
+
 
     @DeleteMapping("/logout")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
