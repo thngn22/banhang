@@ -58,7 +58,7 @@ public class AuthenticationController {
         return authenticationService.authenticate(authenticationRequest, request, response, authentication);
     }
 
-    @PostMapping("/forgot_password")
+    @PostMapping("/send_otp")
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailRequest email, BindingResult bindingResult) throws MessagingException, UnsupportedEncodingException {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
@@ -74,15 +74,28 @@ public class AuthenticationController {
     }
 
     @PostMapping("/change_password")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, BindingResult bindingResult){
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal principal, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
         }
         if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(INCORRECT_PASSWORD_CONFIRMATION);
         }
-        return authenticationService.updatePassword(updatePasswordRequest);
+        else
+            return authenticationService.updatePassword(updatePasswordRequest, principal);
     }
+    @PostMapping("/forgot_password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody NewPasswordRequest newPasswordRequest, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
+        }
+        if (!newPasswordRequest.getNewPassword().equals(newPasswordRequest.getNewPasswordConfirm())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(INCORRECT_PASSWORD_CONFIRMATION);
+        }
+        return authenticationService.newPassword(newPasswordRequest);
+    }
+
 
     @DeleteMapping("/logout")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")

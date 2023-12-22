@@ -101,43 +101,52 @@ public class IAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest) {
-        var user = userRepository.findByEmail(updatePasswordRequest.getEmail()).orElseThrow();
+    public ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal principal) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         OtpRequest otpRequest = new OtpRequest();
         otpRequest.setEmail(updatePasswordRequest.getEmail());
         otpRequest.setOneTimePassword(updatePasswordRequest.getOneTimePassword());
         var check = validateChangePasswordOTP(otpRequest);
-        if (!check.startsWith("Đổi")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(check);
-        }
-        // check if the current password is correct
-        if (!passwordEncoder.matches(updatePasswordRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+        if (!check.endsWith("ng!")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
                     .statusCode(400)
-                    .message(String.valueOf(HttpStatus.FORBIDDEN))
-                    .description(INCORRECT_PASSWORD)
+                    .message(String.valueOf(HttpStatus.BAD_REQUEST))
+                    .description(check)
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
+        } else {
+            // check if the current password is correct
+            if (!passwordEncoder.matches(updatePasswordRequest.getPassword(), user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                        .statusCode(400)
+                        .message(String.valueOf(HttpStatus.FORBIDDEN))
+                        .description(INCORRECT_PASSWORD)
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
+            // check if new passwords are the same current password
+            else if (updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getPassword())) {
+                System.out.println("1");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                        .statusCode(400)
+                        .message(String.valueOf(HttpStatus.FORBIDDEN))
+                        .description(NEW_PASSWORD_IS_SAME_CURRENT_PASSWORD)
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
+            else {
+                clearOTP(user);
+                user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+                revokeAllUserTokens(user);
+                userRepository.save(user);
+                return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
+                        .statusCode(200)
+                        .message(String.valueOf(HttpStatus.OK))
+                        .description("Password changed successfully!")
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
         }
-        // check if new passwords are the same current password
-        if (updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getPassword())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                    .statusCode(400)
-                    .message(String.valueOf(HttpStatus.FORBIDDEN))
-                    .description(NEW_PASSWORD_IS_SAME_CURRENT_PASSWORD)
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
-        }
-
-        user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
-        revokeAllUserTokens(user);
-        userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
-                .statusCode(200)
-                .message(String.valueOf(HttpStatus.OK))
-                .description("Password changed successfully!")
-                .timestamp(new Date(System.currentTimeMillis()))
-                .build());
     }
 
     @Override
@@ -185,19 +194,20 @@ public class IAuthenticationService implements AuthenticationService {
     public String validateChangePasswordOTP(OtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail());
         if (user.isPresent()) {
-            if (user.get().getOneTimePassword().isEmpty()) {
+            if (request.getOneTimePassword().isEmpty()) {
                 return "Vui lòng nhập mã OTP";
             } else {
-                if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
-                    if (user.get().getOtpExpireTime().after(new Date(System.currentTimeMillis()))) {
-                        clearOTP(user.get());
-                        return "Đổi mật khẩu thành công!";
-                    } else {
-                        return "Mã xác minh đã hết hạn. Vui lòng yêu cầu mã mới!";
-                    }
+                if (user.get().getOneTimePassword() != null) {
+                    if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
+                        if (user.get().getOtpExpireTime().after(new Date(System.currentTimeMillis()))) {
+                            return "Đổi mật khẩu thành công!";
+                        } else {
+                            return "Mã xác minh đã hết hạn. Vui lòng yêu cầu mã mới";
+                        }
 
-                } else
-                    return "Mã xác minh không trùng khớp, vui lòng thử lại!";
+                    } else
+                        return "Mã xác minh không trùng khớp, vui lòng thử lại";
+                } else return "Truy vấn không hợp lệ";
             }
         } else
             return "Truy vấn không hợp lệ";
@@ -353,6 +363,42 @@ public class IAuthenticationService implements AuthenticationService {
         } else
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Không tìm thấy bất kì tài khoản trùng khớp nào, vui lòng nhập lại email!");
     }
+
+    @Override
+    public ResponseEntity<?> newPassword(NewPasswordRequest newPasswordRequest) {
+        try {
+            var user = userRepository.findByEmail(newPasswordRequest.getEmail()).orElseThrow();
+            OtpRequest otpRequest = new OtpRequest();
+            otpRequest.setEmail(newPasswordRequest.getEmail());
+            otpRequest.setOneTimePassword(newPasswordRequest.getOneTimePassword());
+            var check = validateChangePasswordOTP(otpRequest);
+            if (!check.endsWith("ng!")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(check);
+            }
+            // check if new passwords are the same current password
+            if (!newPasswordRequest.getNewPassword().equals(newPasswordRequest.getNewPasswordConfirm())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                        .statusCode(400)
+                        .message(String.valueOf(HttpStatus.FORBIDDEN))
+                        .description("Hai trường dữ liệu phải giống nhau")
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
+
+            user.setPassword(passwordEncoder.encode(newPasswordRequest.getNewPassword()));
+            revokeAllUserTokens(user);
+            userRepository.save(user);
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.OK))
+                    .description("Password changed successfully!")
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
 
     public String generateOTP(User user)
             throws UnsupportedEncodingException, MessagingException {

@@ -11,12 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import java.io.UnsupportedEncodingException;
+import java.security.Principal;
 
 public interface AuthenticationService {
     ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) throws java.io.IOException;
     ResponseEntity<?> register(RegisterRequest request);
 
-    ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest);
+    ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal principal);
 
     ResponseEntity<?> validateLoginOTP(OtpRequest request);
 
@@ -26,4 +27,6 @@ public interface AuthenticationService {
                              HttpServletResponse response) throws IOException, java.io.IOException;
 
     ResponseEntity<?> forgotPassword(@Valid EmailRequest email) throws MessagingException, UnsupportedEncodingException;
+
+    ResponseEntity<?> newPassword(NewPasswordRequest newPasswordRequest);
 }
