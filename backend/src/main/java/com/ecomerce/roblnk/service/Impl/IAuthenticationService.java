@@ -8,17 +8,16 @@ import com.ecomerce.roblnk.repository.CartRepository;
 import com.ecomerce.roblnk.repository.RoleRepository;
 import com.ecomerce.roblnk.repository.TokenRepository;
 import com.ecomerce.roblnk.repository.UserRepository;
-import com.ecomerce.roblnk.service.AuthenticationService;
 import com.ecomerce.roblnk.security.JwtService;
+import com.ecomerce.roblnk.service.AuthenticationService;
 import com.ecomerce.roblnk.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,9 +28,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.*;
 
@@ -72,7 +69,7 @@ public class IAuthenticationService implements AuthenticationService {
             EmailDetails emailDetails = new EmailDetails();
             emailDetails.setSubject("Xác thực tài khoản mới!");
             emailDetails.setRecipient(user.getEmail());
-            emailDetails.setMsgBody("Chào " + request.getEmail() +
+            emailDetails.setMsgBody("Chào " + request.getLastName() +
                     ",\nChúng tôi rất vui thông báo rằng tài khoản của bạn đã được tạo thành công tại Shoes Shop. Dưới đây là thông tin tài khoản của bạn:\n"
                     + "\nMã OTP dành cho tài khoản " + request.getEmail() + " :"
                     + "\n\n" + otp
@@ -88,7 +85,7 @@ public class IAuthenticationService implements AuthenticationService {
             cartRepository.save(cart);
             return ResponseEntity.ok(ApiResponse.builder()
                     .statusCode(200)
-                    .message("OTP has been sent to your email. Please check your email!")
+                    .message("Mã xác minh đã được gửi đến email của bạn. Xin hãy kiểm tra email!")
                     .description("Successfully")
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
@@ -106,7 +103,10 @@ public class IAuthenticationService implements AuthenticationService {
     @Override
     public ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-
+        var check = validateChangePasswordOTP(new OtpRequest(updatePasswordRequest.getEmail(), updatePasswordRequest.getOneTimePassword()));
+        if (!check.startsWith("Đôi")){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(check);
+        }
         // check if the current password is correct
         if (!passwordEncoder.matches(updatePasswordRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
@@ -127,6 +127,7 @@ public class IAuthenticationService implements AuthenticationService {
         }
 
         user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+        revokeAllUserTokens(user);
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
                 .statusCode(200)
@@ -150,6 +151,8 @@ public class IAuthenticationService implements AuthenticationService {
             } else {
                 if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
                     clearOTP(user.get());
+                    user.get().setActive(true);
+                    userRepository.save(user.get());
                     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                             .statusCode(201)
                             .message(String.valueOf(HttpStatus.CREATED))
@@ -174,29 +177,38 @@ public class IAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public boolean validateChangePasswordOTP(OtpRequest request) {
+    public String validateChangePasswordOTP(OtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail());
         if (user.isPresent()) {
             if (user.get().getOneTimePassword().isEmpty()) {
-                return false;
+                return "Vui lòng nhập mã OTP";
             } else {
                 if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
-                    clearOTP(user.get());
-                    return true;
+                    if (user.get().getOtpExpireTime().after(new Date(System.currentTimeMillis()))){
+                        clearOTP(user.get());
+                        return "Đổi mật khẩu thành công!";
+                    }
+                    else {
+                        return "Mã xác minh đã hết hạn. Vui lòng yêu cầu mã mới!";
+                    }
+
                 } else
-                    return false;
+                    return "Mã xác minh không trùng khớp, vui lòng thử lại!";
             }
         } else
-            return false;
+            return "Truy vấn không hợp lệ";
     }
 
 
     @Override
     public ResponseEntity<?> authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) throws IOException {
-        System.out.println("dâdw");
         var user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user != null) {
             if (!user.isEmailActive()) {
+
+                ///Chuyển hướng đến trang nhập OTP của FE
+
+
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                         .statusCode(403)
                         .message(String.valueOf(HttpStatus.FORBIDDEN))
@@ -265,11 +277,11 @@ public class IAuthenticationService implements AuthenticationService {
         Cookie[] Cookies = request.getCookies();
         String cookie_ = null;
         String userEmail = null;
-        if (Cookies.length > 0){
-            for (Cookie cookie : Cookies){
+        if (Cookies.length > 0) {
+            for (Cookie cookie : Cookies) {
                 System.out.println(cookie.getName());
 
-                if (cookie.getName().equals("refreshToken")){
+                if (cookie.getName().equals("refreshToken")) {
                     cookie_ = cookie.getValue();
                     System.out.println("name: " + cookie.getName());
                     System.out.println("value: " + cookie.getValue());
@@ -278,8 +290,7 @@ public class IAuthenticationService implements AuthenticationService {
                     System.out.println(cookie_);
                 }
             }
-        }
-        else {
+        } else {
             var authResponse = ErrorResponse.builder()
                     .statusCode(400)
                     .message(String.valueOf(HttpStatus.NOT_FOUND))
@@ -309,6 +320,37 @@ public class IAuthenticationService implements AuthenticationService {
         }
     }
 
+    @Override
+    public ResponseEntity<?> forgotPassword(@Valid EmailRequest email) throws MessagingException, UnsupportedEncodingException {
+        var user = userRepository.findByEmail(email.getEmail()).orElse(null);
+        if (user != null) {
+            if (!user.isActive()){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn chưa được kính hoạt, vui lòng kích hoạt tài khoản của bạn trước!");
+            }
+            var otp = generateOTP(user);
+            EmailDetails emailDetails = new EmailDetails();
+            emailDetails.setSubject("Yêu cầu đổi mật khẩu!");
+            emailDetails.setRecipient(user.getEmail());
+            emailDetails.setMsgBody("Chào " + user.getLastName() +
+                    ",\nChúng tôi nhận thấy bạn đã yêu cầu đổi mật khẩu!\n"
+                    + "\nMã xác minh để đổi mật khẩu:"
+                    + "\n\n" + otp
+                    + "\n\n"
+                    + "\nMã OTP có hiệu lực 5 phút kể từ khi bạn nhận được thư này."
+                    + "\n\nNếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ, xin đừng ngần ngại liên hệ với chúng tôi tại vunguyentrungkhang@gmail.com ."
+                    + "\nChúng tôi rất mong được phục vụ bạn và chúc bạn có trải nghiệm tuyệt vời với Shoes Shop."
+                    + "\nXin chân thành cảm ơn đã lựa chọn chúng tôi."
+                    + "\n\nTrân trọng,\n" +
+                    "Vũ Nguyễn Trung Khang");
+            emailService.sendSimpleMail(emailDetails);
+            Map<String, String> map = new HashMap<>();
+            map.put("email", user.getEmail());
+            map.put("msg", "Đã gửi mã xác minh đến email: " + user.getEmail() + ". Vui lòng kiểm tra hộp thư!");
+            return ResponseEntity.status(HttpStatus.OK).body(map);
+        }
+        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Không tìm thấy bất kì tài khoản trùng khớp nào, vui lòng nhập lại email!");
+    }
+
     public String generateOTP(User user)
             throws UnsupportedEncodingException, MessagingException {
         String numbers = "0123456789";
@@ -320,16 +362,17 @@ public class IAuthenticationService implements AuthenticationService {
         }
         String lmao = new String(otp);
         String encodedOTP = passwordEncoder.encode(lmao);
-
+        clearOTP(user);
         user.setOneTimePassword(encodedOTP);
         user.setOtpRequestedTime(new Date(System.currentTimeMillis()));
+        user.setOtpExpireTime(new Date(System.currentTimeMillis() + 1000 * 5 * 60));
         return lmao;
     }
 
     public void clearOTP(User user) {
         user.setOneTimePassword(null);
         user.setOtpRequestedTime(null);
-        user.setEmailActive(true);
+        user.setOtpExpireTime(null);
         userRepository.save(user);
     }
 }

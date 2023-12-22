@@ -12,5 +12,7 @@ import lombok.Setter;
 public class RevenueResponse {
     private Integer totalRevenue;
     private Integer totalFee;
+    private Integer totalNumberOrdersSuccess;
+    private Integer totalNumberOrdersFailure;
     private Integer totalNumberOrders;
 }

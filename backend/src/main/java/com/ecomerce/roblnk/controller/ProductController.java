@@ -132,9 +132,14 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/carousel")
-    public ResponseEntity<?> getCarouselForHome(){
-        var productCarousel = productService.getAllProductCarousel();
+    @GetMapping("/carousel_rating")
+    public ResponseEntity<?> getCarouselRatingForHome(){
+        var productCarousel = productService.getAllProductCarouselRating();
+        return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
+    }
+    @GetMapping("/carousel_sold")
+    public ResponseEntity<?> getCarouselSoldForHome(){
+        var productCarousel = productService.getAllProductCarouselSold();
         return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
     }
     @GetMapping("/carousel_product")

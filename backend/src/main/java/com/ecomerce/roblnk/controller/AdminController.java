@@ -28,7 +28,7 @@ public class AdminController {
     private final UserService userService;
     private final ProductService productService;
     private final StatusService statusService;
-    private final OrderService orderService;
+    private final AdminService adminService;
     @GetMapping("/user")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailUser(@RequestParam("id") Long id) throws UserException {
@@ -124,8 +124,8 @@ public class AdminController {
 
     @GetMapping("/revenue")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getRevenue() {
-        var revenue = productService.getAllRevenue();
+    public ResponseEntity<?> getRevenue(Principal principal) {
+        var revenue = adminService.getAllRevenue(principal);
         if (revenue != null) {
             return ResponseEntity.status(HttpStatus.OK).body(revenue);
         } else

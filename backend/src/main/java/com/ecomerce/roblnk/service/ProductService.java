@@ -3,6 +3,7 @@ package com.ecomerce.roblnk.service;
 import com.ecomerce.roblnk.dto.product.*;
 import jakarta.validation.Valid;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface ProductService {
@@ -24,8 +25,8 @@ public interface ProductService {
 
     List<ProductResponse> getAllProductV3();
 
-    List<ProductResponse> getAllProductCarousel();
+    List<ProductResponse> getAllProductCarouselRating();
+    List<ProductResponse> getAllProductCarouselSold();
     List<ProductResponse> getAllProductCarouselInCategory(Long categoryId);
-    RevenueResponse getAllRevenue();
     String getURLPictureAndUploadToCloudinary(String base64Content);
 }

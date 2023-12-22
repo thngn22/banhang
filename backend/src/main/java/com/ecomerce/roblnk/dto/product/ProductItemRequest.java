@@ -9,7 +9,6 @@ import java.util.List;
 public class ProductItemRequest {
     private Integer price;
     private Integer warehousePrice;
-    private Integer warehouseQuantity;
     private Integer quantityInStock;
     private String productImage;
     private String size;

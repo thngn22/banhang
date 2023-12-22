@@ -1,26 +1,28 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
+import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.product.*;
 import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
-import com.ecomerce.roblnk.service.CloudinaryService;
-import com.ecomerce.roblnk.service.ProductService;
-import com.ecomerce.roblnk.service.ReviewService;
+import com.ecomerce.roblnk.service.*;
 import com.ecomerce.roblnk.util.ByteMultipartFile;
 import com.ecomerce.roblnk.util.FileUtil;
 import com.ecomerce.roblnk.util.ImageUtil;
+import com.ecomerce.roblnk.util.Status;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.*;
 
 import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE;
@@ -41,7 +43,6 @@ public class IProductService implements ProductService {
     private final ReviewService reviewService;
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
-
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId) {
         List<Category> categories = new ArrayList<>();
@@ -352,6 +353,8 @@ public class IProductService implements ProductService {
                 productItemDTOv2.setPrice(productDetail.getProductItems().get(0).getPrice());
                 productItemDTOv2.setProductImage(productDetail.getProductItems().get(0).getProductImage());
                 productItemDTOv2.setQuantityInStock(productDetail.getProductItems().get(0).getQuantityInStock());
+                productItemDTOv2.setNumberQuantity(0);
+                productItemDTOv2.setWarehousePrice(productDetail.getProductItems().get(0).getWarehousePrice());
                 productItemDTOv2.setActive(productDetail.getProductItems().get(0).isActive());
                 productItemDTOv2.setColor(optionColor);
                 productItemDTOv2.setSize(optionSize);
@@ -810,7 +813,10 @@ public class IProductService implements ProductService {
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());
                     productItem.setWarehousePrice(p.getWarehousePrice());
-                    productItem.setQuantityInStock(p.getQuantityInStock());
+                    if (p.getNumberQuantity() > 0){
+                        productItem.setQuantityInStock(p.getNumberQuantity() + productItem.getQuantityInStock());
+                        productItem.setWarehouseQuantity(p.getNumberQuantity());
+                    }
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setProduct(product);
                     productItem.setProductConfigurations(productConfigurations);
@@ -896,10 +902,31 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProductCarousel() {
+    public List<ProductResponse> getAllProductCarouselRating() {
 
         Pageable pageable = PageRequest.of(0, 10);
-        var productCarousel = productRepository.findAllByActiveIsTrueOrderByRatingDescSoldDesc(pageable);
+        var productCarousel = productRepository.findAllByActiveIsTrueOrderByRatingDesc(pageable);
+        List<Integer> list = new ArrayList<>();
+        for (Product product : productCarousel) {
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            for (ProductItem productItem : items) {
+                total += productItem.getQuantityInStock();
+            }
+
+            list.add(total);
+        }
+        var productResponseList = productMapper.toProductResponseList(productCarousel);
+        for (int i = 0; i < productResponseList.size(); i++) {
+            productResponseList.get(i).setQuantity(list.get(i));
+        }
+        return productResponseList;
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductCarouselSold() {
+        Pageable pageable = PageRequest.of(0, 10);
+        var productCarousel = productRepository.findAllByActiveIsTrueOrderBySoldDesc(pageable);
         List<Integer> list = new ArrayList<>();
         for (Product product : productCarousel) {
             int total = 0;
@@ -972,18 +999,6 @@ public class IProductService implements ProductService {
             productResponseList.get(i).setQuantity(list.get(i));
         }
         return productResponseList;
-    }
-
-    @Override
-    public RevenueResponse getAllRevenue() {
-        /*var productList = productRepository.findAll();
-        while (!productList.isEmpty()) {
-            while (!productList.get(0).getProductItems().isEmpty()) {
-                if (productList.get(0).getProductItems().get(0).getWarehouseQuantity() !=
-                productList.get(0).get)
-            }
-        }*/
-        return null;
     }
 
     @Override

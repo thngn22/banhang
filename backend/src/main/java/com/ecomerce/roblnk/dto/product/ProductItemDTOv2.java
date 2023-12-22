@@ -10,7 +10,7 @@ public class ProductItemDTOv2 {
     private Long id;
     private Integer price;
     private Integer warehousePrice;
-    private Integer warehouseQuantity;
+    private Integer numberQuantity;
     private Integer quantityInStock;
     private String productImage;
     private boolean active;
