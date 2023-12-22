@@ -1,15 +1,24 @@
 import React from "react";
 import "./ProductCard.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Rate, Space } from "antd";
+import * as ProductService from "../../../services/ProductService";
+import { useQuery } from "@tanstack/react-query";
 
 const ProductCard = ({ data }) => {
   // console.log("data", data);
+  const navigate = useNavigate();
   const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
 
   return (
     <div className="productCard w-[15rem] m-3 transition-all cursor-pointer border border-gray-300">
-      <Link to={`/product/${data.id}`}>
+      <Link
+        to={`/product/${data.id}`}
+        onClick={() => {
+          navigate(`/product/${data.id}`);
+          window.scrollTo(0, 0);
+        }}
+      >
         <div className="">
           <img
             className="h-full w-full object-cover"

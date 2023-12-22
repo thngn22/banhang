@@ -252,7 +252,7 @@ export default function Navigation({
     navigate("/history-order");
   };
   const handleComeToAdmin = () => {
-    navigate("/admin")
+    navigate("/admin");
   };
   const handleLogout = async () => {
     setIsLoading(true);
@@ -496,7 +496,9 @@ export default function Navigation({
                                           className="flex border-b-[1px] hover:text-gray-800 px-8"
                                         >
                                           <Link
-                                            to={`/products/category/${item.id}/${encodeURIComponent(item.name)}`}
+                                            to={`/products/category/${
+                                              item.id
+                                            }/${encodeURIComponent(item.name)}`}
                                             onClick={() => close()}
                                             className=" my-3"
                                           >
@@ -559,7 +561,8 @@ export default function Navigation({
                           >
                             <Popover.Panel
                               static
-                              className="absolute z-10 top-[36px] right-[-22px] mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
+                              style={{ marginTop: "0.4rem" }}
+                              className="absolute z-10 top-[36px] right-[-22px] w-48 bg-white border border-gray-200 rounded-md shadow-lg"
                             >
                               <div className="py-1">
                                 {auth?.email ? (

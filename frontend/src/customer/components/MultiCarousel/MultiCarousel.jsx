@@ -6,15 +6,6 @@ import * as ProductService from "../../../services/ProductService";
 import ProductCard from "../Product/ProductCard";
 
 const MultiCarousel = (props) => {
-  const { data: filterProducts } = useQuery({
-    queryKey: ["filterProducts"],
-    queryFn: () => {
-      return ProductService.getFilterProduct({
-        category_id: 4,
-      });
-    },
-  });
-
   const responsive = {
     superLargeDesktop: {
       // the naming can be any, depends on you.
@@ -56,8 +47,8 @@ const MultiCarousel = (props) => {
   return (
     <div className="mb-4">
       <Carousel responsive={props.homePage ? responsiveHome : responsive}>
-        {filterProducts ? (
-          filterProducts?.contents?.map((product, index) => (
+        {props?.dataCarousel ? (
+          props?.dataCarousel?.map((product, index) => (
             <div
               key={index}
               className="group relative"
@@ -65,7 +56,6 @@ const MultiCarousel = (props) => {
             >
               <ProductCard data={product} />
             </div>
-            
           ))
         ) : (
           <>

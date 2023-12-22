@@ -52,6 +52,15 @@ export default function ProductDetailPage() {
       return ProductService.getProductDetail(productId);
     },
   });
+  const { data: topInDetail } = useQuery({
+    queryKey: [productDetail?.categoryId?.id],
+    queryFn: () => {
+      return ProductService.getProductTopInDetail({
+        category_id: productDetail?.categoryId?.id,
+      });
+    },
+  });
+  console.log("topInDetail", topInDetail);
 
   React.useEffect(() => {
     if (productDetail) {
@@ -191,7 +200,7 @@ export default function ProductDetailPage() {
     return res;
   });
 
-  console.log("des", productDetail?.description);
+  // console.log("des", productDetail?.description);
 
   return (
     <div className="bg-white">
@@ -537,15 +546,12 @@ export default function ProductDetailPage() {
           <Review dataReviews={productDetail?.reviews} />
         </section>
 
-        {/* Smililer Products */}
-        <section className="text-xl text-left ml-8">Sản phẩm bán được nhiều</section>
-        <hr class="mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
-        <MultiCarousel />
-
         {/* High Rating Products */}
-        <section className="text-xl text-left ml-8">Sản phẩm được đánh giá cao</section>
+        <section className="text-xl text-left ml-8">
+          Sản phẩm được đánh giá cao
+        </section>
         <hr class=" mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
-        <MultiCarousel />
+        <MultiCarousel dataCarousel={topInDetail} />
 
         <Modal
           open={isModalOpen}

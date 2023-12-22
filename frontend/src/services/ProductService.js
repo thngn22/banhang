@@ -18,9 +18,12 @@ export const getAllProductByCategory = async (params) => {
   return res.data;
 };
 export const getFilterProduct = async (params) => {
-  const res = await axios.get(`${process.env.REACT_APP_API_URL}product/search`, {
-    params,
-  });
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/search`,
+    {
+      params,
+    }
+  );
   return res.data;
 };
 export const getProductDetail = async (productId) => {
@@ -109,6 +112,28 @@ export const changeStatusProduct = async (id, accessToken, axiosJWT) => {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+    }
+  );
+  return res.data;
+};
+
+export const getProductTopRatingHome = async () => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/carousel_rating`
+  );
+  return res.data;
+};
+export const getProductTopSoldHome = async () => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/carousel_sold`
+  );
+  return res.data;
+};
+export const getProductTopInDetail = async (params) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/carousel_product`,
+    {
+      params,
     }
   );
   return res.data;
