@@ -1,0 +1,39 @@
+/* styles.css */
+
+/* Đặt màu nền cho header */
+.review .ant-table-thead > tr > th {
+    background-color: #034ea1 !important;
+    color: #ffffff !important; /* Đặt màu chữ nếu cần */
+    padding: 6px 6px !important;
+  }
+
+  .review .ant-table-thead > tr > th:nth-child(1) {
+    /* Đặt độ rộng của cột "Math Score" */
+    width: 80%;
+    text-align: left !important;
+    padding-left: 20px !important;
+  }
+  
+  .review .ant-table-thead > tr > th:nth-child(2) {
+    /* Đặt độ rộng của cột "English Score" */
+    padding-left: 20px !important;
+    width: 20%;
+  }
+  
+  /* Màu chữ khi hover trên header */
+  .review .ant-table-thead > tr > th:hover {
+    color: #ffffff; /* Thay đổi màu chữ khi hover nếu cần */
+  }
+
+  .configStar .ant-space-item ul {
+    font-size: 14px;
+  }
+  .ant-rate-star {
+    margin-right: 4px; /* Đặt giá trị margin tùy ý */
+  }
+
+.review .ant-table-tbody > tr > td{
+  padding: 6px 16px;
+  border-left: 1px solid #ddd; /* Border xám nhạt ở trái */
+  border-right: 1px solid #ddd; /* Border xám nhạt ở phải */
+}
