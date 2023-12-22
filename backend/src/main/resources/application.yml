@@ -9,17 +9,11 @@ cloudinary:
     api-secret: 2yGg1_La5nS0VVNZH970wYrFiUw
     cloud-name: dmvncmrci
     secure: true
-server:
-    port: 7586
-    tomcat:
-        redirect-context-root: false
 spring:
-    config:
-        import: optional:file:/src/main/resources/.env[.yml]
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        password: ${MYSQL_ROOT_PASSWORD:123456}
-        url: jdbc:mysql://${MYSQLDB_HOST:localhost}:${MYSQLDB_DOCKER_PORT:3306}/${MYSQLDB_DATABASE:e_commerce_shoes}?useSSL=false&allowPublicKeyRetrieval=true
+        password: 235fEfF144-GfcccG46DBbhff6C5EH-A
+        url: jdbc:mysql://root:monorail.proxy.rlwy.net:32404/e_commerce_shoes
         username: root
     devtools:
         livereload:
