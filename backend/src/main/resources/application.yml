@@ -14,9 +14,12 @@ server:
     enabled: true
   ssl:
     enabled: true
-    key-store: classpath:key-cert-khangthang.p12
+    key-store: classpath:khang-thang.p12
     key-store-password: 123456
     key-store-type: PKCS12
+    key-alias: shoe-shop-alias
+    protocol: TLS
+    enabled-protocols: TLSv1.2
 spring:
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
