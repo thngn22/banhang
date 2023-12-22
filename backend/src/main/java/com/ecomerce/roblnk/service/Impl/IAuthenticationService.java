@@ -104,7 +104,7 @@ public class IAuthenticationService implements AuthenticationService {
     public ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         var check = validateChangePasswordOTP(new OtpRequest(updatePasswordRequest.getEmail(), updatePasswordRequest.getOneTimePassword()));
-        if (!check.startsWith("Đôi")){
+        if (!check.startsWith("Đôi")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(check);
         }
         // check if the current password is correct
@@ -139,9 +139,11 @@ public class IAuthenticationService implements AuthenticationService {
 
     @Override
     public ResponseEntity<?> validateLoginOTP(OtpRequest request) {
-        var user = userRepository.findByEmail(request.getEmail());
-        if (user.isPresent()) {
-            if (user.get().isEmailActive()) {
+        try {
+
+
+            var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+            if (user.isEmailActive()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
                         .statusCode(400)
                         .message(String.valueOf(HttpStatus.BAD_REQUEST))
@@ -149,10 +151,10 @@ public class IAuthenticationService implements AuthenticationService {
                         .timestamp(new Date(System.currentTimeMillis()))
                         .build());
             } else {
-                if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
-                    clearOTP(user.get());
-                    user.get().setActive(true);
-                    userRepository.save(user.get());
+                if (passwordEncoder.matches(request.getOneTimePassword(), user.getOneTimePassword())) {
+                    clearOTP(user);
+                    user.setActive(true);
+                    userRepository.save(user);
                     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                             .statusCode(201)
                             .message(String.valueOf(HttpStatus.CREATED))
@@ -167,13 +169,14 @@ public class IAuthenticationService implements AuthenticationService {
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
             }
-        } else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
-                    .statusCode(404)
-                    .message(String.valueOf(HttpStatus.NOT_FOUND))
-                    .description(EMAIL_NOT_FOUND)
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                    .statusCode(403)
+                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                    .description("Invalid request!")
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
+        }
     }
 
     @Override
@@ -184,11 +187,10 @@ public class IAuthenticationService implements AuthenticationService {
                 return "Vui lòng nhập mã OTP";
             } else {
                 if (passwordEncoder.matches(request.getOneTimePassword(), user.get().getOneTimePassword())) {
-                    if (user.get().getOtpExpireTime().after(new Date(System.currentTimeMillis()))){
+                    if (user.get().getOtpExpireTime().after(new Date(System.currentTimeMillis()))) {
                         clearOTP(user.get());
                         return "Đổi mật khẩu thành công!";
-                    }
-                    else {
+                    } else {
                         return "Mã xác minh đã hết hạn. Vui lòng yêu cầu mã mới!";
                     }
 
@@ -207,8 +209,6 @@ public class IAuthenticationService implements AuthenticationService {
             if (!user.isEmailActive()) {
 
                 ///Chuyển hướng đến trang nhập OTP của FE
-
-
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                         .statusCode(403)
                         .message(String.valueOf(HttpStatus.FORBIDDEN))
@@ -324,7 +324,7 @@ public class IAuthenticationService implements AuthenticationService {
     public ResponseEntity<?> forgotPassword(@Valid EmailRequest email) throws MessagingException, UnsupportedEncodingException {
         var user = userRepository.findByEmail(email.getEmail()).orElse(null);
         if (user != null) {
-            if (!user.isActive()){
+            if (!user.isActive()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn chưa được kính hoạt, vui lòng kích hoạt tài khoản của bạn trước!");
             }
             var otp = generateOTP(user);
@@ -347,8 +347,8 @@ public class IAuthenticationService implements AuthenticationService {
             map.put("email", user.getEmail());
             map.put("msg", "Đã gửi mã xác minh đến email: " + user.getEmail() + ". Vui lòng kiểm tra hộp thư!");
             return ResponseEntity.status(HttpStatus.OK).body(map);
-        }
-        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Không tìm thấy bất kì tài khoản trùng khớp nào, vui lòng nhập lại email!");
+        } else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Không tìm thấy bất kì tài khoản trùng khớp nào, vui lòng nhập lại email!");
     }
 
     public String generateOTP(User user)
