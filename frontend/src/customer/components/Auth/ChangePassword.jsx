@@ -19,18 +19,59 @@ import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as UserSerVice from "../../../services/UserService";
 import * as AuthService from "../../../services/AuthService";
 import { message } from "antd";
-import { useDispatch } from "react-redux";
-import { forgotSuccess, signSuccess } from "../../../redux/slides/accessSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { changeSuccess, signSuccess } from "../../../redux/slides/accessSlice";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import { useEffect } from "react";
 
 const defaultTheme = createTheme();
 
-export default function ForgotPassword() {
+export default function ChangePassword() {
+  const auth = useSelector((state) => state.auth.login.currentUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const dispatch = useDispatch();
 
+  const refreshToken = async () => {
+    try {
+      const data = await AuthService.refreshToken();
+      return data?.accessToken;
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+  const axiosJWT = axios.create();
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+      if (auth?.accessToken) {
+        const decodAccessToken = jwtDecode(auth?.accessToken);
+        if (decodAccessToken.exp < date.getTime() / 1000) {
+          const data = await refreshToken();
+          const refreshUser = {
+            ...auth,
+            accessToken: data,
+          };
+
+          dispatch(loginSuccess(refreshUser));
+          config.headers["Authorization"] = `Bearer ${data}`;
+        }
+      }
+
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+
   const mutation = useMutationHook((data) => AuthService.sendOTP2(data));
+
+  // const { data, status } = mutation;
 
   const navigate = useNavigate();
 
@@ -38,22 +79,32 @@ export default function ForgotPassword() {
     width: "100%",
   };
 
+  useEffect(() => {
+    if (auth) {
+      setEmail(auth?.email);
+    }
+  }, [auth]);
+
   const handleOnChangeEmail = (value) => {
     setEmail(value);
   };
   const handleOnChangePassword = (value) => {
     setPassword(value);
   };
+  const handleOnChangeNewPassword = (value) => {
+    setNewPassword(value);
+  };
   const handleOnChangeConfirmPassword = (value) => {
     setConfirmPassword(value);
   };
 
-  const handleForgot = (event) => {
+  const handleSignUp = (event) => {
     event.preventDefault();
     mutation.mutate(
       {
         email: email,
-        newPassword: password,
+        password: password,
+        newPassword: newPassword,
         newPasswordConfirm: confirmPassword,
       },
       {
@@ -66,13 +117,14 @@ export default function ForgotPassword() {
       }
     );
     dispatch(
-      forgotSuccess({
+      changeSuccess({
         email: email,
-        newPassword: password,
+        password: password,
+        newPassword: newPassword,
         newPasswordConfirm: confirmPassword,
       })
     );
-    navigate(`/otp/${"forgot"}`);
+    navigate(`/otp/${"change"}`);
   };
 
   return (
@@ -103,9 +155,9 @@ export default function ForgotPassword() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Quên mật khẩu
+              Đăng ký
             </Typography>
-            <form onSubmit={handleForgot}>
+            <form onSubmit={handleSignUp}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <InputField
@@ -120,11 +172,21 @@ export default function ForgotPassword() {
                 <Grid item xs={12}>
                   <InputField
                     value={password}
-                    label={"New Passowrd"}
-                    name={"newPassword"}
+                    label={"Password"}
+                    name={"password"}
                     type={"password"}
                     style={inputFullWidth}
                     handleOnChange={handleOnChangePassword}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <InputField
+                    value={newPassword}
+                    label={"New Password"}
+                    name={"newPassword"}
+                    type={"password"}
+                    style={inputFullWidth}
+                    handleOnChange={handleOnChangeNewPassword}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -137,7 +199,7 @@ export default function ForgotPassword() {
                     handleOnChange={handleOnChangeConfirmPassword}
                   />
                 </Grid>
-                {password !== confirmPassword && (
+                {newPassword !== confirmPassword && (
                   <Typography style={{ color: "red", marginLeft: "16px" }}>
                     ConfirmPassword không trùng khớp
                   </Typography>
@@ -147,17 +209,26 @@ export default function ForgotPassword() {
                 disabled={
                   !email.length ||
                   !password.length ||
+                  !newPassword.length ||
                   !confirmPassword.length ||
-                  !(password === confirmPassword)
+                  !(newPassword === confirmPassword)
                 }
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={handleForgot}
+                onClick={handleSignUp}
               >
                 Gửi mã OTP
               </Button>
             </form>
+
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="#" variant="body2">
+                  Bạn đã có tài khoản? Hãy Đăng nhập
+                </Link>
+              </Grid>
+            </Grid>
           </Box>
         </Container>
       </ThemeProvider>

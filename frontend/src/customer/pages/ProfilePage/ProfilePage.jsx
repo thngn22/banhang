@@ -11,11 +11,13 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const [userIn4, setUserIn4] = useState();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const styleInputField = {
     width: "388px",
@@ -128,6 +130,10 @@ const ProfilePage = () => {
     }
   };
 
+  const handleChangePassword = () => {
+    navigate("/change");
+  };
+
   return (
     <div
       style={{ minHeight: "70vh", backgroundColor: "rgba(169, 169, 169, 0.2)" }}
@@ -199,23 +205,39 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
-
-        <Button
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            marginTop: "16px",
-            backgroundColor: "blue",
-            color: "white",
-            fontWeight: "600",
-            fontSize: "18px",
-            height: "50px",
-            padding: "10px",
-          }}
-          onClick={handleUpdateProfile}
-        >
-          <span>Cập nhập thông tin tài khoản</span>
-        </Button>
+        <div style={{ display: "flex" }}>
+          <Button
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              marginTop: "16px",
+              backgroundColor: "blue",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "18px",
+              height: "50px",
+              padding: "10px",
+              marginRight: "20px",
+            }}
+            onClick={handleUpdateProfile}
+          >
+            <span>Cập nhập thông tin tài khoản</span>
+          </Button>
+          <Button
+            style={{
+              marginTop: "16px",
+              backgroundColor: "orange",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "18px",
+              height: "50px",
+              padding: "10px",
+            }}
+            onClick={handleChangePassword}
+          >
+            <span>Đổi mật khẩu</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

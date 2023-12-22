@@ -19,6 +19,8 @@ import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as UserSerVice from "../../../services/UserService";
 import * as AuthService from "../../../services/AuthService";
 import { message } from "antd";
+import { useDispatch } from "react-redux";
+import { signSuccess } from "../../../redux/slides/accessSlice";
 
 const defaultTheme = createTheme();
 
@@ -29,6 +31,7 @@ export default function SignUp() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const dispatch = useDispatch();
 
   const mutation = useMutationHook((data) => AuthService.signUp(data));
 
@@ -58,24 +61,41 @@ export default function SignUp() {
   const handleOnChangeConfirmPassword = (value) => {
     setConfirmPassword(value);
   };
+  const handleSignIn = () => {
+    navigate("/login");
+  };
 
   const handleSignUp = (event) => {
     event.preventDefault();
-    mutation.mutate({
-      firstName: firstName,
-      lastName: lastName,
-      userName: userName,
-      email: email,
-      password: password,
-    },{
-      onSuccess:()=>{
-        message.success("Đã gửi mã OTP")
+    mutation.mutate(
+      {
+        firstName: firstName,
+        lastName: lastName,
+        userName: userName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
       },
-      onError:(error)=>{
-        message.error(`Lỗi ${error.message}`)
+      {
+        onSuccess: () => {
+          message.success("Đã gửi mã OTP");
+        },
+        onError: (error) => {
+          message.error(`Lỗi ${error.message}`);
+        },
       }
-    });
-    navigate(`/otp/${encodeURIComponent(email)}`);
+    );
+    dispatch(
+      signSuccess({
+        firstName: firstName,
+        lastName: lastName,
+        userName: userName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      })
+    );
+    navigate(`/otp/${"signUp"}`);
   };
 
   return (
@@ -204,7 +224,7 @@ export default function SignUp() {
 
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link onClick={handleSignIn} variant="body2">
                   Bạn đã có tài khoản? Hãy Đăng nhập
                 </Link>
               </Grid>
