@@ -14,13 +14,14 @@ public class CorsConfiguration implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         Side.CLIENT_SITE_URL,
+                        Side.SERVER_SITE_URL,
                         "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
                         "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html**",
                         "https://sandbox.vnpayment.vn/**",
                         "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
                         ) // Thay bằng URL của ứng dụng React
                 .allowedHeaders("*")
-                .allowedMethods("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true);
 
     }
