@@ -494,7 +494,11 @@ public class ICartService implements CartService {
                     System.out.println(redirectURL);
 //                    HttpHeaders headers = new HttpHeaders();
 //                    headers.add("Location", redirectURL);
-                    return ResponseEntity.status(HttpStatus.CREATED).body(redirectURL);
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setLocation(URI.create(redirectURL));
+                    return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+//                    return ResponseEntity.status(HttpStatus.CREATED).body(redirectURL);
                 }
 
                 //MOMO
