@@ -7,7 +7,9 @@ import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
-import com.ecomerce.roblnk.service.*;
+import com.ecomerce.roblnk.service.CloudinaryService;
+import com.ecomerce.roblnk.service.ProductService;
+import com.ecomerce.roblnk.service.ReviewService;
 import com.ecomerce.roblnk.util.ByteMultipartFile;
 import com.ecomerce.roblnk.util.FileUtil;
 import com.ecomerce.roblnk.util.ImageUtil;
@@ -37,10 +39,8 @@ public class IProductService implements ProductService {
     private final CloudinaryService cloudinaryService;
     private final ReviewMapper reviewMapper;
     private final ReviewService reviewService;
-    private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
-    private final CategoryService categoryService;
 
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId) {
@@ -54,10 +54,14 @@ public class IProductService implements ProductService {
         cate.add(21L);
         cate.add(22L);
         var cates = categoryRepository.findAll();
-        if (categoryId == null ) {
+        if (categoryId == null) {
             categories.addAll(categoryRepository.findAllById(cate));
-        } else
-            categories.add(categoryRepository.findById(categoryId).orElseThrow());
+        } else {
+            var category = categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(categoryRepository.findById(categoryId).orElseThrow());
+            else return List.of();
+        }
         while (!categories.isEmpty()) {
             Long id = categories.get(0).getId();
             boolean flag = false;
@@ -80,9 +84,14 @@ public class IProductService implements ProductService {
         }
 
         System.out.println("size đầu: " + products.size());
-        for (Product product : products) {
+        int i = 0;
+        while (i < products.size()) {
+            if (!products.get(i).isActive()) {
+                products.remove(i);
+                continue;
+            }
             int total = 0;
-            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
             }
@@ -112,10 +121,14 @@ public class IProductService implements ProductService {
         boolean flagMinPrice = minPrice != null && !minPrice.isEmpty();
         boolean flagMaxPrice = maxPrice != null && !maxPrice.isEmpty();
         var cates = categoryRepository.findAll();
-        if (categoryId == null ) {
+        if (categoryId == null) {
             categories.addAll(categoryRepository.findAllById(cate));
-        } else
-            categories.add(categoryRepository.findById(categoryId).orElseThrow());
+        } else {
+            var category = categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(categoryRepository.findById(categoryId).orElseThrow());
+            else return null;
+        }
         while (!categories.isEmpty()) {
             Long id = categories.get(0).getId();
             boolean flag = false;
@@ -144,6 +157,10 @@ public class IProductService implements ProductService {
         while (i < products.size()) {
             var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
             boolean flag = false;
+            if (!products.get(i).isActive()) {
+                products.remove(i);
+                continue;
+            }
             loop:
             {
                 for (ProductItem productItem : items) {
@@ -237,7 +254,6 @@ public class IProductService implements ProductService {
             case "price_desc" ->
                     productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());
             case "rating_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating));
-            case "rating_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
             case "sold_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold));
             case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
             default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
@@ -249,7 +265,7 @@ public class IProductService implements ProductService {
         System.out.println(start);
         System.out.println(end);
         List<ProductResponse> pageContent = new ArrayList<>();
-        if (start < end){
+        if (start < end) {
             pageContent = productResponseList.subList(start, end);
 
         }
@@ -286,11 +302,6 @@ public class IProductService implements ProductService {
                 criteriaBuilder.like(root.get("name"), "%" + name + "%");
     }
 
-    private Specification<Product> hasDescription(String description) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(root.get("description"), "%" + description + "%");
-    }
-
     private Sort sort(String sort) {
         return switch (sort) {
             case "name_asc" -> Sort.by("name").ascending();
@@ -300,7 +311,6 @@ public class IProductService implements ProductService {
             case "price_asc" -> Sort.by("estimatedPrice").ascending();
             case "price_desc" -> Sort.by("estimatedPrice").descending();
             case "rating_asc" -> Sort.by("rating").ascending();
-            case "rating_desc" -> Sort.by("rating").descending();
             case "sold_asc" -> Sort.by("sold").ascending();
             case "sold_desc" -> Sort.by("sold").descending();
             default -> Sort.by("rating").descending();
@@ -427,12 +437,10 @@ public class IProductService implements ProductService {
             productResponse.setProductItemResponses(productItemResponses);
             var userReviews = reviewService.findAllByProductId(productId);
             List<Review> reviews = new ArrayList<>();
-            List<Long> ids = new ArrayList<>();
             List<Long> orderItemIds = new ArrayList<>();
             for (Review review : userReviews) {
                 if (review.getOrderItem().getProductItem().getProduct().getId().equals(productId)) {
                     reviews.add(review);
-                    ids.add(review.getOrderItem().getProductItem().getId());
                     orderItemIds.add(review.getOrderItem().getId());
                 }
             }
@@ -597,7 +605,9 @@ public class IProductService implements ProductService {
                     productItem.setCreatedDate(new Date(System.currentTimeMillis()));
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setPrice(p.getPrice());
+                    productItem.setWarehousePrice(p.getWarehousePrice());
                     productItem.setQuantityInStock(p.getQuantityInStock());
+                    productItem.setWarehouseQuantity(p.getQuantityInStock());
                     productItem.setProduct(product);
                     productItems.add(productItem);
                     productItemRequests.remove(0);
@@ -799,6 +809,7 @@ public class IProductService implements ProductService {
                     } else productItem.setProductImage(ImageUtil.urlImage);
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());
+                    productItem.setWarehousePrice(p.getWarehousePrice());
                     productItem.setQuantityInStock(p.getQuantityInStock());
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setProduct(product);
@@ -882,6 +893,97 @@ public class IProductService implements ProductService {
             }
         }
         return list;
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductCarousel() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+        var productCarousel = productRepository.findAllByActiveIsTrueOrderByRatingDescSoldDesc(pageable);
+        List<Integer> list = new ArrayList<>();
+        for (Product product : productCarousel) {
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            for (ProductItem productItem : items) {
+                total += productItem.getQuantityInStock();
+            }
+
+            list.add(total);
+        }
+        var productResponseList = productMapper.toProductResponseList(productCarousel);
+        for (int i = 0; i < productResponseList.size(); i++) {
+            productResponseList.get(i).setQuantity(list.get(i));
+        }
+        return productResponseList;
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductCarouselInCategory(Long categoryId) {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Product> productCarousel = new ArrayList<>();
+        List<Category> categories = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
+        List<Long> cate = new ArrayList<>();
+        cate.add(1L);
+        cate.add(2L);
+        cate.add(21L);
+        cate.add(22L);
+        var cates = categoryRepository.findAll();
+        if (categoryId == null) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else {
+            var category = categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(categoryRepository.findById(categoryId).orElseThrow());
+            else return List.of();
+        }
+        while (!categories.isEmpty()) {
+            Long id = categories.get(0).getId();
+            boolean flag = false;
+            for (Category category : cates) {
+                if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(id)) {
+                    flag = true;
+                    categories.add(category);
+                }
+            }
+            if (flag) {
+                categories.remove(0);
+            } else {
+                categoryList.add(categories.get(0));
+                categories.remove(0);
+            }
+        }
+
+        for (Category category : categoryList) {
+            productCarousel.addAll(productRepository.findAllByCategory_IdAndActiveTrueOrderByRatingDescSoldDesc(category.getId(), pageable));
+        }
+        List<Integer> list = new ArrayList<>();
+        for (Product product : productCarousel) {
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            for (ProductItem productItem : items) {
+                total += productItem.getQuantityInStock();
+            }
+
+            list.add(total);
+        }
+        var productResponseList = productMapper.toProductResponseList(productCarousel);
+        for (int i = 0; i < productResponseList.size(); i++) {
+            productResponseList.get(i).setQuantity(list.get(i));
+        }
+        return productResponseList;
+    }
+
+    @Override
+    public RevenueResponse getAllRevenue() {
+        /*var productList = productRepository.findAll();
+        while (!productList.isEmpty()) {
+            while (!productList.get(0).getProductItems().isEmpty()) {
+                if (productList.get(0).getProductItems().get(0).getWarehouseQuantity() !=
+                productList.get(0).get)
+            }
+        }*/
+        return null;
     }
 
     @Override

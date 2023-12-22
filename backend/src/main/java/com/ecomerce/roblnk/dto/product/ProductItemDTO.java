@@ -19,6 +19,8 @@ import java.util.Set;
 public class ProductItemDTO {
     private Long id;
     private Integer price;
+    private Integer warehousePrice;
+    private Integer warehouseQuantity;
     private Integer quantityInStock;
     private String productImage;
     private boolean active;

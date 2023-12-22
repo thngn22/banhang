@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.configuration;
 
+import com.ecomerce.roblnk.util.ClientSide;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -12,7 +13,7 @@ public class CorsConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                        "http://localhost:3000",
+                        ClientSide.CLIENT_SITE_URL,
                         "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
                         "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html**",
                         "https://sandbox.vnpayment.vn/**",

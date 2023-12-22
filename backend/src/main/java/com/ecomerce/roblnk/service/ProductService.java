@@ -23,5 +23,9 @@ public interface ProductService {
     List<ProductResponse> getAllProductV2();
 
     List<ProductResponse> getAllProductV3();
+
+    List<ProductResponse> getAllProductCarousel();
+    List<ProductResponse> getAllProductCarouselInCategory(Long categoryId);
+    RevenueResponse getAllRevenue();
     String getURLPictureAndUploadToCloudinary(String base64Content);
 }
