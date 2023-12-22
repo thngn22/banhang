@@ -489,7 +489,7 @@ public class ICartService implements CartService {
 
                 //VNPAY
                 else {
-                    String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+                    String baseUrl = "https://" + request.getServerName();
                     String redirectURL = baseUrl + "/api/v1/vnpay/submit_order?amount=" + orders.getFinalPayment().toString() + "&order_infor=" + orders.getId().toString();
                     System.out.println(redirectURL);
 //                    HttpHeaders headers = new HttpHeaders();
