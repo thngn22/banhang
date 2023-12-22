@@ -153,7 +153,7 @@ public class IAuthenticationService implements AuthenticationService {
             } else {
                 if (passwordEncoder.matches(request.getOneTimePassword(), user.getOneTimePassword())) {
                     clearOTP(user);
-                    user.setActive(true);
+                    user.setEmailActive(true);
                     userRepository.save(user);
                     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                             .statusCode(201)
