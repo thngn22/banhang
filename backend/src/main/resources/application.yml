@@ -21,7 +21,7 @@ spring:
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         password: 235fEfF144-GfcccG46DBbhff6C5EH-A
-        url: jdbc:mysql://root:235fEfF144-GfcccG46DBbhff6C5EH-A@monorail.proxy.rlwy.net:32404/e_commerce_shoes
+        url: jdbc:mysql://root:235fEfF144-GfcccG46DBbhff6C5EH-A@monorail.proxy.rlwy.net:32404/e_commerce_shoes?useSSL=true&allowPublicKeyRetrieval=true
         username: root
     devtools:
         livereload:
