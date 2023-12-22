@@ -144,7 +144,6 @@ public class IAuthenticationService implements AuthenticationService {
     public ResponseEntity<?> validateLoginOTP(OtpRequest request) {
         try {
 
-
             var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
             if (user.isEmailActive()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
@@ -346,6 +345,7 @@ public class IAuthenticationService implements AuthenticationService {
                     + "\n\nTrân trọng,\n" +
                     "Vũ Nguyễn Trung Khang");
             emailService.sendSimpleMail(emailDetails);
+            userRepository.save(user);
             Map<String, String> map = new HashMap<>();
             map.put("email", user.getEmail());
             map.put("msg", "Đã gửi mã xác minh đến email: " + user.getEmail() + ". Vui lòng kiểm tra hộp thư!");
