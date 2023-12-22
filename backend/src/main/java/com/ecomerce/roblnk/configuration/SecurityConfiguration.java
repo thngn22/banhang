@@ -79,6 +79,7 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/api/v1/auth/refresh"),
                             new AntPathRequestMatcher("/api/v1/auth/check_otp_login"),
                             new AntPathRequestMatcher("/api/v1/auth/forgot_password"),
+                            new AntPathRequestMatcher("/api/v1/auth/change_password"),
                             new AntPathRequestMatcher("/swagger-ui/**"),
                             new AntPathRequestMatcher("/swagger-ui.html"),
                             new AntPathRequestMatcher("/configuration/ui"),
