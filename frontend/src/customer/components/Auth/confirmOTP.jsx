@@ -176,7 +176,6 @@ export default function ConfirmOTP() {
         }
       );
     }
-    navigate("/")
   };
 
   const handleOnChangeOTP = (value) => {
