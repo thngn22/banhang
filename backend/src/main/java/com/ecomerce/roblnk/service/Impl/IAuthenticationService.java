@@ -101,10 +101,13 @@ public class IAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest, Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        var check = validateChangePasswordOTP(new OtpRequest(updatePasswordRequest.getEmail(), updatePasswordRequest.getOneTimePassword()));
-        if (!check.startsWith("Đôi")) {
+    public ResponseEntity<?> updatePassword(UpdatePasswordRequest updatePasswordRequest) {
+        var user = userRepository.findByEmail(updatePasswordRequest.getEmail()).orElseThrow();
+        OtpRequest otpRequest = new OtpRequest();
+        otpRequest.setEmail(updatePasswordRequest.getEmail());
+        otpRequest.setOneTimePassword(updatePasswordRequest.getOneTimePassword());
+        var check = validateChangePasswordOTP(otpRequest);
+        if (!check.startsWith("Đổi")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(check);
         }
         // check if the current password is correct

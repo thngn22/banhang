@@ -74,14 +74,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/change_password")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, Principal connectedUser, BindingResult bindingResult){
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new InputFieldException(bindingResult).getMessage());
         }
         if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(INCORRECT_PASSWORD_CONFIRMATION);
         }
-        return authenticationService.updatePassword(updatePasswordRequest, connectedUser);
+        return authenticationService.updatePassword(updatePasswordRequest);
     }
 
     @DeleteMapping("/logout")
