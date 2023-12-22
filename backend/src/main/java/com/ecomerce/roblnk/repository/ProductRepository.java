@@ -17,7 +17,9 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     List<Product> findAllByCategoryId(Long id);
-
+    List<Product> findAllByActiveIsTrueOrderByRatingDesc(Pageable pageable);
+    List<Product> findAllByActiveIsTrueOrderBySoldDesc(Pageable pageable);
+    List<Product> findAllByCategory_IdAndActiveTrueOrderByRatingDescSoldDesc(Long category_id, Pageable pageable);
     @Override
     List<Product> findAll(Specification<Product> specification, Sort sort);
 }

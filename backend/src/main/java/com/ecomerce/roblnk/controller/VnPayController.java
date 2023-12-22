@@ -10,7 +10,7 @@ import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.repository.StatusOrderRepository;
 import com.ecomerce.roblnk.service.EmailService;
 import com.ecomerce.roblnk.service.ProductItemService;
-import com.ecomerce.roblnk.util.ClientSide;
+import com.ecomerce.roblnk.util.Side;
 import com.ecomerce.roblnk.util.Status;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +62,7 @@ public class VnPayController {
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("paymentTime", paymentTime);
         model.addAttribute("transactionId", transactionId);
-        model.addAttribute("clientURL", ClientSide.CLIENT_SITE_URL_ORDER_HISTORY);
+        model.addAttribute("clientURL", Side.CLIENT_SITE_URL_ORDER_HISTORY);
         var order = orderRepository.findById(Long.valueOf(orderInfo)).orElseThrow();
         if (paymentStatus == 1 || paymentStatus == 0) {
             var orderDetail = orderMapper.toOrderResponse(order);

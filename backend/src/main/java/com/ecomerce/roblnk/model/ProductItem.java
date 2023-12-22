@@ -29,8 +29,14 @@ public class ProductItem {
     @Column(name = "price")
     private Integer price;
 
+    @Column(name = "warehouse_price")
+    private Integer warehousePrice;
+
     @Column(name = "quantity_in_stock")
     private Integer quantityInStock;
+
+    @Column(name = "warehouse_quantity")
+    private Integer warehouseQuantity;
 
     @Column(name = "product_image", length = 100000)
     private String productImage;

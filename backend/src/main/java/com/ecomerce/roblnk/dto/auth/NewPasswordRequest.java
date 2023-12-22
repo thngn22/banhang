@@ -1,13 +1,12 @@
 package com.ecomerce.roblnk.dto.auth;
 
-import jakarta.validation.constraints.Email;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class UpdatePasswordRequest {
-    @Email
+@Getter
+@Setter
+public class NewPasswordRequest {
     private String email;
-    private String password;
     private String newPassword;
     private String newPasswordConfirm;
     private String oneTimePassword;

@@ -43,6 +43,11 @@ public class User implements UserDetails {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date otpRequestedTime;
 
+    @Column(name = "otp_expire_time")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date otpExpireTime;
+
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;

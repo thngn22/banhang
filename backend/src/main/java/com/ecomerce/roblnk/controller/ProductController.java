@@ -1,7 +1,6 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
-import com.ecomerce.roblnk.dto.product.ProductDeleteRequest;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.dto.product.ProductEditRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
@@ -133,6 +132,21 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/carousel_rating")
+    public ResponseEntity<?> getCarouselRatingForHome(){
+        var productCarousel = productService.getAllProductCarouselRating();
+        return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
+    }
+    @GetMapping("/carousel_sold")
+    public ResponseEntity<?> getCarouselSoldForHome(){
+        var productCarousel = productService.getAllProductCarouselSold();
+        return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
+    }
+    @GetMapping("/carousel_product")
+    public ResponseEntity<?> getCarouselForDetailProduct(@RequestParam("category_id") Long categoryId){
+        var productCarousel = productService.getAllProductCarouselInCategory(categoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
+    }
 }
 
 

@@ -5,10 +5,7 @@ import com.ecomerce.roblnk.dto.user.UserCreateRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.exception.UserException;
-import com.ecomerce.roblnk.service.ProductService;
-import com.ecomerce.roblnk.service.StatusService;
-import com.ecomerce.roblnk.service.UserService;
-import com.ecomerce.roblnk.service.VariationService;
+import com.ecomerce.roblnk.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
@@ -31,6 +28,7 @@ public class AdminController {
     private final UserService userService;
     private final ProductService productService;
     private final StatusService statusService;
+    private final AdminService adminService;
     @GetMapping("/user")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailUser(@RequestParam("id") Long id) throws UserException {
@@ -120,6 +118,16 @@ public class AdminController {
         var statusOrders = statusService.getAllStatusOrder();
         if (statusOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(statusOrders);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
+
+    @GetMapping("/revenue")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getRevenue(Principal principal) {
+        var revenue = adminService.getAllRevenue(principal);
+        if (revenue != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(revenue);
         } else
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }

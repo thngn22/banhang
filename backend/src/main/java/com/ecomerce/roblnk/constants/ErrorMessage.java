@@ -13,7 +13,7 @@ public class ErrorMessage {
     public static final String OTP_NOT_VALID = "OTP is invalid!";
     public static final String INACTIVE_EMAIL = "Email is inactivate, please active by click send code again!";
     public static final String EMPTY_PASSWORD_CONFIRMATION = "Password confirmation cannot be empty.";
-    public static final String INCORRECT_PASSWORD_CONFIRMATION = "Password confirmation cannot be empty.";
+    public static final String INCORRECT_PASSWORD_CONFIRMATION = "Không được để trống phần xác nhận mật khẩu";
     public static final String NEW_PASSWORD_IS_SAME_CURRENT_PASSWORD = "New password is same current password, please try another password.";
     public static final String ACTIVATION_CODE_NOT_FOUND = "Activation code not found.";
     public static final String ORDER_NOT_FOUND = "Order not found.";
