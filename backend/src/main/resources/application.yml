@@ -10,10 +10,13 @@ cloudinary:
     cloud-name: dmvncmrci
     secure: true
 server:
+  http2:
+    enabled: true
   ssl:
-      key-store: classpath:key-cert-khangthang.p12
-      key-password: 123456
-      key-store-type: PKCS12
+    enabled: true
+    key-store: classpath:key-cert-khangthang.p12
+    key-store-password: 123456
+    key-store-type: PKCS12
 spring:
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
