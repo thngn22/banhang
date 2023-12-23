@@ -13,7 +13,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import DefaultComponent from "../customer/components/DefaultComponent/DefaultComponent";
 import ProfilePage from "../customer/pages/ProfilePage/ProfilePage";
 import HistotyOrderPage from "../customer/pages/HistoryOrderPage/HistotyOrderPage";
-import ChangePassword from "../customer/components/Auth/ChangePassword";
+import ConfirmOTPChange from "../customer/components/Auth/confirmOTPChange";
 
 export default function AppRouter() {
   return (
@@ -31,8 +31,8 @@ export default function AppRouter() {
         <Route path="/forgot" element={<ForgotPassword />} />
         <Route path="/register" element={<SignUp />} />
         <Route path="/forgot" element={<ForgotPassword />} />
-        <Route path="/change" element={<ChangePassword />} />
-        <Route path="/otp/:forwhat" element={<ConfirmOTP />} />
+        <Route path="/otp/:email" element={<ConfirmOTP />} />
+        <Route path="/otp/change/:forwhat" element={<ConfirmOTPChange />} />
         <Route
           path="/product/:productId"
           element={

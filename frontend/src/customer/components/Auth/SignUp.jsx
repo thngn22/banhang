@@ -35,7 +35,7 @@ export default function SignUp() {
 
   const mutation = useMutationHook((data) => AuthService.signUp(data));
 
-  // const { data, status } = mutation;
+  const { data } = mutation;
 
   const navigate = useNavigate();
 
@@ -78,24 +78,26 @@ export default function SignUp() {
       },
       {
         onSuccess: () => {
-          message.success("Đã gửi mã OTP");
+          message.success("Đã gửi mã OTP").toString();
+          dispatch(
+            signSuccess({
+              firstName: firstName,
+              lastName: lastName,
+              userName: userName,
+              email: email,
+              password: password,
+              confirmPassword: confirmPassword,
+            })
+          );
+          setTimeout(() => {
+            navigate(`/otp/${email}`);
+          }, 1000);
         },
         onError: (error) => {
-          message.error(`Lỗi ${error.message}`);
+          message.error(`Tài khoản đã tồn tại`).toString();
         },
       }
     );
-    dispatch(
-      signSuccess({
-        firstName: firstName,
-        lastName: lastName,
-        userName: userName,
-        email: email,
-        password: password,
-        confirmPassword: confirmPassword,
-      })
-    );
-    navigate(`/otp/${"signUp"}`);
   };
 
   return (

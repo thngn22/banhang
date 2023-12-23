@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import { useNavigate } from "react-router-dom";
+import { changeSuccess } from "../../../redux/slides/accessSlice";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -73,6 +74,10 @@ const ProfilePage = () => {
     const res = UserService.editProfileUser(data, auth?.accessToken, axiosJWT);
     return res;
   });
+  const mutationChange = useMutationHook((data) => {
+    const res = AuthService.sendOTP2(data);
+    return res;
+  });
 
   useEffect(() => {
     if (profileUser) {
@@ -131,7 +136,25 @@ const ProfilePage = () => {
   };
 
   const handleChangePassword = () => {
-    navigate("/change");
+    mutationChange.mutate(
+      {
+        email: auth?.email,
+      },
+      {
+        onSuccess: () => {
+          message.success("Đã gửi mã OTP");
+          dispatch(
+            changeSuccess({
+              email: auth?.email,
+            })
+          );
+          navigate(`/otp/change/${"changePassword"}`);
+        },
+        onError: (error) => {
+          message.error(`Lỗi ${error.message}`);
+        },
+      }
+    );
   };
 
   return (

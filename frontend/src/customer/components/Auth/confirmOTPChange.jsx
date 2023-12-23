@@ -14,27 +14,36 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InputField from "../InputField";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as UserSerVice from "../../../services/UserService";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import * as AuthService from "../../../services/AuthService";
-import { message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { changeSuccess, signSuccess } from "../../../redux/slides/accessSlice";
+import {
+  changeSuccess,
+  forgotSuccess,
+  signSuccess,
+} from "../../../redux/slides/accessSlice";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import { useEffect } from "react";
+import { message } from "antd";
 
 const defaultTheme = createTheme();
 
-export default function ChangePassword() {
-  const auth = useSelector((state) => state.auth.login.currentUser);
-  const [email, setEmail] = useState("");
+export default function ConfirmOTPChange() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { forwhat } = useParams();
+  console.log("forwhat", forwhat);
+  const auth = useSelector((state) => state.auth.login.currentUser);
+  const change = useSelector((state) => state.access.change.currentUser);
+  const forgot = useSelector((state) => state.access.forgot.currentUser);
 
   const refreshToken = async () => {
     try {
@@ -69,25 +78,19 @@ export default function ChangePassword() {
     }
   );
 
-  const mutation = useMutationHook((data) => AuthService.sendOTP2(data));
-
-  // const { data, status } = mutation;
-
-  const navigate = useNavigate();
+  const mutation = useMutationHook((data) => {
+    const res = AuthService.changePassword(auth?.accessToken, data, axiosJWT);
+    return res;
+  });
+  const mutationForgot = useMutationHook((data) => {
+    const res = AuthService.forgotPassword(data);
+    return res;
+  });
 
   const inputFullWidth = {
     width: "100%",
   };
 
-  useEffect(() => {
-    if (auth) {
-      setEmail(auth?.email);
-    }
-  }, [auth]);
-
-  const handleOnChangeEmail = (value) => {
-    setEmail(value);
-  };
   const handleOnChangePassword = (value) => {
     setPassword(value);
   };
@@ -98,33 +101,51 @@ export default function ChangePassword() {
     setConfirmPassword(value);
   };
 
-  const handleSignUp = (event) => {
-    event.preventDefault();
-    mutation.mutate(
-      {
-        email: email,
-        password: password,
-        newPassword: newPassword,
-        newPasswordConfirm: confirmPassword,
-      },
-      {
-        onSuccess: () => {
-          message.success("Đã gửi mã OTP");
+  const handleOnChangeOTP = (value) => {
+    setOtp(value);
+  };
+
+  const handleSendOTP = () => {
+    if (forwhat === "changePassword") {
+      mutation.mutate(
+        {
+          email: change?.email,
+          password: password,
+          newPassword: newPassword,
+          newPasswordConfirm: confirmPassword,
+          oneTimePassword: otp,
         },
-        onError: (error) => {
-          message.error(`Lỗi ${error.message}`);
+        {
+          onSuccess: () => {
+            message.success("Đổi mật khẩu thành công");
+            dispatch(changeSuccess({}));
+            navigate(`/`);
+          },
+          onError: (error) => {
+            message.error(`Lỗi ${error.message}`);
+          },
+        }
+      );
+    } else {
+      mutationForgot.mutate(
+        {
+          email: forgot?.email,
+          newPassword: newPassword,
+          newPasswordConfirm: confirmPassword,
+          oneTimePassword: otp,
         },
-      }
-    );
-    dispatch(
-      changeSuccess({
-        email: email,
-        password: password,
-        newPassword: newPassword,
-        newPasswordConfirm: confirmPassword,
-      })
-    );
-    navigate(`/otp/${"change"}`);
+        {
+          onSuccess: () => {
+            message.success("Đổi mật khẩu thành công");
+            dispatch(forgotSuccess({}));
+            navigate(`/login`);
+          },
+          onError: (error) => {
+            message.error(`Lỗi ${error.message}`);
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -157,28 +178,22 @@ export default function ChangePassword() {
             <Typography component="h1" variant="h5">
               Đăng ký
             </Typography>
-            <form onSubmit={handleSignUp}>
+            <form onSubmit={handleSendOTP}>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <InputField
-                    value={email}
-                    label={"Email Address"}
-                    name={"email"}
-                    type={"email"}
-                    style={inputFullWidth}
-                    handleOnChange={handleOnChangeEmail}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <InputField
-                    value={password}
-                    label={"Password"}
-                    name={"password"}
-                    type={"password"}
-                    style={inputFullWidth}
-                    handleOnChange={handleOnChangePassword}
-                  />
-                </Grid>
+                {forwhat === "changePassword" ? (
+                  <Grid item xs={12}>
+                    <InputField
+                      value={password}
+                      label={"Password"}
+                      name={"password"}
+                      type={"password"}
+                      style={inputFullWidth}
+                      handleOnChange={handleOnChangePassword}
+                    />
+                  </Grid>
+                ) : (
+                  <></>
+                )}
                 <Grid item xs={12}>
                   <InputField
                     value={newPassword}
@@ -204,31 +219,48 @@ export default function ChangePassword() {
                     ConfirmPassword không trùng khớp
                   </Typography>
                 )}
+                <Grid item xs={12}>
+                  <InputField
+                    value={otp}
+                    label={"OTP"}
+                    name={"otp"}
+                    type={"text"}
+                    style={inputFullWidth}
+                    handleOnChange={handleOnChangeOTP}
+                  />
+                </Grid>
               </Grid>
-              <Button
-                disabled={
-                  !email.length ||
-                  !password.length ||
-                  !newPassword.length ||
-                  !confirmPassword.length ||
-                  !(newPassword === confirmPassword)
-                }
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick={handleSignUp}
-              >
-                Gửi mã OTP
-              </Button>
+              {forwhat === "changePassword" ? (
+                <Button
+                  disabled={
+                    !password.length ||
+                    !newPassword.length ||
+                    !confirmPassword.length ||
+                    !(newPassword === confirmPassword)
+                  }
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  onClick={handleSendOTP}
+                >
+                  Check
+                </Button>
+              ) : (
+                <Button
+                  disabled={
+                    !newPassword.length ||
+                    !confirmPassword.length ||
+                    !(newPassword === confirmPassword)
+                  }
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  onClick={handleSendOTP}
+                >
+                  Check
+                </Button>
+              )}
             </form>
-
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="#" variant="body2">
-                  Bạn đã có tài khoản? Hãy Đăng nhập
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
         </Container>
       </ThemeProvider>

@@ -174,7 +174,7 @@ const AdminProductEdit = (props) => {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <WrapperHeader style={{ paddingLeft: "20px" }}>
-        Thêm Sản phẩm
+        Chỉnh sửa Sản phẩm
       </WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <div
