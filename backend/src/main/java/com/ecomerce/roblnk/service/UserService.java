@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 
 public interface UserService {
@@ -20,6 +21,7 @@ public interface UserService {
     Page<User> getAllUsers(Pageable pageable);
     ResponseEntity<?> findInformationUser(Principal connectedUser);
     List<UserResponse> getAllUsers();
+    List<UserResponse> getAllUsersFilter(Date updatedAt, Date updatedAt2);
 
     ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
 
@@ -47,6 +49,7 @@ public interface UserService {
     String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
 
     List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser);
+    List<OrderResponsev2> getAllUserHistoryOrdersForAdminFilter(Principal connectedUser, Date updatedAt, Date updateAt2);
 
     String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests);
 

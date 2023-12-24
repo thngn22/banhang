@@ -5,5 +5,5 @@ import com.ecomerce.roblnk.dto.product.RevenueResponse;
 import java.security.Principal;
 
 public interface AdminService {
-    RevenueResponse getAllRevenue(Principal principal);
+    RevenueResponse getAllRevenue(Principal principal, String filter);
 }

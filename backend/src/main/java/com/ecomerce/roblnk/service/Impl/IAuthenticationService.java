@@ -60,6 +60,7 @@ public class IAuthenticationService implements AuthenticationService {
             user.setEmail(request.getEmail());
             user.setRoles(role);
             user.setActive(true);
+            user.setCreatedAt(new Date(System.currentTimeMillis()));
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             Cart cart = new Cart();
             cart.setUser(user);

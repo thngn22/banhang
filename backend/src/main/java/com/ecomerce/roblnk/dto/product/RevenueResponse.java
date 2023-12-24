@@ -11,7 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RevenueResponse {
     private Integer totalRevenue;
-    private Integer totalFee;
+    private Integer newAccount;
+    private Integer totalAccount;
     private Integer totalNumberOrdersSuccess;
     private Integer totalNumberOrdersFailure;
     private Integer totalNumberOrders;

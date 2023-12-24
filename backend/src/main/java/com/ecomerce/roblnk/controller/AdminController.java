@@ -124,8 +124,8 @@ public class AdminController {
 
     @GetMapping("/revenue")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getRevenue(Principal principal) {
-        var revenue = adminService.getAllRevenue(principal);
+    public ResponseEntity<?> getRevenue(Principal principal, @RequestParam(value = "filter", defaultValue = "day", required = false) String filter) {
+        var revenue = adminService.getAllRevenue(principal, filter);
         if (revenue != null) {
             return ResponseEntity.status(HttpStatus.OK).body(revenue);
         } else

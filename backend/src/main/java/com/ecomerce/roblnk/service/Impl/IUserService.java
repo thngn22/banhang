@@ -86,6 +86,12 @@ public class IUserService implements UserService {
     }
 
     @Override
+    public List<UserResponse> getAllUsersFilter(Date updatedAt, Date updatedAt2) {
+        var userList = userRepository.findAllByCreatedAtBetween(updatedAt, updatedAt2);
+        return userMapper.toListUserResponse(userList);
+    }
+
+    @Override
     public ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null) {
@@ -253,7 +259,15 @@ public class IUserService implements UserService {
         }
         return null;
     }
-
+    @Override
+    public List<OrderResponsev2> getAllUserHistoryOrdersForAdminFilter(Principal connectedUser, Date updatedAt, Date updateAt2) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null) {
+            var userOrders = orderRepository.findAllByUpdateAtBetween(updatedAt, updateAt2);
+            return orderMapper.toOrderResponsev2s(userOrders);
+        }
+        return null;
+    }
     @Override
     public String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
