@@ -31,7 +31,7 @@ export const signUp = async (data) => {
 
 export const sendOTP = async (data) => {
   const res = await axios.post(
-    `${process.env.REACT_APP_API_URL}auth/sendOTP`,
+    `${process.env.REACT_APP_API_URL}auth/check_otp_login`,
     data
   );
   return res.data;
@@ -46,6 +46,35 @@ export const logout = async (accessToken, axiosJWT) => {
         Authorization: `Bearer ${accessToken}`,
       },
     }
+  );
+  return res.data;
+};
+export const sendOTP2 = async (data) => {
+  console.log("da vao dc sendOTP2", data);
+  const res = await axios.post(
+    `${process.env.REACT_APP_API_URL}auth/send_otp`,
+    data
+  );
+  return res.data;
+};
+export const changePassword = async (accessToken, data, axiosJWT) => {
+  console.log("accessToken", accessToken);
+  console.log("data", data);
+  const res = await axiosJWT.post(
+    `${process.env.REACT_APP_API_URL}auth/change_password`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+export const forgotPassword = async (data) => {
+  const res = await axios.post(
+    `${process.env.REACT_APP_API_URL}auth/forgot_password`,
+    data
   );
   return res.data;
 };

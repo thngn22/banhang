@@ -37,7 +37,7 @@ const AdminProductEdit = (props) => {
   const [combinedData, setCombinedData] = useState([]);
   const [isEdit, setIsEdit] = useState(true);
 
-  console.log("defaultImage", defaultImage);
+  // console.log("defaultImage", defaultImage);
 
   const [dataAPICreate, setDataAPICreate] = useState(null);
 
@@ -53,8 +53,10 @@ const AdminProductEdit = (props) => {
     setDefaultImage(imageData);
   };
   const handleCombinedDataChange = (data) => {
+    
     setCombinedData(data);
   };
+  console.log("combinedData in admin create", combinedData);
 
   const refreshToken = async () => {
     try {
@@ -109,8 +111,7 @@ const AdminProductEdit = (props) => {
     ) {
       const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
       if (
-        specialCharacterRegex.test(dataNameProduct) ||
-        specialCharacterRegex.test(dataDescription)
+        specialCharacterRegex.test(dataNameProduct)
       ) {
         message.error("Không được nhập các ký tự đặc biệt");
       } else {
@@ -122,10 +123,12 @@ const AdminProductEdit = (props) => {
           productImage: defaultImage,
           categoryId: parseInt(dataCategory?.id),
         };
-
+        console.log("combinedData",combinedData);
         const productItems = combinedData?.map((item) => ({
           id: item?.id,
+          warehousePrice: item?.warehousePrice,
           price: item?.price,
+          numberQuantity: item?.numberQuantity,
           quantityInStock: item?.quantity,
           productImage: item?.productImage,
           active: item?.active,
@@ -174,7 +177,7 @@ const AdminProductEdit = (props) => {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <WrapperHeader style={{ paddingLeft: "20px" }}>
-        Thêm Sản phẩm
+        Chỉnh sửa Sản phẩm
       </WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <div

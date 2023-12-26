@@ -19,29 +19,30 @@ import * as UserSerVice from "../../../services/UserService";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as AuthService from "../../../services/AuthService";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  changeSuccess,
+  forgotSuccess,
+  signSuccess,
+} from "../../../redux/slides/accessSlice";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess } from "../../../redux/slides/authSlice";
+import { message } from "antd";
 
 const defaultTheme = createTheme();
 
 export default function ConfirmOTP() {
   const [otp, setOtp] = useState("");
-  const { email } = useParams();
-  console.log(("email", email));
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { email } = useParams();
 
-  const mutation = useMutationHook((data) => AuthService.sendOTP(data));
-
-  const { isSuccess, isError } = mutation;
-
-  const message = "";
-
-  useEffect(() => {
-    if (isSuccess) {
-      navigate("/login");
-    } else if (isError) {
-      message = "Mã OTP sai, mời bạn kiểm tra lại";
-    }
-  }, [isSuccess, isError]);
+  const mutation = useMutationHook((data) => {
+    const res = AuthService.sendOTP(data);
+    console.log("res", res);
+    return res;
+  });
 
   const inputFullWidth = {
     width: "100%",
@@ -55,15 +56,15 @@ export default function ConfirmOTP() {
       },
       {
         onSuccess: () => {
-          message.success("Xác thực thành công");
+          message.success("Xác thực thành công").toString();
+          dispatch(signSuccess({}));
+          navigate("/login");
         },
         onError: (error) => {
-          message.error(`Lỗi ${error.message}`);
+          message.error(`Lỗi ${error.message}`).toString();
         },
       }
     );
-
-    localStorage.clear();
   };
 
   const handleOnChangeOTP = (value) => {
@@ -106,11 +107,6 @@ export default function ConfirmOTP() {
               noValidate
               sx={{ mt: 1 }}
             >
-              {message !== "" && (
-                <Typography style={{ color: "red", marginLeft: "16px" }}>
-                  {message}
-                </Typography>
-              )}
               <InputField
                 value={otp}
                 label={"OTP"}

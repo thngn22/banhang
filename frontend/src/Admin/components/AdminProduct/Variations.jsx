@@ -90,7 +90,7 @@ const Variations = (props) => {
         if (variation.text !== "") {
           // Sử dụng biểu thức chính quy để kiểm tra xem chuỗi chỉ chứa số hay không
           const numericRegex = /^\d+$/;
-
+          console.log("size", variation);
           if (numericRegex.test(variation.text)) {
             console.log("variations size", variations);
             return { size: variation.text };
@@ -139,9 +139,9 @@ const Variations = (props) => {
         if (variation.text !== "") {
           // Sử dụng biểu thức chính quy để kiểm tra xem chuỗi chỉ chứa số hay không
           const numericRegex = /^\d+$/;
-
-          if (numericRegex.test(variation.text)) {
-            console.log("variations size", variations);
+          console.log("color", variation.size);
+          console.log("kiemtra", numericRegex.test(variation.size));
+          if (numericRegex.test(variation.size)) {
             return { size: variation.size };
           } else {
             message.error("Hãy nhập chỉ số, không nhập ký tự khác");

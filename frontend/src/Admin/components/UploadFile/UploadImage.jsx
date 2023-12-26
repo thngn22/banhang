@@ -13,7 +13,7 @@ const UploadImage = (props) => {
     test = `data:image/jpeg;base64,${dataImage}`;
   }
 
-  console.log("base64Image", base64Image);
+  // console.log("base64Image", base64Image);
 
   const beforeUpload = (file) => {
     const isImage = file.type.startsWith("image/");
@@ -44,7 +44,7 @@ const UploadImage = (props) => {
         "data:image/jpeg;base64,"
       )[1];
       setBase64Image(reader.result);
-      console.log("processedBase64Data", processedBase64Data);
+      // console.log("processedBase64Data", processedBase64Data);
       onImageChange(processedBase64Data);
     };
   };

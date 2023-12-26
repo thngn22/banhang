@@ -19,6 +19,8 @@ import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as UserSerVice from "../../../services/UserService";
 import * as AuthService from "../../../services/AuthService";
 import { message } from "antd";
+import { useDispatch } from "react-redux";
+import { signSuccess } from "../../../redux/slides/accessSlice";
 
 const defaultTheme = createTheme();
 
@@ -29,10 +31,11 @@ export default function SignUp() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const dispatch = useDispatch();
 
   const mutation = useMutationHook((data) => AuthService.signUp(data));
 
-  // const { data, status } = mutation;
+  const { data } = mutation;
 
   const navigate = useNavigate();
 
@@ -58,24 +61,65 @@ export default function SignUp() {
   const handleOnChangeConfirmPassword = (value) => {
     setConfirmPassword(value);
   };
+  const handleSignIn = () => {
+    navigate("/login");
+  };
 
+  const isStrongPassword = (password) => {
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return strongPasswordRegex.test(password);
+  };
+  const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
   const handleSignUp = (event) => {
     event.preventDefault();
-    mutation.mutate({
-      firstName: firstName,
-      lastName: lastName,
-      userName: userName,
-      email: email,
-      password: password,
-    },{
-      onSuccess:()=>{
-        message.success("Đã gửi mã OTP")
+
+    // Kiểm tra mật khẩu mạnh
+    if (!isStrongPassword(password)) {
+      message.error(
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
+      );
+      return;
+    }
+    // Kiểm tra email đúng định dạng
+    if (!isEmailValid(email)) {
+      message.error("Email không đúng định dạng.");
+      return;
+    }
+    mutation.mutate(
+      {
+        firstName: firstName,
+        lastName: lastName,
+        userName: userName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
       },
-      onError:(error)=>{
-        message.error(`Lỗi ${error.message}`)
+      {
+        onSuccess: () => {
+          message.success("Đã gửi mã OTP").toString();
+          dispatch(
+            signSuccess({
+              firstName: firstName,
+              lastName: lastName,
+              userName: userName,
+              email: email,
+              password: password,
+              confirmPassword: confirmPassword,
+            })
+          );
+          setTimeout(() => {
+            navigate(`/otp/${email}`);
+          }, 1000);
+        },
+        onError: (error) => {
+          message.error(`Tài khoản đã tồn tại`).toString();
+        },
       }
-    });
-    navigate(`/otp/${encodeURIComponent(email)}`);
+    );
   };
 
   return (
@@ -204,7 +248,7 @@ export default function SignUp() {
 
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link onClick={handleSignIn} variant="body2">
                   Bạn đã có tài khoản? Hãy Đăng nhập
                 </Link>
               </Grid>

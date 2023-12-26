@@ -17,13 +17,14 @@ import storage from "redux-persist/lib/storage";
 import productSlice from "./slides/productSlice";
 import categorySlice from "./slides/categorySlice";
 import orderSlice from "./slides/orderSlice";
+import accessSlice from "./slides/accessSlice";
 
 // Cấu hình Redux Persist cho slice 'auth'
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["auth", "user"] // chỉ lưu trữ slice 'auth'
+  whitelist: ["auth", "user"], // chỉ lưu trữ slice 'auth'
 };
 
 const rootReducer = combineReducers({
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   product: productSlice,
   category: categorySlice,
   order: orderSlice,
+  access: accessSlice,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

@@ -25,6 +25,7 @@ const AdminProductCreate = () => {
   const [saveButtonClicked, setSaveButtonClicked] = useState(false);
   const [defaultImage, setDefaultImage] = useState("");
   const [combinedData, setCombinedData] = useState([]);
+  console.log("combinedData", combinedData);
 
   const [dataAPICreate, setDataAPICreate] = useState(null);
 
@@ -95,6 +96,7 @@ const AdminProductCreate = () => {
         };
 
         const productItems = combinedData.map((item) => ({
+          warehousePrice: item?.warehousePrice,
           price: item.price,
           quantityInStock: item.quantity,
           productImage: item.productImage,

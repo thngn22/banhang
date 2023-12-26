@@ -11,11 +11,14 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
+import { useNavigate } from "react-router-dom";
+import { changeSuccess } from "../../../redux/slides/accessSlice";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const [userIn4, setUserIn4] = useState();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const styleInputField = {
     width: "388px",
@@ -69,6 +72,10 @@ const ProfilePage = () => {
 
   const mutation = useMutationHook((data) => {
     const res = UserService.editProfileUser(data, auth?.accessToken, axiosJWT);
+    return res;
+  });
+  const mutationChange = useMutationHook((data) => {
+    const res = AuthService.sendOTP2(data);
     return res;
   });
 
@@ -126,6 +133,28 @@ const ProfilePage = () => {
     } else {
       message.warning("Hãy nhập đầy đủ thông tin địa chỉ trước khi Đặt hàng");
     }
+  };
+
+  const handleChangePassword = () => {
+    mutationChange.mutate(
+      {
+        email: auth?.email,
+      },
+      {
+        onSuccess: () => {
+          message.success("Đã gửi mã OTP");
+          dispatch(
+            changeSuccess({
+              email: auth?.email,
+            })
+          );
+          navigate(`/otp/change/${"changePassword"}`);
+        },
+        onError: (error) => {
+          message.error(`Lỗi ${error.message}`);
+        },
+      }
+    );
   };
 
   return (
@@ -199,23 +228,39 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
-
-        <Button
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            marginTop: "16px",
-            backgroundColor: "blue",
-            color: "white",
-            fontWeight: "600",
-            fontSize: "18px",
-            height: "50px",
-            padding: "10px",
-          }}
-          onClick={handleUpdateProfile}
-        >
-          <span>Cập nhập thông tin tài khoản</span>
-        </Button>
+        <div style={{ display: "flex" }}>
+          <Button
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              marginTop: "16px",
+              backgroundColor: "blue",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "18px",
+              height: "50px",
+              padding: "10px",
+              marginRight: "20px",
+            }}
+            onClick={handleUpdateProfile}
+          >
+            <span>Cập nhập thông tin tài khoản</span>
+          </Button>
+          <Button
+            style={{
+              marginTop: "16px",
+              backgroundColor: "orange",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "18px",
+              height: "50px",
+              padding: "10px",
+            }}
+            onClick={handleChangePassword}
+          >
+            <span>Đổi mật khẩu</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
