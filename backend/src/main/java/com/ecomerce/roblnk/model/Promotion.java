@@ -32,17 +32,17 @@ public class Promotion {
 
     @Column(name = "start_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date startDate;
 
     @Column(name = "end_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date endDate;
 
     @Column(name = "created_at")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
 
     //Category

@@ -22,9 +22,9 @@ public class ProductResponse {
     private Integer quantity;
     private boolean active;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "Asia/Ho_Chi_Minh")
     private Date modifiedDate;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "Asia/Ho_Chi_Minh")
     private Date createdDate;
 }

@@ -374,6 +374,7 @@ public class ICartService implements CartService {
                     orders.setTotalItem(totalItem);
                     orders.setTotalPayment(totalPayment);
                     orders.setFinalPayment(totalPayment + delivery.getPrice());
+                    orders.setCustomerPhoneNumber(list.getPhoneNumber());
                     var statusOrder = statusOrderRepository.findStatusOrderByOrderStatusContaining(Status.DANG_XU_LY.toString());
                     statusOrder.get().getOrders().add(orders);
                     orders.setStatusOrder(statusOrder.get());

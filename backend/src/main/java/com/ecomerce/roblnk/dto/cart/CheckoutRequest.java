@@ -14,4 +14,5 @@ public class CheckoutRequest {
     private UserAddressRequestv2 userAddressRequestv2;
     private Long paymentMethodId;
     private Long deliveryId;
+    private String phoneNumber;
 }

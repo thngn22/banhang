@@ -33,7 +33,7 @@ public class OrderItem {
 
     @Column(name = "created_at")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
 
     //Cart Item

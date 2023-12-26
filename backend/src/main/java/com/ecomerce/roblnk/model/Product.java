@@ -38,12 +38,12 @@ public class Product {
 
     @Column(name = "created_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdDate;
 
     @Column(name = "modified_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date modifiedDate;
 
     @Column(name = "is_active")
