@@ -105,8 +105,29 @@ export default function ConfirmOTPChange() {
     setOtp(value);
   };
 
+  const isStrongPassword = (password) => {
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return strongPasswordRegex.test(password);
+  };
+  const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
   const handleSendOTP = () => {
     if (forwhat === "changePassword") {
+      // Kiểm tra mật khẩu mạnh
+      if (!isStrongPassword(password)) {
+        message.error(
+          "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
+        );
+        return;
+      }
+      // Kiểm tra email đúng định dạng
+      if (!isEmailValid(change?.email)) {
+        message.error("Email không đúng định dạng.");
+        return;
+      }
       mutation.mutate(
         {
           email: change?.email,
@@ -127,6 +148,18 @@ export default function ConfirmOTPChange() {
         }
       );
     } else {
+      // Kiểm tra mật khẩu mạnh
+      if (!isStrongPassword(password)) {
+        message.error(
+          "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
+        );
+        return;
+      }
+      // Kiểm tra email đúng định dạng
+      if (!isEmailValid(forgot?.email)) {
+        message.error("Email không đúng định dạng.");
+        return;
+      }
       mutationForgot.mutate(
         {
           email: forgot?.email,
@@ -176,7 +209,7 @@ export default function ConfirmOTPChange() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Đăng ký
+              Đặt lại mật khẩu mới
             </Typography>
             <form onSubmit={handleSendOTP}>
               <Grid container spacing={2}>

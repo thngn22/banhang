@@ -22,8 +22,8 @@ function HomePage(props) {
     },
   });
 
-  console.log("topRating", topRating);
-  console.log("topSold", topSold);
+  // console.log("topRating", topRating);
+  // console.log("topSold", topSold);
 
   return (
     <div className="">

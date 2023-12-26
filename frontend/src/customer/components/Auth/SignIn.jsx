@@ -20,7 +20,7 @@ import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import * as AuthService from "../../../services/AuthService"
+import * as AuthService from "../../../services/AuthService";
 
 const defaultTheme = createTheme();
 
@@ -41,7 +41,7 @@ export default function SignIn() {
 
   useEffect(() => {
     if (isSuccess) {
-      navigate("/");
+      // navigate("/");
       if (data?.accessToken) {
         handleGetProfileUser(data?.accessToken);
       }
@@ -53,6 +53,11 @@ export default function SignIn() {
     const decode = jwtDecode(accessToken);
     const isAdmin = decode.role[0] === "ROLE_ADMINISTRATOR";
     dispatch(loginSuccess({ ...res, accessToken, isAdmin }));
+    if (isAdmin) {
+      navigate("/admin");
+    } else {
+      navigate("/");
+    }
   };
 
   const handleSignUp = () => {
@@ -131,12 +136,6 @@ export default function SignIn() {
                 type={"password"}
                 style={inputFullWidth}
                 handleOnChange={handleOnChangePassword}
-              />
-
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-                sx={{ textAlign: "left", width: "100%" }}
               />
               <Button
                 disabled={!email.length || !password.length}

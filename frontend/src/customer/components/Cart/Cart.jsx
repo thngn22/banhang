@@ -30,6 +30,7 @@ const Cart = () => {
     ward: "",
     address: "",
   });
+  const [phoneNumber, setPhoneNumber] = useState("");
   const dispatch = useDispatch();
 
   const refreshToken = async () => {
@@ -90,17 +91,28 @@ const Cart = () => {
   const onChangeShipment = (e) => {
     setSelectedShipment(e.target.value);
   };
+  const handlePhoneChange = (e) => {
+    setPhoneNumber(e.target.value);
+  };
+  const isPhoneNumberValid = (phoneNumber) => {
+    const phoneNumberRegex = /^\+?[0-9]{10,12}$/;
+    return phoneNumberRegex.test(phoneNumber);
+  };
   const handleOk = () => {
-
     if (
       state.city !== "" &&
       state.district !== "" &&
       state.ward !== "" &&
-      state.address !== ""
+      state.address !== "" &&
+      phoneNumber !== ""
     ) {
       const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
       if (specialCharacterRegex.test(state.address)) {
         message.error("Địa chỉ không được chứa các ký tự đặc biệt");
+      } else if (!isPhoneNumberValid(phoneNumber)) {
+        console.log(isPhoneNumberValid(phoneNumber));
+        message.error("Số điện thoại không đúng định dạng.");
+        return;
       } else {
         const idCarts = cart?.cartItems.map((item) => item.id);
 
@@ -115,6 +127,7 @@ const Cart = () => {
             },
             paymentMethodId: selectedPayment,
             deliveryId: selectedShipment,
+            phoneNumber: phoneNumber,
           },
           {
             onSuccess: (data) => {
@@ -228,30 +241,23 @@ const Cart = () => {
                   Bạn đang đặt hàng cho {cart?.cartItems.length} sản phẩm
                 </div>
                 <h1 className="text-2xl font-bold">Thông tin đặt hàng</h1>
-                {/* <div className="mt-2">
-                  <label>Địa chỉ giao hàng</label>
-                  <Input
-                    value={state.streetAddress}
-                    onChange={onChangeText("streetAddress")}
-                    placeholder="Địa chỉ giao hàng"
+                <div>
+                  <span style={{ marginRight: "20px" }}>Số điện thoại:</span>
+                  <input
+                    type="text"
+                    id="phoneNumber"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    placeholder="Số điện thoại liên hệ"
+                    style={{
+                      border: "1px solid",
+                      borderRadius: "14px",
+                      height: "32px",
+                      width: "60%",
+                      paddingLeft: "10px",
+                    }}
                   />
                 </div>
-                <div className="my-2">
-                  <label>Thành phố</label>
-                  <Input
-                    value={state.city}
-                    onChange={onChangeText("city")}
-                    placeholder="Thành phố"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label>Zip code</label>
-                  <Input
-                    value={state.zipCode}
-                    onChange={onChangeText("zipCode")}
-                    placeholder="Zip code"
-                  />
-                </div> */}
                 <ProvinceSelection
                   state={state}
                   setState={setState}

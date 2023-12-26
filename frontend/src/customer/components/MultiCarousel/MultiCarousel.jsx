@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import * as ProductService from "../../../services/ProductService";
 import ProductCard from "../Product/ProductCard";
 
 const MultiCarousel = (props) => {
