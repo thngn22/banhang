@@ -97,6 +97,7 @@ public class IProductService implements ProductService {
                 total += productItem.getQuantityInStock();
             }
             list.add(total);
+            i++;
         }
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
