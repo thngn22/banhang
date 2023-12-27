@@ -65,14 +65,7 @@ const HistotyOrderPage = () => {
       axiosJWT
     );
 
-    const filteredHistoryOrder = res
-      .filter((order) => {
-        const orderDate = new Date(order.updateAt);
-        const filterDate = new Date();
-        return orderDate < filterDate;
-      })
-      .sort((a, b) => new Date(b.updateAt) - new Date(a.updateAt));
-    return filteredHistoryOrder;
+    return res;
   };
 
   const { data: historyOrder, refetch } = useQuery({
@@ -81,6 +74,8 @@ const HistotyOrderPage = () => {
     retry: false,
     enabled: Boolean(auth?.accessToken),
   });
+
+  console.log("historyOrder", historyOrder);
 
   const pageSize = 3;
   const startIndex = (pageNumber - 1) * pageSize;
@@ -125,7 +120,7 @@ const HistotyOrderPage = () => {
   };
   const renderTextState = (orderStatus) => {
     switch (orderStatus) {
-      case "DA_VAN_CHUYEN":
+      case "DANG_VAN_CHUYEN":
         return "Đang vận chuyển";
       case "DA_GIAO_HANG":
         return "Đã giao hàng";

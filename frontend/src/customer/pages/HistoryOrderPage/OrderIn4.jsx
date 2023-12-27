@@ -5,7 +5,7 @@ const OrderIn4 = (props) => {
 
   const renderTextState = (orderStatus) => {
     switch (orderStatus) {
-      case "DA_VAN_CHUYEN":
+      case "DANG_VAN_CHUYEN":
         return "Đang vận chuyển";
       case "DA_GIAO_HANG":
         return "Đã giao hàng";

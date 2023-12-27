@@ -105,6 +105,8 @@ export default function ConfirmOTPChange() {
     setOtp(value);
   };
 
+  // console.log("pass",password);
+
   const isStrongPassword = (password) => {
     const strongPasswordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -117,7 +119,7 @@ export default function ConfirmOTPChange() {
   const handleSendOTP = () => {
     if (forwhat === "changePassword") {
       // Kiểm tra mật khẩu mạnh
-      if (!isStrongPassword(password)) {
+      if (!isStrongPassword(newPassword)) {
         message.error(
           "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
         );
@@ -149,7 +151,7 @@ export default function ConfirmOTPChange() {
       );
     } else {
       // Kiểm tra mật khẩu mạnh
-      if (!isStrongPassword(password)) {
+      if (!isStrongPassword(newPassword)) {
         message.error(
           "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
         );

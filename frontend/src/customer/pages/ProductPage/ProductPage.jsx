@@ -17,6 +17,8 @@ export default function ProductPage() {
   const [color, setColor] = useState("");
   const [sort, setSort] = useState("");
 
+  console.log("color", sort);
+
   const { data: filterProducts } = useQuery({
     queryKey: [categoryId, pageNumber, sort, size, color, priceMax, priceMin],
     queryFn: () => {
@@ -157,8 +159,8 @@ export default function ProductPage() {
           >
             <Option value="name_asc">Từ A-Z</Option>
             <Option value="name_desc">Từ Z-A</Option>
-            <Option value="rating-asc">Rating từ Cao-Thấp</Option>
-            <Option value="rating-desc">Rating từ Thấp-Cao</Option>
+            <Option value="rating_asc">Rating từ Cao-Thấp</Option>
+            <Option value="rating_desc">Rating từ Thấp-Cao</Option>
             <Option value="old_to_new">Từ Cũ - Mới</Option>
             <Option value="new_to_old">Từ Mới - Cũ</Option>
             <Option value="price_asc">Giá từ Thấp-Cao</Option>

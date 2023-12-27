@@ -43,10 +43,7 @@ const ProductCard = ({ data }) => {
           <div className="flex items-center space-x-2 text-left">
             <span className="text-red-600">Giá:</span>
             <span className="text-red-600">
-              {parseFloat(data?.estimatedPrice)?.toLocaleString("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              })}
+              {data?.estimatedPrice} đ
             </span>
           </div>
         </div>

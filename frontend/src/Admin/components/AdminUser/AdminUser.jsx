@@ -129,10 +129,10 @@ const AdminUser = () => {
     //     />
     //   ),
     // },
-    {
-      title: "Phone",
-      dataIndex: "phone",
-    },
+    // {
+    //   title: "Phone",
+    //   dataIndex: "phone",
+    // },
     {
       title: "Active",
       dataIndex: "active",

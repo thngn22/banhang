@@ -218,14 +218,14 @@ const ProfilePage = () => {
                 style={styleInputField}
               />
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            {/* <div style={{ display: "flex", alignItems: "center" }}>
               <span style={titleSpanStyle}>SĐT:</span>
               <InputField
                 disable={true}
                 value={userIn4?.phone}
                 style={styleInputField}
               />
-            </div>
+            </div> */}
           </div>
         </div>
         <div style={{ display: "flex" }}>
