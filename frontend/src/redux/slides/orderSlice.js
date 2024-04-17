@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { orderReducer } from "../reducers/orderReducer";
 
 export const orderSlice = createSlice({
   name: "order",
@@ -10,11 +11,7 @@ export const orderSlice = createSlice({
     },
   },
   reducers: {
-    updateDetailOrder: (state, action) => {
-      state.detailOrder.currentOrder = action.payload;
-      state.detailOrder.isFetching = false;
-      state.detailOrder.error = false;
-    },
+    updateDetailOrder: orderReducer.updateDetailOrder,
   },
 });
 

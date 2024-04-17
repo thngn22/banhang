@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { authReducer } from "../reducers/authReducer";
 
 export const authSlice = createSlice({
   name: "auth",
@@ -10,23 +11,10 @@ export const authSlice = createSlice({
     },
   },
   reducers: {
-    loginStart: (state) => {
-      state.login.isFetching = true;
-    },
-    loginSuccess: (state, action) => {
-      state.login.currentUser = action.payload;
-      state.login.isFetching = false;
-      state.login.error = false;
-    },
-    loginFailed: (state) => {
-      state.login.isFetching = false;
-      state.login.error = true;
-    },
-    logoutSuccess: (state) => {
-      state.login.currentUser = null
-      state.login.isFetching = false;
-      state.login.error = false;
-    },
+    loginStart: authReducer.loginStart,
+    loginSuccess: authReducer.loginSuccess,
+    loginFailed: authReducer.loginFailed,
+    logoutSuccess: authReducer.logoutSuccess,
   },
 });
 
