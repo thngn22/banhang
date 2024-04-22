@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.text.ParseException;
 import java.util.Date;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
@@ -124,8 +125,9 @@ public class AdminController {
 
     @GetMapping("/revenue")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getRevenue(Principal principal, @RequestParam(value = "filter", defaultValue = "day", required = false) String filter) {
-        var revenue = adminService.getAllRevenue(principal, filter);
+    public ResponseEntity<?> getRevenue(Principal principal, @RequestParam(value = "from", required = false) String from,
+                                        @RequestParam(value = "to", required = false) String to) throws ParseException {
+        var revenue = adminService.getAllRevenue(principal, from ,to);
         if (revenue != null) {
             return ResponseEntity.status(HttpStatus.OK).body(revenue);
         } else
