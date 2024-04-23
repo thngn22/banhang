@@ -12,5 +12,4 @@ public class EditUserProfileRequest {
     private String lastName;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date dob;
-    private String avatar;
 }

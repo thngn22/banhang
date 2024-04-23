@@ -9,12 +9,16 @@ import com.ecomerce.roblnk.dto.user.UserUpdateAddressRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Date;
@@ -35,10 +39,12 @@ public class UserController {
 
     }
 
-    @PutMapping("/account/profile")
+    @PutMapping(value = "/account/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> editInformation(Principal connectedUser, @RequestBody EditUserProfileRequest request) {
-        return userService.editInformation(connectedUser, request);
+    public ResponseEntity<?> editInformation(Principal connectedUser, @RequestPart("avatar") EditUserProfileRequest request,
+                                             @RequestPart("file") @Valid @NotNull MultipartFile files) {
+        return userService.editInformation(connectedUser, request, files);
     }
 
     @GetMapping("/account/address")

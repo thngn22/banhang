@@ -8,7 +8,6 @@ import java.util.List;
 public class ProductRequest {
     private String name;
     private String description;
-    private String productImage;
     private Long categoryId;
     private List<ProductItemRequest> productItems;
 }

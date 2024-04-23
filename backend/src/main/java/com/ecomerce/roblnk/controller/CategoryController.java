@@ -8,6 +8,7 @@ import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.CategoryService;
 import com.ecomerce.roblnk.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -38,13 +40,15 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 
-    @PostMapping("/{id}/products")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request, BindingResult bindingResult){
+    @PostMapping(value = "/{id}/products", consumes = {"multipart/form-data"})
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request,
+                                                  @RequestPart("file") @Valid @NotNull MultipartFile[] files,
+                                                  BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
-        var productDetail = productService.createProductFromCategory(id, request);
+        var productDetail = productService.createProductFromCategory(id, request, files);
         if (productDetail.startsWith("Successfull")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                     .statusCode(200)
