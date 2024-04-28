@@ -1,6 +1,5 @@
 package com.ecomerce.roblnk.controller;
 
-import com.ecomerce.roblnk.constants.ErrorMessage;
 import com.ecomerce.roblnk.dto.user.UserCreateRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 
@@ -67,14 +67,23 @@ public class AdminController {
 
     @GetMapping("/products")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllProduct() {
-        var product = productService.getAllProductV2();
-        if (product != null) {
+    public ResponseEntity<?> getAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
+                                                 @RequestParam(value = "size", required = false) List<String> size,
+                                                 @RequestParam(value = "color", required = false) List<String> color,
+                                                 @RequestParam(value = "min_price", required = false) String minPrice,
+                                                 @RequestParam(value = "max_price", required = false) String maxPrice,
+                                                 @RequestParam(value = "search", required = false) String search,
+                                                 @RequestParam(value = "sort", required = false, defaultValue = "new_to_old") String sort,
+                                                 @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
+                                                 @RequestParam(value = "flag", required = false, defaultValue = "true") boolean isAdmin
+    ){
+        var product = productService.getAllProductFilter(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber, isAdmin);
+        if (product != null){
             return ResponseEntity.status(HttpStatus.OK).body(product);
-        } else
+        }
+        else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
-
     @GetMapping("/products/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailProduct(@PathVariable("id") Long id) {

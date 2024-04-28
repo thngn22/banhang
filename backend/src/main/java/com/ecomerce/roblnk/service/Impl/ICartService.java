@@ -7,6 +7,7 @@ import com.ecomerce.roblnk.dto.cart.UserCart;
 import com.ecomerce.roblnk.dto.cartItem.CartItemDTO;
 import com.ecomerce.roblnk.dto.cartItem.CartItemEditRequest;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
+import com.ecomerce.roblnk.dto.product.ProductItemCartDTO;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.CartMapper;
 import com.ecomerce.roblnk.mapper.OrderMapper;
@@ -70,6 +71,14 @@ public class ICartService implements CartService {
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+                    var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
                 }
                 userCart.setCartItems(list);
                 return ResponseEntity.status(HttpStatus.OK).body(userCart);
@@ -102,7 +111,17 @@ public class ICartService implements CartService {
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+
+                    var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
                 }
+
                 userCart.setCartItems(list);
                 return userCart;
 

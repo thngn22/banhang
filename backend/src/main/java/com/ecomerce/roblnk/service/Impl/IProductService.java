@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE;
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -103,7 +104,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public PageProductResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
+    public PageProductResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber, boolean isAdmin) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -256,8 +257,11 @@ public class IProductService implements ProductService {
             case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
             default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
         }
-
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        Pageable pageable;
+        if (isAdmin)
+            pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+        else
+            pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
         System.out.println(start);
