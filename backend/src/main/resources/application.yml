@@ -9,6 +9,12 @@ cloudinary:
     api-secret: 2yGg1_La5nS0VVNZH970wYrFiUw
     cloud-name: dmvncmrci
     secure: true
+goong:
+    api-key: ScfEB3BuWFGZbB7uP0Zx1NdP3PQvAHCuuapRQzJf
+    lat: 10.8506324
+    lng: 106.7719131
+    base-url: https://rsapi.goong.io
+    main-url: https://rsapi.goong.io/geocode?address=số%201%20Võ%20Văn%20Ngân,%20Linh%20Chiểu,%20Thủ%20Đức,%20Thành%20phố%20Hồ%20Chí%20Minh&api_key=ScfEB3BuWFGZbB7uP0Zx1NdP3PQvAHCuuapRQzJf
 server:
     port: 7586
     tomcat:

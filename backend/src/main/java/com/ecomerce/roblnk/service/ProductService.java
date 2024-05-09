@@ -14,11 +14,11 @@ public interface ProductService {
     ProductDetailResponsev3 getDetailProductForAdmin(Long productId);
     ProductDetailResponsev2 getDetailProduct(Long productId);
 
-    String createProduct(@Valid ProductRequest request, @Valid @NotNull MultipartFile[] files);
+    String createProduct(@Valid ProductRequest request);
 
     String createProductFromCategory(Long id, ProductRequest request, @Valid @NotNull MultipartFile[] files);
 
-    String editProduct(ProductEditRequest productEditRequest, @Valid @NotNull MultipartFile[] files);
+    String editProduct(ProductEditRequest productEditRequest);
 
     String deleteProduct(Long productDeleteRequest);
 

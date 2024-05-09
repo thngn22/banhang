@@ -7,6 +7,7 @@ import com.ecomerce.roblnk.dto.user.UserAddressRequest;
 import com.ecomerce.roblnk.dto.user.UserPaymentRequest;
 import com.ecomerce.roblnk.dto.user.UserUpdateAddressRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.UserService;
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,12 +41,13 @@ public class UserController {
 
     }
 
-    @PutMapping(value = "/account/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PutMapping(value = "/account/profile")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> editInformation(Principal connectedUser, @RequestPart("avatar") EditUserProfileRequest request,
-                                             @RequestPart("file") @Valid @NotNull MultipartFile files) {
-        return userService.editInformation(connectedUser, request, files);
+    public ResponseEntity<?> editInformation(Principal connectedUser, @ModelAttribute @Valid EditUserProfileRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        return userService.editInformation(connectedUser, request);
     }
 
     @GetMapping("/account/address")

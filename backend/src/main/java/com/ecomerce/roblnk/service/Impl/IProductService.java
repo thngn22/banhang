@@ -476,7 +476,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public String createProduct(@Valid ProductRequest request, @Valid @NotNull MultipartFile[] files) {
+    public String createProduct(@Valid ProductRequest request) {
         var category = categoryRepository.findById(request.getCategoryId());
         var cateList = categoryRepository.findAllByParentCategoryId_Id(request.getCategoryId());
         if (category.isPresent()) {
@@ -484,6 +484,7 @@ public class IProductService implements ProductService {
                 var product = new Product();
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemRequest> productItemRequests = request.getProductItems();
+                var image_product = productItemRequests.get(0).getProductItemImage();
                 var variations = variationRepository.findVariationsByCategory_Id(request.getCategoryId());
                 Long sizeId;
                 String sizeName;
@@ -505,8 +506,7 @@ public class IProductService implements ProductService {
                 String url = "";
                 Integer minPrice = Integer.MAX_VALUE;
                 Integer maxPrice = 0;
-                
-                while (!productItemRequests.isEmpty() && files.length > 0) {
+                while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
                     List<ProductConfiguration> productConfigurations = new ArrayList<>();
@@ -585,10 +585,7 @@ public class IProductService implements ProductService {
 
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
-                    var image = files[0];
-                    if (files.length > 1)
-                        files = Arrays.copyOfRange(files, 1, files.length);
-
+                    var image = p.getProductItemImage();
                     if (productItemImage != null && productItemImage.isEmpty()) {
                         productItemImage = image.getOriginalFilename();
                         url = getURLPictureThenUploadToCloudinary(image);
@@ -623,11 +620,8 @@ public class IProductService implements ProductService {
                 product.setDescription(request.getDescription());
                 product.setCategory(category.get());
 
-                var image = files[0];
-                files = Arrays.copyOfRange(files, 1, files.length);
-
-                if (image != null) {
-                    var urlImage = getURLPictureThenUploadToCloudinary(image);
+                if (image_product != null) {
+                    var urlImage = getURLPictureThenUploadToCloudinary(image_product);
                     product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
                 } else product.setProductImage(ImageUtil.urlImage);
 
@@ -660,19 +654,19 @@ public class IProductService implements ProductService {
         var category = categoryRepository.findById(id);
         var cate = request.getCategoryId();
         if (category.isPresent() && category.get().getId().equals(cate)) {
-            return createProduct(request, files);
+            return createProduct(request);
         } else
             return "This category is not available to create product. Please try a sub-category of this category or another!";
     }
 
     @Override
-    public String editProduct(ProductEditRequest productEditRequest, @Valid @NotNull MultipartFile[] files) {
+    public String editProduct(ProductEditRequest productEditRequest) {
         var category = categoryRepository.findById(productEditRequest.getCategoryId());
         var cateList = categoryRepository.findAllByParentCategoryId_Id(productEditRequest.getCategoryId());
         if (category.isPresent()) {
             if (cateList.isEmpty()) {
                 var product = productRepository.findById(productEditRequest.getId()).orElseThrow();
-                List<ProductItemDTOv2> productItemRequests = productEditRequest.getProductItems();
+                List<ProductItemDTORequest> productItemRequests = productEditRequest.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(productEditRequest.getCategoryId());
                 Long sizeId;
                 String sizeName;
@@ -694,6 +688,9 @@ public class IProductService implements ProductService {
                 String url = "";
                 Integer minPrice = Integer.MAX_VALUE;
                 Integer maxPrice = 0;
+
+                var image_product = productItemRequests.get(0).getProductImage();
+
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     String sizeValueFromRequest = p.getSize();
@@ -798,10 +795,9 @@ public class IProductService implements ProductService {
                     }
 
                     productItem.setName(productEditRequest.getName() + name);
-                    var image = files[0];
-                    if (files.length > 1)
-                        files = Arrays.copyOfRange(files, 1, files.length);
 
+
+                    var image = p.getProductImage();
                     if (productItemImage != null && productItemImage.isEmpty()) {
                         productItemImage = image.getOriginalFilename();
                         url = getURLPictureThenUploadToCloudinary(image);
@@ -819,6 +815,8 @@ public class IProductService implements ProductService {
                         }
 
                     } else productItem.setProductImage(ImageUtil.urlImage);
+
+
                     productItem.setActive(p.isActive());
                     productItem.setPrice(p.getPrice());
                     productItem.setWarehousePrice(p.getWarehousePrice());
@@ -835,16 +833,12 @@ public class IProductService implements ProductService {
                 product.setName(productEditRequest.getName());
                 product.setDescription(productEditRequest.getDescription());
                 product.setCategory(category.get());
-                var image = files[0];
-                if (files.length > 1)
-                    files = Arrays.copyOfRange(files, 1, files.length);
 
-                if (image != null) {
-                    var urlImage = getURLPictureThenUploadToCloudinary(image);
-                    if (urlImage != null) {
-                        product.setProductImage(urlImage);
-                    }
-                }
+                if (image_product != null) {
+                    var urlImage = getURLPictureThenUploadToCloudinary(image_product);
+                    product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
+                } else product.setProductImage(ImageUtil.urlImage);
+
                 if (!minPrice.equals(maxPrice)) {
 
                     product.setEstimatedPrice(minPrice + " - " + maxPrice);

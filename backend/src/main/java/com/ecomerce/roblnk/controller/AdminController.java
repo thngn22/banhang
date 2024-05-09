@@ -1,5 +1,7 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.configuration.GoongConfiguration;
+import com.ecomerce.roblnk.dto.cart.UserAddressRequestv2;
 import com.ecomerce.roblnk.dto.user.UserCreateRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
@@ -15,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
@@ -30,6 +34,7 @@ public class AdminController {
     private final ProductService productService;
     private final StatusService statusService;
     private final AdminService adminService;
+    private final GoongConfiguration goong;
     @GetMapping("/user")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailUser(@RequestParam("id") Long id) throws UserException {
@@ -137,6 +142,15 @@ public class AdminController {
     public ResponseEntity<?> getRevenue(Principal principal, @RequestParam(value = "from", required = false) String from,
                                         @RequestParam(value = "to", required = false) String to) throws ParseException {
         var revenue = adminService.getAllRevenue(principal, from ,to);
+        if (revenue != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(revenue);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<?> test(@RequestBody UserAddressRequestv2 address) throws IOException, URISyntaxException {
+        var revenue = goong.calculateDistance(address);
         if (revenue != null) {
             return ResponseEntity.status(HttpStatus.OK).body(revenue);
         } else

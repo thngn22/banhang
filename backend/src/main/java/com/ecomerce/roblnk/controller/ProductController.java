@@ -8,6 +8,7 @@ import com.ecomerce.roblnk.service.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,12 +60,10 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
 
-    @PostMapping(value = "/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> createProduct(@RequestPart("product") @Valid ProductRequest requestCreateProduct,
-                                           @RequestPart("file") @Valid @NotNull MultipartFile[] files) {
-        var productDetail = productService.createProduct(requestCreateProduct, files);
+    public ResponseEntity<?> createProduct(@ModelAttribute @Valid ProductRequest requestCreateProduct) {
+        var productDetail = productService.createProduct(requestCreateProduct);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                     .statusCode(201)
@@ -89,12 +88,10 @@ public class ProductController {
         }
     }
 
-    @PutMapping(value = "/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PutMapping(value = "/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> editProduct(@RequestPart("product") @Valid ProductEditRequest productEditRequest,
-                                         @RequestPart("file") @Valid @NotNull MultipartFile[] files) {
-        var productDetail = productService.editProduct(productEditRequest, files);
+    public ResponseEntity<?> editProduct(@ModelAttribute ProductEditRequest productEditRequest) {
+        var productDetail = productService.editProduct(productEditRequest);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                     .statusCode(201)

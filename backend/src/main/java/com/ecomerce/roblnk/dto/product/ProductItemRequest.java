@@ -12,4 +12,5 @@ public class ProductItemRequest {
     private Integer quantityInStock;
     private String size;
     private String color;
+    private MultipartFile productItemImage;
 }

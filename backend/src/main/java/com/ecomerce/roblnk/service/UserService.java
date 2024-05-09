@@ -7,12 +7,9 @@ import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.model.User;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Date;
@@ -26,7 +23,7 @@ public interface UserService {
     List<UserResponse> getAllUsers();
     List<UserResponse> getAllUsersFilter(Date updatedAt, Date updatedAt2);
 
-    ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request, @Valid @NotNull MultipartFile files);
+    ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
 
     ResponseEntity<?> getUserAddress(Principal connectedUser);
 

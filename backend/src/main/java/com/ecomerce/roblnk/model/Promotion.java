@@ -28,7 +28,7 @@ public class Promotion {
     private String description;
 
     @Column(name = "discount_rate")
-    private String discountRate;
+    private Double discountRate;
 
     @Column(name = "start_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
@@ -46,6 +46,6 @@ public class Promotion {
     private Date createdAt;
 
     //Category
-    @ManyToMany(mappedBy = "promotions")
+    @ManyToMany(mappedBy = "promotions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Category> categories;
 }

@@ -15,8 +15,6 @@ import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.*;
 import com.ecomerce.roblnk.util.Status;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +24,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 
 import java.security.Principal;
@@ -95,16 +92,22 @@ public class IUserService implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request, @Valid @NotNull MultipartFile files) {
+    public ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null) {
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
-            user.setDob(request.getDob());
-            if (files != null) {
-                var urlImage = productService.getURLPictureThenUploadToCloudinary(files);
-                if (urlImage != null) {
-                    user.setAvatar(urlImage);
+//            user.setDob(request.getDob());
+            if (user.getAvatar() != null) {
+
+                var urlImage = "";
+                System.out.println(request.getAvatar().getContentType());
+                try {
+                    urlImage = productService.getURLPictureThenUploadToCloudinary(request.getAvatar());
+                    if (!urlImage.isEmpty())
+                        user.setAvatar(urlImage);
+                } catch (Exception e){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The format is not supported, please try again!");
                 }
             }
             userRepository.save(user);
