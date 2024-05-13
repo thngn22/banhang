@@ -1032,7 +1032,9 @@ public class IProductService implements ProductService {
     public String getURLPictureThenUploadToCloudinary(ByteMultipartFile file) {
         try {
             byte[] fileBytes = file.getBytes();
-            MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
+            String contentType = file.getContentType();
+            String name = file.getOriginalFilename();
+            MultipartFile multipartFile = new ByteMultipartFile(fileBytes, name, contentType);
             Tika tika = new Tika();
             String mimetype = tika.detect(fileBytes);
             if (mimetype.contains("image")) {
@@ -1044,6 +1046,7 @@ public class IProductService implements ProductService {
                 return ImageUtil.urlImage;
         } catch (Exception exception) {
             return null;
-        }    }
+        }
+    }
 
 }
