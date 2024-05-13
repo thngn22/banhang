@@ -72,7 +72,7 @@ const AdminProductCreate = () => {
   );
 
   const mutation = useMutationHook((data) => {
-    const res = ProductService.createProduct(data, auth.accessToken, axiosJWT);
+    const res = ProductService.createProduct2(data, auth.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
@@ -91,7 +91,7 @@ const AdminProductCreate = () => {
         const productCreateRequest = {
           name: dataNameProduct,
           description: dataDescription,
-          productImage: defaultImage,
+          // productImage: defaultImage,
           categoryId: parseInt(dataCategory.id),
         };
 
@@ -99,18 +99,38 @@ const AdminProductCreate = () => {
           warehousePrice: item?.warehousePrice,
           price: item.price,
           quantityInStock: item.quantity,
-          productImage: item.productImage,
+          productItemImage: item.productImage,
           size: item.size,
           color: item.color,
         }));
+
+        // const formData = new FormData()
+
+        // formData.append('name', dataNameProduct)
+        // formData.append('description', dataDescription)
+        // formData.append('categoryId', parseInt(dataCategory.id))
+        // formData.append('productItems', productItems)
+        // productItems.forEach((item, index) => {
+        //   formData.append(`productItems[${index}].warehousePrice`, item.warehousePrice);
+        //   formData.append(`productItems[${index}].price`, item.price);
+        //   formData.append(`productItems[${index}].quantityInStock`, item.quantityInStock);
+        //   formData.append(`productItems[${index}].productImage`, item.productImage);
+        //   formData.append(`productItems[${index}].size`, item.size);
+        //   formData.append(`productItems[${index}].color`, item.color);
+        // });
+
+
+        // formData.forEach((value, key)=>{
+        //   console.log(`${key}: ${value}`);
+        // })
 
         const apiPayload = {
           ...productCreateRequest,
           productItems,
         };
 
-        setDataAPICreate(apiPayload);
-        console.log("", apiPayload);
+        // setDataAPICreate(apiPayload);
+        console.log("apiPayload", apiPayload);
 
         mutation.mutate(apiPayload, {
           onSuccess: () => {
