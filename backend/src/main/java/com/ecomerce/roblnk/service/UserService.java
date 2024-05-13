@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
@@ -18,9 +19,10 @@ import java.util.List;
 public interface UserService {
     UserDetailResponse getDetailUser(Long userId) throws UserException;
     User findUserProfileByJwt(String jwt) throws UserException;
-    Page<User> getAllUsers(Pageable pageable);
+
     ResponseEntity<?> findInformationUser(Principal connectedUser);
     List<UserResponse> getAllUsers();
+    PageResponse getAllUsersPaging(Principal connectedUser, Integer pageNumber);
     List<UserResponse> getAllUsersFilter(Date updatedAt, Date updatedAt2);
 
     ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
@@ -48,7 +50,7 @@ public interface UserService {
 
     String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
 
-    List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser);
+    PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Integer pageNumber);
     List<OrderResponsev2> getAllUserHistoryOrdersForAdminFilter(Principal connectedUser, Date updatedAt, Date updateAt2);
 
     String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests);

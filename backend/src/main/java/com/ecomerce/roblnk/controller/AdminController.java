@@ -59,9 +59,12 @@ public class AdminController {
     }
     @GetMapping("/users")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getListUser(){
-        var list =  userService.getAllUsers();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<?> getListUser(Principal connectedUser, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber){
+        var list =  userService.getAllUsersPaging(connectedUser, pageNumber);
+        if (list != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(list);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
 
     @PostMapping("/users/active")
@@ -100,8 +103,8 @@ public class AdminController {
     }
     @GetMapping("/orders")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllOrders(Principal connectedUser) {
-        var userOrders = userService.getAllUserHistoryOrdersForAdmin(connectedUser);
+    public ResponseEntity<?> getAllOrders(Principal connectedUser, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
+        var userOrders = userService.getAllUserHistoryOrdersForAdmin(connectedUser, pageNumber);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
         } else

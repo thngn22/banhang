@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
@@ -17,6 +18,8 @@ import com.ecomerce.roblnk.service.*;
 import com.ecomerce.roblnk.util.Status;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_IN_USE;
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
 import static com.ecomerce.roblnk.util.Status.HOAN_TAT;
 
 @Service("IUserService")
@@ -75,14 +79,36 @@ public class IUserService implements UserService {
 
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
-    }
-
-    @Override
     public List<UserResponse> getAllUsers() {
         var userList = userRepository.findAll();
         return userMapper.toListUserResponse(userList);
+    }
+    @Override
+    public PageResponse getAllUsersPaging(Principal connectedUser, Integer pageNumber) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if (user != null) {
+            var userList = userRepository.findAll();
+            var userResponse = userMapper.toListUserResponse(userList);
+            Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), userResponse.size());
+            System.out.println(start);
+            System.out.println(end);
+            List<UserResponse> pageContent = new ArrayList<>();
+            if (start < end) {
+                pageContent = userResponse.subList(start, end);
+
+            }
+            Page<UserResponse> page = new PageImpl<>(pageContent, pageable, userResponse.size());
+            PageResponse productResponse = new PageResponse();
+            productResponse.setContents(pageContent);
+            productResponse.setPageSize(page.getSize());
+            productResponse.setPageNumber(page.getNumber() + 1);
+            productResponse.setTotalPage(page.getTotalPages());
+            productResponse.setTotalElements(page.getTotalElements());
+            return productResponse;
+        }
+        return null;
     }
 
     @Override
@@ -254,13 +280,30 @@ public class IUserService implements UserService {
         }
         return null;
     }
-
     @Override
-    public List<OrderResponsev2> getAllUserHistoryOrdersForAdmin(Principal connectedUser) {
+    public PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Integer pageNumber) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null) {
             var userOrders = orderRepository.findAll();
-            return orderMapper.toOrderResponsev2s(userOrders);
+            var orderResponse = orderMapper.toOrderResponsev2s(userOrders);
+            Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), orderResponse.size());
+            System.out.println(start);
+            System.out.println(end);
+            List<OrderResponsev2> pageContent = new ArrayList<>();
+            if (start < end) {
+                pageContent = orderResponse.subList(start, end);
+
+            }
+            Page<OrderResponsev2> page = new PageImpl<>(pageContent, pageable, orderResponse.size());
+            PageResponse productResponse = new PageResponse();
+            productResponse.setContents(pageContent);
+            productResponse.setPageSize(page.getSize());
+            productResponse.setPageNumber(page.getNumber() + 1);
+            productResponse.setTotalPage(page.getTotalPages());
+            productResponse.setTotalElements(page.getTotalElements());
+            return productResponse;
         }
         return null;
     }

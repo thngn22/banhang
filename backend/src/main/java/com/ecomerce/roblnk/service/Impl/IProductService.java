@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.product.*;
 import com.ecomerce.roblnk.mapper.OrderMapper;
@@ -104,7 +105,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public PageProductResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber, boolean isAdmin) {
+    public PageResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber, boolean isAdmin) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -272,7 +273,7 @@ public class IProductService implements ProductService {
 
         }
         Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
-        PageProductResponse productResponse = new PageProductResponse();
+        PageResponse productResponse = new PageResponse();
         productResponse.setContents(pageContent);
         productResponse.setPageSize(page.getSize());
         productResponse.setPageNumber(page.getNumber() + 1);
@@ -873,7 +874,7 @@ public class IProductService implements ProductService {
             return "Product not found or not available to delete!";
     }
 
-    @Override
+/*    @Override
     public List<ProductResponse> getAllProductV2() {
         var products = productRepository.findAll();
         List<Integer> list = new ArrayList<>();
@@ -893,9 +894,9 @@ public class IProductService implements ProductService {
         }
         productResponseList.sort((d1, d2) -> d2.getModifiedDate().compareTo(d1.getModifiedDate()));
         return productResponseList;
-    }
+    }*/
 
-    @Override
+  /*  @Override
     public List<ProductResponse> getAllProductV3() {
         var products = getAllProductV2();
         List<ProductResponse> list = new ArrayList<>();
@@ -905,7 +906,7 @@ public class IProductService implements ProductService {
             }
         }
         return list;
-    }
+    }*/
 
     @Override
     public List<ProductResponse> getAllProductCarouselRating() {
@@ -1028,7 +1029,7 @@ public class IProductService implements ProductService {
     }*/
 
     @Override
-    public String getURLPictureThenUploadToCloudinary(MultipartFile file) {
+    public String getURLPictureThenUploadToCloudinary(ByteMultipartFile file) {
         try {
             byte[] fileBytes = file.getBytes();
             MultipartFile multipartFile = new ByteMultipartFile(fileBytes);

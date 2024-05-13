@@ -6,15 +6,11 @@ import com.ecomerce.roblnk.dto.product.ProductEditRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.service.ProductService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -51,14 +47,15 @@ public class ProductController {
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
-    @GetMapping("/")
+
+   /* @GetMapping("/")
     public ResponseEntity<?> getAllProductForUser() {
         var product = productService.getAllProductV3();
         if (product != null) {
             return ResponseEntity.status(HttpStatus.OK).body(product);
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
-    }
+    }*/
 
     @PostMapping(value = "/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
