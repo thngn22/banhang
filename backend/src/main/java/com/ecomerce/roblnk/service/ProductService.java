@@ -2,7 +2,6 @@ package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.product.*;
-import com.ecomerce.roblnk.util.ByteMultipartFile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +15,7 @@ public interface ProductService {
     ProductDetailResponsev3 getDetailProductForAdmin(Long productId);
     ProductDetailResponsev2 getDetailProduct(Long productId);
 
-    String createProduct(@Valid ProductRequest request);
+    String createProduct(@Valid ProductRequest request, @Valid @NotNull MultipartFile[] files);
 
     String createProductFromCategory(Long id, ProductRequest request, @Valid @NotNull MultipartFile[] files);
 
@@ -32,5 +31,5 @@ public interface ProductService {
     List<ProductResponse> getAllProductCarouselSold();
     List<ProductResponse> getAllProductCarouselInCategory(Long categoryId);
 //    String getURLPictureAndUploadToCloudinary(String base64Content);
-    String getURLPictureThenUploadToCloudinary(ByteMultipartFile file);
+    String getURLPictureThenUploadToCloudinary(MultipartFile file);
 }

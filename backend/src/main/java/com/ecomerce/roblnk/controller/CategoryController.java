@@ -18,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +45,7 @@ public class CategoryController {
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request,
                                                   @RequestPart("file") @Valid @NotNull MultipartFile[] files,
-                                                  BindingResult bindingResult){
+                                                  BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }

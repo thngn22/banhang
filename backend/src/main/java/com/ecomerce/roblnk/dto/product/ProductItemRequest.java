@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.dto.product;
 
 import com.ecomerce.roblnk.util.ByteMultipartFile;
+import jakarta.servlet.annotation.MultipartConfig;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,5 +15,4 @@ public class ProductItemRequest {
     private Integer quantityInStock;
     private String size;
     private String color;
-    private ByteMultipartFile productItemImage;
 }

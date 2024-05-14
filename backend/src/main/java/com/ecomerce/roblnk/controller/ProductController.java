@@ -4,16 +4,24 @@ import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.dto.product.ProductEditRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.ProductService;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -57,10 +65,15 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }*/
 
-    @PostMapping(value = "/")
+    @PostMapping(value = "/", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> createProduct(@ModelAttribute @Valid ProductRequest requestCreateProduct) {
-        var productDetail = productService.createProduct(requestCreateProduct);
+    public ResponseEntity<?> createProduct(@RequestBody @Valid ProductRequest requestCreateProduct,
+                                           @Valid @NotNull @RequestPart("productItemImage") MultipartFile[] files,
+                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        var productDetail = productService.createProduct(requestCreateProduct, files);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                     .statusCode(201)

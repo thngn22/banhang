@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,10 +12,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @AllArgsConstructor
+@Setter
+@NoArgsConstructor
 public class ByteMultipartFile implements MultipartFile {
-    private final byte[] content;
-    private final String fileName;
-    private final String contentType;
+    private byte[] content;
+    private String fileName;
+    private String contentType;
 
     @Override
     public String getName() {

@@ -82,7 +82,6 @@ public class IProductService implements ProductService {
             products.addAll(productRepository.findAllByCategoryId(category.getId()));
         }
 
-        System.out.println("size đầu: " + products.size());
         int i = 0;
         while (i < products.size()) {
             if (!products.get(i).isActive()) {
@@ -153,7 +152,6 @@ public class IProductService implements ProductService {
 
 
         int i = 0;
-        System.out.println("size đầu: " + products.size());
         while (i < products.size()) {
             var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
             boolean flag = false;
@@ -167,48 +165,36 @@ public class IProductService implements ProductService {
                     if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("K")) {
                         if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmsize1 " + i);
-                            System.out.println(size);
-                            System.out.println(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                             break loop;
                         }
                     } else if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmsize2 " + i);
                             break loop;
                         }
                     } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("K")) {
                         if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmcolor1 " + i);
                             break loop;
                         }
                     } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
                         if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmcolor2 " + i);
-                            System.out.println(color);
-                            System.out.println(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                             break loop;
                         }
 
                     } else if (flagMinPrice && flagMaxPrice) {
                         if ((productItem.getPrice() >= Integer.parseInt(minPrice)) && (productItem.getPrice() <= Integer.parseInt(maxPrice))) {
-                            System.out.println("dm " + i);
                             flag = true;
                             break loop;
                         }
                     } else if (flagMinPrice) {
                         if (productItem.getPrice() >= Integer.parseInt(minPrice)) {
-                            System.out.println("dm1 " + i);
-
                             flag = true;
                             break loop;
                         }
                     } else if (flagMaxPrice) {
                         if (productItem.getPrice() <= Integer.parseInt(maxPrice)) {
-                            System.out.println("dm2 " + i);
                             flag = true;
                             break loop;
                         }
@@ -216,20 +202,13 @@ public class IProductService implements ProductService {
                     }
                 }
             }
-            System.out.println("flag: " + flag);
-            System.out.println("flagColor: " + flagColor);
-            System.out.println("flagSize: " + flagSize);
-            System.out.println("flagMaxPrice: " + flagMaxPrice);
-            System.out.println("flagMinPrice: " + flagMinPrice);
             Boolean temp = (flag || flagColor || flagSize || flagMinPrice || flagMaxPrice) && !flag;
-            System.out.println(temp);
 
             if (!temp) {
                 i = i + 1;
             } else
                 products.remove(i);
         }
-        System.out.println("size cuối: " + products.size());
         for (Product product : products) {
             int total = 0;
             var items = productItemRepository.findAllByProduct_Id(product.getId());
@@ -265,8 +244,6 @@ public class IProductService implements ProductService {
             pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
-        System.out.println(start);
-        System.out.println(end);
         List<ProductResponse> pageContent = new ArrayList<>();
         if (start < end) {
             pageContent = productResponseList.subList(start, end);
@@ -334,7 +311,6 @@ public class IProductService implements ProductService {
             productDetail.setQuantityOfVariation(items.size());
             List<ProductItemDTOv2> productItemDTOv2List = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
-                System.out.println(productDetail.getProductItems().size());
 
                 String optionColor;
                 String optionSize = "";
@@ -388,7 +364,6 @@ public class IProductService implements ProductService {
                     productDetail.getProductItems().remove(0);
                     continue;
                 }
-                System.out.println(productDetail.getProductItems().size());
                 ProductItemResponse productItemResponse = new ProductItemResponse();
                 List<ProductItemDTOv3> productItemDTOv3List = new ArrayList<>();
                 List<Integer> indexes = new ArrayList<>();
@@ -431,7 +406,6 @@ public class IProductService implements ProductService {
 
 
                 for (int j = 0; j < indexes.size(); j++) {
-                    System.out.println(indexes.get(j));
                     productDetail.getProductItems().remove(indexes.get(j) - j);
                 }
 
@@ -477,7 +451,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public String createProduct(@Valid ProductRequest request) {
+    public String createProduct(@Valid ProductRequest request, @Valid @NotNull MultipartFile[] files) {
         var category = categoryRepository.findById(request.getCategoryId());
         var cateList = categoryRepository.findAllByParentCategoryId_Id(request.getCategoryId());
         if (category.isPresent()) {
@@ -485,7 +459,7 @@ public class IProductService implements ProductService {
                 var product = new Product();
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemRequest> productItemRequests = request.getProductItems();
-                var image_product = productItemRequests.get(0).getProductItemImage();
+                var image_product = files[0];
                 var variations = variationRepository.findVariationsByCategory_Id(request.getCategoryId());
                 Long sizeId;
                 String sizeName;
@@ -507,7 +481,7 @@ public class IProductService implements ProductService {
                 String url = "";
                 Integer minPrice = Integer.MAX_VALUE;
                 Integer maxPrice = 0;
-                while (!productItemRequests.isEmpty()) {
+                while (!productItemRequests.isEmpty() && files.length > 0) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
                     List<ProductConfiguration> productConfigurations = new ArrayList<>();
@@ -586,24 +560,21 @@ public class IProductService implements ProductService {
 
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
-                    var image = p.getProductItemImage();
-                    if (productItemImage != null && productItemImage.isEmpty()) {
-                        productItemImage = image.getOriginalFilename();
+                    var image = files[0];
+                    if (files.length > 1)
+                        files = Arrays.copyOfRange(files, 1, files.length);
+
+                    System.out.println("sắp vào: " );
+                    if (productItemImage.isEmpty() || !productItemImage.equals(image.getName())) {
+                        System.out.println("vào r");
+                        productItemImage = image.getName();
                         url = getURLPictureThenUploadToCloudinary(image);
                     }
-                    if (image != null) {
-                        if (productItemImage != null) {
-                            productItemImage = image.getOriginalFilename();
-                            var ImageUrl = getURLPictureThenUploadToCloudinary(image);
-                            if (ImageUrl != null) {
-                                productItem.setProductImage(ImageUrl);
-                                url = ImageUrl;
-                            } else url = ImageUtil.urlImage;
-                        } else {
-                            productItem.setProductImage(url);
-                        }
+                    System.out.println("vào r");
+                    if (url != null) {
+                        productItem.setProductImage(url);
+                    } else url = ImageUtil.urlImage;
 
-                    } else productItem.setProductImage(ImageUtil.urlImage);
                     productItem.setActive(true);
                     productItem.setCreatedDate(new Date(System.currentTimeMillis()));
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
@@ -655,7 +626,7 @@ public class IProductService implements ProductService {
         var category = categoryRepository.findById(id);
         var cate = request.getCategoryId();
         if (category.isPresent() && category.get().getId().equals(cate)) {
-            return createProduct(request);
+            return createProduct(request, files);
         } else
             return "This category is not available to create product. Please try a sub-category of this category or another!";
     }
@@ -1029,9 +1000,12 @@ public class IProductService implements ProductService {
     }*/
 
     @Override
-    public String getURLPictureThenUploadToCloudinary(ByteMultipartFile file) {
+    public String getURLPictureThenUploadToCloudinary(MultipartFile file) {
         try {
+            System.out.println("content: " + file.getContentType());
+            System.out.println("file name: " + Arrays.toString(file.getBytes()));
             byte[] fileBytes = file.getBytes();
+
             String contentType = file.getContentType();
             String name = file.getOriginalFilename();
             MultipartFile multipartFile = new ByteMultipartFile(fileBytes, name, contentType);
