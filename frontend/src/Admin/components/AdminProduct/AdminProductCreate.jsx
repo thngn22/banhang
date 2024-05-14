@@ -99,40 +99,21 @@ const AdminProductCreate = () => {
           warehousePrice: item?.warehousePrice,
           price: item.price,
           quantityInStock: item.quantity,
-          productItemImage: item.productImage,
           size: item.size,
           color: item.color,
         }));
-
-        // const formData = new FormData()
-
-        // formData.append('name', dataNameProduct)
-        // formData.append('description', dataDescription)
-        // formData.append('categoryId', parseInt(dataCategory.id))
-        // formData.append('productItems', productItems)
-        // productItems.forEach((item, index) => {
-        //   formData.append(`productItems[${index}].warehousePrice`, item.warehousePrice);
-        //   formData.append(`productItems[${index}].price`, item.price);
-        //   formData.append(`productItems[${index}].quantityInStock`, item.quantityInStock);
-        //   formData.append(`productItems[${index}].productImage`, item.productImage);
-        //   formData.append(`productItems[${index}].size`, item.size);
-        //   formData.append(`productItems[${index}].color`, item.color);
-        // });
-
-
-        // formData.forEach((value, key)=>{
-        //   console.log(`${key}: ${value}`);
-        // })
+        const productItemImage = combinedData.map((item) => item.productImage)
 
         const apiPayload = {
           ...productCreateRequest,
           productItems,
         };
 
-        // setDataAPICreate(apiPayload);
-        console.log("apiPayload", apiPayload);
+        const formData = new FormData()
+        formData.append('requestCreateProduct', JSON.stringify(apiPayload))
+        formData.append('productItemImage', productItemImage)
 
-        mutation.mutate(apiPayload, {
+        mutation.mutate(formData, {
           onSuccess: () => {
             message.success("Thêm mới sản phẩm thành công");
             setTimeout(() => {
