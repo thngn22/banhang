@@ -57,10 +57,11 @@ export const editProfileUser2 = async (data, accessToken, axiosJWT) => {
 };
 
 //Mới viết
-export const getAllUser = async (accessToken, axiosJWT) => {
+export const getAllUser = async (params, accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/users`,
     {
+      params,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

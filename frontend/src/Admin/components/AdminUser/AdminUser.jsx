@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import { message } from "antd";
+import { Pagination, message } from "antd";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
@@ -16,6 +16,8 @@ import { loginSuccess } from "../../../redux/slides/authSlice";
 const AdminUser = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [dataTable, setDataTable] = useState([]);
 
   const refreshToken = async () => {
     try {
@@ -50,16 +52,31 @@ const AdminUser = () => {
       return Promise.reject(err);
     }
   );
-  const getAllUser = async () => {
-    const res = await UserService.getAllUser(auth.accessToken, axiosJWT);
-    return res;
-  };
+
   const { data: users, refetch } = useQuery({
-    queryKey: ["users"],
-    queryFn: getAllUser,
+    queryKey: [pageNumber],
+    queryFn: () => {
+      return UserService.getAllUser(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
     enabled: Boolean(auth?.accessToken),
   });
-  // console.log("users", users)
+
+  useEffect(() => {
+    const filterUsers =
+      users?.contents?.length &&
+      users?.contents?.map((user) => {
+        return { ...user, key: user.id };
+      });
+
+    setDataTable(filterUsers);
+  }, [users]);
+
   const mutation = useMutationHook((data) => {
     const res = UserService.changeStatusUser(data, auth.accessToken, axiosJWT);
     return res;
@@ -149,17 +166,24 @@ const AdminUser = () => {
     },
   ];
 
-  const dataTable =
-    users?.length &&
-    users.map((product) => {
-      return { ...product, key: product.id };
-    });
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
 
   return (
     <div>
       <WrapperHeader>Quản lý Người dùng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <TableComponent data={dataTable} columns={columns} />
+
+        {users && (
+          <Pagination
+            total={users?.totalElements}
+            pageSize={users?.pageSize}
+            defaultCurrent={pageNumber}
+            onChange={onChange}
+          />
+        )}
       </div>
     </div>
   );

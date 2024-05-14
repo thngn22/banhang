@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
 import { useDispatch, useSelector } from "react-redux";
 // import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
-import { Modal, message } from "antd";
+import { Modal, Pagination, message } from "antd";
 import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
 // import {} from "icons"
@@ -26,6 +26,8 @@ import * as AuthService from "../../../services/AuthService";
 const AdminOrder = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [dataTable, setDataTable] = useState([]);
 
   const refreshToken = async () => {
     try {
@@ -65,15 +67,35 @@ const AdminOrder = () => {
     }
   );
 
-  const getAllOrdersAdmin = async () => {
-    const res = await OrderService.getAllOrderAdmin(auth.accessToken, axiosJWT);
-    return res;
-  };
   const { data: orders, refetch } = useQuery({
-    queryKey: ["orders"],
-    queryFn: getAllOrdersAdmin,
+    queryKey: [pageNumber],
+    queryFn: () => {
+      return OrderService.getAllOrderAdmin(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
     enabled: Boolean(auth?.accessToken),
   });
+
+  useEffect(() => {
+    const filterOrders =
+      orders?.contents?.length &&
+      orders?.contents?.map((order) => {
+        return {
+          ...order,
+          key: order.id,
+          user: order.user.email,
+          address: `${order.address.address}, ${order.address.ward}, ${order.address.district}, ${order.address.city}`,
+          userPaymentMethod: order.userPaymentMethod.nameMethod,
+        };
+      });
+
+    setDataTable(filterOrders);
+  }, [orders]);
 
   const renderAction = (key, status) => {
     return (
@@ -184,15 +206,6 @@ const AdminOrder = () => {
       render: (key, status) => renderAction(key, status),
     },
   ];
-  const dataTable =
-    orders?.length &&
-    orders.map((order) => ({
-      ...order,
-      key: order.id,
-      user: order.user.email,
-      address: `${order.address.address}, ${order.address.ward}, ${order.address.district}, ${order.address.city}`,
-      userPaymentMethod: order.userPaymentMethod.nameMethod,
-    }));
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = async (orderId) => {
@@ -215,12 +228,24 @@ const AdminOrder = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
 
   return (
     <div>
       <WrapperHeader>Quản lý Đơn hàng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <TableComponent columns={columns} data={dataTable} />
+
+        {orders && (
+          <Pagination
+            total={orders?.totalElements}
+            pageSize={orders?.pageSize}
+            defaultCurrent={pageNumber}
+            onChange={onChange}
+          />
+        )}
       </div>
 
       <Modal

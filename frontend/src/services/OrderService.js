@@ -2,10 +2,11 @@ import axios from "axios";
 
 const axiosJWT = axios.create();
 
-export const getAllOrderAdmin = async (accessToken, axiosJWT) => {
+export const getAllOrderAdmin = async (params, accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/orders`,
     {
+      params,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
