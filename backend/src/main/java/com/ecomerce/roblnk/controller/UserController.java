@@ -44,6 +44,8 @@ public class UserController {
     @PutMapping(value = "/account/profile")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> editInformation(Principal connectedUser, @ModelAttribute @Valid EditUserProfileRequest request, BindingResult bindingResult) {
+        System.out.println("request: " + request.toString());
+
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }

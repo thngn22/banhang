@@ -1,8 +1,10 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.product.ProductItemRequest;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.dto.product.ProductEditRequest;
+import com.ecomerce.roblnk.dto.product.ProductRequestGeneric;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.ProductService;
@@ -19,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -65,15 +68,15 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }*/
 
-    @PostMapping(value = "/", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> createProduct(@RequestBody @Valid ProductRequest requestCreateProduct,
-                                           @Valid @NotNull @RequestPart("productItemImage") MultipartFile[] files,
+    public ResponseEntity<?> createProduct(@ModelAttribute ProductRequest productRequest,
                                            BindingResult bindingResult) {
+
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
-        var productDetail = productService.createProduct(requestCreateProduct, files);
+        var productDetail = productService.createProduct(productRequest);
         if (productDetail.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
                     .statusCode(201)
@@ -85,7 +88,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                     .statusCode(403)
                     .message(String.valueOf(HttpStatus.FORBIDDEN))
-                    .description(productDetail)
+                    .description("This category is not available to create product. Please try a sub-category of this category or another!  ")
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
         } else {

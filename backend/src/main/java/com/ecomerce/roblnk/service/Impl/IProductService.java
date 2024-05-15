@@ -451,7 +451,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public String createProduct(@Valid ProductRequest request, @Valid @NotNull MultipartFile[] files) {
+    public String createProduct(@Valid ProductRequest request) {
         var category = categoryRepository.findById(request.getCategoryId());
         var cateList = categoryRepository.findAllByParentCategoryId_Id(request.getCategoryId());
         if (category.isPresent()) {
@@ -459,7 +459,7 @@ public class IProductService implements ProductService {
                 var product = new Product();
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemRequest> productItemRequests = request.getProductItems();
-                var image_product = files[0];
+                var image_product = productItemRequests.get(0).getProductItemImage();
                 var variations = variationRepository.findVariationsByCategory_Id(request.getCategoryId());
                 Long sizeId;
                 String sizeName;
@@ -481,7 +481,7 @@ public class IProductService implements ProductService {
                 String url = "";
                 Integer minPrice = Integer.MAX_VALUE;
                 Integer maxPrice = 0;
-                while (!productItemRequests.isEmpty() && files.length > 0) {
+                while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
                     List<ProductConfiguration> productConfigurations = new ArrayList<>();
@@ -560,21 +560,24 @@ public class IProductService implements ProductService {
 
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
-                    var image = files[0];
-                    if (files.length > 1)
-                        files = Arrays.copyOfRange(files, 1, files.length);
-
-                    System.out.println("sắp vào: " );
-                    if (productItemImage.isEmpty() || !productItemImage.equals(image.getName())) {
-                        System.out.println("vào r");
-                        productItemImage = image.getName();
+                    var image = p.getProductItemImage();
+                    if (productItemImage != null && productItemImage.isEmpty()) {
+                        productItemImage = image.getOriginalFilename();
                         url = getURLPictureThenUploadToCloudinary(image);
                     }
-                    System.out.println("vào r");
-                    if (url != null) {
-                        productItem.setProductImage(url);
-                    } else url = ImageUtil.urlImage;
+                    if (image != null) {
+                        if (productItemImage != null) {
+                            productItemImage = image.getOriginalFilename();
+                            var ImageUrl = getURLPictureThenUploadToCloudinary(image);
+                            if (ImageUrl != null) {
+                                productItem.setProductImage(ImageUrl);
+                                url = ImageUrl;
+                            } else url = ImageUtil.urlImage;
+                        } else {
+                            productItem.setProductImage(url);
+                        }
 
+                    } else productItem.setProductImage(ImageUtil.urlImage);
                     productItem.setActive(true);
                     productItem.setCreatedDate(new Date(System.currentTimeMillis()));
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
@@ -626,7 +629,7 @@ public class IProductService implements ProductService {
         var category = categoryRepository.findById(id);
         var cate = request.getCategoryId();
         if (category.isPresent() && category.get().getId().equals(cate)) {
-            return createProduct(request, files);
+            return createProduct(request);
         } else
             return "This category is not available to create product. Please try a sub-category of this category or another!";
     }
@@ -1002,13 +1005,10 @@ public class IProductService implements ProductService {
     @Override
     public String getURLPictureThenUploadToCloudinary(MultipartFile file) {
         try {
-            System.out.println("content: " + file.getContentType());
-            System.out.println("file name: " + Arrays.toString(file.getBytes()));
+
             byte[] fileBytes = file.getBytes();
 
-            String contentType = file.getContentType();
-            String name = file.getOriginalFilename();
-            MultipartFile multipartFile = new ByteMultipartFile(fileBytes, name, contentType);
+            MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
             Tika tika = new Tika();
             String mimetype = tika.detect(fileBytes);
             if (mimetype.contains("image")) {

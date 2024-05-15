@@ -19,6 +19,9 @@ public class ByteMultipartFile implements MultipartFile {
     private String fileName;
     private String contentType;
 
+    public ByteMultipartFile(byte[] fileBytes) {
+        this.content = fileBytes;
+    }
     @Override
     public String getName() {
         return fileName;
