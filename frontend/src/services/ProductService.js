@@ -64,7 +64,7 @@ export const createProduct2 = async (data, accessToken, axiosJWT) => {
     data,
     {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`
       },
     }
   );
