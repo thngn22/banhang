@@ -63,7 +63,7 @@ public class CalendarUtil {
             dateToString = now;
         }
 
-        if (dateToString.plusDays(1).getYear() > dateToString.getYear()) {
+        if (dateToString.plusSeconds(1).getYear() > dateToString.getYear()) {
             return dateToString.toDate().toString().substring(30);
         }
         return dateToString.toDate().toString().substring(8, 11)
@@ -76,7 +76,7 @@ public class CalendarUtil {
             dateToString = now;
         }
 
-        if (dateToString.plusDays(1).getMonthOfYear() != dateToString.getMonthOfYear()) {
+        if (dateToString.plusSeconds(1).getMonthOfYear() != dateToString.getMonthOfYear()) {
             return dateToString.toDate().toString().substring(4, 8)
                     + dateToString.toDate().toString().substring(30);
         }
@@ -89,7 +89,7 @@ public class CalendarUtil {
             dateToString = now;
         }
 
-        if (dateToString.plusMinutes(1).getDayOfMonth() != dateToString.getDayOfMonth()) {
+        if (dateToString.plusSeconds(2).getDayOfMonth() != dateToString.getDayOfMonth()) {
             return dateToString.toDate().toString().substring(8, 11)
                     + dateToString.toDate().toString().substring(4, 8)
                     + dateToString.toDate().toString().substring(30);
@@ -104,13 +104,13 @@ public class CalendarUtil {
             dateToString = now;
         }
 
-        if (dateToString.plusSeconds(1).getHourOfDay() != dateToString.getHourOfDay()) {
+        if (!(dateToString.getMinuteOfHour() == 59 && dateToString.getSecondOfMinute() == 59)) {
             return  dateToString.toDate().toString().substring(11, 20)
                     + dateToString.toDate().toString().substring(8, 11)
                     + dateToString.toDate().toString().substring(4, 8)
                     + dateToString.toDate().toString().substring(30);
         }
-        return dateToString.toDate().toString().substring(11, 20)
+        return dateToString.toDate().toString().substring(11, 14) + "00:00 "
                 + dateToString.toDate().toString().substring(8, 11)
                 + dateToString.toDate().toString().substring(4, 8)
                 + dateToString.toDate().toString().substring(30);
