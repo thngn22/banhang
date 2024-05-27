@@ -11,5 +11,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByChatUser_Id(String chatUser_id);
     List<User> findAllByCreatedAtBetween(Date createdAt, Date createdAt2);
 }

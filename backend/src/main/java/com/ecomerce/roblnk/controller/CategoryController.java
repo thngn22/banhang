@@ -1,7 +1,6 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
-import com.ecomerce.roblnk.dto.category.VariationRequest;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
@@ -18,11 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +40,7 @@ public class CategoryController {
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request,
                                                   @RequestPart("file") @Valid @NotNull MultipartFile[] files,
-                                                  BindingResult bindingResult) throws IOException {
+                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }

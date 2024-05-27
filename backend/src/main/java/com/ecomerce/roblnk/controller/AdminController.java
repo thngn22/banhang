@@ -143,15 +143,16 @@ public class AdminController {
     @GetMapping("/revenue")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getRevenue(Principal principal, @RequestParam(value = "from", required = false) String from,
-                                        @RequestParam(value = "to", required = false) String to) throws ParseException {
-        var revenue = adminService.getAllRevenue(principal, from ,to);
+                                        @RequestParam(value = "to", required = false) String to,
+                                        @RequestParam(value = "type") String type) throws ParseException {
+        var revenue = adminService.getAllRevenue(principal, from ,to, type);
         if (revenue != null) {
             return ResponseEntity.status(HttpStatus.OK).body(revenue);
         } else
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
 
-    @GetMapping("/test")
+    @GetMapping("/distance")
     public ResponseEntity<?> test(@RequestBody UserAddressRequestv2 address) throws IOException, URISyntaxException {
         var revenue = goong.calculateDistance(address);
         if (revenue != null) {

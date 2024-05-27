@@ -4,9 +4,7 @@ import com.ecomerce.roblnk.security.JwtAuthenticationEntryPoint;
 import com.ecomerce.roblnk.security.JwtAuthenticationFilter;
 import com.ecomerce.roblnk.security.JwtAuthenticationFilterExceptionHandler;
 import com.ecomerce.roblnk.security.LogoutService;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,15 +13,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -51,6 +46,7 @@ public class SecurityConfiguration{
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider)
+                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay**"),
@@ -89,7 +85,8 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/swagger-resources"),
                             new AntPathRequestMatcher("/v2/api-docs"),
                             new AntPathRequestMatcher("/v3/api-docs"),
-                            new AntPathRequestMatcher("/v3/api-docs/**")
+                            new AntPathRequestMatcher("/v3/api-docs/**"),
+                            new AntPathRequestMatcher("/ws**")
 
                 )
                         .permitAll()
@@ -97,7 +94,7 @@ public class SecurityConfiguration{
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 //                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
-                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+//                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
 //                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
 //                        )

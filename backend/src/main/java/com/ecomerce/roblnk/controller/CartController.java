@@ -2,12 +2,10 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.cart.CheckoutRequest;
 import com.ecomerce.roblnk.dto.cartItem.CartItemEditRequest;
-import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.CartService;
 import com.ecomerce.roblnk.service.DeliveryService;
 import com.ecomerce.roblnk.service.PaymentMethodService;
-import com.ecomerce.roblnk.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URISyntaxException;
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -29,7 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final UserService userService;
     private final DeliveryService deliveryService;
     private final PaymentMethodService paymentMethodService;
 

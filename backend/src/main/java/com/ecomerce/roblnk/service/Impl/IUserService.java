@@ -62,7 +62,6 @@ public class IUserService implements UserService {
     private final ReviewMapper reviewMapper;
     private final ProductItemService productItemService;
     private final ProductService productService;
-
     @Override
     public UserDetailResponse getDetailUser(Long userId) {
         var user = userRepository.findById(userId).orElseThrow(() ->

@@ -4,27 +4,22 @@ import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
 import com.ecomerce.roblnk.dto.user.EditUserProfileRequest;
 import com.ecomerce.roblnk.dto.user.UserAddressRequest;
-import com.ecomerce.roblnk.dto.user.UserPaymentRequest;
-import com.ecomerce.roblnk.dto.user.UserUpdateAddressRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
-import com.ecomerce.roblnk.exception.UserException;
 import com.ecomerce.roblnk.service.UserService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -80,10 +75,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailOrderHistoryById(Principal connectedUser, @PathVariable("id") Long id) {
         var userOrders = userService.getUserHistoryOrderForUser(connectedUser, id);
-        if (userOrders != null) {
-            return ResponseEntity.status(OK).body(userOrders);
-        } else
-            return ResponseEntity.status(OK).body("Did not found any orders!");
+        return ResponseEntity.status(OK).body(Objects.requireNonNullElse(userOrders, "Did not found any orders!"));
     }
 
     @GetMapping("/account/orders")

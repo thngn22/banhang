@@ -2,16 +2,11 @@ package com.ecomerce.roblnk.configuration;
 
 import com.ecomerce.roblnk.dto.cart.UserAddressRequestv2;
 import com.ecomerce.roblnk.dto.url.AddressFromURL;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 

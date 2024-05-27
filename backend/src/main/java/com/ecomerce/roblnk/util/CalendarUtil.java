@@ -1,11 +1,12 @@
 package com.ecomerce.roblnk.util;
 
+import org.joda.time.DateTime;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CalendarUtil {
     public static Calendar convertToGmt(Calendar calendar){
@@ -56,16 +57,62 @@ public class CalendarUtil {
         String last = dateToString.toString().substring(11, 19);
         return first + last;
     }
-    public static String convertToMonth(Date dateToString) {
+    public static String convertToYear(DateTime dateToString, DateTime now) {
 
-        return dateToString.toString().substring(4, 7);
+        if (now.toDate().before(dateToString.toDate())) {
+            dateToString = now;
+        }
+
+        if (dateToString.plusDays(1).getYear() > dateToString.getYear()) {
+            return dateToString.toDate().toString().substring(30);
+        }
+        return dateToString.toDate().toString().substring(8, 11)
+                + dateToString.toDate().toString().substring(4, 8)
+                + dateToString.toDate().toString().substring(30);
     }
-    public static String convertToDay(Date dateToString) {
+    public static String convertToMonth(DateTime dateToString, DateTime now) {
 
-        return dateToString.toString().substring(8, 10);
+        if (now.toDate().before(dateToString.toDate())) {
+            dateToString = now;
+        }
+
+        if (dateToString.plusDays(1).getMonthOfYear() != dateToString.getMonthOfYear()) {
+            return dateToString.toDate().toString().substring(4, 8)
+                    + dateToString.toDate().toString().substring(30);
+        }
+        return dateToString.toDate().toString().substring(8, 11)
+                + dateToString.toDate().toString().substring(4, 8)
+                + dateToString.toDate().toString().substring(30);
     }
-    public static String convertToHour(Date dateToString) {
+    public static String convertToDay(DateTime dateToString, DateTime now) {
+        if (now.toDate().before(dateToString.toDate())) {
+            dateToString = now;
+        }
 
-        return dateToString.toString().substring(11, 13);
+        if (dateToString.plusMinutes(1).getDayOfMonth() != dateToString.getDayOfMonth()) {
+            return dateToString.toDate().toString().substring(8, 11)
+                    + dateToString.toDate().toString().substring(4, 8)
+                    + dateToString.toDate().toString().substring(30);
+        }
+        return dateToString.toDate().toString().substring(11, 20)
+                + dateToString.toDate().toString().substring(8, 11)
+                + dateToString.toDate().toString().substring(4, 8)
+                + dateToString.toDate().toString().substring(30);
+    }
+    public static String convertToHour(DateTime dateToString, DateTime now) {
+        if (now.toDate().before(dateToString.toDate())) {
+            dateToString = now;
+        }
+
+        if (dateToString.plusSeconds(1).getHourOfDay() != dateToString.getHourOfDay()) {
+            return  dateToString.toDate().toString().substring(11, 20)
+                    + dateToString.toDate().toString().substring(8, 11)
+                    + dateToString.toDate().toString().substring(4, 8)
+                    + dateToString.toDate().toString().substring(30);
+        }
+        return dateToString.toDate().toString().substring(11, 20)
+                + dateToString.toDate().toString().substring(8, 11)
+                + dateToString.toDate().toString().substring(4, 8)
+                + dateToString.toDate().toString().substring(30);
     }
 }

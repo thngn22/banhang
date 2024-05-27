@@ -6,6 +6,6 @@ import java.security.Principal;
 import java.text.ParseException;
 
 public interface AdminService {
-    RevenueResponse getAllRevenue(Principal principal, String from, String to) throws ParseException;
+    RevenueResponse getAllRevenue(Principal principal, String from, String to, String type) throws ParseException;
 
 }

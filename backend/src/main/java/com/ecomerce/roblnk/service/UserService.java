@@ -7,6 +7,7 @@ import com.ecomerce.roblnk.dto.review.ReviewRequest;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.UserException;
+import com.ecomerce.roblnk.model.ChatUser;
 import com.ecomerce.roblnk.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

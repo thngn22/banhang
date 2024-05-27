@@ -90,6 +90,9 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Orders> orders = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private ChatUser chatUser;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
