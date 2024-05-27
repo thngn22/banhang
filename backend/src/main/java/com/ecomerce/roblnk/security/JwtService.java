@@ -59,7 +59,6 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>(Map.of("role", userDetails.getAuthorities().stream().map(Object::toString).toList()));
         claims.put("token_type", "accessToken");
         claims.put("id", user.getId());
-        claims.put("expired_token", user.getTokens().get(user.getTokens().size() - 1).isExpired());
         return buildToken(claims, userDetails, jwtExpiration);
     }
 
