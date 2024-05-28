@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import {
   SkinOutlined,
   UserOutlined,
-  FileDoneOutlined,
+  BarChartOutlined,
   PlusCircleOutlined,
   FormOutlined,
+  MessageOutlined,
+  FileDoneOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { getItem } from "../../utils/untils";
@@ -13,33 +15,30 @@ import AdminUser from "../components/AdminUser/AdminUser";
 import AdminProduct from "../components/AdminProduct/AdminProduct";
 import AdminProductCreate from "../components/AdminProduct/AdminProductCreate";
 import AdminOrder from "../components/AdminOrder/AdminOrder";
-import { WrapperHeader } from "../components/AdminUser/style";
 import { useQuery } from "@tanstack/react-query";
 import * as CategoryService from "../../services/CategoryService";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategory } from "../../redux/slides/categorySlice";
 import AdminStatistical from "../components/AdminStatistical/AdminStatistical";
+import AdminChat from "../components/AdminChat/AdminChat"; // Import AdminChat
 
 function AdminPage(props) {
   const dispatch = useDispatch();
 
   const items = [
-    getItem("Thống kê tổng quan", "statisticalOverview", <FileDoneOutlined />),
-    getItem("Người dùng", "sub1", <UserOutlined />, [
-      getItem("Quản lý User", "listUsers", <FormOutlined />),
-    ]),
+    getItem("Thống kê tổng quan", "statisticalOverview", <BarChartOutlined />), // Changed icon
+    getItem("Người dùng", "listUsers", <UserOutlined />),
     getItem("Sản phẩm", "sub2", <SkinOutlined />, [
       getItem("Quản lý sản phẩm", "listProducts", <FormOutlined />),
       getItem("Thêm Sản phẩm", "addProduct", <PlusCircleOutlined />),
     ]),
-    getItem("Đơn hàng", "sub4", <FileDoneOutlined />, [
-      getItem("Quản lý Đơn hàng", "listOrders", <FormOutlined />),
-    ]),
+    getItem("Đơn hàng", "listOrders", <FileDoneOutlined />),
+    getItem("Chat", "chatbox", <MessageOutlined />), // Changed icon
   ];
   const rootSubmenuKeys = ["user", "product", "order", "statistical"];
 
   const [openKeys, setOpenKeys] = useState(["sub1"]);
-  const [keySelected, setKeySelected] = useState("");
+  const [keySelected, setKeySelected] = useState("statisticalOverview"); // Default selected key
 
   const getAllCatesAdmin = async () => {
     const res = await CategoryService.getAllTreeCategory();
@@ -74,6 +73,8 @@ function AdminPage(props) {
         return <AdminProductCreate />;
       case "listOrders":
         return <AdminOrder />;
+      case "chatbox":
+        return <AdminChat />; // Added AdminChat
       default:
         return <AdminStatistical />;
     }
@@ -113,6 +114,8 @@ function AdminPage(props) {
             }}
             items={items}
             onClick={handleOnClick}
+            selectedKeys={[keySelected]} // Set selected key
+            defaultSelectedKeys={["statisticalOverview"]} // Default selected key
           />
           <div
             style={{

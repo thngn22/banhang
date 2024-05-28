@@ -74,6 +74,8 @@ const Cart = () => {
     },
   });
 
+  console.log(cart);
+
   const mutation = useMutationHook((data) => {
     const res = CartService.checkOutCarts(data, auth.accessToken, axiosJWT);
     return res;

@@ -82,19 +82,21 @@ const AdminOrder = () => {
   });
 
   useEffect(() => {
-    const filterOrders =
-      orders?.contents?.length &&
-      orders?.contents?.map((order) => {
-        return {
-          ...order,
-          key: order.id,
-          user: order.user.email,
-          address: `${order.address.address}, ${order.address.ward}, ${order.address.district}, ${order.address.city}`,
-          userPaymentMethod: order.userPaymentMethod.nameMethod,
-        };
-      });
+    if (orders) {
+      const filterOrders =
+        orders?.contents?.length &&
+        orders?.contents?.map((order) => {
+          return {
+            ...order,
+            key: order.id,
+            user: order.user?.email,
+            address: `${order.address?.address}, ${order.address?.ward}, ${order.address?.district}, ${order.address?.city}`,
+            userPaymentMethod: order.userPaymentMethod?.nameMethod,
+          };
+        });
 
-    setDataTable(filterOrders);
+      setDataTable(filterOrders);
+    }
   }, [orders]);
 
   const renderAction = (key, status) => {
@@ -160,7 +162,7 @@ const AdminOrder = () => {
       dataIndex: "finalPayment",
       render: (text) => (
         <p style={{ fontWeight: "bold" }}>
-          {text.toLocaleString("vi-VN", {
+          {text?.toLocaleString("vi-VN", {
             style: "currency",
             currency: "VND",
           })}

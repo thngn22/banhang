@@ -1,5 +1,3 @@
-import "./App.css";
-
 import { useNavigate, useLocation } from "react-router-dom";
 import AppRouter from "./routes/index.js";
 import { useEffect } from "react";
