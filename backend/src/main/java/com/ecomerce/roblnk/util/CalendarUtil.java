@@ -63,56 +63,60 @@ public class CalendarUtil {
             dateToString = now;
         }
 
+        var date = dateToString.toDate().toString().split(" ");
+
         if (dateToString.plusSeconds(1).getYear() > dateToString.getYear()) {
-            return dateToString.toDate().toString().substring(30);
+            return date[5];
         }
-        return dateToString.toDate().toString().substring(8, 11)
-                + dateToString.toDate().toString().substring(4, 8)
-                + dateToString.toDate().toString().substring(30);
+        return date[2] + " "
+                + date[1] + " "
+                + date[5];
     }
     public static String convertToMonth(DateTime dateToString, DateTime now) {
 
         if (now.toDate().before(dateToString.toDate())) {
             dateToString = now;
         }
+        var date = dateToString.toDate().toString().split(" ");
 
         if (dateToString.plusSeconds(1).getMonthOfYear() != dateToString.getMonthOfYear()) {
-            return dateToString.toDate().toString().substring(4, 8)
-                    + dateToString.toDate().toString().substring(30);
+            return date[1] + " "
+                    + date[5];
         }
-        return dateToString.toDate().toString().substring(8, 11)
-                + dateToString.toDate().toString().substring(4, 8)
-                + dateToString.toDate().toString().substring(30);
+        return date[2] + " "
+                + date[1] + " "
+                + date[5];
     }
     public static String convertToDay(DateTime dateToString, DateTime now) {
         if (now.toDate().before(dateToString.toDate())) {
             dateToString = now;
         }
-
+        var date = dateToString.toDate().toString().split(" ");
         if (dateToString.plusSeconds(2).getDayOfMonth() != dateToString.getDayOfMonth()) {
-            return dateToString.toDate().toString().substring(8, 11)
-                    + dateToString.toDate().toString().substring(4, 8)
-                    + dateToString.toDate().toString().substring(30);
+            return date[2] + " "
+                    + date[1] + " "
+                    + date[5];
         }
-        return dateToString.toDate().toString().substring(11, 20)
-                + dateToString.toDate().toString().substring(8, 11)
-                + dateToString.toDate().toString().substring(4, 8)
-                + dateToString.toDate().toString().substring(30);
+        return date[3] + " "
+                + date[2] + " "
+                + date[1] + " "
+                + date[5];
     }
     public static String convertToHour(DateTime dateToString, DateTime now) {
         if (now.toDate().before(dateToString.toDate())) {
             dateToString = now;
         }
+        var date = dateToString.toDate().toString().split(" ");
 
         if (!(dateToString.getMinuteOfHour() == 59 && dateToString.getSecondOfMinute() == 59)) {
-            return  dateToString.toDate().toString().substring(11, 20)
-                    + dateToString.toDate().toString().substring(8, 11)
-                    + dateToString.toDate().toString().substring(4, 8)
-                    + dateToString.toDate().toString().substring(30);
+            return  date[3] + " "
+                    + date[2] + " "
+                    + date[1] + " "
+                    + date[5];
         }
-        return dateToString.toDate().toString().substring(11, 14) + "00:00 "
-                + dateToString.toDate().toString().substring(8, 11)
-                + dateToString.toDate().toString().substring(4, 8)
-                + dateToString.toDate().toString().substring(30);
+        return date[3].split(":")[0] + "00:00 "
+                + date[2] + " "
+                + date[1] + " "
+                + date[5];
     }
 }
