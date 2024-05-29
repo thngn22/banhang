@@ -1,10 +1,13 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.dto.chat.ChatUserRequest;
+import com.ecomerce.roblnk.dto.chat.MessageRequest;
 import com.ecomerce.roblnk.model.ChatUser;
 import com.ecomerce.roblnk.model.Message;
 import com.ecomerce.roblnk.service.ChatUserService;
 import com.ecomerce.roblnk.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
+//@RequestMapping("/api/v1/chat")
 public class ChatController {
 
     private final MessageService messageService;
@@ -30,15 +35,22 @@ public class ChatController {
         return ResponseEntity.ok(messageService.findMessages(senderId, recipientId));
     }
 
-    @MessageMapping("/")
-    public void processMessage(@Payload Message message){
-        Message savedMsg = messageService.save(message);
-        messagingTemplate.convertAndSendToUser(message.getRecipientId().getId(), "/user", savedMsg);
+    @MessageMapping("/user")
+    public void processMessage(@Payload MessageRequest message){
+        log.info("message: {}", message.toString());
+        messageService.save(message);
+        messagingTemplate.convertAndSendToUser(message.getRecipientId(), "/user", message);
     }
 
     @MessageMapping("/user.addUser")
     @SendTo("/user/topic")
-    public ChatUser addUser(@Payload ChatUser chatUser){
+    public MessageRequest addUser(@Payload MessageRequest chatUser){
+        return chatUser;
+    }
+
+    @MessageMapping("/user.disconnectUser")
+    @SendTo("/user/topic")
+    public MessageRequest disconnectUser(@Payload MessageRequest chatUser){
         return chatUser;
     }
 

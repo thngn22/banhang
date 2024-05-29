@@ -19,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -34,6 +35,7 @@ public class SecurityConfiguration{
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CookieCsrfFilter cookieCsrfFilter;
     private final JwtAuthenticationFilterExceptionHandler jwtAuthenticationFilterExceptionHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final LogoutService logoutService;
@@ -87,13 +89,14 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/v3/api-docs"),
                             new AntPathRequestMatcher("/v3/api-docs/**"),
                             new AntPathRequestMatcher("/ws**")
-
                 )
                         .permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(cookieCsrfFilter, CsrfFilter.class)
 //                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
+//                .addFilterBefore(cookieCsrfFilter, CookieCsrfFilter.class)
 //                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
 //                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")

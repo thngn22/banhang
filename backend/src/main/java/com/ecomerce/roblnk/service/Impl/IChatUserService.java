@@ -1,5 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.chat.ChatUserResponse;
+import com.ecomerce.roblnk.mapper.ChatMapper;
 import com.ecomerce.roblnk.model.ChatUser;
 import com.ecomerce.roblnk.repository.ChatUserRepository;
 import com.ecomerce.roblnk.repository.UserRepository;
@@ -14,6 +16,7 @@ import java.util.List;
 public class IChatUserService implements ChatUserService {
     private final ChatUserRepository chatUserRepository;
     private final UserRepository userRepository;
+    private final ChatMapper chatMapper;
     @Override
     public ChatUser getChatUser(String id) {
         var chatUser = chatUserRepository.findById(id);
@@ -29,7 +32,6 @@ public class IChatUserService implements ChatUserService {
             var chatUser = new ChatUser();
             var chatId = String.format("%s", user.get().getEmail().split("@")[0]);
             chatUser.setId(chatId);
-            chatUser.setRole(user.get().getRoles().toString());
             chatUser.setAvatar(user.get().getAvatar());
             chatUser.setFullName(user.get().getFirstName() + " " + user.get().getLastName());
             chatUser.setUser(user.get());
@@ -47,7 +49,8 @@ public class IChatUserService implements ChatUserService {
     }
 
     @Override
-    public List<ChatUser> getAllChatUsers() {
-        return chatUserRepository.findAllByChatRoomsNotEmpty();
+    public List<ChatUserResponse> getAllChatUsers() {
+        var chat = chatUserRepository.findAll();
+        return chatMapper.toChatUserResponseList(chat);
     }
 }

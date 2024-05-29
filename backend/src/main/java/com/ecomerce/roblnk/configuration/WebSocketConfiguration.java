@@ -1,6 +1,8 @@
 package com.ecomerce.roblnk.configuration;
 
+import com.ecomerce.roblnk.constants.JwtConstant;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -14,6 +16,14 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
+import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -50,7 +60,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         converter.setObjectMapper(new ObjectMapper());
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
-
         return false;
     }
     @Override
@@ -61,11 +70,17 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 StompHeaderAccessor accessor =
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 log.info("Headers: {}", accessor);
+                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                    accessor.setUser(authentication);
+                    log.info("AccessToken: {}", authentication.getPrincipal());
 
-
+                }
                 return message;
+
             }
 
         });
+
     }
 }

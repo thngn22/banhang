@@ -1,11 +1,13 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.chat.MessageRequest;
 import com.ecomerce.roblnk.model.Message;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface MessageService {
-    Message save(Message message);
+    void save(MessageRequest message);
 
-    List<Message> findMessages(String senderId, String recipientId);
+    ResponseEntity<?> findMessages(String senderId, String recipientId);
 }
