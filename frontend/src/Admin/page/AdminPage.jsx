@@ -122,7 +122,6 @@ function AdminPage(props) {
               flex: 1,
               backgroundColor: "#fff",
               textAlign: "left",
-              minHeight: "100vh",
               padding: "12px 24px",
             }}
           >
