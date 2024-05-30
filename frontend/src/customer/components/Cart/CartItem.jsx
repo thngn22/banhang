@@ -129,16 +129,18 @@ const CartItem = ({ product }) => {
   };
   return (
     <div className="p-5 border rounded-md mb-5 flex relative">
-      <div className="w-[3rem] h-[3rem] lg:w-[6rem] lg:h-[6rem]">
+      <div className="w-[3rem] h-[3rem] lg:w-[8rem] lg:h-[8rem]">
         <img
           className="w-full h-full object-cover object-top"
           src={`${product?.productItem.productImage}`}
           alt={`${product?.productItem.productImage}`}
         />
       </div>
-      <div className="ml-2 flex-col">
+      <div className="ml-2 flex flex-col justify-between">
         <p className="">{product?.productItem.name}</p>
-        <div className="flex space-x-5 text-gray-900 pt-6">
+        <div className="flex flex-col text-gray-900">
+          <p><strong>Màu: </strong>{product?.productItem.color}</p>
+          <p><strong>Size: </strong>{product?.productItem.size}</p>
           <p className="text-red-600">
             {product.totalPrice.toLocaleString("vi-VN", {
               style: "currency",

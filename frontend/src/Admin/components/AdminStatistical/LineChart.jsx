@@ -7,13 +7,11 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
-import PieChart from "./PieChart";
-import { Col, Row } from "antd";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 const LineChart = (props) => {
-  return <Line data={props.data} options={props.options}></Line>;
+  return <Line data={props.data}></Line>;
 };
 
 export default LineChart;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { WrapperHeader } from "./style";
 import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
+import UploadImage2 from "../../../Admin/components/UploadFile/UploadImage2";
 import InputField from "../../../customer/components/InputField";
 import { Button, message } from "antd";
 import { useQuery } from "@tanstack/react-query";
@@ -71,7 +72,7 @@ const ProfilePage = () => {
   });
 
   const mutation = useMutationHook((data) => {
-    const res = UserService.editProfileUser(data, auth?.accessToken, axiosJWT);
+    const res = UserService.editProfileUser2(data, auth?.accessToken, axiosJWT);
     return res;
   });
   const mutationChange = useMutationHook((data) => {
@@ -112,13 +113,14 @@ const ProfilePage = () => {
       ) {
         message.error("Tên không được chứa các ký tự đặc biệt");
       } else {
+        const formData = new FormData()
+
+        formData.append('firstName', userIn4?.firstName)
+        formData.append('lastName', userIn4?.lastName)
+        formData.append('avatar', userIn4?.avatar)
+
         mutation.mutate(
-          {
-            firstName: userIn4.firstName,
-            lastName: userIn4.lastName,
-            avatar: userIn4.avatar,
-            dob: "",
-          },
+          formData,
           {
             onSuccess: (data) => {
               message.success("Cập nhật thông tin tài khoản thành công");
@@ -186,7 +188,7 @@ const ProfilePage = () => {
             alignItems: "flex-start",
           }}
         >
-          <UploadImage
+          <UploadImage2
             onImageChange={handleChangeAvatar}
             dataImage={userIn4?.avatar}
             isEdit={true}

@@ -4,6 +4,7 @@ import { Button, Input, message } from "antd";
 
 import { DeleteOutlined } from "@ant-design/icons";
 import UploadImage from "../UploadFile/UploadImage";
+import UploadImage2 from "../UploadFile/UploadImage2";
 import { useSelector } from "react-redux";
 
 const Variations = (props) => {
@@ -218,7 +219,7 @@ const Variations = (props) => {
           )}
 
           {!isHiddenAddPicture ? (
-            <UploadImage
+            <UploadImage2
               onImageChange={(image) =>
                 props.isEdit
                   ? handleImageChangeEdit(index, image)

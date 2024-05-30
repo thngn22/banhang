@@ -43,6 +43,8 @@ const TableComponent = (props) => {
           onClick: () => handleRowClick(record),
           className: getRowClassName(record),
         })}
+
+        pagination={false}
       />
     </div>
   );

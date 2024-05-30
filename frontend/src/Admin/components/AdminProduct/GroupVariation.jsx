@@ -4,6 +4,7 @@ import { Button } from "antd";
 import Price_Quantity from "./Price_Quantity";
 import Variations from "./Variations";
 import UploadImage from "../UploadFile/UploadImage";
+import UploadImage2 from "../UploadFile/UploadImage2";
 import { useSelector } from "react-redux";
 
 const GroupVariation = (props) => {
@@ -186,7 +187,7 @@ const GroupVariation = (props) => {
       </p>
 
       {/* Add Default picture */}
-      <UploadImage
+      <UploadImage2
         onImageChange={handleDefaultImageChange}
         dataImage={defaultImage}
         isEdit={isEdit}

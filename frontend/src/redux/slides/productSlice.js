@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { productReducer } from "../reducers/productReducer";
 
 export const productSlice = createSlice({
   name: "product",
@@ -10,11 +11,7 @@ export const productSlice = createSlice({
     },
   },
   reducers: {
-    updateProductDetail: (state, action) => {
-      state.productDetail.currentProduct = action.payload;
-      state.productDetail.isFetching = false;
-      state.productDetail.error = false;
-    },
+    updateProductDetail: productReducer.updateProductDetail,
   },
 });
 
