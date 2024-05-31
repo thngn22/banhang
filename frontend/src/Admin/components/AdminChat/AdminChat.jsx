@@ -3,11 +3,13 @@ import { Input, List, Avatar, Typography } from "antd";
 import { UserOutlined, SendOutlined } from "@ant-design/icons";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import { useSelector } from "react-redux";
 
 const { TextArea } = Input;
 const { Text } = Typography;
 
 const AdminChat = () => {
+  const auth = useSelector((state) => state.auth.login.currentUser);
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [stompClient, setStompClient] = useState(null);
@@ -16,17 +18,21 @@ const AdminChat = () => {
     const socket = new SockJS("http://localhost:7586/ws");
     const stompClient = Stomp.over(socket);
 
-    stompClient.connect({
-      Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfQURNSU5JU1RSQVRPUiJdLCJpZCI6Miwic3ViIjoiYWRtaW4xQGdtYWlsLmNvbSIsImlhdCI6MTcxNzA4NjIyOCwiZXhwIjoxNzE3MTcyNjI4fQ.Zrq1-eYxrAQFrkOzXgWDvwLFta8Q1t3axQJs5i1Lm2I"
-    }, () => {
-      setStompClient(stompClient);
-      console.log(stompClient);
-      stompClient.subscribe("/user/topic", (messageOutput) => {
-        showMessage(JSON.parse(messageOutput.body));
-      });
-    }, (error) => {
-      console.error('Connection error', error);
-    });
+    stompClient.connect(
+      {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+      () => {
+        setStompClient(stompClient);
+        console.log(stompClient);
+        stompClient.subscribe("/user/topic", (messageOutput) => {
+          showMessage(JSON.parse(messageOutput.body));
+        });
+      },
+      (error) => {
+        console.error("Connection error", error);
+      }
+    );
 
     return () => {
       stompClient.disconnect();
@@ -40,11 +46,11 @@ const AdminChat = () => {
   const handleSend = () => {
     if (currentMessage.trim() && stompClient) {
       const message = {
-        senderId: "me",
-        recipientId: "admin1", // Update with actual recipientId
+        senderId: "trungkhangsteve",
+        recipientId: "admdin1", // Update with actual recipientId
         content: currentMessage,
       };
-      stompClient.send("/app/chat", {}, JSON.stringify(message));
+      stompClient.send("/app/user", {}, JSON.stringify(message));
       setCurrentMessage("");
     }
   };
