@@ -24,9 +24,9 @@ spring:
         import: optional:file:/src/main/resources/.env[.yml]
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        password: ${MYSQL_ROOT_PASSWORD:123456}
+        password: ${MYSQLDB_ROOT_PASSWORD:123456}
         url: jdbc:mysql://${MYSQLDB_HOST:localhost}:${MYSQLDB_DOCKER_PORT:3306}/${MYSQLDB_DATABASE:e_commerce_shoes}?useSSL=false&allowPublicKeyRetrieval=true
-        username: root
+        username: ${MYSQLDB_USER:root}
     devtools:
         livereload:
             enabled: true

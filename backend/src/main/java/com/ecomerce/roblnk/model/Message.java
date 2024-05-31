@@ -17,6 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class Message {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "content")
@@ -28,17 +29,17 @@ public class Message {
     private Date timestamp;
 
     //ChatRoom
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne()
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoomId;
 
     //ChatUser.sender
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne()
     @JoinColumn(name = "sender_id")
     private ChatUser senderId;
 
     //ChatUser.recipient
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne()
     @JoinColumn(name = "recipient_id")
     private ChatUser recipientId;
 }

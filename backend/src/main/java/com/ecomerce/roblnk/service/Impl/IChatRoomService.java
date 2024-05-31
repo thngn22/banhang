@@ -15,26 +15,24 @@ public class IChatRoomService implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatUserService chatUserService;
     @Override
-    public Optional<ChatRoom> getChatRoomId(String senderId, String recipientId, boolean createNewIfNotExists) {
+    public List<ChatRoom> getChatRoomId(String senderId, String recipientId, boolean createNewIfNotExists) {
 
-
-        return chatRoomRepository.findBySenderId_IdAndRecipientId_Id(
-                senderId, recipientId)
-                .or(() ->{
-                    if (createNewIfNotExists){
-                        var chatRooms = createChatRoomId(senderId, recipientId);
-                        return Optional.of(chatRooms);
-                    }
-                    return Optional.empty();
-                });
+        if (createNewIfNotExists){
+            return (createChatRoomId(senderId, recipientId));
+        }
+        else {
+            return chatRoomRepository.findBySenderId_IdAndRecipientId_Id(senderId, recipientId);
+        }
     }
 
     @Override
-    public ChatRoom createChatRoomId(String senderId, String recipientId) {
+    public List<ChatRoom> createChatRoomId(String senderId, String recipientId) {
         var chatRoomIdSender = String.format("%s_%s", senderId, recipientId);
         var chatRoomIdRecipient = String.format("%s_%s", recipientId, senderId);
-        var sender = chatUserService.getChatUser(senderId);
-        var recipient = chatUserService.getChatUser(recipientId);
+        System.out.println(senderId);
+        System.out.println(recipientId);
+        var sender = chatUserService.getChatUser(senderId).orElseThrow();
+        var recipient = chatUserService.getChatUser(recipientId).orElseThrow();
 
 
         ChatRoom senderRecipient = new ChatRoom();
@@ -50,12 +48,12 @@ public class IChatRoomService implements ChatRoomService {
         chatRoomRepository.save(senderRecipient);
         chatRoomRepository.save(recipientSender);
 
-        sender.getChatRooms().add(senderRecipient);
-        recipient.getChatRooms().add(recipientSender);
+//        sender.getChatRooms().add(senderRecipient);
+//        recipient.getChatRooms().add(recipientSender);
+//
+//        chatUserService.saveChatUser(sender);
+//        chatUserService.saveChatUser(recipient);
 
-        chatUserService.saveChatUser(sender);
-        chatUserService.saveChatUser(recipient);
-
-        return senderRecipient;
+        return List.of(senderRecipient, recipientSender);
     }
 }

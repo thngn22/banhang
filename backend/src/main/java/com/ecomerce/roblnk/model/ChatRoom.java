@@ -21,17 +21,17 @@ public class ChatRoom {
     private String id;
 
     //ChatUser.sender
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne()
     @JoinColumn(name = "sender_id")
     private ChatUser senderId;
 
     //ChatUser.recipient
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne()
     @JoinColumn(name = "recipient_id")
     private ChatUser recipientId;
 
     //Message
-    @OneToMany(mappedBy = "chatRoomId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "chatRoomId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Message> messages = new ArrayList<>();
 }

@@ -49,6 +49,7 @@ public class SecurityConfiguration{
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider)
                 .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+//                        .httpStrictTransportSecurity(withDefaults()).disable())
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
                             new MvcRequestMatcher(new HandlerMappingIntrospector(),"/api/v1/vnpay**"),
@@ -88,7 +89,8 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/v2/api-docs"),
                             new AntPathRequestMatcher("/v3/api-docs"),
                             new AntPathRequestMatcher("/v3/api-docs/**"),
-                            new AntPathRequestMatcher("/ws**")
+                            new AntPathRequestMatcher("/ws/**"),
+                            new AntPathRequestMatcher("/ws")
                 )
                         .permitAll()
                         .anyRequest().authenticated()
@@ -97,7 +99,7 @@ public class SecurityConfiguration{
                 .addFilterBefore(cookieCsrfFilter, CsrfFilter.class)
 //                .addFilterBefore(jwtAuthenticationFilterExceptionHandler, JwtAuthenticationFilter.class)
 //                .addFilterBefore(cookieCsrfFilter, CookieCsrfFilter.class)
-//                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
 //                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout", "POST")
 //                        )

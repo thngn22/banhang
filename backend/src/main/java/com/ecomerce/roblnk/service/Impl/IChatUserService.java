@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +19,17 @@ public class IChatUserService implements ChatUserService {
     private final UserRepository userRepository;
     private final ChatMapper chatMapper;
     @Override
-    public ChatUser getChatUser(String id) {
+    public Optional<ChatUser> getChatUser(String id) {
         var chatUser = chatUserRepository.findById(id);
-        return chatUser.orElse(null);
+        if (chatUser.isPresent()) {
+            System.out.println(chatUser.get().getId());
+            return chatUser;
+        }
+        else{
+            System.out.println("wtf sao lai ko co");
+            return Optional.empty();
 
+        }
     }
 
     @Override
@@ -49,8 +57,8 @@ public class IChatUserService implements ChatUserService {
     }
 
     @Override
-    public List<ChatUserResponse> getAllChatUsers() {
-        var chat = chatUserRepository.findAll();
+    public List<ChatUserResponse> getAllChatUsersNotContainingAdmin(String adminUserName) {
+        var chat = chatUserRepository.findChatUserByChatRoomsNotEmptyAndIdNotContaining(adminUserName);
         return chatMapper.toChatUserResponseList(chat);
     }
 }

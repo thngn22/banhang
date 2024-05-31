@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ChatUserRepository extends JpaRepository<ChatUser, String> {
-    List<ChatUser> findAllByChatRoomsNotEmpty();
+    List<ChatUser> findChatUserByChatRoomsNotEmptyAndIdNotContaining(String id);
 }

@@ -2,42 +2,82 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.chat.ChatUserRequest;
 import com.ecomerce.roblnk.dto.chat.MessageRequest;
+import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.model.ChatUser;
 import com.ecomerce.roblnk.model.Message;
+import com.ecomerce.roblnk.model.Role;
+import com.ecomerce.roblnk.model.User;
 import com.ecomerce.roblnk.service.ChatUserService;
 import com.ecomerce.roblnk.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.Date;
+
+import static com.ecomerce.roblnk.util.PageUtil.ADMIN_USER_NAME;
 
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-//@RequestMapping("/api/v1/chat")
+@RequestMapping("/")
 public class ChatController {
 
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatUserService chatUserService;
 
-    @GetMapping("/messages/{senderId}/{recipientId}")
-    public ResponseEntity<?> findChatMessages(@PathVariable("senderId") String senderId,
-                                              @PathVariable("recipientId") String recipientId){
-        return ResponseEntity.ok(messageService.findMessages(senderId, recipientId));
+    @GetMapping("/messages")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> findChatMessages(Principal principal, @RequestParam(value = "recipientId") String recipientId, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (user != null) {
+            var senderId = "admin1";
+
+            for (Role role : user.getRoles()){
+                if (role.getRole().equals("ROLE_USER")) {
+                    senderId = user.getChatUser().getId();
+                    recipientId = "admin1";
+                    break;
+                }
+                break;
+            }
+            System.out.println("da vao dc findChatMessages");
+            return ResponseEntity.ok(messageService.findMessages(senderId, recipientId));
+        }
+        else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ErrorResponse.builder()
+                            .statusCode(400)
+                            .message("Bad request, please login first!")
+                            .description("Bad request, please login first!")
+                            .timestamp(new Date(System.currentTimeMillis()))
+                            .build()
+            );
     }
 
     @MessageMapping("/user")
     public void processMessage(@Payload MessageRequest message){
-        log.info("message: {}", message.toString());
+        log.info("message: {}", message.getSenderId());
+        log.info("sender: {}", message.getRecipientId());
+        log.info("recipient: {}", message.getContent());
         messageService.save(message);
         messagingTemplate.convertAndSendToUser(message.getRecipientId(), "/user", message);
     }
@@ -55,8 +95,8 @@ public class ChatController {
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getConnectedChatUsers(){
-
-        return ResponseEntity.ok(chatUserService.getAllChatUsers());
+        return ResponseEntity.ok(chatUserService.getAllChatUsersNotContainingAdmin(ADMIN_USER_NAME));
     }
 }
