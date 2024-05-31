@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Input, List, Avatar, Typography } from "antd";
 import { UserOutlined, SendOutlined } from "@ant-design/icons";
-import { Stomp } from "@stomp/stompjs";
+import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
 const { TextArea } = Input;
@@ -16,19 +16,20 @@ const AdminChat = () => {
     const socket = new SockJS("http://localhost:7586/ws");
     const stompClient = Stomp.over(socket);
 
-    stompClient.connect({}, (frame) => {
-      console.log("Connected: " + frame);
+    stompClient.connect({
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjpbIlJPTEVfQURNSU5JU1RSQVRPUiJdLCJpZCI6Miwic3ViIjoiYWRtaW4xQGdtYWlsLmNvbSIsImlhdCI6MTcxNzA4NjIyOCwiZXhwIjoxNzE3MTcyNjI4fQ.Zrq1-eYxrAQFrkOzXgWDvwLFta8Q1t3axQJs5i1Lm2I"
+    }, () => {
       setStompClient(stompClient);
-
+      console.log(stompClient);
       stompClient.subscribe("/user/topic", (messageOutput) => {
         showMessage(JSON.parse(messageOutput.body));
       });
+    }, (error) => {
+      console.error('Connection error', error);
     });
 
     return () => {
-      if (stompClient) {
-        stompClient.disconnect();
-      }
+      stompClient.disconnect();
     };
   }, []);
 
@@ -37,8 +38,12 @@ const AdminChat = () => {
   };
 
   const handleSend = () => {
-    if (currentMessage.trim()) {
-      const message = { text: currentMessage, sender: "me" };
+    if (currentMessage.trim() && stompClient) {
+      const message = {
+        senderId: "me",
+        recipientId: "admin1", // Update with actual recipientId
+        content: currentMessage,
+      };
       stompClient.send("/app/chat", {}, JSON.stringify(message));
       setCurrentMessage("");
     }
@@ -90,32 +95,51 @@ const AdminChat = () => {
               renderItem={(item) => (
                 <List.Item
                   className={`flex ${
-                    item.sender === "me" ? "justify-end" : "justify-start"
+                    item.senderId === "me" ? "justify-end" : "justify-start"
                   }`}
                 >
                   <List.Item.Meta
                     avatar={
-                      item.sender !== "me" && <Avatar icon={<UserOutlined />} />
+                      item.senderId !== "me" && (
+                        <Avatar icon={<UserOutlined />} />
+                      )
                     }
-                    description={<Text>{item.text}</Text>}
+                    title={
+                      <div
+                        className={`px-4 py-2 rounded-lg ${
+                          item.senderId === "me"
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-black"
+                        }`}
+                      >
+                        {item.content}
+                      </div>
+                    }
                   />
                 </List.Item>
               )}
             />
           </div>
 
-          <div className="flex items-center">
+          <div className="mt-auto">
             <TextArea
               rows={2}
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
-              onPressEnter={handleSend}
-              className="flex-1 mr-4"
+              onPressEnter={(e) => {
+                e.preventDefault();
+                handleSend();
+              }}
+              placeholder="Type a message..."
+              className="border rounded p-2 mb-4"
             />
-            <SendOutlined
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded"
               onClick={handleSend}
-              className="text-2xl cursor-pointer text-blue-500"
-            />
+            >
+              <SendOutlined className="mr-2" />
+              Send
+            </button>
           </div>
         </div>
       </div>
