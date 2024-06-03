@@ -79,7 +79,10 @@ public class ChatController {
         log.info("sender: {}", message.getRecipientId());
         log.info("recipient: {}", message.getContent());
         messageService.save(message);
-        messagingTemplate.convertAndSendToUser(message.getRecipientId(), "/user", message);
+        if (message.getRecipientId().equals(ADMIN_USER_NAME))
+            messagingTemplate.convertAndSendToUser(message.getSenderId(), "/queue/messages", message);
+        else
+            messagingTemplate.convertAndSendToUser(message.getRecipientId(), "/queue/messages", message);
     }
 
     @MessageMapping("/user.addUser")
