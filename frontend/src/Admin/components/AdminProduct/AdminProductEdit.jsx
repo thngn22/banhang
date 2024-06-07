@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { WrapperHeader, WrapperSubHeader } from "./style";
-import InputField from "../../../customer/components/InputField";
+import InputField from "../../../Customer/components/InputField";
 import Group from "./Group";
 import GroupVariation from "./GroupVariation";
 import { Button, message } from "antd";
@@ -15,10 +15,9 @@ import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import axios from "axios";
 import * as AuthService from "../../../services/AuthService";
-import CustomInput from "../../../customer/components/CKEditor/customInput";
+import CustomInput from "../../../Customer/components/CKEditor/customInput";
 
 const AdminProductEdit = (props) => {
-  // console.log("key", props.idDetailProduct);
   const dispatch = useDispatch();
 
   let productDetail = useSelector(
@@ -80,9 +79,6 @@ const AdminProductEdit = (props) => {
             ...auth,
             accessToken: data,
           };
-
-          // console.log("data in axiosJWT", data);
-          // console.log("refreshUser", refreshUser);
 
           dispatch(loginSuccess(refreshUser));
           config.headers["Authorization"] = `Bearer ${data}`;
@@ -165,10 +161,6 @@ const AdminProductEdit = (props) => {
       );
     }
   };
-
-  // if (isSuccess || isError) {
-  //   window.location.reload();
-  // }
 
   const handleMenuItemClick = (id, name) => {
     setDataCategory({ id, name });

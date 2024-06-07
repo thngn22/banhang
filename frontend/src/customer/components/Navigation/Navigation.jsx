@@ -144,8 +144,6 @@ export default function Navigation({
     fetchAllCategory();
   }, []);
 
-  console.log(cart?.cartItems);
-
   return (
     <div className="bg-white border-b border-solid border-gray-300">
       <header className="relative bg-white">

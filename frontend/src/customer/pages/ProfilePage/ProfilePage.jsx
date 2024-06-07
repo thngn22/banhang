@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { WrapperHeader } from "./style";
 import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
 import UploadImage2 from "../../../Admin/components/UploadFile/UploadImage2";
-import InputField from "../../../customer/components/InputField";
+import InputField from "../../../Customer/components/InputField";
 import { Button, message } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";

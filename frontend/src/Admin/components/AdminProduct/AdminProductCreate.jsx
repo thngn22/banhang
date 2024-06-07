@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { WrapperHeader, WrapperSubHeader } from "./style";
-import InputField from "../../../customer/components/InputField";
+import InputField from "../../../Customer/components/InputField";
 import Group from "./Group";
 import GroupVariation from "./GroupVariation";
 import { Button, message } from "antd";
@@ -13,7 +13,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import CustomInput from "../../../customer/components/CKEditor/customInput";
+import CustomInput from "../../../Customer/components/CKEditor/customInput";
 import { contextType } from "react-quill";
 
 const AdminProductCreate = () => {

@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { getItem } from "../../utils/untils";
-import Navigation from "../../customer/components/Navigation/Navigation";
+import Navigation from "../../Customer/components/Navigation/Navigation";
 import AdminUser from "../components/AdminUser/AdminUser";
 import AdminProduct from "../components/AdminProduct/AdminProduct";
 import AdminProductCreate from "../components/AdminProduct/AdminProductCreate";

@@ -22,22 +22,17 @@ function HomePage(props) {
     },
   });
 
-  // console.log("topRating", topRating);
-  // console.log("topSold", topSold);
-
   return (
     <div className="">
       <HomeCarousel />
 
       <div className="py-10 px-20">
-        {/* Smililer Products */}
         <section className="text-xl text-left ml-4 font-semibold">
           Sản phẩm bán được nhiều
         </section>
         <hr class="mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
         <MultiCarousel homePage={true} dataCarousel={topSold} />
 
-        {/* High Rating Products */}
         <section className="text-xl text-left ml-4 font-semibold">
           Sản phẩm được đánh giá cao
         </section>
