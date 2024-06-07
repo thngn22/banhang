@@ -1,23 +1,107 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   MessageOutlined,
   MinusOutlined,
   SendOutlined,
 } from "@ant-design/icons";
 import { Input, Button } from "antd";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
+import { useDispatch, useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import createAxiosInstance from "../../../services/createAxiosInstance";
+import * as ChatService from "../../../services/ChatService";
 
 const Chat = () => {
+  const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth.login.currentUser);
+  const axiosJWT = createAxiosInstance(auth, dispatch);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
+  const [stompClient, setStompClient] = useState(null);
+
+  const messagesEndRef = useRef(null);
+
+  const { data: communication } = useQuery({
+    queryFn: () => {
+      return ChatService.findChatMessages(
+        {
+          recipientId: "admin1",
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
+
+  useEffect(() => {
+    if (communication) {
+      setMessages(communication.body);
+    }
+  }, [communication]);
+
+  useEffect(() => {
+    const socket = new SockJS("http://localhost:7586/ws");
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect(
+      {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+      () => {
+        setStompClient(stompClient);
+        console.log(stompClient);
+      },
+      (error) => {
+        console.error("Connection error", error);
+      }
+    );
+
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
+      }
+    };
+  }, [auth?.accessToken]);
+
+  useEffect(() => {
+    if (stompClient) {
+      const topic = `/user/trungkhangsteve/queue/messages`;
+      stompClient.subscribe(topic, (messageOutput) => {
+        showMessage(JSON.parse(messageOutput.body));
+      });
+    }
+  }, [stompClient]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [isOpen]);
+
+  const showMessage = (message) => {
+    console.log("vao dc");
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
   };
 
   const handleSendMessage = () => {
-    if (currentMessage.trim()) {
-      setMessages([...messages, { sender: "user", text: currentMessage }]);
+    if (currentMessage.trim() && stompClient) {
+      const message = {
+        senderId: `${auth?.email.split("@")[0]}`,
+        recipientId: "admin1",
+        content: currentMessage,
+      };
+      stompClient.send("/app/user", {}, JSON.stringify(message));
       setCurrentMessage("");
     }
   };
@@ -34,7 +118,7 @@ const Chat = () => {
       <div
         className="flex items-center justify-between cursor-pointer p-2 rounded-tr-lg"
         onClick={toggleChat}
-        style={{ backgroundColor: "rgba(30, 144, 255, 0.8)" }} // Custom blue color
+        style={{ backgroundColor: "rgba(30, 144, 255, 0.8)" }}
       >
         <div className="flex items-center text-white">
           <MessageOutlined className="text-xl" />
@@ -45,20 +129,30 @@ const Chat = () => {
         )}
       </div>
       {isOpen && (
-        <div className="rounded-tr-lg">
+        <div className="rounded-tr-lg flex flex-col">
           <div className="h-56 bg-gray-100 overflow-y-auto p-2">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`mb-2 ${
-                  message.sender === "user" ? "text-right" : "text-left"
-                }`}
-              >
-                <span className="inline-block bg-gray-200 rounded px-2 py-1">
-                  {message.text}
-                </span>
-              </div>
-            ))}
+            {messages.length > 0 &&
+              messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`mb-2 flex ${
+                    message.senderId === `${auth?.email.split("@")[0]}`
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[60%] break-words px-4 py-2 rounded-lg ${
+                      message.senderId === `${auth?.email.split("@")[0]}`
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-black"
+                    }`}
+                  >
+                    {message.content}
+                  </div>
+                </div>
+              ))}
+            <div ref={messagesEndRef} />
           </div>
           <div className="flex justify-center bg-white items-center gap-2 p-2 border-t">
             <Input
@@ -67,7 +161,13 @@ const Chat = () => {
               placeholder="Type a message..."
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
-              style={{ backgroundColor: "rgba(245, 245, 245, 1)" }} // Light gray background for input
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              style={{ backgroundColor: "rgba(245, 245, 245, 1)" }}
             />
             <Button
               type="primary"

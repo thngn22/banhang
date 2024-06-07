@@ -125,7 +125,7 @@ export default function Navigation({
 
       setTimeout(() => {
         window.location.reload();
-      });
+      }, 100);
     }
   };
   const handleLogo = () => {
@@ -268,13 +268,13 @@ export default function Navigation({
                         ) : (
                           <>
                             <p
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={() => handleNavigate("login")}
                             >
                               Đăng nhập
                             </p>
                             <p
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={() => handleNavigate("register")}
                             >
                               Đăng ký
