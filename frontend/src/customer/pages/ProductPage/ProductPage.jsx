@@ -9,15 +9,12 @@ import * as FilterService from "../../../services/FilterService";
 
 export default function ProductPage() {
   const { categoryId, categoryName } = useParams();
-
   const [pageNumber, setPageNumber] = useState(1);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [sort, setSort] = useState("");
-
-  console.log("color", sort);
 
   const { data: filterProducts } = useQuery({
     queryKey: [categoryId, pageNumber, sort, size, color, priceMax, priceMin],
@@ -52,28 +49,12 @@ export default function ProductPage() {
     },
   });
 
-  // console.log("filterProducts", filterProducts);
-  // console.log("sizeInCate", sizeInCate);
-  // console.log("colorInCate", colorInCate);
-
   const onChange = (pageNumber) => {
     setPageNumber(pageNumber);
   };
-  const handleSizeChange = (value) => {
+  const handleField = (value, setField) => {
     setTimeout(() => {
-      setSize(value);
-    }, 0);
-  };
-
-  const handleColorChange = (value) => {
-    setTimeout(() => {
-      setColor(value);
-    }, 0);
-  };
-
-  const handleSort = (value) => {
-    setTimeout(() => {
-      setSort(value);
+      setField(value);
     }, 0);
   };
   const handlePriceChange = (value) => {
@@ -83,55 +64,44 @@ export default function ProductPage() {
     }, 1000);
   };
 
-  // console.log("filterProducts", filterProducts);
-
   return (
-    <div className="bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:max-w-7xl lg:px-8">
+    <div className="bg-white flex justify-center">
+      <div className="w-full px-24 py-10">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           {categoryName}
         </h2>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "30px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "stretch",
-              justifyContent: "space-between",
-              width: "60%", // Chiều rộng cố định cho phần chứa Slider
-            }}
-          >
+        <div className="flex justify-between mt-8">
+          <div className="flex items-stretch justify-between w-2/3">
             {/* Combo box for Size and Color */}
-            <div style={{ display: "flex" }}>
+            <div className="flex">
               <Select
                 defaultValue=""
                 defaultActiveFirstOption
-                onChange={handleSizeChange}
-                style={{ marginRight: "10px", width: "120px" }}
+                onChange={(value) => handleField(value, setSize)}
+                className="mr-2 w-28"
               >
                 <Option value="">Chọn Size</Option>
                 {sizeInCate &&
                   sizeInCate.map((size) => (
-                    <Option value={size}>{size}</Option>
+                    <Option key={size} value={size}>
+                      {size}
+                    </Option>
                   ))}
               </Select>
 
               <Select
                 defaultValue=""
                 defaultActiveFirstOption
-                onChange={handleColorChange}
-                style={{ marginRight: "10px", width: "150px" }}
+                onChange={(value) => handleField(value, setColor)}
+                className="mr-2 w-36"
               >
                 <Option value="">Chọn màu</Option>
                 {colorInCate &&
                   colorInCate.map((color) => (
-                    <Option value={color}>{color}</Option>
+                    <Option key={color} value={color}>
+                      {color}
+                    </Option>
                   ))}
               </Select>
             </div>
@@ -144,7 +114,7 @@ export default function ProductPage() {
               max={2000000}
               tipFormatter={(value) => `${value.toLocaleString()} VNĐ`}
               onChange={handlePriceChange}
-              style={{ width: "70%" }} // Chiều rộng cố định cho Slider
+              className="w-3/4"
               trackStyle={[{ backgroundColor: "dodgerblue" }]}
               handleStyle={[{ borderColor: "dodgerblue" }]}
             />
@@ -154,8 +124,8 @@ export default function ProductPage() {
           <Select
             defaultValue="name_asc"
             defaultActiveFirstOption
-            onChange={handleSort}
-            style={{ width: "200px" }}
+            onChange={(value) => handleField(value, setSort)}
+            className="w-52"
           >
             <Option value="name_asc">Từ A-Z</Option>
             <Option value="name_desc">Từ Z-A</Option>
@@ -170,14 +140,10 @@ export default function ProductPage() {
           </Select>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        <div className="mt-6 grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">
           {filterProducts ? (
             filterProducts?.contents?.map((product, index) => (
-              <div
-                key={index}
-                className="group relative"
-                style={{ marginLeft: "-12px", marginRight: "-12px" }}
-              >
+              <div key={index} className="group relative">
                 <ProductCard data={product} />
               </div>
             ))
@@ -186,12 +152,14 @@ export default function ProductPage() {
           )}
         </div>
         {filterProducts && (
-          <Pagination
-            total={filterProducts?.totalElements}
-            pageSize={filterProducts?.pageSize}
-            defaultCurrent={filterProducts?.pageNumber}
-            onChange={onChange}
-          />
+          <div className="flex justify-center mt-6">
+            <Pagination
+              total={filterProducts?.totalElements}
+              pageSize={filterProducts?.pageSize}
+              current={filterProducts?.pageNumber}
+              onChange={onChange}
+            />
+          </div>
         )}
       </div>
     </div>
