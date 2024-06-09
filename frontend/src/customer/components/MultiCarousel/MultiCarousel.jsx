@@ -7,7 +7,7 @@ const MultiCarousel = (props) => {
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
-      items: 4,
+      items: 5,
     },
     tablet: {
       breakpoint: { max: 1024, min: 464 },
@@ -21,7 +21,7 @@ const MultiCarousel = (props) => {
   const responsiveHome = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
-      items: 4,
+      items: 5,
     },
     tablet: {
       breakpoint: { max: 1024, min: 464 },
@@ -39,7 +39,7 @@ const MultiCarousel = (props) => {
           props?.dataCarousel?.map((product, index) => (
             <div
               key={index}
-              className="group relative"
+              className="group relative w-[17rem]"
               style={{ display: "flex", justifyContent: "center" }}
             >
               <ProductCard data={product} />

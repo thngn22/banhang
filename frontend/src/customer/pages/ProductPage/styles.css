@@ -1,0 +1,7 @@
+.sortByProduct .ant-select-selector {
+    border: none !important;
+}
+
+.sortByProduct .ant-select-selection-item {
+    font-weight: bold;
+}

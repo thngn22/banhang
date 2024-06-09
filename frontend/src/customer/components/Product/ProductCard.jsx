@@ -6,7 +6,7 @@ const ProductCard = ({ data }) => {
   const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
 
   return (
-    <div className="productCard w-[19rem] transition-all cursor-pointer">
+    <div className="productCard w-full transition-all cursor-pointer">
       <Link to={`/product/${data.id}`}>
         <div className="aspect-w-1 aspect-h-1">
           <img

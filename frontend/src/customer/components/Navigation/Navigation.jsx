@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Popover as PopoverAntd } from "antd";
 import {
   MagnifyingGlassIcon,
@@ -120,7 +120,7 @@ export default function Navigation({
   return (
     <div className="bg-white border-b border-solid border-gray-300">
       <header className="relative bg-white">
-        <nav aria-label="Top" className="px-4 py-2 sm:px-6 lg:px-8">
+        <nav aria-label="Top" className="py-2 px-8">
           <div className="flex items-center h-16">
             {/* Logo */}
             <div
@@ -135,8 +135,8 @@ export default function Navigation({
             {/* Flyout menus */}
             <div className="flex justify-between ml-20 gap-5">
               <div className="relative">
-                <div
-                  className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out"
+                <p
+                  className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out cursor-pointer"
                   onClick={() => {
                     setShowCategories(!showCategories);
                     setShowSubCates(false);
@@ -158,7 +158,7 @@ export default function Navigation({
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                </div>
+                </p>
                 {showCategories && (
                   <div className="absolute z-10 mt-3">
                     <div className="rounded-lg ring-1 ring-black ring-opacity-5 overflow-hidden">

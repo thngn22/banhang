@@ -1,11 +1,13 @@
-import ProductCard from "../../components/Product/ProductCard";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import * as ProductService from "../../../services/ProductService";
 import { Pagination, Select, Slider } from "antd";
-import { useState } from "react";
-import { Option } from "antd/es/mentions";
+import { FilterOutlined } from "@ant-design/icons";
+import ProductCard from "../../components/Product/ProductCard";
+import * as ProductService from "../../../services/ProductService";
 import * as FilterService from "../../../services/FilterService";
+import { Option } from "antd/es/mentions";
+import "./styles.css";
 
 export default function ProductPage() {
   const { categoryId, categoryName } = useParams();
@@ -34,29 +36,27 @@ export default function ProductPage() {
   const { data: sizeInCate } = useQuery({
     queryKey: ["sizeInCate", categoryId],
     queryFn: () => {
-      return FilterService.getSizeInCate({
-        category_id: categoryId,
-      });
+      return FilterService.getSizeInCate({ category_id: categoryId });
     },
   });
 
   const { data: colorInCate } = useQuery({
     queryKey: ["colorInCate", categoryId],
     queryFn: () => {
-      return FilterService.getColorInCate({
-        category_id: categoryId,
-      });
+      return FilterService.getColorInCate({ category_id: categoryId });
     },
   });
 
   const onChange = (pageNumber) => {
     setPageNumber(pageNumber);
   };
+
   const handleField = (value, setField) => {
     setTimeout(() => {
       setField(value);
     }, 0);
   };
+
   const handlePriceChange = (value) => {
     setTimeout(() => {
       setPriceMin(value[0]);
@@ -66,22 +66,37 @@ export default function ProductPage() {
 
   return (
     <div className="bg-white flex justify-center">
-      <div className="w-full px-24 py-10">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          {categoryName}
-        </h2>
+      <div className="flex w-full px-8 py-10">
+        <div className="w-1/5">
+          <div className="flex flex-col p-4 border rounded-lg">
+            <div className="flex justify-between items-center mb-4 border-b-2">
+              <p className="text-2xl font-bold">Filter</p>
+              <FilterOutlined className="text-xl" />
+            </div>
 
-        <div className="flex justify-between mt-8">
-          <div className="flex items-stretch justify-between w-2/3">
-            {/* Combo box for Size and Color */}
-            <div className="flex">
+            <div className="border-b-2 mt-2">
+              <p className="font-medium">Price</p>
+              <Slider
+                range
+                defaultValue={[0, 2000000]}
+                min={0}
+                max={2000000}
+                tipFormatter={(value) => `${value.toLocaleString()} VNĐ`}
+                onChange={handlePriceChange}
+                trackStyle={[{ backgroundColor: "black" }]}
+                handleStyle={[{ borderColor: "black" }]}
+              />
+            </div>
+
+            <div className="border-b-2 mt-2 pb-4">
+              <p className="mt-4 font-medium">Size</p>
               <Select
                 defaultValue=""
                 defaultActiveFirstOption
                 onChange={(value) => handleField(value, setSize)}
-                className="mr-2 w-28"
+                className="mr-2 w-full"
               >
-                <Option value="">Chọn Size</Option>
+                <Option value="">Chose Size</Option>
                 {sizeInCate &&
                   sizeInCate.map((size) => (
                     <Option key={size} value={size}>
@@ -89,14 +104,17 @@ export default function ProductPage() {
                     </Option>
                   ))}
               </Select>
+            </div>
 
+            <div className="mt-2">
+              <p className="mt-4 font-medium">Color</p>
               <Select
                 defaultValue=""
                 defaultActiveFirstOption
                 onChange={(value) => handleField(value, setColor)}
-                className="mr-2 w-36"
+                className="mr-2 w-full"
               >
-                <Option value="">Chọn màu</Option>
+                <Option value="">Chose Color</Option>
                 {colorInCate &&
                   colorInCate.map((color) => (
                     <Option key={color} value={color}>
@@ -105,62 +123,59 @@ export default function ProductPage() {
                   ))}
               </Select>
             </div>
-
-            {/* Slider for Price */}
-            <Slider
-              range
-              defaultValue={[0, 2000000]}
-              min={0}
-              max={2000000}
-              tipFormatter={(value) => `${value.toLocaleString()} VNĐ`}
-              onChange={handlePriceChange}
-              className="w-3/4"
-              trackStyle={[{ backgroundColor: "dodgerblue" }]}
-              handleStyle={[{ borderColor: "dodgerblue" }]}
-            />
           </div>
-
-          {/* Combo box for Sort */}
-          <Select
-            defaultValue="name_asc"
-            defaultActiveFirstOption
-            onChange={(value) => handleField(value, setSort)}
-            className="w-52"
-          >
-            <Option value="name_asc">Từ A-Z</Option>
-            <Option value="name_desc">Từ Z-A</Option>
-            <Option value="rating_asc">Rating từ Cao-Thấp</Option>
-            <Option value="rating_desc">Rating từ Thấp-Cao</Option>
-            <Option value="old_to_new">Từ Cũ - Mới</Option>
-            <Option value="new_to_old">Từ Mới - Cũ</Option>
-            <Option value="price_asc">Giá từ Thấp-Cao</Option>
-            <Option value="price_desc">Giá từ Cao-Thấp</Option>
-            <Option value="sold_asc">Số lượng bán từ Cao-Thấp</Option>
-            <Option value="sold_desc">Số lượng bán từ Thấp-Cao</Option>
-          </Select>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">
-          {filterProducts ? (
-            filterProducts?.contents?.map((product, index) => (
-              <div key={index} className="group relative">
-                <ProductCard data={product} />
-              </div>
-            ))
-          ) : (
-            <>Không có sản phẩm</>
+        <div className="flex-1 ml-8">
+          <div className="flex justify-between">
+            <p className="text-2xl font-bold tracking-tight text-gray-900">
+              {categoryName}
+            </p>
+
+            <div className="flex items-center">
+              <p className="font-normal text-base text-gray-500">Sort By:</p>
+              <Select
+                defaultValue="name_asc"
+                defaultActiveFirstOption
+                onChange={(value) => handleField(value, setSort)}
+                className="sortByProduct"
+              >
+                <Option value="name_asc">Từ A-Z</Option>
+                <Option value="name_desc">Từ Z-A</Option>
+                <Option value="rating_asc">Rating từ Cao-Thấp</Option>
+                <Option value="rating_desc">Rating từ Thấp-Cao</Option>
+                <Option value="old_to_new">Từ Cũ - Mới</Option>
+                <Option value="new_to_old">Từ Mới - Cũ</Option>
+                <Option value="price_asc">Giá từ Thấp-Cao</Option>
+                <Option value="price_desc">Giá từ Cao-Thấp</Option>
+                <Option value="sold_asc">Số lượng bán từ Cao-Thấp</Option>
+                <Option value="sold_desc">Số lượng bán từ Thấp-Cao</Option>
+              </Select>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-9">
+            {filterProducts ? (
+              filterProducts.contents.map((product, index) => (
+                <div key={index} className="group relative w-[16rem]">
+                  <ProductCard data={product} />
+                </div>
+              ))
+            ) : (
+              <>Không có sản phẩm</>
+            )}
+          </div>
+          {filterProducts && (
+            <div className="flex justify-center mt-6">
+              <Pagination
+                total={filterProducts.totalElements}
+                pageSize={filterProducts.pageSize}
+                current={filterProducts.pageNumber}
+                onChange={onChange}
+              />
+            </div>
           )}
         </div>
-        {filterProducts && (
-          <div className="flex justify-center mt-6">
-            <Pagination
-              total={filterProducts?.totalElements}
-              pageSize={filterProducts?.pageSize}
-              current={filterProducts?.pageNumber}
-              onChange={onChange}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

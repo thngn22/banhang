@@ -1,10 +1,9 @@
 import React from "react";
-// import { FaFacebook, FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
 import logoVnPay from "../../../Data/image/vnpay-logo.jpg";
 
 function Footer(props) {
   return (
-    <footer className="bg-gray-200 px-6 py-8">
+    <footer className="bg-gray-200 px-8 py-10">
       <div className="w-full flex flex-col sm:flex-row justify-between mb-10">
         <div className="flex flex-col mb-4 sm:mb-0">
           <p className="ml-1 text-4xl font-extrabold text-gray-800">SHOES.CO</p>
@@ -69,7 +68,10 @@ function Footer(props) {
         </div>
       </div>
 
-      <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
+      <hr
+        className="border-solid bg-gray-400 h-[1px] mt-4"
+        style={{ border: "1px" }}
+      />
 
       <div className="flex justify-between pt-4">
         <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
