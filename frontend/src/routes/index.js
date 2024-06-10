@@ -9,11 +9,12 @@ import SignUp from "../Customer/components/Auth/SignUp";
 import ForgotPassword from "../Customer/components/Auth/ForgotPassword";
 import ConfirmOTP from "../Customer/components/Auth/confirmOTP";
 import AdminPage from "../Admin/page/AdminPage";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import DefaultComponent from "../Customer/components/DefaultComponent/DefaultComponent";
 import ProfilePage from "../Customer/pages/ProfilePage/ProfilePage";
 import HistotyOrderPage from "../Customer/pages/HistoryOrderPage/HistotyOrderPage";
 import ConfirmOTPChange from "../Customer/components/Auth/confirmOTPChange";
+import CheckoutPage from "../Customer/pages/CheckoutPage/CheckoutPage";
 
 export default function AppRouter() {
   return (
@@ -54,6 +55,14 @@ export default function AppRouter() {
           element={
             <DefaultComponent>
               <Cart />
+            </DefaultComponent>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <DefaultComponent>
+              <CheckoutPage />
             </DefaultComponent>
           }
         />
