@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { Pagination, Select, Slider } from "antd";
+import { Pagination, Select, Slider, Button } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import ProductCard from "../../components/Product/ProductCard";
 import * as ProductService from "../../../services/ProductService";
@@ -9,24 +9,29 @@ import * as FilterService from "../../../services/FilterService";
 import { Option } from "antd/es/mentions";
 import "./styles.css";
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 export default function ProductPage() {
   const { categoryId, categoryName } = useParams();
   const [pageNumber, setPageNumber] = useState(1);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
-  const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
+  const [sizes, setSizes] = useState([]);
+  const [colors, setColors] = useState([]);
   const [sort, setSort] = useState("");
+  const [applyFilters, setApplyFilters] = useState(false);
 
-  const { data: filterProducts } = useQuery({
-    queryKey: [categoryId, pageNumber, sort, size, color, priceMax, priceMin],
+  const { data: filterProducts, refetch } = useQuery({
+    queryKey: [categoryId, pageNumber, sort, applyFilters],
     queryFn: () => {
       return ProductService.getFilterProduct({
         category_id: categoryId,
         page_number: pageNumber,
         sort: sort,
-        size: size,
-        color: color,
+        size: sizes.join(","), // Join selected sizes for the API request
+        color: colors.join(","), // Join selected colors for the API request
         min_price: priceMin,
         max_price: priceMax,
       });
@@ -64,6 +69,33 @@ export default function ProductPage() {
     }, 1000);
   };
 
+  const toggleSize = (size) => {
+    setSizes((prevSizes) =>
+      prevSizes.includes(size)
+        ? prevSizes.filter((s) => s !== size)
+        : [...prevSizes, size]
+    );
+  };
+
+  const toggleColor = (color) => {
+    setColors((prevColors) =>
+      prevColors.includes(color)
+        ? prevColors.filter((c) => c !== color)
+        : [...prevColors, color]
+    );
+  };
+
+  const applyFilterChanges = () => {
+    setApplyFilters(true);
+    refetch();
+  };
+
+  useEffect(() => {
+    if (applyFilters) {
+      refetch();
+    }
+  }, [applyFilters, refetch]);
+
   return (
     <div className="bg-white flex justify-center">
       <div className="flex w-full px-8 py-10">
@@ -90,38 +122,52 @@ export default function ProductPage() {
 
             <div className="border-b-2 mt-2 pb-4">
               <p className="mt-4 font-medium">Size</p>
-              <Select
-                defaultValue=""
-                defaultActiveFirstOption
-                onChange={(value) => handleField(value, setSize)}
-                className="mr-2 w-full"
-              >
-                <Option value="">Chose Size</Option>
-                {sizeInCate &&
-                  sizeInCate.map((size) => (
-                    <Option key={size} value={size}>
-                      {size}
-                    </Option>
-                  ))}
-              </Select>
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {sizeInCate?.map((size, index) => (
+                  <div
+                    key={index}
+                    onClick={() => toggleSize(size)}
+                    className={classNames(
+                      sizes.includes(size)
+                        ? "bg-black text-white"
+                        : "bg-white text-black hover:bg-gray-200",
+                      "group relative flex items-center justify-center rounded-full border py-4 text-sm font-medium cursor-pointer"
+                    )}
+                  >
+                    <span>{size}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="mt-2">
               <p className="mt-4 font-medium">Color</p>
-              <Select
-                defaultValue=""
-                defaultActiveFirstOption
-                onChange={(value) => handleField(value, setColor)}
-                className="mr-2 w-full"
+              <div className="flex flex-wrap gap-2 mt-4">
+                {colorInCate?.map((color, index) => (
+                  <div
+                    key={index}
+                    onClick={() => toggleColor(color)}
+                    className={classNames(
+                      colors.includes(color)
+                        ? "bg-black text-white"
+                        : "bg-gray-50 text-gray-400 hover:bg-gray-200",
+                      "group relative flex items-center justify-center rounded-xl border py-2 px-3 text-sm cursor-pointer"
+                    )}
+                  >
+                    <span>{color}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Button
+                onClick={applyFilterChanges}
+                className="btn__custom-filter bg-black text-white border-none hover:opacity-80 hover:text-white active:bg-gray-900 flex justify-center items-center text-base mt-4"
+                style={{ width: "100%", padding: "10px 0" }}
               >
-                <Option value="">Chose Color</Option>
-                {colorInCate &&
-                  colorInCate.map((color) => (
-                    <Option key={color} value={color}>
-                      {color}
-                    </Option>
-                  ))}
-              </Select>
+                Apply Filters
+              </Button>
             </div>
           </div>
         </div>
