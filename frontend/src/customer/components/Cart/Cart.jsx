@@ -13,6 +13,7 @@ import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import ProvinceSelection from "./Address";
 import "./styles.css";
+import { useNavigate } from "react-router-dom";
 
 import logoShield from "../../../Data/image/img-shield.png";
 import logoChange from "../../../Data/image/img-change.png";
@@ -40,6 +41,7 @@ const Cart = () => {
   });
   const [phoneNumber, setPhoneNumber] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const refreshToken = async () => {
     try {
@@ -179,6 +181,9 @@ const Cart = () => {
     setTotalPrice(calculateTotalPrice());
   }, []);
 
+  const hanldeCheckout = () => {
+    navigate("/checkout");
+  };
   return (
     <div className="px-8 py-10">
       <p className="text-2xl text-left uppercase font-bold">Your cart</p>
@@ -261,7 +266,8 @@ const Cart = () => {
                   bgcolor: "black",
                   color: "white",
                 }}
-                onClick={() => setIsModalOpen(true)}
+                // onClick={() => setIsModalOpen(true)}
+                onClick={hanldeCheckout}
               >
                 checkout
               </Button>

@@ -16,14 +16,15 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     updateUser: userReducer.updateUser,
-    addToCart: userReducer.addToCart,
-    updateQuantity: userReducer.updateQuantity,
-    removeItem: userReducer.removeItem,
+    updateCart: userReducer.updateCart,
     resetUser: userReducer.resetUser,
   },
 });
 
-// Action creators are generated for each case reducer function
-export const { updateUser, addToCart, updateQuantity, removeItem, resetUser } = userSlice.actions;
+export const {
+  updateUser,
+  updateCart,
+  resetUser,
+} = userSlice.actions;
 
 export default userSlice.reducer;

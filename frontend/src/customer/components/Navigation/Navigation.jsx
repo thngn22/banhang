@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Popover as PopoverAntd } from "antd";
 import {
   MagnifyingGlassIcon,
@@ -10,7 +10,11 @@ import { useQuery } from "@tanstack/react-query";
 import * as CategoryService from "../../../services/CategoryService";
 import * as CartService from "../../../services/CartService";
 import { loginSuccess, logoutSuccess } from "../../../redux/slides/authSlice";
-import { resetUser } from "../../../redux/slides/userSlide";
+import {
+  resetUser,
+  updateCart,
+  updateUser,
+} from "../../../redux/slides/userSlide";
 import Loading from "../LoadingComponent/Loading";
 import * as AuthService from "../../../services/AuthService";
 import axios from "axios";
@@ -80,6 +84,13 @@ export default function Navigation({
       return CategoryService.getAllTreeCategory();
     },
   });
+
+  useEffect(() => {
+    if (cart && auth) {
+      dispatch(updateCart(cart));
+      dispatch(updateUser(auth));
+    }
+  }, [cart, auth]);
 
   const performSearch = () => {
     console.log("Performing search...");

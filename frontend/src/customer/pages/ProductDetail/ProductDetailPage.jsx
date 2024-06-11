@@ -1,15 +1,11 @@
-import React, { useState } from "react";
-import { StarIcon } from "@heroicons/react/20/solid";
+import React, { useEffect, useState } from "react";
 import { RadioGroup } from "@headlessui/react";
-import Rating from "@mui/material/Rating";
 import { Button } from "@mui/material";
-import ProductCard from "../../components/Product/ProductCard";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../../services/ProductService";
 import * as CartService from "../../../services/CartService";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../../redux/slides/userSlide";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -19,10 +15,9 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import { Modal, Rate, Space, Table, message } from "antd";
+import { Modal, Rate, Space, message } from "antd";
 import Review from "../../components/Product/Review";
 import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
-// import parse from "html-react-parser";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -44,8 +39,6 @@ export default function ProductDetailPage() {
   const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
   const [defaultImage, setDefaultImage] = useState();
 
-  const parse = require("html-react-parser").default;
-
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
     queryFn: () => {
@@ -60,9 +53,8 @@ export default function ProductDetailPage() {
       });
     },
   });
-  console.log("topInDetail", topInDetail);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (productDetail) {
       // Lấy màu đầu tiên trong danh sách
       const defaultColor =
@@ -141,7 +133,7 @@ export default function ProductDetailPage() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Lấy chiều cao của nội dung mô tả
     const descriptionElement = document.getElementById("productDescription");
     setContentHeight(descriptionElement.clientHeight);
@@ -468,10 +460,15 @@ export default function ProductDetailPage() {
                       mutation.mutate([dataToUpdate], {
                         onSuccess: (data) => {
                           queryClient.invalidateQueries({ queryKey: ["cart"] });
-                          message.success("Thêm vào giỏ hàng thành công");
+                          message.success("Successfully Add Cart");
                         },
                         onError: (err) => {
-                          message.error(`Lỗi ${err}`);
+                          console.log(err.message);
+                          if(err.message === "Cannot read properties of null (reading 'accessToken')"){
+                            message.error("Sign in not yet")
+                          }else {
+                            message.error(`${err.message}`);
+                          }
                         },
                       });
                     }}

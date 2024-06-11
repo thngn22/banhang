@@ -18,73 +18,64 @@ import CheckoutPage from "../Customer/pages/CheckoutPage/CheckoutPage";
 
 export default function AppRouter() {
   return (
-    <>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <DefaultComponent>
-              <HomePage />
-            </DefaultComponent>
-          }
-        />
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/forgot" element={<ForgotPassword />} />
-        <Route path="/register" element={<SignUp />} />
-        <Route path="/forgot" element={<ForgotPassword />} />
-        <Route path="/otp/:email" element={<ConfirmOTP />} />
-        <Route path="/otp/change/:forwhat" element={<ConfirmOTPChange />} />
-        <Route
-          path="/product/:productId"
-          element={
-            <DefaultComponent>
-              <ProductDetailPage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/products/category/:categoryId/:categoryName"
-          element={
-            <DefaultComponent>
-              <ProductPage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/carts"
-          element={
-            <DefaultComponent>
-              <Cart />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/checkout"
-          element={
-            <DefaultComponent>
-              <CheckoutPage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <DefaultComponent>
-              <ProfilePage />
-            </DefaultComponent>
-          }
-        />
-        <Route
-          path="/history-order"
-          element={
-            <DefaultComponent>
-              <HistotyOrderPage />
-            </DefaultComponent>
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <DefaultComponent>
+            <HomePage />
+          </DefaultComponent>
+        }
+      />
+      <Route path="/login" element={<SignIn />} />
+      <Route path="/forgot" element={<ForgotPassword />} />
+      <Route path="/register" element={<SignUp />} />
+      <Route path="/forgot" element={<ForgotPassword />} />
+      <Route path="/otp/:email" element={<ConfirmOTP />} />
+      <Route path="/otp/change/:forwhat" element={<ConfirmOTPChange />} />
+      <Route
+        path="/product/:productId"
+        element={
+          <DefaultComponent>
+            <ProductDetailPage />
+          </DefaultComponent>
+        }
+      />
+      <Route
+        path="/products/category/:categoryId/:categoryName"
+        element={
+          <DefaultComponent>
+            <ProductPage />
+          </DefaultComponent>
+        }
+      />
+      <Route
+        path="/carts"
+        element={
+          <DefaultComponent>
+            <Cart />
+          </DefaultComponent>
+        }
+      />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route
+        path="/profile"
+        element={
+          <DefaultComponent>
+            <ProfilePage />
+          </DefaultComponent>
+        }
+      />
+      <Route
+        path="/history-order"
+        element={
+          <DefaultComponent>
+            <HistotyOrderPage />
+          </DefaultComponent>
+        }
+      />
+      <Route path="*" element={<NotFoundPage />} />
+      <Route path="/admin" element={<AdminPage />} />
+    </Routes>
   );
 }

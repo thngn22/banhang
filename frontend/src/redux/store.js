@@ -1,6 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { counterSlice } from "./slides/counterSlide";
-import { userSlice } from "./slides/userSlide";
+import  userSlice from "./slides/userSlide";
 import authSlice from "./slides/authSlice";
 
 import {
@@ -28,8 +27,7 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  counter: counterSlice.reducer,
-  user: userSlice.reducer,
+  user: userSlice,
   auth: authSlice,
   product: productSlice,
   category: categorySlice,
