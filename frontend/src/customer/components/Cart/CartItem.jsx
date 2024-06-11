@@ -103,9 +103,9 @@ const CartItem = ({ product }) => {
   };
   return (
     <div className="p-5 border rounded-md mb-5 flex relative">
-      <div className="w-[3rem] h-[3rem] lg:w-[8rem] lg:h-[8rem]">
+      <div className="w-[8rem] h-[8rem]">
         <img
-          className="w-full h-full object-cover object-top"
+          className="w-full object-cover object-top rounded-xl"
           src={`${product?.productItem.productImage}`}
           alt={`${product?.productItem.productImage}`}
         />

@@ -328,10 +328,10 @@ export default function Navigation({
                   placement="bottom"
                   content={
                     <>
-                      <div className="dropdown-cart_content p-5 overflow-hidden lg:w-[420px]">
+                      <div className="dropdown-cart_content p-4 overflow-hidden w-[420px]">
                         <div>
-                          <p className="text-center uppercase font-bold border-b-[1px] pb-1">
-                            sản phẩm mới thêm vào giỏ hàng
+                          <p className="text-center text-lg uppercase font-extrabold border-b-[1px] pb-1">
+                            Product added to cart
                           </p>
                           <div className="content-cart">
                             <div className="list-cart py-4">
@@ -342,25 +342,30 @@ export default function Navigation({
                                       <div className="flex-shrink-0">
                                         <img
                                           src={`${item?.productItem?.productImage}`}
-                                          className="w-20 h-20 mr-2 object-cover"
+                                          className="w-24 h-24 mr-2 object-cover rounded-xl"
                                           alt="giaybitis"
                                         />
                                       </div>
                                       <div className="flex-grow">
                                         <div>
-                                          <p>{item?.productItem?.name}</p>
-                                          <div>
-                                            <strong>Size: </strong>
-                                            {item?.productItem?.size}
+                                          <p className="text-sm font-bold">
+                                            {item?.productItem?.name}
+                                          </p>
+                                          <div className="flex gap-2">
+                                            <p>Color:</p>
+                                            <p className="text-gray-400 font-medium">
+                                              {item?.productItem?.color}
+                                            </p>
                                           </div>
-                                          <div>
-                                            <strong>Color: </strong>
-                                            {item?.productItem?.color}
+                                          <div className="flex gap-2">
+                                            <p>Size:</p>
+                                            <p className="text-gray-400 font-medium">
+                                              {item?.productItem?.size}
+                                            </p>
                                           </div>
                                         </div>
                                         <div className="flex mt-2 justify-between">
-                                          <div>{item.quantity}</div>
-                                          <div>
+                                          <p className="text-red-400 text-sm font-medium">
                                             {item.totalPrice.toLocaleString(
                                               "vi-VN",
                                               {
@@ -368,6 +373,12 @@ export default function Navigation({
                                                 currency: "VND",
                                               }
                                             )}
+                                          </p>
+                                          <div className="flex gap-2">
+                                            <p>Quantity:</p>
+                                            <p className="font-medium">
+                                              {item.quantity}
+                                            </p>
                                           </div>
                                         </div>
                                       </div>
@@ -376,17 +387,15 @@ export default function Navigation({
                                 })
                               ) : (
                                 <div className="text-center">
-                                  HIện chưa có sản phẩm
+                                  There are currently no products
                                 </div>
                               )}
                             </div>
                             <div className="line border-b-[1px] w-full mb-1"></div>
                             <div className="cart-total">
                               <div className="flex justify-between items-center py-3">
-                                <p className="uppercase font-semibold">
-                                  Tổng tiền
-                                </p>
-                                <p className="text-red-500 font-semibold">
+                                <p className="uppercase font-medium">Total</p>
+                                <p className="text-red-500 font-bold text-lg">
                                   {cart?.totalPrice.toLocaleString("vi-VN", {
                                     style: "currency",
                                     currency: "VND",
@@ -395,9 +404,9 @@ export default function Navigation({
                               </div>
                               <Link
                                 to="/carts"
-                                className="uppercase p-2 w-full block text-white bg-black text-center"
+                                className="uppercase p-2 w-full block text-white bg-black text-center font-medium hover:text-white hover:opacity-80"
                               >
-                                Xem giỏ hàng
+                                View Cart
                               </Link>
                             </div>
                           </div>
