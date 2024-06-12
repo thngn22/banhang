@@ -13,7 +13,7 @@ import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import ProvinceSelection from "./Address";
 import "./styles.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import logoShield from "../../../Data/image/img-shield.png";
 import logoChange from "../../../Data/image/img-change.png";
@@ -184,6 +184,9 @@ const Cart = () => {
   const hanldeCheckout = () => {
     navigate("/checkout");
   };
+
+  console.log(cart);
+  
   return (
     <div className="px-8 py-10">
       <p className="text-2xl text-left uppercase font-bold">Your cart</p>
@@ -192,7 +195,9 @@ const Cart = () => {
       <div className="grid grid-cols-3 relative">
         <div className="col-span-2">
           {cart?.cartItems?.map((item, index) => (
-            <CartItem key={index} product={item} />
+            <Link to={`/product/${item.id}`}>
+              <CartItem key={index} product={item} />
+            </Link>
           ))}
         </div>
 

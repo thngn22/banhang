@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Upload, Button, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
 
 const UploadImage2 = (props) => {
   const { onImageChange, dataImage, isEdit } = props;
@@ -102,7 +100,7 @@ const UploadImage2 = (props) => {
   };
 
   return (
-    <div style={{ display: "block", backgroundColor: "#fff" }}>
+    <div>
       <Upload
         customRequest={customRequest}
         beforeUpload={beforeUpload}

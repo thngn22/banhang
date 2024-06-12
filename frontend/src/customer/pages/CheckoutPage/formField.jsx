@@ -4,6 +4,8 @@ import addressApi from "../../../services/ProvinceService";
 import { useNavigate } from "react-router-dom";
 import CartItemCheckOut from "./CartItemCheckOut";
 import { Radio } from "antd";
+import imgTrunk from "../../../Data/image/img-trunk.png";
+import imgReload from "../../../Data/image/img-reload.png";
 
 const FormFields = ({ register, control, errors, setValue, user }) => {
   const [provinces, setProvinces] = useState([]);
@@ -236,50 +238,91 @@ const FormFields = ({ register, control, errors, setValue, user }) => {
           </button>
         </div>
         <hr className="border-1 border-gray-300 my-4" />
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">Shipping method</label>
-          <Controller
-            control={control}
-            name="delivery"
-            defaultValue={1}
-            render={({ field: { value, onChange } }) => (
-              <Radio.Group
-                onChange={(e) => onChange(parseInt(e.target.value))}
-                value={value}
-              >
-                <Radio value={1}>Staff Shoes.co</Radio>
-                <Radio value={2}>Grab</Radio>
-              </Radio.Group>
+        <div className="flex justify-between">
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold">Shipping method</label>
+            <Controller
+              control={control}
+              name="delivery"
+              defaultValue={1}
+              render={({ field: { value, onChange } }) => (
+                <Radio.Group
+                  onChange={(e) => onChange(parseInt(e.target.value))}
+                  value={value}
+                  className="flex flex-col"
+                >
+                  <Radio value={1}>Shoes.co's Staff</Radio>
+                  <Radio value={2}>Grab</Radio>
+                </Radio.Group>
+              )}
+            />
+            {errors.delivery && (
+              <span className="text-sm text-red-600 font-medium">
+                {errors.delivery.message}
+              </span>
             )}
-          />
-          {errors.delivery && (
-            <span className="text-sm text-red-600 font-medium">
-              {errors.delivery.message}
-            </span>
-          )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold">Payment method</label>
+            <Controller
+              control={control}
+              name="paymentMethod"
+              defaultValue={1}
+              render={({ field: { value, onChange } }) => (
+                <Radio.Group
+                  onChange={(e) => onChange(parseInt(e.target.value))}
+                  value={value}
+                  className="flex flex-col"
+                >
+                  <Radio value={1}>COD</Radio>
+                  <Radio value={2}>VNPay</Radio>
+                </Radio.Group>
+              )}
+            />
+            {errors.paymentMethod && (
+              <span className="text-sm text-red-600 font-medium">
+                {errors.paymentMethod.message}
+              </span>
+            )}
+          </div>
         </div>
+
         <hr className="border-1 border-gray-300 my-4" />
-        <div className="flex flex-col">
-          <label className="font-semibold">Payment method</label>
-          <Controller
-            control={control}
-            name="paymentMethod"
-            defaultValue={1}
-            render={({ field: { value, onChange } }) => (
-              <Radio.Group
-                onChange={(e) => onChange(parseInt(e.target.value))}
-                value={value}
-              >
-                <Radio value={1}>COD</Radio>
-                <Radio value={2}>VNPay</Radio>
-              </Radio.Group>
-            )}
-          />
-          {errors.paymentMethod && (
-            <span className="text-sm text-red-600 font-medium">
-              {errors.paymentMethod.message}
-            </span>
-          )}
+        <div className="flex justify-between items-center">
+          <p className="font-light text-xl text-gray-600">Total:</p>
+          <p className="text-xl font-bold text-red-600">
+            {user?.cart.totalPrice.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </p>
+        </div>
+
+        <div className="flex gap-2 mt-8 mb-4">
+          <img className="w-[4rem] h-[4rem]" src={imgTrunk} alt="imgTrunk" />
+          <div className="text-sm">
+            <p className="font-medium">
+              More than 800,000 orders have been successfully delivered to
+              customers by Biti's.
+            </p>
+            <p>
+              Shoes.co always makes sure customers are satisfied when receiving
+              products. You just need to order delivery and let the Shoes.co
+              team take care of it.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <img className="w-[4rem] h-[4rem]" src={imgReload} alt="imgTrunk" />
+          <div className="text-sm">
+            <p className="font-medium">
+              Order online with peace of mind with a return policy
+            </p>
+            <p>
+              Biti's warranty is 3-6 months depending on each product line,
+              return policy within 7 days.
+            </p>
+          </div>
         </div>
       </div>
     </div>

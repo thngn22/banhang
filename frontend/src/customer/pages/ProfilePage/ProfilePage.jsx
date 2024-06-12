@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { WrapperHeader } from "./style";
-import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
 import UploadImage2 from "../../../Admin/components/UploadFile/UploadImage2";
 import InputField from "../../../Customer/components/InputField";
-import { Button, message } from "antd";
+import { message } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../../services/UserService";
@@ -14,6 +12,13 @@ import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import { useNavigate } from "react-router-dom";
 import { changeSuccess } from "../../../redux/slides/accessSlice";
+import "./styles.css";
+import {
+  UserOutlined,
+  FileDoneOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -23,12 +28,6 @@ const ProfilePage = () => {
 
   const styleInputField = {
     width: "388px",
-  };
-  const titleSpanStyle = {
-    textAlign: "left",
-    width: "100px", // Độ dài cố định của các span "Tiêu đề"
-    marginRight: "10px", // Khoảng cách 10px giữa span "Tiêu đề" và InputField
-    fontWeight: "bold",
   };
 
   const refreshToken = async () => {
@@ -113,24 +112,21 @@ const ProfilePage = () => {
       ) {
         message.error("Tên không được chứa các ký tự đặc biệt");
       } else {
-        const formData = new FormData()
+        const formData = new FormData();
 
-        formData.append('firstName', userIn4?.firstName)
-        formData.append('lastName', userIn4?.lastName)
-        formData.append('avatar', userIn4?.avatar)
+        formData.append("firstName", userIn4?.firstName);
+        formData.append("lastName", userIn4?.lastName);
+        formData.append("avatar", userIn4?.avatar);
 
-        mutation.mutate(
-          formData,
-          {
-            onSuccess: (data) => {
-              message.success("Cập nhật thông tin tài khoản thành công");
-              refetch();
-            },
-            onError: (err) => {
-              message.error(`Lỗi ${err}`);
-            },
-          }
-        );
+        mutation.mutate(formData, {
+          onSuccess: (data) => {
+            message.success("Cập nhật thông tin tài khoản thành công");
+            refetch();
+          },
+          onError: (err) => {
+            message.error(`Lỗi ${err}`);
+          },
+        });
       }
     } else {
       message.warning("Hãy nhập đầy đủ thông tin địa chỉ trước khi Đặt hàng");
@@ -159,109 +155,99 @@ const ProfilePage = () => {
     );
   };
 
+  console.log(userIn4);
+
   return (
-    <div
-      style={{ minHeight: "70vh", backgroundColor: "rgba(169, 169, 169, 0.2)" }}
-    >
-      <div
-        style={{
-          height: "100%",
-          padding: "10px 120px",
-          margin: "0 10rem",
-          backgroundColor: "#fff",
-          position: "relative",
-        }}
-      >
-        <section className="text-2xl text-left font-semibold mt-2">
-          Thông tin người dùng
-        </section>
-        <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
-        <img
-          style={{ height: "480px", position: "absolute", right: "25px" }}
-          src="https://cdn.printgo.vn/uploads/media/774255/logo-giay-1_1586510617.jpg"
-          alt="https://cdn.printgo.vn/uploads/media/774255/logo-giay-1_1586510617.jpg"
-        />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <UploadImage2
-            onImageChange={handleChangeAvatar}
-            dataImage={userIn4?.avatar}
-            isEdit={true}
-          />
-          <div
-            style={{ display: "flex", flexDirection: "column", width: "100%" }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>Họ:</span>
+    <div className="px-56 py-10">
+      <div className="grid grid-cols-4">
+        <div className="col-span-1">
+          <div className="profile bg-gray-100 flex flex-col items-center justify-between py-8 rounded-xl">
+            <UploadImage2
+              onImageChange={handleChangeAvatar}
+              dataImage={userIn4?.avatar}
+              isEdit={true}
+            />
+
+            <div className="flex gap-2 text-xl">
+              <p>Hello </p>
+              <p className="font-medium">
+                {auth?.firstName} {auth?.lastName}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4 mt-4 text-sm">
+              <div className="flex items-center gap-2">
+                <UserOutlined />
+                <p>Account information</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileDoneOutlined />
+                <p>Order management</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <HomeOutlined />
+                <p>List of addresses</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <LogoutOutlined />
+                <p>Log out</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-2 pl-8 flex">
+          <div className="flex flex-col w-full">
+            <p className="text-2xl font-extrabold">Information User</p>
+
+            <div className="flex items-center mb-4">
+              <p className="w-32">First Name:</p>
               <InputField
                 value={userIn4?.firstName}
                 handleOnChange={handleChangeFirtName}
                 style={styleInputField}
               />
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>Tên:</span>
+            <div className="flex items-center mb-4">
+              <p className="w-32">Last Name:</p>
               <InputField
                 value={userIn4?.lastName}
                 handleOnChange={handleChangeLastName}
                 style={styleInputField}
               />
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>Email:</span>
+            <div className="flex items-center mb-4">
+              <p className="w-32">Email:</p>
               <InputField
                 disable={true}
                 value={userIn4?.email}
                 style={styleInputField}
               />
             </div>
-            {/* <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>SĐT:</span>
+            <div className="flex items-center mb-4">
+              <p className="w-32">Phone number:</p>
               <InputField
                 disable={true}
                 value={userIn4?.phone}
                 style={styleInputField}
               />
-            </div> */}
+            </div>
           </div>
         </div>
-        <div style={{ display: "flex" }}>
-          <Button
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              marginTop: "16px",
-              backgroundColor: "blue",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "18px",
-              height: "50px",
-              padding: "10px",
-              marginRight: "20px",
-            }}
+
+        <div className="col-span-1 flex flex-col gap-4 pl-8 mt-12">
+          <button
+            className="px-4 py-4 bg-black text-white text-lg hover:opacity-80 rounded-xl font-medium"
             onClick={handleUpdateProfile}
           >
-            <span>Cập nhập thông tin tài khoản</span>
-          </Button>
-          <Button
-            style={{
-              marginTop: "16px",
-              backgroundColor: "orange",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "18px",
-              height: "50px",
-              padding: "10px",
-            }}
+            Update User Infor
+          </button>
+          <button
+            className="px-4 py-4 bg-red-600 text-white text-lg hover:opacity-80 rounded-xl font-medium"
             onClick={handleChangePassword}
           >
-            <span>Đổi mật khẩu</span>
-          </Button>
+            Change Password
+          </button>
         </div>
       </div>
     </div>
