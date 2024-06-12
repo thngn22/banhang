@@ -1,9 +1,12 @@
 package com.ecomerce.roblnk.configuration;
 
 import com.ecomerce.roblnk.dto.cart.UserAddressRequestv2;
+import com.ecomerce.roblnk.dto.delivery.DeliveryResponse;
 import com.ecomerce.roblnk.dto.url.AddressFromURL;
+import com.ecomerce.roblnk.repository.DeliveryRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +16,7 @@ import java.net.URISyntaxException;
 import static com.ecomerce.roblnk.util.PageUtil.EARTH_RADIUS;
 
 @Configuration
+@RequiredArgsConstructor
 public class GoongConfiguration {
 
     @Value("${goong.api-key}")
@@ -30,6 +34,7 @@ public class GoongConfiguration {
     @Value("${goong.lng}")
     private Double main_lng;
 
+    private final DeliveryRepository deliveryRepository;
     public String urlTarget(UserAddressRequestv2 address) {
        var string_address = address.getAddress() + ",%20"
                + address.getWard() + ",%20"
@@ -39,7 +44,7 @@ public class GoongConfiguration {
        return base_url + "/geocode?address=" + string_address + "&api_key=" + api_key;
     }
 
-    public Double calculateDistance(UserAddressRequestv2 address) throws java.io.IOException, IOException, URISyntaxException {
+    public DeliveryResponse calculateDistance(UserAddressRequestv2 address) throws java.io.IOException, IOException, URISyntaxException {
         var url_target = urlTarget(address);
 
         URI jsonUrl = new URI(url_target);
@@ -56,7 +61,19 @@ public class GoongConfiguration {
         System.out.println(main_lat);
         System.out.println(main_lng);
 
-        return distance(lat, lng, main_lat, main_lng);
+        var distance =  distance(lat, lng, main_lat, main_lng);
+        var type = 3L;
+        if (distance <= 7.0 || address.getCity().startsWith("Thành phố Hồ Chí Minh")){
+            if (distance <= 7.0){
+                type = 1L;
+            }
+            else type = 2L;
+        }
+        var delivery = deliveryRepository.findById(type).orElseThrow();
+        return DeliveryResponse.builder()
+                .deliveryId(delivery.getId())
+                .deliveryName(delivery.getName())
+                .deliveryDescription(delivery.getDescription()).build();
     }
 
     private Double distance(Double lat1, Double lng1, Double lat2, Double lng2) {

@@ -22,8 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE;
-import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
+import static com.ecomerce.roblnk.util.PageUtil.*;
 
 @Service
 @RequiredArgsConstructor
@@ -885,7 +884,7 @@ public class IProductService implements ProductService {
     @Override
     public List<ProductResponse> getAllProductCarouselRating() {
 
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         var productCarousel = productRepository.findAllByActiveIsTrueOrderByRatingDesc(pageable);
         List<Integer> list = new ArrayList<>();
         for (Product product : productCarousel) {
@@ -906,7 +905,7 @@ public class IProductService implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProductCarouselSold() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         var productCarousel = productRepository.findAllByActiveIsTrueOrderBySoldDesc(pageable);
         List<Integer> list = new ArrayList<>();
         for (Product product : productCarousel) {
@@ -927,7 +926,7 @@ public class IProductService implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProductCarouselInCategory(Long categoryId) {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         List<Product> productCarousel = new ArrayList<>();
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();

@@ -32,4 +32,5 @@ public interface ProductService {
     List<ProductResponse> getAllProductCarouselInCategory(Long categoryId);
 //    String getURLPictureAndUploadToCloudinary(String base64Content);
     String getURLPictureThenUploadToCloudinary(MultipartFile file);
+
 }

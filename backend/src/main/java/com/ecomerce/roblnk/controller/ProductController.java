@@ -6,6 +6,7 @@ import com.ecomerce.roblnk.dto.product.ProductEditRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.ProductService;
+import com.ecomerce.roblnk.service.RecommendService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final RecommendService recommendService;
     @GetMapping("/search")
     public ResponseEntity<?> getAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
                                                  @RequestParam(value = "size", required = false) List<String> size,
@@ -155,6 +158,16 @@ public class ProductController {
     public ResponseEntity<?> getCarouselForDetailProduct(@RequestParam("category_id") Long categoryId){
         var productCarousel = productService.getAllProductCarouselInCategory(categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
+    }
+
+    @GetMapping("/recommend")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getRecommendProductFromUsersReview(Principal principal){
+        var recommendProducts = recommendService.getRecommendProductFromUsersReview(principal);
+        if (recommendProducts != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(recommendProducts);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
 }
 

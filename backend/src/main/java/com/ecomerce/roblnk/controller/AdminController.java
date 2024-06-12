@@ -34,7 +34,6 @@ public class AdminController {
     private final ProductService productService;
     private final StatusService statusService;
     private final AdminService adminService;
-    private final GoongConfiguration goong;
     @GetMapping("/user")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailUser(@RequestParam("id") Long id) throws UserException {
@@ -152,12 +151,5 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
 
-    @GetMapping("/distance")
-    public ResponseEntity<?> test(@RequestBody UserAddressRequestv2 address) throws IOException, URISyntaxException {
-        var revenue = goong.calculateDistance(address);
-        if (revenue != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(revenue);
-        } else
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
-    }
+
 }
