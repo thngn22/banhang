@@ -45,3 +45,7 @@ export const formatDateEnd = (type, value) => {
       return value ? dayjs(value).format("DD-MM-YYYY 23:59:59") : "";
   }
 };
+
+export const formatDateInHisoryOrder = (value) => {
+  return value.split(" ")[0];
+};
