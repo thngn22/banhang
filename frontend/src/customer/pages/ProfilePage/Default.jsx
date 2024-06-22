@@ -36,7 +36,7 @@ const Default = ({ userIn4, handleSelected }) => {
           className="px-4 py-4 bg-red-400 text-lg hover:opacity-80 rounded-xl font-medium"
           onClick={() => handleSelected("updateUser")}
         >
-          Test
+          Update Information
         </button>
       </div>
     </div>

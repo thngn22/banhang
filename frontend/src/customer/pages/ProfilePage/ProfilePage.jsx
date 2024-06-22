@@ -167,6 +167,7 @@ const ProfilePage = () => {
             userIn4={userIn4}
             handleChangeData={handleChangeData}
             handleUpdateProfile={handleUpdateProfile}
+            handleSelected={handleSelected}
           />
         );
       case "historyOrder":

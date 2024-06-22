@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RadioGroup } from "@headlessui/react";
 import { Button } from "@mui/material";
 import { useParams } from "react-router-dom";
@@ -16,8 +16,11 @@ import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import { Modal, Rate, Space, message } from "antd";
-import Review from "../../components/Product/Review";
-import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
+import { descReviewStart } from "../../../utils/constants";
+import "./styles.css";
+import ProductCard from "../../components/Product/ProductCard";
+import Review2 from "../../components/Review/Review2";
+import pageIntroduction from "../../../Data/image/chọn size giày mới.png";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -31,13 +34,10 @@ export default function ProductDetailPage() {
   const queryClient = useQueryClient();
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
-  const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
   const [selectedQuantityStock, setSelectedQuantityStock] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(0);
-  const [expanded, setExpanded] = useState(true);
-  const [contentHeight, setContentHeight] = useState(0);
-  const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
   const [defaultImage, setDefaultImage] = useState();
+  const iframeRef = useRef(null);
 
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
@@ -53,6 +53,29 @@ export default function ProductDetailPage() {
       });
     },
   });
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    const adjustHeight = () => {
+      if (
+        iframe &&
+        iframe.contentWindow &&
+        iframe.contentWindow.document.body
+      ) {
+        iframe.style.height = `${
+          iframe.contentWindow.document.body.scrollHeight + 16
+        }px`;
+      }
+    };
+
+    if (iframe) {
+      iframe.addEventListener("load", adjustHeight);
+      // Xóa bỏ event listener khi component bị hủy
+      return () => {
+        iframe.removeEventListener("load", adjustHeight);
+      };
+    }
+  }, [productDetail?.description]);
 
   useEffect(() => {
     if (productDetail) {
@@ -133,16 +156,6 @@ export default function ProductDetailPage() {
     }
   };
 
-  useEffect(() => {
-    // Lấy chiều cao của nội dung mô tả
-    const descriptionElement = document.getElementById("productDescription");
-    setContentHeight(descriptionElement.clientHeight);
-  }, [productDetail?.description, expanded]);
-
-  const toggleDescription = () => {
-    setExpanded(!expanded);
-  };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);
@@ -192,20 +205,17 @@ export default function ProductDetailPage() {
     return res;
   });
 
-  // console.log("des", productDetail?.description);
-
   return (
     <div className="bg-white">
-      <div className="pt-6 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
+      <div className="pt-6 mx-auto max-w-7xl ">
         {/* Information Product */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-10 pb-10 pt-4 lg:pb-16 lg:pt-6">
-          {/* Image gallery */}
+        <div className="grid grid-cols-2 gap-16 pb-16 pt-6">
           <div className="flex flex-col">
-            <div className="overflow-hidden rounded-lg max-w-full max-h-[34.3rem]">
+            <div className="overflow-hidden rounded-3xl max-w-full max-h-[34.3rem]">
               {defaultImage && (
                 <img
                   src={defaultImage}
-                  alt={defaultImage}
+                  alt="defaultImage"
                   className="h-full w-full object-cover object-center"
                 />
               )}
@@ -213,129 +223,115 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product info */}
-          <div className="lg:col-span-1 maxt-auto max-w-2x1 lg:max-w-7x1">
-            <div className="lg:col-span-2">
-              <h1 className="text-lg lg:text-3xl font-semibold text-gray-900 text-left">
+          <div className="col-span-1 maxt-auto max-w-7x1">
+            <div className="col-span-2">
+              <p className="text-4xl font-extrabold text-gray-900 text-left">
                 {productDetail?.name}
-              </h1>
+              </p>
             </div>
 
             {/* Options */}
-            <div className="mt-4 lg:row-span-3 lg:mt-0">
-              <div className="flex space-x-5 items-center text-lg lg-test-x1 text-gray-900 mt-1">
-                <p
-                  className="text-red-600 font-semibold"
-                  style={{ fontSize: "26px" }}
+            <div className="row-span-3">
+              {productDetail?.rating ? (
+                <Space
+                  style={{
+                    display: "flex",
+                    textAlign: "left",
+                  }}
+                  className="pt-1"
                 >
-                  {selectedPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </p>
-              </div>
+                  <Rate
+                    tooltips={descReviewStart}
+                    disabled
+                    value={productDetail?.rating}
+                    allowHalf
+                  />
 
-              {/* Reviews */}
-              <Space
-                style={{
-                  display: "flex",
-                  textAlign: "left",
-                }}
-              >
-                <>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Rate
-                      tooltips={desc}
-                      disabled
-                      value={productDetail?.rating}
-                      allowHalf
-                    />
-                    {productDetail?.rating ? (
-                      <span style={{ marginLeft: "8px" }}>
-                        {desc[productDetail?.rating - 1]}
-                      </span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </>
+                  <span className="cursor-pointer text-blue-400 text-lg">
+                    ({productDetail?.reviews?.length} Review)
+                  </span>
+                </Space>
+              ) : (
+                <></>
+              )}
 
-                <span style={{ color: "blue" }}>
-                  ({productDetail?.reviews?.length} đánh giá)
-                </span>
-              </Space>
+              <p className="text-red-600 font-bold text-3xl">
+                {selectedPrice.toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                })}
+              </p>
 
-              <form className="mt-5">
+              <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
+
+              <form className="mt-4">
                 {/* Colors */}
-                <span className="text-sm font-semibold text-gray-900 flex items-center">
-                  <span className="mr-2">Tình trạng:</span>
+                <div className="text-xl font-semibold text-gray-900 flex items-center">
+                  <span className="mr-2">Status:</span>
                   {selectedQuantityStock > 0 ? (
                     <span className="text-green-600">
-                      Còn hàng ({selectedQuantityStock})
+                      In Stock ({selectedQuantityStock})
                     </span>
                   ) : (
-                    <span className="text-red-600">Hết hàng</span>
+                    <span className="text-red-600">Out of Stock</span>
                   )}
-                </span>
-                {/* 
-                <span className="text-sm font-semibold text-gray-900">
-                  Giá: {selectedPrice} VND
-                </span> */}
-                <div>
-                  <RadioGroup
-                    value={selectedColor}
-                    onChange={(value) => {
-                      setSelectedColor(value);
-                      handleColorChange(value);
-                    }}
-                    className="mt-4"
-                  >
-                    <div className="flex items-center space-x-3">
-                      {productDetail?.productItemResponses.map(
-                        (item, index) => (
-                          <RadioGroup.Option
-                            key={index}
-                            value={item?.variationColor}
-                            style={{ width: "80px" }}
-                            className={({ active, checked }) =>
-                              classNames(
-                                "ring-green-500",
-                                active && checked ? "ring ring-offset-1" : "",
-                                !active && checked ? "ring-2" : "",
-                                "relative -m-0.5 flex flex-col items-center cursor-pointer focus:outline-none"
-                              )
-                            }
-                          >
-                            <RadioGroup.Label as="span" className="sr-only">
-                              {item?.variationColor}
-                            </RadioGroup.Label>
-                            <div className="mb-1">
-                              <img
-                                src={item?.listProductItem[0].productImage}
-                                alt={item?.listProductItem[0].productImage}
-                              />
-                            </div>
-                            <span className="text-sm font-semibold">
-                              {item?.variationColor}
-                            </span>
-                          </RadioGroup.Option>
-                        )
-                      )}
-                    </div>
-                  </RadioGroup>
                 </div>
 
+                <RadioGroup
+                  value={selectedColor}
+                  onChange={(value) => {
+                    setSelectedColor(value);
+                    handleColorChange(value);
+                  }}
+                  className="mt-2"
+                >
+                  <div className="flex items-center space-x-3">
+                    {productDetail?.productItemResponses.map((item, index) => (
+                      <RadioGroup.Option
+                        key={index}
+                        value={item?.variationColor}
+                        style={{ width: "100px" }}
+                        className={({ active, checked }) =>
+                          classNames(
+                            "ring-black",
+                            active && checked ? "ring-1" : "",
+                            !active && checked ? "ring-1" : "",
+                            "relative -m-0.5 flex flex-col items-center cursor-pointer focus:outline-none rounded-lg p-2"
+                          )
+                        }
+                      >
+                        <RadioGroup.Label as="span" className="sr-only">
+                          {item?.variationColor}
+                        </RadioGroup.Label>
+                        <div className="mb-1">
+                          <img
+                            src={item?.listProductItem[0].productImage}
+                            alt="colorItem"
+                            className="rounded-lg"
+                          />
+                        </div>
+                        <span className="text-sm font-semibold">
+                          {item?.variationColor}
+                        </span>
+                      </RadioGroup.Option>
+                    ))}
+                  </div>
+                </RadioGroup>
+
+                <hr className="border-solid bg-gray-100 h-[1px] my-4" />
+
                 {/* Sizes */}
-                <div className="mt-5">
+                <div className="">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900">
-                      Kích thước
-                    </h3>
+                    <p className="text-lg font-light text-gray-500">
+                      Choose Size
+                    </p>
                     <p
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      className="text-sm font-medium text-red-500 hover:opacity-80"
                       style={{ cursor: "pointer" }}
                       onClick={showModal}
                     >
-                      (Cách chọn Kích thước)
+                      (How to choose Size)
                     </p>
                   </div>
 
@@ -345,9 +341,9 @@ export default function ProductDetailPage() {
                       setSelectedSize(value);
                       handleSizeChange(value);
                     }}
-                    className="mt-4"
+                    className="mt-2"
                   >
-                    <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-6">
+                    <div className="grid grid-cols-4 gap-x-10 gap-y-4">
                       {selectedItems?.map((item, index) => (
                         <RadioGroup.Option
                           key={index}
@@ -358,8 +354,8 @@ export default function ProductDetailPage() {
                               item?.quantityInStock > 0
                                 ? "cursor-pointer bg-white text-gray-900 shadow-sm"
                                 : "cursor-not-allowed bg-gray-50 text-gray-200",
-                              active ? "ring-2 ring-indigo-500" : "",
-                              "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1"
+                              active ? "" : "",
+                              "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium hover:bg-gray-50 focus:outline-none"
                             )
                           }
                         >
@@ -369,18 +365,20 @@ export default function ProductDetailPage() {
                                 {item?.variationSize}
                               </RadioGroup.Label>
                               {item?.variationSize ? (
-                                <span
+                                <p
                                   className={classNames(
-                                    active ? "border" : "border-2",
+                                    active
+                                      ? "border-2"
+                                      : "border-2 border-black",
                                     checked
-                                      ? "border-indigo-500"
+                                      ? "border-black"
                                       : "border-transparent",
                                     "pointer-events-none absolute -inset-px rounded-md"
                                   )}
                                   aria-hidden="true"
                                 />
                               ) : (
-                                <span
+                                <p
                                   aria-hidden="true"
                                   className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
                                 >
@@ -398,7 +396,7 @@ export default function ProductDetailPage() {
                                       vectorEffect="non-scaling-stroke"
                                     />
                                   </svg>
-                                </span>
+                                </p>
                               )}
                             </>
                           )}
@@ -407,34 +405,41 @@ export default function ProductDetailPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                <div className="mt-5">
-                  <div className="flex items-center space-x-2">
-                    <IconButton
-                      onClick={() => handleSubQuantity()}
-                      disabled={selectedQuantity < 1}
-                    >
-                      <RemoveCircleOutlineIcon />
-                    </IconButton>
-                    <span className="py-1 px-7 border rounded-sm">
-                      {selectedQuantity}
-                    </span>
-                    <IconButton
-                      onClick={() => handlePlusQuantity()}
-                      sx={{ color: "RGB(145,85,253)" }}
-                      disabled={selectedQuantity >= selectedQuantityStock}
-                    >
-                      <AddCircleOutlineIcon />
-                    </IconButton>
+
+                <div className="flex items-center gap-6 pt-5">
+                  <div className="flex justify-center">
+                    <div className="flex items-center bg-gray-100 gap-2 py-2 px-4 rounded-full">
+                      <IconButton
+                        onClick={() => handleSubQuantity()}
+                        disabled={selectedQuantity < 1}
+                        className="disabled:opacity-50"
+                      >
+                        <RemoveCircleOutlineIcon />
+                      </IconButton>
+                      <div className="px-4 flex items-center justify-center">
+                        <p className="text-lg font-semibold">
+                          {selectedQuantity}
+                        </p>
+                      </div>
+                      <IconButton
+                        onClick={() => handlePlusQuantity()}
+                        sx={{ color: "red" }}
+                        disabled={selectedQuantity >= selectedQuantityStock}
+                        className="disabled:opacity-50"
+                      >
+                        <AddCircleOutlineIcon />
+                      </IconButton>
+                    </div>
                   </div>
-                </div>
-                <div className="flex space-x-10 pt-5">
+
                   <Button
                     variant="contained"
+                    className="btn__custom-add-cart"
                     sx={{
-                      px: "2rem",
                       py: "1rem",
-                      bgcolor: "#9155fd",
+                      bgcolor: "black",
                       flexGrow: "1",
+                      borderRadius: "100px",
                     }}
                     onClick={() => {
                       const resultItem =
@@ -464,91 +469,86 @@ export default function ProductDetailPage() {
                         },
                         onError: (err) => {
                           console.log(err.message);
-                          if(err.message === "Cannot read properties of null (reading 'accessToken')"){
-                            message.error("Sign in not yet")
-                          }else {
+                          if (
+                            err.message ===
+                            "Cannot read properties of null (reading 'accessToken')"
+                          ) {
+                            message.error("Sign in not yet");
+                          } else {
                             message.error(`${err.message}`);
                           }
                         },
                       });
                     }}
                   >
-                    Thêm vào giỏ hàng
+                    Add Cart
                   </Button>
                 </div>
               </form>
             </div>
           </div>
-        </section>
+        </div>
 
         {/* Description */}
-        <section className="text-xl text-left">Mô tả sản phẩm</section>
-        <hr class="w-full mt-1 border-t border-gray-300" />
-        <section>
-          <div
-            id="productDescription"
-            style={{
-              height: expanded ? "100px" : "auto",
-              position: "relative",
-              overflow: "hidden",
-              transition: "height 0.5s ease-in-out", // Thêm hiệu ứng chuyển động
-              textAlign: "left",
-            }}
-          >
+        <div>
+          <p className="pb-2 text-xl font-extrabold">Detail Product</p>
+          <div id="productDescription">
             <iframe
+              ref={iframeRef}
               title="productDescription"
               style={{
                 border: "none",
                 width: "100%",
-                height: "100%",
                 fontSize: "inherit",
                 fontWeight: "inherit",
-                // Thêm các thuộc tính CSS khác nếu cần
               }}
               srcDoc={productDetail?.description}
             />
-            {contentHeight <= 100 && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  textAlign: "center",
-                  paddingTop: "50px",
-                  background:
-                    "linear-gradient(rgba(255, 255, 255, 0), #FFFFFF)",
-                }}
-              ></div>
-            )}
           </div>
-
-          <Button
-            style={{
-              backgroundColor: "rgba(0, 119, 204, 0.2)",
-              color: "#1f2937",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.375rem",
-              transition: "background 0.3s ease-in-out",
-              marginTop: "10px",
-            }}
-            onClick={toggleDescription}
-          >
-            {expanded ? "Xem thêm" : "Thu gọn"}
-          </Button>
-        </section>
+        </div>
 
         {/* Recent Review & Ratings */}
-        <section className="mt-4 mb-4">
-          <Review dataReviews={productDetail?.reviews} />
-        </section>
+        <div className="mt-8">
+          <p className="pb-2 text-xl font-extrabold">Reviews & Ratings</p>
+          <div className="grid grid-cols-2 gap-x-20 gap-y-4">
+            {productDetail?.reviews &&
+              productDetail.reviews.map((reviewItem) => (
+                <Review2 reviewItem={reviewItem} />
+              ))}
+          </div>
+        </div>
+
+        {/* PRODUCTS RECOMMENDATION */}
+        <div className="my-6">
+          <p className="text-center text-4xl font-extrabold uppercase">
+            You might also like
+          </p>
+          <div className="mt-6 grid grid-cols-4 gap-20">
+            {topInDetail &&
+              topInDetail.map((product, index) => (
+                <div key={index} className="group relative w-[16rem]">
+                  <ProductCard data={product} />
+                </div>
+              ))}
+          </div>
+        </div>
+
+        <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
 
         {/* High Rating Products */}
-        <section className="text-xl text-left ml-8">
-          Sản phẩm được đánh giá cao
-        </section>
-        <hr class=" mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
-        <MultiCarousel dataCarousel={topInDetail} />
+        <div className="my-8">
+          <p className="text-center text-4xl font-extrabold uppercase">
+            Highly rated product
+          </p>
+          <div className="mt-6 grid grid-cols-4 gap-20">
+            {topInDetail &&
+              topInDetail.map((product, index) => (
+                <div key={index} className="group relative w-[16rem]">
+                  <ProductCard data={product} />
+                </div>
+              ))}
+          </div>
+        </div>
 
         <Modal
           open={isModalOpen}
@@ -566,7 +566,7 @@ export default function ProductDetailPage() {
               width: "100%",
             }}
             src={pageIntroduction}
-            alt="Đây là ảnh hướng dẫn chọn size giày"
+            alt="How to choose size"
           />
         </Modal>
       </div>

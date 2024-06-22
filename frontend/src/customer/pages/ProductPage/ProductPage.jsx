@@ -164,7 +164,12 @@ export default function ProductPage() {
               <Button
                 onClick={applyFilterChanges}
                 className="btn__custom-filter bg-black text-white border-none hover:opacity-80 hover:text-white active:bg-gray-900 flex justify-center items-center text-base mt-4"
-                style={{ width: "100%", padding: "10px 0" }}
+                style={{
+                  width: "100%",
+                  padding: "24px",
+                  fontSize: "20px",
+                  fontWeight: "600",
+                }}
               >
                 Apply Filters
               </Button>
