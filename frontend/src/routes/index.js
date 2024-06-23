@@ -4,8 +4,6 @@ import ProductDetailPage from "../Customer/pages/ProductDetail/ProductDetailPage
 import ProductPage from "../Customer/pages/ProductPage/ProductPage";
 import NotFoundPage from "../Customer/pages/NotFoundPage/NotFoundPage";
 
-import SignIn from "../Customer/components/Auth/SignIn";
-import SignUp from "../Customer/components/Auth/SignUp";
 import ForgotPassword from "../Customer/components/Auth/ForgotPassword";
 import ConfirmOTP from "../Customer/components/Auth/confirmOTP";
 import AdminPage from "../Admin/page/AdminPage";
@@ -15,6 +13,7 @@ import ProfilePage from "../Customer/pages/ProfilePage/ProfilePage";
 import HistotyOrderPage from "../Customer/pages/HistoryOrderPage/HistotyOrderPage";
 import ConfirmOTPChange from "../Customer/components/Auth/confirmOTPChange";
 import CheckoutPage from "../Customer/pages/CheckoutPage/CheckoutPage";
+import Auth from "../Customer/components/Auth/Auth";
 
 export default function AppRouter() {
   return (
@@ -27,9 +26,7 @@ export default function AppRouter() {
           </DefaultComponent>
         }
       />
-      <Route path="/login" element={<SignIn />} />
-      <Route path="/forgot" element={<ForgotPassword />} />
-      <Route path="/register" element={<SignUp />} />
+      <Route path="/auth" element={<Auth />} />
       <Route path="/forgot" element={<ForgotPassword />} />
       <Route path="/otp/:email" element={<ConfirmOTP />} />
       <Route path="/otp/change/:forwhat" element={<ConfirmOTPChange />} />

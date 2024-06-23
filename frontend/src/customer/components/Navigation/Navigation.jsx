@@ -266,34 +266,34 @@ export default function Navigation({
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={() => handleNavigate("profile")}
                             >
-                              Thông tin tài khoản
+                              Account Profile
                             </p>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={() => handleNavigate("history-order")}
                             >
-                              Đơn hàng
+                              Orders
                             </p>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={handleLogout}
                             >
-                              Đăng xuất
+                              Log out
                             </p>
                           </>
                         ) : (
                           <>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => handleNavigate("login")}
+                              onClick={() => handleNavigate("auth")}
                             >
-                              Đăng nhập
+                              Sign Up
                             </p>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => handleNavigate("register")}
+                              onClick={() => handleNavigate("auth")}
                             >
-                              Đăng ký
+                              Sign In
                             </p>
                           </>
                         )}

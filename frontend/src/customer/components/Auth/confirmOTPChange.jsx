@@ -2,10 +2,6 @@ import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -15,15 +11,12 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InputField from "../InputField";
 import { useState } from "react";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import * as UserSerVice from "../../../services/UserService";
-import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as AuthService from "../../../services/AuthService";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeSuccess,
   forgotSuccess,
-  signSuccess,
 } from "../../../redux/slides/accessSlice";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -105,8 +98,6 @@ export default function ConfirmOTPChange() {
     setOtp(value);
   };
 
-  // console.log("pass",password);
-
   const isStrongPassword = (password) => {
     const strongPasswordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -121,13 +112,13 @@ export default function ConfirmOTPChange() {
       // Kiểm tra mật khẩu mạnh
       if (!isStrongPassword(newPassword)) {
         message.error(
-          "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
+          "Password must have at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters"
         );
         return;
       }
       // Kiểm tra email đúng định dạng
       if (!isEmailValid(change?.email)) {
-        message.error("Email không đúng định dạng.");
+        message.error("Invalid Email");
         return;
       }
       mutation.mutate(
@@ -140,12 +131,12 @@ export default function ConfirmOTPChange() {
         },
         {
           onSuccess: () => {
-            message.success("Đổi mật khẩu thành công");
+            message.success("Successful Change password");
             dispatch(changeSuccess({}));
             navigate(`/`);
           },
           onError: (error) => {
-            message.error(`Lỗi ${error.message}`);
+            message.error(`Errors ${error.message}`);
           },
         }
       );
@@ -153,13 +144,13 @@ export default function ConfirmOTPChange() {
       // Kiểm tra mật khẩu mạnh
       if (!isStrongPassword(newPassword)) {
         message.error(
-          "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt."
+          "Password must have at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters"
         );
         return;
       }
       // Kiểm tra email đúng định dạng
       if (!isEmailValid(forgot?.email)) {
-        message.error("Email không đúng định dạng.");
+        message.error("Invalid Email");
         return;
       }
       mutationForgot.mutate(
@@ -171,12 +162,12 @@ export default function ConfirmOTPChange() {
         },
         {
           onSuccess: () => {
-            message.success("Đổi mật khẩu thành công");
+            message.success("Success Change password");
             dispatch(forgotSuccess({}));
-            navigate(`/login`);
+            navigate(`/auth`);
           },
           onError: (error) => {
-            message.error(`Lỗi ${error.message}`);
+            message.error(`Errors ${error.message}`);
           },
         }
       );
@@ -185,8 +176,8 @@ export default function ConfirmOTPChange() {
 
   return (
     <div
+      className="bg-gradient-to-r from-gray-100 to-gray-400"
       style={{
-        backgroundColor: "rgba(128, 128, 128, 0.8)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -211,7 +202,7 @@ export default function ConfirmOTPChange() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Đặt lại mật khẩu mới
+              Change new password
             </Typography>
             <form onSubmit={handleSendOTP}>
               <Grid container spacing={2}>
@@ -251,7 +242,7 @@ export default function ConfirmOTPChange() {
                 </Grid>
                 {newPassword !== confirmPassword && (
                   <Typography style={{ color: "red", marginLeft: "16px" }}>
-                    ConfirmPassword không trùng khớp
+                    ConfirmPasswords do not match
                   </Typography>
                 )}
                 <Grid item xs={12}>
