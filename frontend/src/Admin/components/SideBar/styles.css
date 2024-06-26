@@ -1,0 +1,15 @@
+.custom-menu .ant-menu-item,
+.custom-menu .ant-menu-submenu-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.custom-menu .ant-menu-item-selected {
+    background-color: #000;
+    color: #fff;
+}
+
+.custom-menu .ant-menu-item-icon {
+  font-size: 20px !important;
+}
