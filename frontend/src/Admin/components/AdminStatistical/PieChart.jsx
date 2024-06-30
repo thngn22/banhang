@@ -12,7 +12,7 @@ const PieChart = (props) => {
         label: "Sales",
         data: props?.data,
         borderColor: "black",
-        backgroundColor: ["rgba(0, 255, 255, 0.3)", "rgba(255, 0, 0, 0.4)"],
+        backgroundColor: ["rgb(116, 235, 213)", "rgb(217, 55, 110)"],
       },
     ],
   };

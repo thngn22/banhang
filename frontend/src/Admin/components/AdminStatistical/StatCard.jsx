@@ -1,7 +1,7 @@
 const StatCard = ({ title, value, icon, bgColor, textColor }) => {
   return (
     <div
-      className={`p-8 rounded-xl shadow-lg flex flex-col justify-between relative text-white font-bold`}
+      className={`py-4 px-8 h-32 gap-6 rounded-xl shadow-lg flex flex-col justify-between relative text-white font-extrabold`}
       style={{ background: bgColor }}
     >
       <img
@@ -9,9 +9,9 @@ const StatCard = ({ title, value, icon, bgColor, textColor }) => {
         alt="icon"
         className="w-[6rem] h-[6rem] absolute bottom-2 left-2 transform -rotate-12"
       />
-      <div className="text-right">
-        <h3 className="text-2xl">{title}</h3>
-        <p className="text-2xl">{value}</p>
+      <div className="flex flex-col justify-between text-right h-full">
+        <p className="text-xl text-center ml-4">{title}</p>
+        <p className="text-3xl">{value}</p>
       </div>
     </div>
   );

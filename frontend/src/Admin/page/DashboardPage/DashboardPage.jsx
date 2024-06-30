@@ -62,7 +62,7 @@ const DashboardPage = () => {
 
   return (
     <div className="p-6">
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-12 mb-6">
         <StatCard
           title="Doanh thu"
           value={revenue?.totalRevenue.toLocaleString("vi-VN", {
@@ -74,17 +74,17 @@ const DashboardPage = () => {
           textColor="black"
         />
         <StatCard
-          title="Số người dùng"
+          title="Người dùng mới"
           value={revenue?.totalAccount}
           icon={userIcon}
-          bgColor="linear-gradient(to right, #74ebd5, #ACB6E5)"
+          bgColor="linear-gradient(to right, #74ebd5, #5a8dae)"
           textColor="black"
         />
         <StatCard
-          title="Số lượng đơn hàng"
+          title="Số đơn hàng"
           value={revenue?.totalNumberOrders}
           icon={cartIcon}
-          bgColor="linear-gradient(to right, #f857a6, #ff5858)"
+          bgColor="linear-gradient(to right, rgb(255, 150, 20), #d9376e)"
           textColor="black"
         />
       </div>
@@ -99,11 +99,11 @@ const DashboardPage = () => {
         }}
       />
 
-      <div className="flex">
-        <div className="flex-1">
+      <div className="flex gap-4">
+        <div className="flex-1 bg-white mt-2 shadow-lg rounded-xl p-2 w-[760px]">
           <LineChart data={data} />
         </div>
-        <div className="w-1/3">
+        <div className="w-1/3 bg-white h-[400px] mt-2 shadow-lg rounded-xl p-4">
           <PieChart
             data={[
               revenue?.totalNumberOrdersSuccess,

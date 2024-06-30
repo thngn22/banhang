@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Button, DatePicker, Select, Space } from "antd";
+import React, { useState } from "react";
+import { DatePicker, Select, Space } from "antd";
 import dayjs from "dayjs";
 import { formatDateEnd, formatDate } from "../../../utils/untils";
 
@@ -67,7 +67,7 @@ const DateField = ({ optionChart, onOptionChange, date, onDateChange }) => {
   };
 
   return (
-    <Space>
+    <Space className="mt-4">
       <Select value={type} onChange={handleOptionChange}>
         <Option value="hour">Giờ</Option>
         <Option value="day">Ngày</Option>
@@ -77,7 +77,12 @@ const DateField = ({ optionChart, onOptionChange, date, onDateChange }) => {
       <PickerWithType type={type} />
 
       {time[0] !== null && time[1] !== null ? (
-        <Button onClick={handleDateChange}>Lọc</Button>
+        <button
+          className="bg-black text-white p-1 px-11 border border-transparent rounded-md font-bold tracking-wide uppercase cursor-pointer hover:opacity-70"
+          onClick={handleDateChange}
+        >
+          Lọc
+        </button>
       ) : (
         <></>
       )}
