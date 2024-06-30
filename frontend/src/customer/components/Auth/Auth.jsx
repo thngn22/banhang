@@ -120,7 +120,7 @@ const Auth = () => {
                 Welcome Back!
               </h1>
               <p>Enter your personal details to use all of site features</p>
-              <button onClick={handleLoginClick}>Sign In</button>
+              <button className="hover:opacity-80" onClick={handleLoginClick}>Sign In</button>
             </div>
             <div className="toggle-panel toggle-right">
               <h1 className="text-4xl font-bold tracking-wide">
@@ -129,7 +129,7 @@ const Auth = () => {
               <p>
                 Register with your personal details to use all of site features
               </p>
-              <button onClick={handleRegisterClick}>Sign Up</button>
+              <button className="hover:opacity-80" onClick={handleRegisterClick}>Sign Up</button>
             </div>
           </div>
         </div>

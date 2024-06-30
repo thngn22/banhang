@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const FormSignIn = ({ registerSignIn, errors }) => {
-  
   return (
     <div className="flex flex-col justify-center items-center w-full">
       <h1 className="text-4xl font-bold tracking-wide mb-4">Sign In</h1>
@@ -39,7 +38,7 @@ const FormSignIn = ({ registerSignIn, errors }) => {
 
       <button
         type="submit"
-        className="w-full p-2 mt-4 bg-black text-white rounded"
+        className="w-full p-2 mt-4 bg-black text-white rounded hover:opacity-80"
       >
         Sign In
       </button>

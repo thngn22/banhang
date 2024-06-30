@@ -1,31 +1,19 @@
-import React from "react";
-import { Col } from "antd";
-
-const StatCard = ({ title, value, icon, bgColor, textColor, borderColor }) => {
+const StatCard = ({ title, value, icon, bgColor, textColor }) => {
   return (
-    <Col span={4}>
-      <div
-        style={{
-          padding: "8px 8px",
-          backgroundColor: bgColor,
-          borderRadius: "10px",
-          fontWeight: "600",
-          fontSize: "1.2em",
-          margin: "8px 0",
-          height: "88px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          border: `2px solid ${borderColor}`,
-          color: textColor,
-        }}
-      >
-        <p>{title}</p>
-        <p>
-          {React.cloneElement(icon, { style: { marginRight: "4px" } })} {value}
-        </p>
+    <div
+      className={`p-8 rounded-xl shadow-lg flex flex-col justify-between relative text-white font-bold`}
+      style={{ background: bgColor }}
+    >
+      <img
+        src={icon}
+        alt="icon"
+        className="w-[6rem] h-[6rem] absolute bottom-2 left-2 transform -rotate-12"
+      />
+      <div className="text-right">
+        <h3 className="text-2xl">{title}</h3>
+        <p className="text-2xl">{value}</p>
       </div>
-    </Col>
+    </div>
   );
 };
 

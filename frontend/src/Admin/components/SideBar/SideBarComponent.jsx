@@ -16,34 +16,39 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getItem } from "../../../utils/untils";
 import { useQuery } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as CategoryService from "../../../services/CategoryService";
 import { getCategory } from "../../../redux/slides/categorySlice";
 import "./styles.css";
+import Loading from "../../../Customer/components/LoadingComponent/Loading";
 
 const SideBarComponent = () => {
+  const auth = useSelector((state) => state.auth.login.currentUser);
+  console.log(auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const items = [
     getItem("Thống kê tổng quan", "statisticalOverview", <BarChartOutlined />),
-    getItem("Quản lý Người dùng", "listUsers", <UserOutlined />),
-    getItem("Quản lý Danh mục", "sub5", <AppstoreOutlined />, [
-      getItem("Danh sách Danh mục", "listCategories", <FormOutlined />),
+    getItem("Người dùng", "listUsers", <UserOutlined />),
+    getItem("Danh mục", "sub5", <AppstoreOutlined />, [
+      getItem("Danh sách", "listCategories", <FormOutlined />),
       getItem("Tạo Danh mục", "addCategory", <PlusCircleOutlined />),
     ]),
-    getItem("Quản lý Sản phẩm", "sub2", <SkinOutlined />, [
-      getItem("Danh sách sản phẩm", "listProducts", <FormOutlined />),
+    getItem("Sản phẩm", "sub2", <SkinOutlined />, [
+      getItem("Danh sách", "listProducts", <FormOutlined />),
       getItem("Tạo Sản phẩm", "addProduct", <PlusCircleOutlined />),
     ]),
-    getItem("Quản lý Đơn hàng", "listOrders", <FileDoneOutlined />),
+    getItem("Đơn hàng", "listOrders", <FileDoneOutlined />),
     getItem("Chat", "chatbox", <MessageOutlined />),
-    getItem("Quản lý Khuyến mãi", "sub3", <PercentageOutlined />, [
-      getItem("Danh sách Khuyến mãi", "listSales", <FormOutlined />),
+    getItem("Khuyến mãi", "sub3", <PercentageOutlined />, [
+      getItem("Danh sách", "listSales", <FormOutlined />),
       getItem("Tạo mã Khuyến mãi", "addSale", <PlusCircleOutlined />),
     ]),
-    getItem("Quản lý Voucher", "sub4", <TagsOutlined />, [
-      getItem("Danh sách Voucher", "listVouchers", <FormOutlined />),
+    getItem("Voucher", "sub4", <TagsOutlined />, [
+      getItem("Danh sách", "listVouchers", <FormOutlined />),
       getItem("Tạo mã Voucher", "addVoucher", <PlusCircleOutlined />),
     ]),
     getItem("Địa chỉ", "address", <EnvironmentOutlined />),
@@ -61,6 +66,12 @@ const SideBarComponent = () => {
     queryKey: ["categoriesRes"],
     queryFn: getAllCatesAdmin,
   });
+
+  useEffect(() => {
+    if (auth) {
+      setIsLoading(false);
+    }
+  }, [auth]);
 
   useEffect(() => {
     if (categoriesRes) {
@@ -98,16 +109,28 @@ const SideBarComponent = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-72 border-r overflow-y-auto">
+    <div className="sidebar fixed top-0 left-0 h-screen w-72 overflow-y-auto min-h-screen">
+      <Loading isLoading={isLoading}>
+        <div className="px-12 py-4 flex flex-col">
+          <div className="aspect-w-1 aspect-h-1">
+            <img
+              className="object-cover rounded-full"
+              src={auth.avatar}
+              alt="avatar"
+            />
+          </div>
+
+          <div className="flex mx-8 justify-center">
+            <p className="text-xl font-semibold mr-2">{auth.firstName}</p>
+            <p className="text-xl font-semibold">{auth.lastName}</p>
+          </div>
+        </div>
+      </Loading>
+
       <Menu
         mode="inline"
         openKeys={openKeys}
         onOpenChange={onOpenChange}
-        style={{
-          width: "100%",
-          minHeight: "100vh",
-          borderRight: "1px solid",
-        }}
         items={items}
         className="custom-menu"
         onClick={handleMenuClick}

@@ -3,18 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import createAxiosInstance from "../../../services/createAxiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import * as RevenueService from "../../../services/RevenueService";
-import { Row } from "antd";
 import StatCard from "../../components/AdminStatistical/StatCard";
-import {
-  DollarCircleOutlined,
-  UserOutlined,
-  CopyOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
 import DateField from "../../components/AdminStatistical/DateField";
 import LineChart from "../../components/AdminStatistical/LineChart";
 import PieChart from "../../components/AdminStatistical/PieChart";
+
+import moneyIcon from "../../../Data/icon/Remove-bg.ai_1719739592370.png";
+import userIcon from "../../../Data/icon/Remove-bg.ai_1719739646383.png";
+import cartIcon from "../../../Data/icon/Remove-bg.ai_1719739681936.png";
 
 const DashboardPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -66,51 +62,32 @@ const DashboardPage = () => {
 
   return (
     <div className="p-6">
-      <Row justify="space-between">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <StatCard
           title="Doanh thu"
           value={revenue?.totalRevenue.toLocaleString("vi-VN", {
             style: "currency",
             currency: "VND",
           })}
-          icon={<DollarCircleOutlined />}
-          bgColor="rgba(144, 238, 144, 0.7)"
+          icon={moneyIcon}
+          bgColor="linear-gradient(to right, #a8e063, #56ab2f)"
           textColor="black"
-          borderColor="rgba(144, 238, 144, 1)"
         />
         <StatCard
           title="Số người dùng"
           value={revenue?.totalAccount}
-          icon={<UserOutlined />}
-          bgColor="rgba(255, 165, 0, 0.7)"
+          icon={userIcon}
+          bgColor="linear-gradient(to right, #74ebd5, #ACB6E5)"
           textColor="black"
-          borderColor="orange"
         />
         <StatCard
           title="Số lượng đơn hàng"
           value={revenue?.totalNumberOrders}
-          icon={<CopyOutlined />}
-          bgColor="rgba(255, 255, 153, 0.7)"
+          icon={cartIcon}
+          bgColor="linear-gradient(to right, #f857a6, #ff5858)"
           textColor="black"
-          borderColor="yellow"
         />
-        <StatCard
-          title="Đơn hoàn thành"
-          value={revenue?.totalNumberOrdersSuccess}
-          icon={<CheckCircleOutlined />}
-          bgColor="rgba(173, 216, 230, 0.7)"
-          textColor="green"
-          borderColor="rgba(173, 216, 230, 1)"
-        />
-        <StatCard
-          title="Đơn thất bại"
-          value={revenue?.totalNumberOrdersFailure}
-          icon={<CloseCircleOutlined />}
-          bgColor="rgba(255, 192, 203, 0.7)"
-          textColor="red"
-          borderColor="pink"
-        />
-      </Row>
+      </div>
 
       <DateField
         optionChart={optionChart}
@@ -122,17 +99,17 @@ const DashboardPage = () => {
         }}
       />
 
-      <div style={{ display: "flex" }}>
-        <div style={{ flex: "1" }}>
-          <LineChart data={data}></LineChart>
+      <div className="flex">
+        <div className="flex-1">
+          <LineChart data={data} />
         </div>
-        <div style={{ width: "32%" }}>
+        <div className="w-1/3">
           <PieChart
             data={[
               revenue?.totalNumberOrdersSuccess,
               revenue?.totalNumberOrdersFailure,
             ]}
-          ></PieChart>
+          />
         </div>
       </div>
     </div>

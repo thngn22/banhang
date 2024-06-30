@@ -4,7 +4,6 @@ const FormSignUp = ({ registerSignUp, errors }) => {
   return (
     <div className="flex flex-col justify-center items-center w-full">
       <h1 className="text-4xl font-bold tracking-wide mb-4">Sign up</h1>
-      
 
       <div className="w-full flex justify-between gap-2">
         <div>
@@ -106,7 +105,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
 
       <button
         type="submit"
-        className="w-full p-2 mt-4 bg-black text-white rounded"
+        className="w-full p-2 mt-4 bg-black text-white rounded hover:opacity-80"
       >
         Sign Up
       </button>

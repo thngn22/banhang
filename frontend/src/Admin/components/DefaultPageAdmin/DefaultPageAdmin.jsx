@@ -5,7 +5,7 @@ const DefaultPageAdmin = ({ children }) => {
   return (
     <div className="flex">
       <SideBarComponent />
-      <div className="flex-grow overflow-y-auto min-h-screen ml-72">
+      <div className="flex-grow overflow-y-auto min-h-screen ml-72 bg-gray-200">
         {children}
       </div>
     </div>
