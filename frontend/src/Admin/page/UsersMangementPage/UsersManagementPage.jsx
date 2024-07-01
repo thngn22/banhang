@@ -132,21 +132,6 @@ const UsersManagementPage = () => {
       dataIndex: "email",
       render: (text) => <a>{text}</a>,
     },
-    // {
-    //   title: "User Image",
-    //   dataIndex: "userImage",
-    //   render: (userImage) => (
-    //     <img
-    //       src={userImage}
-    //       alt="userImage"
-    //       style={{ maxWidth: "50px", maxHeight: "50px" }}
-    //     />
-    //   ),
-    // },
-    // {
-    //   title: "Phone",
-    //   dataIndex: "phone",
-    // },
     {
       title: "Active",
       dataIndex: "active",
@@ -169,7 +154,10 @@ const UsersManagementPage = () => {
 
   return (
     <div className="p-6">
-      <TableComponent data={dataTable} columns={columns} />
+      <TableComponent
+        data={dataTable}
+        columns={columns}
+      />
 
       {users && (
         <Pagination

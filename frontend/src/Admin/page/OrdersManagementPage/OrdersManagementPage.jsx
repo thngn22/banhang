@@ -226,7 +226,10 @@ const OrdersManagementPage = () => {
 
   return (
     <div className="p-4">
-      <TableComponent columns={columns} data={dataTable} />
+      <TableComponent
+        columns={columns}
+        data={dataTable}
+      />
       {orders && (
         <Pagination
           total={orders?.totalElements}

@@ -41,7 +41,7 @@ const Auth = () => {
     const isAdmin = decode.role[0] === "ROLE_ADMINISTRATOR";
     dispatch(loginSuccess({ ...res, accessToken, isAdmin }));
     if (isAdmin) {
-      navigate("/admin");
+      navigate("/admin/dashboard");
     } else {
       navigate("/");
     }

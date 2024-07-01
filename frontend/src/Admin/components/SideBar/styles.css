@@ -2,6 +2,7 @@
 .custom-menu .ant-menu-submenu-title {
     font-size: 16px;
     font-weight: 700;
+    margin-bottom: 12px;
 }
 
 .custom-menu .ant-menu-item-selected {
@@ -24,4 +25,8 @@
 
 .sidebar::-webkit-scrollbar-track {
   background: #fff;
+}
+
+.ant-menu-title-content {
+  font-family: 'Montserrat', sans-serif;
 }
