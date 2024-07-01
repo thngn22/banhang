@@ -13,7 +13,9 @@ import java.util.Date;
 public class ProductResponse {
     private Long id;
     private String name;
-    private String estimatedPrice;
+    private Integer estimatedPrice;
+    private Integer salePrice;
+    private Double discountRate;
     private Integer sold;
     private Double rating;
     private String productImage;

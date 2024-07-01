@@ -39,15 +39,6 @@ public class Category {
     @JsonIgnore
     private List<Category> categories;
 
-    //Promotion
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(
-            name = "category_promotion",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "promotion_id")
-    )
-    private List<Promotion> promotions;
 
     //Variation
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

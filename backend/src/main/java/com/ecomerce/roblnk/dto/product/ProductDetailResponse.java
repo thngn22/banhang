@@ -13,7 +13,9 @@ import java.util.List;
 public class ProductDetailResponse {
     private Long id;
     private String name;
-    private String estimatedPrice;
+    private Integer estimatedPrice;
+    private Integer salePrice;
+    private Double discountRate;
     private String description;
     private String productImage;
     private CategoryDTO categoryId;

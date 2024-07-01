@@ -9,6 +9,8 @@ public class ProductItemDTOv3 {
     private String variationSize;
     private Long id;
     private Integer price;
+    private Integer salePrice;
+    private Double discountRate;
     private Integer quantityInStock;
     private String productImage;
     private boolean active;

@@ -40,17 +40,19 @@ public class IProductService implements ProductService {
     private final ReviewService reviewService;
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
+    private final SaleRepository saleRepository;
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId) {
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Product> products = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> {
+            cate.add(category.getId());
+        });
         var cates = categoryRepository.findAll();
         if (categoryId == null) {
             categories.addAll(categoryRepository.findAllById(cate));
@@ -89,17 +91,43 @@ public class IProductService implements ProductService {
             }
             int total = 0;
             var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
             list.add(total);
+            if (products.get(i).getSale() != null && products.get(i).getSale().isActive()
+                    && products.get(i).getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                    && products.get(i).getSale().getStartDate().before(new Date(System.currentTimeMillis()))){                discountRate.add(products.get(i).getSale().getDiscountRate());
+                salePrices.add((int) (estimatedPrice - estimatedPrice * 0.01 * products.get(i).getSale().getDiscountRate()));
+            }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+            }
             i++;
         }
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
             productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
         }
         return productResponseList;
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductWithOutFlashSale(Long categoryId) {
+        var list = getAllProduct(categoryId);
+        int i = 0;
+        while (i < list.size()) {
+            if (!list.get(i).getEstimatedPrice().equals(list.get(i).getSalePrice())){
+                list.remove(i);
+            }
+            else i++;
+        }
+        return list;
     }
 
     @Override
@@ -110,10 +138,11 @@ public class IProductService implements ProductService {
         List<Product> products = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> {
+            cate.add(category.getId());
+        });
         boolean flagSize = size != null && !size.isEmpty();
         boolean flagColor = color != null && !color.isEmpty();
         boolean flagMinPrice = minPrice != null && !minPrice.isEmpty();
@@ -211,16 +240,27 @@ public class IProductService implements ProductService {
         for (Product product : products) {
             int total = 0;
             var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
             list.add(total);
+            if (product.getSale() != null && product.getSale().isActive()
+                    && product.getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                    && product.getSale().getStartDate().before(new Date(System.currentTimeMillis()))){                discountRate.add(product.getSale().getDiscountRate());
+                salePrices.add((int) (estimatedPrice - estimatedPrice * 0.01 * product.getSale().getDiscountRate()));
+            }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+            }
         }
-
-
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
             productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
         }
         switch (sort) {
             case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
@@ -300,6 +340,19 @@ public class IProductService implements ProductService {
     public ProductDetailResponsev3 getDetailProductForAdmin(Long productId) {
         var product = productRepository.findById(productId);
         if (product.isPresent()) {
+            var salePrice = 0;
+            var estimatedPrice = product.get().getEstimatedPrice();
+
+            if (product.get().getSale() != null && product.get().getSale().isActive()
+                    && product.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                    && product.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))){
+
+                salePrice = (int) (estimatedPrice - estimatedPrice * 0.01 * product.get().getSale().getDiscountRate());
+            }
+            else {
+                salePrice = estimatedPrice;
+            }
+
             var items = productItemRepository.findAllByProduct_Id(product.get().getId());
             var productDetail = productMapper.toDetailResponse(product.get());
             var totalQuantity = 0;
@@ -308,18 +361,20 @@ public class IProductService implements ProductService {
             }
             productDetail.setQuantity(totalQuantity);
             productDetail.setQuantityOfVariation(items.size());
+            productDetail.setSalePrice(salePrice);
+            productDetail.setDiscountRate(product.get().getSale().getDiscountRate());
             List<ProductItemDTOv2> productItemDTOv2List = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
 
                 String optionColor;
                 String optionSize = "";
-                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu")) {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
                 } else {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 }
                 ProductItemDTOv2 productItemDTOv2 = new ProductItemDTOv2();
-                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu")
                         && productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
                     optionSize = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 } else if (productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption().equals(optionColor)) {
@@ -328,6 +383,8 @@ public class IProductService implements ProductService {
                 }
                 productItemDTOv2.setId(productDetail.getProductItems().get(0).getId());
                 productItemDTOv2.setPrice(productDetail.getProductItems().get(0).getPrice());
+                productItemDTOv2.setSalePrice(String.valueOf(salePrice));
+                productItemDTOv2.setDiscountRate(productDetail.getDiscountRate());
                 productItemDTOv2.setProductImage(productDetail.getProductItems().get(0).getProductImage());
                 productItemDTOv2.setQuantityInStock(productDetail.getProductItems().get(0).getQuantityInStock());
                 productItemDTOv2.setNumberQuantity(0);
@@ -349,6 +406,14 @@ public class IProductService implements ProductService {
     public ProductDetailResponsev2 getDetailProduct(Long productId) {
         var product = productRepository.findById(productId);
         if (product.isPresent()) {
+            var estimatedPrice = product.get().getEstimatedPrice();
+            var salePrice = estimatedPrice;
+
+            if (product.get().getSale() != null && product.get().getSale().isActive()
+                    && product.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                    && product.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))){
+                salePrice = (int) (estimatedPrice - estimatedPrice * 0.01 * product.get().getSale().getDiscountRate());
+            }
             var items = productItemRepository.findAllByProduct_Id(product.get().getId());
             var productDetail = productMapper.toDetailResponse(product.get());
             var totalQuantity = 0;
@@ -357,6 +422,8 @@ public class IProductService implements ProductService {
             }
             productDetail.setQuantity(totalQuantity);
             productDetail.setQuantityOfVariation(items.size());
+            productDetail.setSalePrice(salePrice);
+            productDetail.setDiscountRate(product.get().getSale().getDiscountRate());
             List<ProductItemResponse> productItemResponses = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
                 if (!productDetail.getProductItems().get(0).isActive()) {
@@ -369,19 +436,21 @@ public class IProductService implements ProductService {
 
                 String optionColor;
                 String optionSize;
-                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu")) {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
                 } else {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 }
                 productItemResponse.setVariationColor(optionColor);
                 for (int i = 0; i < productDetail.getProductItems().size(); i++) {
-                    if (productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")
+                    if (productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationName().startsWith("Màu")
                             && productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
                         optionSize = productDetail.getProductItems().get(i).getProductConfigurations().get(1).getVariationOption();
                         ProductItemDTOv3 productItemDTOv3 = new ProductItemDTOv3();
                         productItemDTOv3.setId(productDetail.getProductItems().get(i).getId());
                         productItemDTOv3.setPrice(productDetail.getProductItems().get(i).getPrice());
+                        productItemDTOv3.setSalePrice(productDetail.getSalePrice());
+                        productItemDTOv3.setDiscountRate(productDetail.getDiscountRate());
                         productItemDTOv3.setProductImage(productDetail.getProductItems().get(i).getProductImage());
                         productItemDTOv3.setQuantityInStock(productDetail.getProductItems().get(i).getQuantityInStock());
                         productItemDTOv3.setActive(productDetail.getProductItems().get(i).isActive());
@@ -393,6 +462,8 @@ public class IProductService implements ProductService {
                         ProductItemDTOv3 productItemDTOv3 = new ProductItemDTOv3();
                         productItemDTOv3.setId(productDetail.getProductItems().get(i).getId());
                         productItemDTOv3.setPrice(productDetail.getProductItems().get(i).getPrice());
+                        productItemDTOv3.setSalePrice(productDetail.getSalePrice());
+                        productItemDTOv3.setDiscountRate(productDetail.getDiscountRate());
                         productItemDTOv3.setProductImage(productDetail.getProductItems().get(i).getProductImage());
                         productItemDTOv3.setQuantityInStock(productDetail.getProductItems().get(i).getQuantityInStock());
                         productItemDTOv3.setActive(productDetail.getProductItems().get(i).isActive());
@@ -413,6 +484,7 @@ public class IProductService implements ProductService {
             }
             var productResponse = productMapper.toProductDetailResponsev2(productDetail);
             productResponse.setProductItemResponses(productItemResponses);
+            productResponse.setDiscountRate(productDetail.getDiscountRate());
             var userReviews = reviewService.findAllByProductId(productId);
             List<Review> reviews = new ArrayList<>();
             List<Long> orderItemIds = new ArrayList<>();
@@ -478,8 +550,7 @@ public class IProductService implements ProductService {
                 }
                 String productItemImage = "";
                 String url = "";
-                Integer minPrice = Integer.MAX_VALUE;
-                Integer maxPrice = 0;
+                var estimatedPrice = 0;
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
@@ -487,12 +558,7 @@ public class IProductService implements ProductService {
                     String name = "";
                     var size = variationOptionRepository.findAllByVariation_Id(sizeId);
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
-                    if (p.getPrice() > maxPrice) {
-                        maxPrice = p.getPrice();
-                    }
-                    if (p.getPrice() < minPrice) {
-                        minPrice = p.getPrice();
-                    }
+                    estimatedPrice = p.getPrice();
 
                     String sizeValue = "";
                     String colorValue = "";
@@ -607,12 +673,8 @@ public class IProductService implements ProductService {
                 product.setProductItems(productItems);
                 product.setSold(0);
                 product.setRating(0.0);
-                if (!minPrice.equals(maxPrice)) {
+                product.setEstimatedPrice(estimatedPrice);
 
-                    product.setEstimatedPrice(minPrice + " - " + maxPrice);
-                } else {
-                    product.setEstimatedPrice(minPrice.toString());
-                }
                 productRepository.save(product);
 
                 return "Successfully save product";
@@ -660,8 +722,7 @@ public class IProductService implements ProductService {
                 }
                 String productItemImage = "";
                 String url = "";
-                Integer minPrice = Integer.MAX_VALUE;
-                Integer maxPrice = 0;
+                var estimatedPrice = 0;
 
                 var image_product = productItemRequests.get(0).getProductImage();
 
@@ -676,12 +737,7 @@ public class IProductService implements ProductService {
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
                     boolean sizeFlag = false;
                     boolean colorFlag = false;
-                    if (p.getPrice() > maxPrice) {
-                        maxPrice = p.getPrice();
-                    }
-                    if (p.getPrice() < minPrice) {
-                        minPrice = p.getPrice();
-                    }
+                    estimatedPrice = p.getPrice();
                     loop:
                     {
                         if (!size.isEmpty()) {
@@ -813,12 +869,8 @@ public class IProductService implements ProductService {
                     product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
                 } else product.setProductImage(ImageUtil.urlImage);
 
-                if (!minPrice.equals(maxPrice)) {
+                product.setEstimatedPrice(estimatedPrice);
 
-                    product.setEstimatedPrice(minPrice + " - " + maxPrice);
-                } else {
-                    product.setEstimatedPrice(minPrice.toString());
-                }
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 productRepository.save(product);

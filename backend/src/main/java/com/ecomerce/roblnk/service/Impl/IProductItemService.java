@@ -21,4 +21,10 @@ public class IProductItemService implements ProductItemService {
     public ProductItem getProductItem(Long id) {
         return productItemRepository.findById(id).orElseThrow();
     }
+
+    @Override
+    public Integer getDiscountedPrice(Long id) {
+        var price = productItemRepository.findById(id).orElseThrow().getProduct();
+        return (int) (price.getEstimatedPrice() - price.getSale().getDiscountRate() * 0.01);
+    }
 }

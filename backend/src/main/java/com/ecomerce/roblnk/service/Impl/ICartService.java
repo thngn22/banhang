@@ -52,8 +52,6 @@ public class ICartService implements CartService {
     private final UserPaymentMethodRepository userPaymentMethodRepository;
     private final AddressRepository addressRepository;
     private final UserAddressRepository userAddressRepository;
-    private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final EmailService emailService;
     private final ProductItemRepository productItemRepository;
@@ -140,6 +138,7 @@ public class ICartService implements CartService {
 
             for (CartItemEditRequest cartItemEditRequest : list) {
                 var productItem = productItemService.getProductItem(cartItemEditRequest.getProductItemId());
+                var salePrice = productItemService.getDiscountedPrice(cartItemEditRequest.getProductItemId());
                 if (productItem != null) {
                     if (productItem.isActive()) {
                         var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
@@ -174,7 +173,7 @@ public class ICartService implements CartService {
                                                 cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
                                                 cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
                                             }
-                                            cartItem.setPrice(productItem.getPrice());
+                                            cartItem.setPrice((int) (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01));
                                             cartItem = cartItemRepository.save(cartItem);
                                             System.out.println("Gia: " + cartItem.getPrice());
                                             System.out.println("So luong: " + cartItem.getQuantity());
@@ -224,7 +223,7 @@ public class ICartService implements CartService {
                                 cartItem.setTotalPrice(0);
                             } else {
                                 cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
+                                cartItem.setTotalPrice((int) (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01) * cartItemEditRequest.getQuantity());
                             }
                             cartItemRepository.save(cartItem);
                             userCart.getCartItems().add(cartItem);

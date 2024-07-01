@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface ProductService {
     List<ProductResponse> getAllProduct(Long categoryId);
+    List<ProductResponse> getAllProductWithOutFlashSale(Long categoryId);
+
     PageResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber, boolean isAdmin);
 
     ProductDetailResponsev3 getDetailProductForAdmin(Long productId);

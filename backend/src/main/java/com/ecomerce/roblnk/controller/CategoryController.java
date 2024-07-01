@@ -35,7 +35,16 @@ public class CategoryController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
-
+    @GetMapping("/with_out_flash_sale")
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllProductInCategoryWithOutFlashSale(@RequestParam(value = "category_id", required = false) Long categoryId){
+        var productDetail = productService.getAllProductWithOutFlashSale(categoryId);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
     @PostMapping(value = "/{id}/products", consumes = {"multipart/form-data"})
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addProductToCategory(@PathVariable("id") Long id, @RequestBody @Valid ProductRequest request,
