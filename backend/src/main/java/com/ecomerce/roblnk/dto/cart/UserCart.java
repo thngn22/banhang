@@ -14,6 +14,8 @@ public class UserCart {
     private Long id;
     private Long userId;
     private Integer totalPrice;
+    private Double discountRate;
+    private Integer finalPrice;
     private int totalItem;
     private List<CartItemDTO> cartItems;
 

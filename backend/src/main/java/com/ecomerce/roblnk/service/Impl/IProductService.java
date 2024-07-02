@@ -99,8 +99,10 @@ public class IProductService implements ProductService {
             list.add(total);
             if (products.get(i).getSale() != null && products.get(i).getSale().isActive()
                     && products.get(i).getSale().getEndDate().after(new Date(System.currentTimeMillis()))
-                    && products.get(i).getSale().getStartDate().before(new Date(System.currentTimeMillis()))){                discountRate.add(products.get(i).getSale().getDiscountRate());
-                salePrices.add((int) (estimatedPrice - estimatedPrice * 0.01 * products.get(i).getSale().getDiscountRate()));
+                    && products.get(i).getSale().getStartDate().before(new Date(System.currentTimeMillis()))){
+                discountRate.add(products.get(i).getSale().getDiscountRate());
+                double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * products.get(i).getSale().getDiscountRate());
+                salePrices.add((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
             }
             else {
                 discountRate.add(0.0);
@@ -248,8 +250,11 @@ public class IProductService implements ProductService {
             list.add(total);
             if (product.getSale() != null && product.getSale().isActive()
                     && product.getSale().getEndDate().after(new Date(System.currentTimeMillis()))
-                    && product.getSale().getStartDate().before(new Date(System.currentTimeMillis()))){                discountRate.add(product.getSale().getDiscountRate());
-                salePrices.add((int) (estimatedPrice - estimatedPrice * 0.01 * product.getSale().getDiscountRate()));
+                    && product.getSale().getStartDate().before(new Date(System.currentTimeMillis()))){
+
+                discountRate.add(product.getSale().getDiscountRate());
+                double finalPrice =  (estimatedPrice - estimatedPrice * 0.01 * product.getSale().getDiscountRate());
+                salePrices.add((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
             }
             else {
                 discountRate.add(0.0);
@@ -346,8 +351,8 @@ public class IProductService implements ProductService {
             if (product.get().getSale() != null && product.get().getSale().isActive()
                     && product.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
                     && product.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))){
-
-                salePrice = (int) (estimatedPrice - estimatedPrice * 0.01 * product.get().getSale().getDiscountRate());
+                double finalPrice = estimatedPrice - estimatedPrice * 0.01 * product.get().getSale().getDiscountRate();
+                salePrice = (int) (Math.round(finalPrice/1000.0) * 1000 + 1000);
             }
             else {
                 salePrice = estimatedPrice;
@@ -412,7 +417,8 @@ public class IProductService implements ProductService {
             if (product.get().getSale() != null && product.get().getSale().isActive()
                     && product.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
                     && product.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))){
-                salePrice = (int) (estimatedPrice - estimatedPrice * 0.01 * product.get().getSale().getDiscountRate());
+                double finalPrice = estimatedPrice - estimatedPrice * 0.01 * product.get().getSale().getDiscountRate();
+                salePrice = (int) (Math.round(finalPrice/1000.0) * 1000 + 1000);
             }
             var items = productItemRepository.findAllByProduct_Id(product.get().getId());
             var productDetail = productMapper.toDetailResponse(product.get());

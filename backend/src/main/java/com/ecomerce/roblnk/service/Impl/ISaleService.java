@@ -56,8 +56,10 @@ public class ISaleService implements SaleService {
                 }
                 quantity.add(total);
                 if (sale.get().getProducts().get(i).getSale() != null && sale.get().isActive()
-                        && sale.get().getEndDate().after(new Date(System.currentTimeMillis()))){
-                    salePrices.add((int) (estimatedPrice - estimatedPrice * 0.01 * sale.get().getProducts().get(i).getSale().getDiscountRate()));
+                        && sale.get().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && sale.get().getStartDate().before(new Date(System.currentTimeMillis()))){
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * sale.get().getProducts().get(i).getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
                 }
                 else {
                     salePrices.add((int) estimatedPrice);

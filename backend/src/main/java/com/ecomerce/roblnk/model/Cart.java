@@ -38,9 +38,9 @@ public class Cart {
     @JsonIgnore
     private List<CartItem> cartItems = new ArrayList<>();
 
-    //Voucher Cart
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<VoucherCart> voucherCarts = new ArrayList<>();
+    //Voucher
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id")
+    private Voucher voucher;
 
 }

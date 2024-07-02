@@ -78,6 +78,15 @@ public class ICartService implements CartService {
                         cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                     }
                 }
+                if (cart.getVoucher() == null){
+                    userCart.setDiscountRate(0.0);
+                    userCart.setFinalPrice(userCart.getTotalPrice());
+                }
+                else {
+                    userCart.setDiscountRate(cart.getVoucher().getDiscountRate());
+                    double finalPrice = (userCart.getTotalPrice() - userCart.getDiscountRate() * userCart.getTotalPrice() * 0.01);
+                    userCart.setFinalPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
+                }
                 userCart.setCartItems(list);
                 return ResponseEntity.status(HttpStatus.OK).body(userCart);
 
@@ -138,7 +147,6 @@ public class ICartService implements CartService {
 
             for (CartItemEditRequest cartItemEditRequest : list) {
                 var productItem = productItemService.getProductItem(cartItemEditRequest.getProductItemId());
-                var salePrice = productItemService.getDiscountedPrice(cartItemEditRequest.getProductItemId());
                 if (productItem != null) {
                     if (productItem.isActive()) {
                         var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
@@ -173,7 +181,8 @@ public class ICartService implements CartService {
                                                 cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
                                                 cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
                                             }
-                                            cartItem.setPrice((int) (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01));
+                                            double finalPrice = (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01);
+                                            cartItem.setPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
                                             cartItem = cartItemRepository.save(cartItem);
                                             System.out.println("Gia: " + cartItem.getPrice());
                                             System.out.println("So luong: " + cartItem.getQuantity());
@@ -223,7 +232,8 @@ public class ICartService implements CartService {
                                 cartItem.setTotalPrice(0);
                             } else {
                                 cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                cartItem.setTotalPrice((int) (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01) * cartItemEditRequest.getQuantity());
+                                double finalPrice = (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01) * cartItemEditRequest.getQuantity();
+                                cartItem.setTotalPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000)  );
                             }
                             cartItemRepository.save(cartItem);
                             userCart.getCartItems().add(cartItem);

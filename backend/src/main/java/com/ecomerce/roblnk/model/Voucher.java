@@ -34,13 +34,16 @@ public class Voucher {
     private Double discountRate;
 
     @Column(name = "maximum_discount_valid_price")
-    private Double maximumDiscountValidPrice;
+    private Integer maximumDiscountValidPrice;
 
     @Column(name = "minimum_cart_price")
-    private Double minimumCartPrice;
+    private Integer minimumCartPrice;
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    @Column(name = "current_quantity")
+    private Integer currentQuantity;
 
     @Column(name = "start_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
@@ -61,10 +64,10 @@ public class Voucher {
     private Date createdAt;
 
 
-    //Voucher Cart
-    @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    //Cart
+    @OneToOne(mappedBy = "voucher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<VoucherCart> voucherCarts = new ArrayList<>();
+    private Cart cart;
 
 
 }
