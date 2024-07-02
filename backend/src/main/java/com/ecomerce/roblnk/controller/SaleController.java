@@ -20,8 +20,7 @@ public class SaleController {
 
     private final SaleService saleService;
 
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    @GetMapping("/")
     public ResponseEntity<?> getAllFlashSales() {
         var saleResponses = saleService.getSaleResponses();
         if (saleResponses != null){
