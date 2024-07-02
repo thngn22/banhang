@@ -1,0 +1,7 @@
+.filter__product {
+    margin-left: 8px;
+}
+
+.filter__product .ant-select-selector{
+    padding: 0 30px !important;
+}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TableComponent from "../../components/TableComponent/TableComponent";
 import * as ProductService from "../../../services/ProductService";
 import { useQuery } from "@tanstack/react-query";
-import { Modal, Pagination, message } from "antd";
+import { Modal, Pagination, Select, message } from "antd";
 
 import {
   DeleteOutlined,
@@ -17,6 +17,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import * as AuthService from "../../../services/AuthService";
+import { Option } from "antd/es/mentions";
+import "./styles.css";
 
 const ProductsManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -91,7 +93,6 @@ const ProductsManagementPage = () => {
     );
     return res;
   });
-  const { data, status, isSuccess, isError } = mutation;
 
   const renderAction = (key, product) => {
     return (
@@ -169,12 +170,10 @@ const ProductsManagementPage = () => {
 
     mutation.mutate(id, {
       onSuccess: () => {
-        // Hiển thị thông báo thành công
         message.success("Chỉnh sửa trạng thái thành công");
         refetch({ queryKey: ["products"] });
       },
       onError: (error) => {
-        // Hiển thị thông báo lỗi
         message.error(`Đã xảy ra lỗi: ${error.message}`);
         refetch({ queryKey: ["products"] });
       },
@@ -190,14 +189,11 @@ const ProductsManagementPage = () => {
         auth?.accessToken,
         axiosJWT
       );
-      // console.log("Detail Product Data:", detailProduct);
       dispatch(updateProductDetail({}));
       dispatch(updateProductDetail(detailProduct));
     } catch (error) {
       console.error("Error fetching product details:", error);
     }
-
-    // dispatch(updateProductDetail(fakeAPI));
     setIsModalOpen(true);
   };
   const handleOk = () => {
@@ -213,22 +209,77 @@ const ProductsManagementPage = () => {
 
   const handleRowClick = async (productId) => {};
 
+  const handleAddProduct = () => {
+    console.log("onclick");
+  };
+
+  const handleFilterProduct = () => {
+    console.log("onclickFilter");
+  };
+
   return (
     <div className="p-6">
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-2xl font-extrabold">Quản lý sản phẩm</p>
+
+        <button
+          className="text-white bg-red-600 py-2 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
+          onClick={handleAddProduct}
+        >
+          Thêm sản phẩm
+        </button>
+      </div>
+
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex gap-4">
+          <div>
+            <label htmlFor="name">Tên:</label>
+            <input type="text" id="name" className="ml-2 py-1 rounded-lg" />
+          </div>
+
+          <div>
+            <label htmlFor="cate">Loại:</label>
+            <input type="text" id="cate" className="ml-2 py-1 rounded-lg" />
+          </div>
+
+          <div>
+            <label htmlFor="number">Số lượng:</label>
+            <input type="text" id="number" className="ml-2 py-1 rounded-lg" />
+          </div>
+
+          <div>
+            <label htmlFor="status">Tình trạng:</label>
+            <Select className="filter__product">
+              <Option value="active">Active</Option>
+              <Option value="inActive">Inctive</Option>
+            </Select>
+          </div>
+        </div>
+        <button
+          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
+          onClick={handleFilterProduct}
+        >
+          Lọc
+        </button>
+      </div>
+
       <TableComponent
         data={dataTable}
         columns={columns}
         onRowClick={handleRowClick}
       />
 
-      {products && (
-        <Pagination
-          total={products?.totalElements}
-          pageSize={products?.pageSize}
-          defaultCurrent={pageNumber}
-          onChange={onChange}
-        />
-      )}
+      <div className="flex justify-center mt-2">
+        {products && (
+          <Pagination
+            total={products?.totalElements}
+            pageSize={products?.pageSize}
+            defaultCurrent={pageNumber}
+            showSizeChanger={false}
+            onChange={onChange}
+          />
+        )}
+      </div>
 
       <Modal
         title="Chi tiết sản phẩm"

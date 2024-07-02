@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TableComponent from "../../components/TableComponent/TableComponent";
 import { useDispatch, useSelector } from "react-redux";
-import { Modal, Pagination } from "antd";
+import { Modal, Pagination, Select } from "antd";
 import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
 
@@ -12,6 +12,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import * as AuthService from "../../../services/AuthService";
+import { Option } from "antd/es/mentions";
 
 const OrdersManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -224,20 +225,75 @@ const OrdersManagementPage = () => {
     setPageNumber(pageNumber);
   };
 
+  const handleFilterProduct = () => {
+    console.log("onclickFilter");
+  };
+
   return (
     <div className="p-4">
-      <TableComponent
-        columns={columns}
-        data={dataTable}
-      />
-      {orders && (
-        <Pagination
-          total={orders?.totalElements}
-          pageSize={orders?.pageSize}
-          defaultCurrent={pageNumber}
-          onChange={onChange}
-        />
-      )}
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-2xl font-extrabold">Quản lý đơn hàng</p>
+      </div>
+
+      <div className="flex justify-between items-end mb-2">
+        <div>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex gap-1">
+              <label htmlFor="name">Mã đơn:</label>
+              <input type="text" id="name" className="py-1 rounded-lg" />
+            </div>
+
+            <div className="flex gap-1">
+              <label htmlFor="cate">Email:</label>
+              <input type="text" id="cate" className="py-1 rounded-lg" />
+            </div>
+
+            <div className="flex gap-1">
+              <label htmlFor="number">Địa chỉ:</label>
+              <input type="text" id="number" className="py-1 rounded-lg" />
+            </div>
+          </div>
+
+          <div className="flex gap-4 mt-2">
+            <div className="flex gap-1">
+              <label htmlFor="status">Tình trạng:</label>
+              <Select className="filter__product">
+                <Option value="active">Active</Option>
+                <Option value="inActive">Inctive</Option>
+              </Select>
+            </div>
+
+            <div className="flex gap-1">
+              <label htmlFor="paymentMethod">Phương thức thanh toán:</label>
+              <Select className="filter__product">
+                <Option value="COD">COD</Option>
+                <Option value="VnPay">VnPay</Option>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        <button
+          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
+          onClick={handleFilterProduct}
+        >
+          Lọc
+        </button>
+      </div>
+
+      <TableComponent columns={columns} data={dataTable} />
+
+      <div className="flex justify-center mt-2">
+        {orders && (
+          <Pagination
+            total={orders?.totalElements}
+            pageSize={orders?.pageSize}
+            defaultCurrent={pageNumber}
+            showSizeChanger={false}
+            onChange={onChange}
+          />
+        )}
+      </div>
 
       <Modal
         open={isModalOpen}

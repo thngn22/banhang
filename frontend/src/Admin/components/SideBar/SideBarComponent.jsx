@@ -14,15 +14,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getItem } from "../../../utils/untils";
 import { useQuery } from "@tanstack/react-query";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import * as CategoryService from "../../../services/CategoryService";
 import { getCategory } from "../../../redux/slides/categorySlice";
 import "./styles.css";
 import pluginIcon from "../../../Data/icon/plugin.png";
 
 const SideBarComponent = () => {
-  const auth = useSelector((state) => state.auth.login.currentUser);
-  console.log(auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

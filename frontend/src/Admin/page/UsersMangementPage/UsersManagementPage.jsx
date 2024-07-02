@@ -7,9 +7,10 @@ import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import { useQuery } from "@tanstack/react-query";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import { Pagination, message } from "antd";
+import { Pagination, Select, message } from "antd";
 import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import TableComponent from "../../components/TableComponent/TableComponent";
+import { Option } from "antd/es/mentions";
 
 const UsersManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -152,21 +153,57 @@ const UsersManagementPage = () => {
     setPageNumber(pageNumber);
   };
 
+  const handleFilterProduct = () => {
+    console.log("onclickFilter");
+  };
+
   return (
     <div className="p-6">
-      <TableComponent
-        data={dataTable}
-        columns={columns}
-      />
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-2xl font-extrabold">Quản lý người dùng</p>
+      </div>
 
-      {users && (
-        <Pagination
-          total={users?.totalElements}
-          pageSize={users?.pageSize}
-          defaultCurrent={pageNumber}
-          onChange={onChange}
-        />
-      )}
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex gap-4">
+          <div>
+            <label htmlFor="idUser">Mã người dùng:</label>
+            <input type="text" id="idUser" className="ml-2 py-1 rounded-lg" />
+          </div>
+
+          <div>
+            <label htmlFor="email">Email:</label>
+            <input type="text" id="email" className="ml-2 py-1 rounded-lg" />
+          </div>
+
+          <div>
+            <label htmlFor="status">Tình trạng:</label>
+            <Select className="filter__product">
+              <Option value="active">Active</Option>
+              <Option value="inActive">Inctive</Option>
+            </Select>
+          </div>
+        </div>
+        <button
+          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
+          onClick={handleFilterProduct}
+        >
+          Lọc
+        </button>
+      </div>
+
+      <TableComponent data={dataTable} columns={columns} />
+
+      <div className="flex justify-center mt-2">
+        {users && (
+          <Pagination
+            total={users?.totalElements}
+            pageSize={users?.pageSize}
+            defaultCurrent={pageNumber}
+            showSizeChanger={false}
+            onChange={onChange}
+          />
+        )}
+      </div>
     </div>
   );
 };
