@@ -20,8 +20,8 @@ public class VoucherController {
     private final VoucherService voucherService;
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllVouchersForAdmin() {
-        var saleResponses = voucherService.getListVouchers();
+    public ResponseEntity<?> getAllVouchersForAdmin(@RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
+        var saleResponses = voucherService.getListVouchers(pageNumber);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);
         }
@@ -36,6 +36,14 @@ public class VoucherController {
         else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getVoucherDetail(@PathVariable(name = "id") Long id) {
+        var saleResponses = voucherService.getVoucherDetail(id);
+        if (saleResponses != null){
+            return ResponseEntity.ok(saleResponses);
+        }
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
+    }
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> createVoucher(@RequestBody VoucherRequest voucherRequest) {
@@ -65,9 +73,9 @@ public class VoucherController {
         else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
     }
 
-    @DeleteMapping("")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> deleteVoucher(@RequestParam(name = "id") Long id) {
+    public ResponseEntity<?> deleteVoucher(@PathVariable(name = "id") Long id) {
         var saleResponses = voucherService.deleteVoucher(id);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);

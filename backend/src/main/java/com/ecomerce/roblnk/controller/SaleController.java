@@ -20,17 +20,18 @@ public class SaleController {
 
     private final SaleService saleService;
 
-    @GetMapping("/")
-    public ResponseEntity<?> getAllFlashSales() {
-        var saleResponses = saleService.getSaleResponses();
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllFlashSales(@RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
+        var saleResponses = saleService.getSaleResponses(pageNumber);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);
         }
         else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
     }
-    @GetMapping("")
+    @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getDetailFlashSale(@RequestParam(name = "id") Long id) {
+    public ResponseEntity<?> getDetailFlashSale(@PathVariable(name = "id") Long id) {
         var saleResponses = saleService.getSaleResponseDetail(id);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);

@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.voucher.ApplyVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.EditVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.VoucherRequest;
@@ -14,15 +15,21 @@ import com.ecomerce.roblnk.repository.UserRepository;
 import com.ecomerce.roblnk.repository.VoucherRepository;
 import com.ecomerce.roblnk.service.VoucherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +40,26 @@ public class IVoucherService implements VoucherService {
     private final CartRepository cartRepository;
 
     @Override
-    public List<VoucherResponse> getListVouchers() {
+    public PageResponse getListVouchers(Integer pageNumber) {
         var vouchers = voucherRepository.findAll();
-        return voucherMapper.toVoucherResponseList(vouchers);
+        var voucherResponse = voucherMapper.toVoucherResponseList(vouchers);
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), voucherResponse.size());
+        List<VoucherResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = voucherResponse.subList(start, end);
+
+        }
+        Page<VoucherResponse> page = new PageImpl<>(pageContent, pageable, voucherResponse.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
+
     }
 
     @Override
@@ -205,5 +229,11 @@ public class IVoucherService implements VoucherService {
             else i++;
         }
         return voucherMapper.toVoucherResponseList(vouchers);    }
+
+    @Override
+    public VoucherResponse getVoucherDetail(Long id) {
+        var vouchers = voucherRepository.findById(id);
+        return vouchers.map(voucherMapper::toVoucherResponse).orElse(null);
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.service;
 
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.voucher.ApplyVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.EditVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.VoucherRequest;
@@ -10,7 +11,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface VoucherService {
-    List<VoucherResponse> getListVouchers();
+    PageResponse getListVouchers(Integer pageNumber);
 
     String createVoucher(VoucherRequest voucherRequest);
 
@@ -23,4 +24,6 @@ public interface VoucherService {
     ResponseEntity<?> revokeVoucher(Long cartId, Principal principal);
 
     List<VoucherResponse> getListVouchersForAll();
+
+    VoucherResponse getVoucherDetail(Long id);
 }

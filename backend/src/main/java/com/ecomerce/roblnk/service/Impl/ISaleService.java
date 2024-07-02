@@ -1,9 +1,11 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.sale.EditFlashSaleRequest;
 import com.ecomerce.roblnk.dto.sale.FlashSaleRequest;
 import com.ecomerce.roblnk.dto.sale.SaleResponse;
 import com.ecomerce.roblnk.dto.sale.SaleResponseDetail;
+import com.ecomerce.roblnk.dto.voucher.VoucherResponse;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.SaleMapper;
 import com.ecomerce.roblnk.model.Product;
@@ -14,12 +16,17 @@ import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.repository.SaleRepository;
 import com.ecomerce.roblnk.service.SaleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +38,25 @@ public class ISaleService implements SaleService {
     private final ProductRepository productRepository;
     private final ProductItemRepository productItemRepository;
     @Override
-    public List<SaleResponse> getSaleResponses() {
+    public PageResponse getSaleResponses(Integer pageNumber) {
         var sales = saleRepository.findAll();
-        return saleMapper.toSaleResponses(sales);
+        var saleResponse = saleMapper.toSaleResponses(sales);
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), saleResponse.size());
+        List<SaleResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = saleResponse.subList(start, end);
+
+        }
+        Page<SaleResponse> page = new PageImpl<>(pageContent, pageable, saleResponse.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
     }
 
     @Override
