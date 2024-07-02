@@ -194,4 +194,16 @@ public class IVoucherService implements VoucherService {
                 .build());
     }
 
+    @Override
+    public List<VoucherResponse> getListVouchersForAll() {
+        var vouchers = voucherRepository.findAll();
+        int i = 0;
+        while (i < vouchers.size()){
+            if (vouchers.get(i).getCurrentQuantity() >= vouchers.get(i).getQuantity() || !vouchers.get(i).isActive()){
+                vouchers.remove(i);
+            }
+            else i++;
+        }
+        return voucherMapper.toVoucherResponseList(vouchers);    }
+
 }

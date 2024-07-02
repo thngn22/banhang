@@ -21,4 +21,6 @@ public interface VoucherService {
     ResponseEntity<?> applyVoucher(ApplyVoucherRequest voucherRequest, Principal principal);
 
     ResponseEntity<?> revokeVoucher(Long cartId, Principal principal);
+
+    List<VoucherResponse> getListVouchersForAll();
 }
