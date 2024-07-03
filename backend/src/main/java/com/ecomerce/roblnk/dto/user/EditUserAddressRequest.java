@@ -1,9 +1,12 @@
 package com.ecomerce.roblnk.dto.user;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class    UserAddressRequest {
+@Setter
+@Getter
+public class EditUserAddressRequest {
+    private Long id;
     private String city;
     private String district;
     private String ward;

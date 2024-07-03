@@ -32,9 +32,9 @@ public class Address {
     private String address;
 
     //User Address
-    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<UserAddress> userAddresses;
+    private UserAddress userAddresses;
 
     //Order
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

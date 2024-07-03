@@ -5,6 +5,6 @@ import lombok.*;
 @Getter
 @Setter
 public class UserAddressResponse {
-    private AddressDTO address;
+    private AddressDTO addressInfor;
     private boolean isDefault;
 }

@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
+import com.ecomerce.roblnk.dto.user.EditUserAddressRequest;
 import com.ecomerce.roblnk.dto.user.EditUserProfileRequest;
 import com.ecomerce.roblnk.dto.user.UserAddressRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
@@ -49,20 +50,25 @@ public class UserController {
 
     @GetMapping("/account/address")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> address(Principal connectedUser) {
+    public ResponseEntity<?> getAllAddress(Principal connectedUser) {
         return userService.getUserAddress(connectedUser);
     }
 
+    @GetMapping("/account/address/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllAddress(Principal connectedUser, @PathVariable(name = "id") Long id) {
+        return userService.getDetailUserAddress(connectedUser, id);
+    }
     @PostMapping("/account/address")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addAddress(Principal connectedUser, @RequestBody UserAddressRequest userAddressRequest) {
         return userService.addUserAddress(connectedUser, userAddressRequest);
     }
 
-    @PutMapping("/account/address/{id}")
+    @PutMapping("/account/address")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> updateAddress(Principal connectedUser, @PathVariable("id") Long id, @RequestBody UserAddressRequest userUpdateAddressRequest) {
-        return userService.updateUserAddress(connectedUser, id, userUpdateAddressRequest);
+    public ResponseEntity<?> updateAddress(Principal connectedUser, @RequestBody EditUserAddressRequest userUpdateAddressRequest) {
+        return userService.updateUserAddress(connectedUser, userUpdateAddressRequest);
     }
 
     @DeleteMapping("/account/address/{id}")

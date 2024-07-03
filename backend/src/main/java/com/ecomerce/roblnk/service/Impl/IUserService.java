@@ -8,6 +8,7 @@ import com.ecomerce.roblnk.dto.order.OrdersResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
+import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.mapper.ReviewMapper;
 import com.ecomerce.roblnk.mapper.UserMapper;
@@ -30,10 +31,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_IN_USE;
 import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
@@ -148,30 +146,52 @@ public class IUserService implements UserService {
         var addressList = userMapper.toListUserAddressResponse(userAddress);
         return ResponseEntity.ok(addressList);
     }
+    @Override
+    public ResponseEntity<?> getDetailUserAddress(Principal connectedUser, Long id) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        var userAddress = userAddressRepository.findByAddress_IdAndUser_Email(id, user.getEmail());
+        if (userAddress != null){
+            return ResponseEntity.ok(userMapper.toUserAddressResponse(userAddress));
 
+        }
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                .statusCode(404)
+                .message(String.valueOf(HttpStatus.NOT_FOUND))
+                .description("Address not found!")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build());
+    }
     @Override
     public ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        boolean flag = user.getAddresses().isEmpty();
         var address = userMapper.toAddressEntity(userAddressRequest);
         var user_address = userAddressRepository.findAllByUser_Email(user.getEmail());
         UserAddress userAddress = new UserAddress();
         userAddress.setUser(user);
         userAddress.setAddress(address);
-        userAddress.setDefault(false);
+        userAddress.setDefault(flag);
         user_address.add(userAddress);
         addressRepository.save(address);
         userAddressRepository.save(userAddress);
         return ResponseEntity.ok("Added new address!");
     }
 
+
     @Override
-    public ResponseEntity<?> updateUserAddress(Principal connectedUser, Long id, UserAddressRequest userUpdateAddressRequest) {
-        var addressId = addressRepository.findById(id);
+    public ResponseEntity<?> updateUserAddress(Principal connectedUser, EditUserAddressRequest userUpdateAddressRequest) {
+        var addressId = addressRepository.findById(userUpdateAddressRequest.getId());
         if (addressId.isPresent()) {
             addressId.get().setCity(userUpdateAddressRequest.getCity());
             addressId.get().setDistrict(userUpdateAddressRequest.getDistrict());
             addressId.get().setWard(userUpdateAddressRequest.getWard());
             addressId.get().setAddress(userUpdateAddressRequest.getAddress());
+            if (userUpdateAddressRequest.isDefault()){
+                var userAddressList = userAddressRepository.findAllByUser_Email(connectedUser.getName());
+                for (UserAddress userAddress : userAddressList){
+                    userAddress.setDefault(userAddress.getId().equals(addressId.get().getId()));
+                }
+            }
             addressRepository.save(addressId.get());
             return ResponseEntity.ok("Updated address!");
         } else {
@@ -185,6 +205,7 @@ public class IUserService implements UserService {
         var userAddresses = userAddressRepository.findUserAddressByAddress_IdAndUser_Email(id, user.getEmail());
         if (userAddresses.isPresent()) {
             System.out.println(userAddresses.get().getId());
+            addressRepository.delete(userAddresses.get().getAddress());
             userAddressRepository.delete(userAddresses.get());
             return ResponseEntity.ok("Deleted address!");
         } else {

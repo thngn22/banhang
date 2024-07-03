@@ -7,10 +7,7 @@ import com.ecomerce.roblnk.dto.review.ReviewRequest;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
 import com.ecomerce.roblnk.exception.UserException;
-import com.ecomerce.roblnk.model.ChatUser;
 import com.ecomerce.roblnk.model.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;
@@ -32,7 +29,7 @@ public interface UserService {
 
     ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest);
 
-    ResponseEntity<?> updateUserAddress(Principal connectedUser, Long id, UserAddressRequest userUpdateAddressRequest);
+    ResponseEntity<?> updateUserAddress(Principal connectedUser, EditUserAddressRequest userUpdateAddressRequest);
 
     ResponseEntity<?> deleteUserAddress(Principal connectedUser, Long id);
 
@@ -57,4 +54,6 @@ public interface UserService {
     String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests);
 
     List<ReviewResponseForUser> getRatingProduct(Principal connectedUser, Long id);
+
+    ResponseEntity<?> getDetailUserAddress(Principal connectedUser, Long id);
 }
