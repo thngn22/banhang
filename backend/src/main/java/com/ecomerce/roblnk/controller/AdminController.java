@@ -151,5 +151,14 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
     }
 
+    @GetMapping("/user_address/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getDetailUserAddress(@PathVariable("id") Long id) {
+        var product = userService.getDetailUserAddressForAdmin(id);
+        if (product != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        } else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
 
 }

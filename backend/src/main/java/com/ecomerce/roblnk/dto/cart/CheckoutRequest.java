@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CheckoutRequest {
     private List<Long> cartItemId;
-    private UserAddressRequestv2 userAddressRequestv2;
+    private Long addressId;
     private Long paymentMethodId;
     private Long deliveryId;
     private String phoneNumber;

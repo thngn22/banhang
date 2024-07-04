@@ -6,5 +6,7 @@ import lombok.*;
 @Setter
 public class UserAddressResponse {
     private AddressDTO addressInfor;
-    private boolean isDefault;
+    private boolean _default;
+    private boolean active;
+
 }

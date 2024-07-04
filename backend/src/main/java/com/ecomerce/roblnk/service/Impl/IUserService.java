@@ -44,7 +44,6 @@ public class IUserService implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final UserAddressRepository userAddressRepository;
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -142,16 +141,17 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> getUserAddress(Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        var userAddress = userAddressRepository.findAllByUser_Email(user.getEmail());
+        var userAddress = addressRepository.findAllByUser_Email(user.getEmail());
         var addressList = userMapper.toListUserAddressResponse(userAddress);
         return ResponseEntity.ok(addressList);
     }
     @Override
     public ResponseEntity<?> getDetailUserAddress(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        var userAddress = userAddressRepository.findByAddress_IdAndUser_Email(id, user.getEmail());
-        if (userAddress != null){
-            return ResponseEntity.ok(userMapper.toUserAddressResponse(userAddress));
+        var userAddress = addressRepository.findByIdAndUser_Email(id, user.getEmail());
+        if (userAddress.isPresent()){
+            System.out.println(userAddress.get().getId());
+            return ResponseEntity.ok(userMapper.toUserAddressResponse(userAddress.get()));
 
         }
         else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
@@ -161,19 +161,22 @@ public class IUserService implements UserService {
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build());
     }
+
+    @Override
+    public List<UserAddressResponse> getDetailUserAddressForAdmin(Long id) {
+        var addresses = addressRepository.findAllByUser_Id(id);
+        return userMapper.toListUserAddressResponse(addresses);
+    }
+
     @Override
     public ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         boolean flag = user.getAddresses().isEmpty();
         var address = userMapper.toAddressEntity(userAddressRequest);
-        var user_address = userAddressRepository.findAllByUser_Email(user.getEmail());
-        UserAddress userAddress = new UserAddress();
-        userAddress.setUser(user);
-        userAddress.setAddress(address);
-        userAddress.setDefault(flag);
-        user_address.add(userAddress);
+        address.set_default(flag);
+        address.setUser(user);
+        address.setActive(true);
         addressRepository.save(address);
-        userAddressRepository.save(userAddress);
         return ResponseEntity.ok("Added new address!");
     }
 
@@ -186,10 +189,11 @@ public class IUserService implements UserService {
             addressId.get().setDistrict(userUpdateAddressRequest.getDistrict());
             addressId.get().setWard(userUpdateAddressRequest.getWard());
             addressId.get().setAddress(userUpdateAddressRequest.getAddress());
-            if (userUpdateAddressRequest.isDefault()){
-                var userAddressList = userAddressRepository.findAllByUser_Email(connectedUser.getName());
-                for (UserAddress userAddress : userAddressList){
-                    userAddress.setDefault(userAddress.getId().equals(addressId.get().getId()));
+            addressId.get().setActive(userUpdateAddressRequest.isActive());
+            if (userUpdateAddressRequest.is_default()){
+                var userAddressList = addressRepository.findAllByUser_Email(connectedUser.getName());
+                for (Address userAddress : userAddressList){
+                    userAddress.set_default(userAddress.getId().equals(addressId.get().getId()));
                 }
             }
             addressRepository.save(addressId.get());
@@ -202,12 +206,21 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> deleteUserAddress(Principal connectedUser, Long id) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        var userAddresses = userAddressRepository.findUserAddressByAddress_IdAndUser_Email(id, user.getEmail());
+        var userAddresses = addressRepository.findByIdAndUser_Email(id, user.getEmail());
         if (userAddresses.isPresent()) {
             System.out.println(userAddresses.get().getId());
-            addressRepository.delete(userAddresses.get().getAddress());
-            userAddressRepository.delete(userAddresses.get());
-            return ResponseEntity.ok("Deleted address!");
+            if (userAddresses.get().isActive()){
+                userAddresses.get().setActive(false);
+                addressRepository.save(userAddresses.get());
+                return ResponseEntity.ok("De-active address successfully!");
+
+            }
+            else {
+                userAddresses.get().setActive(true);
+                addressRepository.save(userAddresses.get());
+                return ResponseEntity.ok("Active address successfully!");
+
+            }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found address to delete!");
         }

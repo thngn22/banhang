@@ -67,7 +67,7 @@ public class User implements UserDetails {
     //Address
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<UserAddress> addresses = new ArrayList<>();
+    private List<Address> addresses = new ArrayList<>();
 
     //Cart
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -90,6 +90,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Orders> orders = new ArrayList<>();
 
+    //Chat User
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private ChatUser chatUser;

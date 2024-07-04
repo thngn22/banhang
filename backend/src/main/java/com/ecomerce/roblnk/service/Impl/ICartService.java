@@ -32,6 +32,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 
@@ -51,7 +52,6 @@ public class ICartService implements CartService {
     private final UserPaymentMethodService userPaymentMethodService;
     private final UserPaymentMethodRepository userPaymentMethodRepository;
     private final AddressRepository addressRepository;
-    private final UserAddressRepository userAddressRepository;
     private final OrderMapper orderMapper;
     private final EmailService emailService;
     private final ProductItemRepository productItemRepository;
@@ -359,7 +359,6 @@ public class ICartService implements CartService {
                 Orders orders = new Orders();
                 int totalPayment = 0;
                 int totalItem = 0;
-                UserAddress userAddress = new UserAddress();
                 List<OrderItem> orderItems = new ArrayList<>();
                 var userCart = getUserCartv2(principal);
                 boolean flagValid = true;
@@ -429,19 +428,20 @@ public class ICartService implements CartService {
                         userPaymentMethod1.getOrders().add(orders);
                         orders.setUserPaymentMethod(userPaymentMethod1);
                     }
-                    Address address = new Address();
-                    address.setCity(list.getUserAddressRequestv2().getCity());
-                    address.setDistrict(list.getUserAddressRequestv2().getDistrict());
-                    address.setWard(list.getUserAddressRequestv2().getWard());
-                    address.setAddress(list.getUserAddressRequestv2().getAddress());
-                    address = addressRepository.save(address);
-                    orders.setAddress(address);
+                    var address = addressRepository.findById(list.getAddressId());
+                    if (address.isEmpty()){
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                                ErrorResponse.builder()
+                                        .statusCode(403)
+                                        .message("Not found any address to apply, please add address first!")
+                                        .description("Not found any address to apply, please add address first!")
+                                        .timestamp(new Date(System.currentTimeMillis()))
+                                        .build()
+                        );
+                    }
+                    orders.setAddress(address.get());
                     orders.setUser(user);
                     orders.setOrderItems(orderItems);
-                    userAddress.setDefault(false);
-                    userAddress.setUser(user);
-                    userAddress.setAddress(address);
-                    userAddressRepository.save(userAddress);
                     userRepository.save(user);
 
 

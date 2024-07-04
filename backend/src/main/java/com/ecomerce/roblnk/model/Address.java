@@ -31,10 +31,16 @@ public class Address {
     @Column(name = "address")
     private String address;
 
-    //User Address
-    @OneToOne(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private UserAddress userAddresses;
+    @Column(name = "is_default")
+    private boolean _default;
+
+    @Column(name = "is_active")
+    private boolean active;
+
+    //User
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     //Order
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -56,4 +56,6 @@ public interface UserService {
     List<ReviewResponseForUser> getRatingProduct(Principal connectedUser, Long id);
 
     ResponseEntity<?> getDetailUserAddress(Principal connectedUser, Long id);
+
+    List<UserAddressResponse> getDetailUserAddressForAdmin(Long id);
 }

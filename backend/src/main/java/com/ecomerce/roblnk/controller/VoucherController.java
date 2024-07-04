@@ -3,11 +3,14 @@ package com.ecomerce.roblnk.controller;
 import com.ecomerce.roblnk.dto.voucher.ApplyVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.EditVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.VoucherRequest;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -46,7 +49,10 @@ public class VoucherController {
     }
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> createVoucher(@RequestBody VoucherRequest voucherRequest) {
+    public ResponseEntity<?> createVoucher(@RequestBody VoucherRequest voucherRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
         var saleResponses = voucherService.createVoucher(voucherRequest);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);
@@ -65,7 +71,10 @@ public class VoucherController {
     }
     @PutMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> editVoucher(@RequestBody EditVoucherRequest editVoucherRequest) {
+    public ResponseEntity<?> editVoucher(@RequestBody EditVoucherRequest editVoucherRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
         var saleResponses = voucherService.editVoucher(editVoucherRequest);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);
