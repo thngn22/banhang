@@ -93,6 +93,7 @@ public class ISaleService implements SaleService {
             for (int j = 0; j < productResponseList.size(); j++) {
                 productResponseList.get(j).setQuantity(quantity.get(j));
                 productResponseList.get(j).setSalePrice(salePrices.get(j));
+                productResponseList.get(j).setDiscountRate(saleDetail.getDiscountRate());
             }
             saleDetail.setProductResponses(productResponseList);
             return saleDetail;
