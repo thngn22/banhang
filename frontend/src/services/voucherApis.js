@@ -19,6 +19,13 @@ const getVoucherssAdmin = async (accessToken, axiosJWT) => {
   return res.data;
 };
 
+const getDetailVouchers = async (id, axiosJWT) => {
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_API_URL}voucher/${id}`
+  );
+  return res.data;
+};
+
 const createVoucherAdmin = async (data, accessToken, axiosJWT) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}voucher/`,
@@ -89,6 +96,7 @@ const deleteVoucherAdmin = async (id, accessToken, axiosJWT) => {
 const apiVouchers = {
   getVouchers,
   getVoucherssAdmin,
+  getDetailVouchers,
   createVoucherAdmin,
   useVoucher,
   revokeVoucher,

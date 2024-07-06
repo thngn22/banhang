@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Pagination, Modal, Select } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import {
   DeleteOutlined,
   EditOutlined,
   CheckCircleOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Option } from "antd/es/mentions";
 
-import { loginSuccess } from "../../../redux/slides/authSlice";
 import TableComponent from "../../components/TableComponent/TableComponent";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { formatDateInHisoryOrder } from "../../../utils/untils.js";
 
-import * as AuthService from "../../../services/AuthService";
 import apiVouchers from "../../../services/voucherApis.js";
+import createAxiosInstance from "../../../services/createAxiosInstance.js";
+import { detailVoucher } from "../../../redux/slides/voucherSlice.js";
+import DetailVoucher from "./DetailVoucher.jsx";
 
 const VouchersManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -26,40 +26,7 @@ const VouchersManagementPage = () => {
   const [dataTable, setDataTable] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
   const { data: vouchers, refetch } = useQuery({
     queryKey: [pageNumber],
@@ -68,7 +35,6 @@ const VouchersManagementPage = () => {
     },
     enabled: Boolean(auth?.accessToken),
   });
-
   useEffect(() => {
     const filterVouchers =
       vouchers?.contents?.length &&
@@ -79,14 +45,13 @@ const VouchersManagementPage = () => {
     setDataTable(filterVouchers);
   }, [vouchers]);
 
-  //   const mutation = useMutationHook((data) => {
-  //     const res = ProductService.changeStatusProduct(
-  //       data,
-  //       auth?.accessToken,
-  //       axiosJWT
-  //     );
-  //     return res;
-  //   });
+  const mutationDetail = useMutationHook((data) => {
+    return apiVouchers.getDetailVouchers(data, axiosJWT);
+  });
+  const { data: dataDetail } = mutationDetail;
+  useEffect(() => {
+    if (dataDetail) dispatch(detailVoucher(dataDetail));
+  }, [dataDetail]);
 
   const renderAction = (key, product) => {
     return (
@@ -97,15 +62,14 @@ const VouchersManagementPage = () => {
           width: "80%",
         }}
       >
-        {product.active ? (
+        <QuestionCircleOutlined
+          style={{ color: "#000", fontSize: "26px", cursor: "pointer" }}
+          onClick={() => showModal(key)}
+        />
+        {product.active && (
           <DeleteOutlined
             style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-            // onClick={() => inActiveORActive(key)}
-          />
-        ) : (
-          <CheckCircleOutlined
-            style={{ color: "green", fontSize: "26px", cursor: "pointer" }}
-            // onClick={() => inActiveORActive(key)}
+            onClick={() => inActiveORActive(key)}
           />
         )}
         <EditOutlined
@@ -133,6 +97,11 @@ const VouchersManagementPage = () => {
       title: "Tỉ lệ",
       dataIndex: "discountRate",
       render: (discountRate) => <p>{discountRate}%</p>,
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      render: (quantity) => <p>{quantity}</p>,
     },
     {
       title: "Ngày bắt đầu",
@@ -167,37 +136,14 @@ const VouchersManagementPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  //   const inActiveORActive = async (id) => {
-  //     console.log("key delete", id);
+  const inActiveORActive = async (id) => {
+    console.log("key delete", id);
+  };
 
-  //     mutation.mutate(id, {
-  //       onSuccess: () => {
-  //         message.success("Chỉnh sửa trạng thái thành công");
-  //         refetch({ queryKey: ["products"] });
-  //       },
-  //       onError: (error) => {
-  //         message.error(`Đã xảy ra lỗi: ${error.message}`);
-  //         refetch({ queryKey: ["products"] });
-  //       },
-  //     });
-  //   };
-
-  //   const showModal = async (key) => {
-  //     console.log("key edit", key);
-
-  //     try {
-  //       const detailProduct = await ProductService.getDetailProductForAdmin(
-  //         key,
-  //         auth?.accessToken,
-  //         axiosJWT
-  //       );
-  //       dispatch(updateProductDetail({}));
-  //       dispatch(updateProductDetail(detailProduct));
-  //     } catch (error) {
-  //       console.error("Error fetching product details:", error);
-  //     }
-  //     setIsModalOpen(true);
-  //   };
+  const showModal = async (key) => {
+    mutationDetail.mutate(key);
+    setIsModalOpen(true);
+  };
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -286,8 +232,8 @@ const VouchersManagementPage = () => {
         )}
       </div>
 
-      {/* <Modal
-        title="Chi tiết sản phẩm"
+      <Modal
+        title="Chi tiết Voucher"
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -296,15 +242,10 @@ const VouchersManagementPage = () => {
         }}
         okText="Update"
         footer={null}
-        width={1000}
+        width={700}
       >
-        {isModalOpen && (
-          <AdminProductEdit
-            setIsModalOpen={setIsModalOpen}
-            refetchProducts={refetch}
-          />
-        )}
-      </Modal> */}
+        {isModalOpen && <DetailVoucher />}
+      </Modal>
     </div>
   );
 };

@@ -18,6 +18,7 @@ import categorySlice from "./slides/categorySlice";
 import orderSlice from "./slides/orderSlice";
 import accessSlice from "./slides/accessSlice";
 import saleSlice from "./slides/saleSlice";
+import voucherSlice from "./slides/voucherSlice";
 
 // Cấu hình Redux Persist cho slice 'auth'
 const persistConfig = {
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   order: orderSlice,
   access: accessSlice,
   sale: saleSlice,
+  voucher: voucherSlice,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
