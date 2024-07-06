@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pagination, Modal, Select } from "antd";
+import { Pagination, Modal, Select, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   DeleteOutlined,
@@ -53,7 +53,11 @@ const VouchersManagementPage = () => {
     if (dataDetail) dispatch(detailVoucher(dataDetail));
   }, [dataDetail]);
 
-  const renderAction = (key, product) => {
+  const mutationDeActive = useMutationHook((data) => {
+    return apiVouchers.deleteVoucherAdmin(data, auth?.accessToken, axiosJWT);
+  });
+
+  const renderAction = (key, record) => {
     return (
       <div
         style={{
@@ -63,17 +67,22 @@ const VouchersManagementPage = () => {
         }}
       >
         <QuestionCircleOutlined
-          style={{ color: "#000", fontSize: "26px", cursor: "pointer" }}
+          style={{ color: "#000", fontSize: "20px", cursor: "pointer" }}
           onClick={() => showModal(key)}
         />
-        {product.active && (
+        {record.active ? (
           <DeleteOutlined
-            style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
+            style={{ color: "red", fontSize: "20px", cursor: "pointer" }}
+            onClick={() => inActiveORActive(key)}
+          />
+        ) : (
+          <CheckCircleOutlined
+            style={{ color: "green", fontSize: "20px", cursor: "pointer" }}
             onClick={() => inActiveORActive(key)}
           />
         )}
         <EditOutlined
-          style={{ color: "blue", fontSize: "26px", cursor: "pointer" }}
+          style={{ color: "blue", fontSize: "20px", cursor: "pointer" }}
           //   onClick={() => showModal(key)}
         />
       </div>
@@ -137,7 +146,16 @@ const VouchersManagementPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const inActiveORActive = async (id) => {
-    console.log("key delete", id);
+    mutationDeActive.mutate(id, {
+      onSuccess: () => {
+        message.success("Chỉnh sửa trạng thái thành công");
+        refetch({ queryKey: ["vouchers"] });
+      },
+      onError: (error) => {
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        refetch({ queryKey: ["vouchers"] });
+      },
+    });
   };
 
   const showModal = async (key) => {

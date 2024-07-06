@@ -79,11 +79,8 @@ const editVoucherAdmin = async (data, accessToken, axiosJWT) => {
 };
 
 const deleteVoucherAdmin = async (id, accessToken, axiosJWT) => {
-  const res = await axiosJWT.del(
-    `${process.env.REACT_APP_API_URL}voucher/`,
-    {
-      params: id,
-    },
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}voucher/${id}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

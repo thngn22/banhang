@@ -67,9 +67,14 @@ const SalesManagementPage = () => {
           style={{ color: "#000", fontSize: "26px", cursor: "pointer" }}
           onClick={() => showModal(key)}
         />
-        {record.active && (
+        {record.active ? (
           <DeleteOutlined
             style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
+            onClick={() => inActiveORActive(key)}
+          />
+        ) : (
+          <CheckCircleOutlined
+            style={{ color: "green", fontSize: "20px", cursor: "pointer" }}
             onClick={() => inActiveORActive(key)}
           />
         )}
