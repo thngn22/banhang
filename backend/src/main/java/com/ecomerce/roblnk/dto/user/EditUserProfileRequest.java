@@ -8,11 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class EditUserProfileRequest {
 
-    @NotBlank
     private String firstName;
-
-    @NotBlank
     private String lastName;
-
     private MultipartFile avatar;
 }

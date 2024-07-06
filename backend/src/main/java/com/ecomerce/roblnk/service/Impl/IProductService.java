@@ -726,8 +726,6 @@ public class IProductService implements ProductService {
                     colorName = variations.get(0).getName();
 
                 }
-                String productItemImage = "";
-                String url = "";
                 var estimatedPrice = 0;
 
                 var image_product = productItemRequests.get(0).getProductImage();
@@ -834,40 +832,38 @@ public class IProductService implements ProductService {
 
 
                     var image = p.getProductImage();
-                    if (productItemImage != null && productItemImage.isEmpty()) {
-                        productItemImage = image.getOriginalFilename();
-                        url = getURLPictureThenUploadToCloudinary(image);
-                    }
                     if (image != null) {
-                        if (productItemImage != null) {
-                            productItemImage = image.getOriginalFilename();
-                            var ImageUrl = getURLPictureThenUploadToCloudinary(image);
-                            if (ImageUrl != null) {
-                                productItem.setProductImage(ImageUrl);
-                                url = ImageUrl;
-                            } else url = ImageUtil.urlImage;
-                        } else {
-                            productItem.setProductImage(url);
-                        }
+                        var ImageUrl = getURLPictureThenUploadToCloudinary(image);
+                        if (ImageUrl != null) {
+                            productItem.setProductImage(ImageUrl);
+                        } else
+                            productItem.setProductImage(ImageUtil.urlImage);
 
                     } else productItem.setProductImage(ImageUtil.urlImage);
 
 
                     productItem.setActive(p.isActive());
-                    productItem.setPrice(p.getPrice());
-                    productItem.setWarehousePrice(p.getWarehousePrice());
+                    if (p.getPrice() != null)
+                        productItem.setPrice(p.getPrice());
+                    if (p.getWarehousePrice() != null)
+                        productItem.setWarehousePrice(p.getWarehousePrice());
                     if (p.getNumberQuantity() > 0){
                         productItem.setQuantityInStock(p.getNumberQuantity() + productItem.getQuantityInStock());
                         productItem.setWarehouseQuantity(p.getNumberQuantity());
                     }
+
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setProduct(product);
                     productItem.setProductConfigurations(productConfigurations);
                     productItemRequests.remove(0);
                 }
 
-                product.setName(productEditRequest.getName());
-                product.setDescription(productEditRequest.getDescription());
+                if (productEditRequest.getName() != null && !productEditRequest.getName().isEmpty()){
+                    product.setName(productEditRequest.getName());
+                }
+                if (productEditRequest.getDescription() != null && !productEditRequest.getDescription().isEmpty()) {
+                    product.setDescription(productEditRequest.getDescription());
+                }
                 product.setCategory(category.get());
 
                 if (image_product != null) {
@@ -875,7 +871,8 @@ public class IProductService implements ProductService {
                     product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
                 } else product.setProductImage(ImageUtil.urlImage);
 
-                product.setEstimatedPrice(estimatedPrice);
+                if (estimatedPrice != 0)
+                    product.setEstimatedPrice(estimatedPrice);
 
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);

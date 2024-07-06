@@ -117,16 +117,16 @@ public class IUserService implements UserService {
     public ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null) {
-            user.setFirstName(request.getFirstName());
-            user.setLastName(request.getLastName());
-//            user.setDob(request.getDob());
+            if (request.getFirstName() != null && !request.getFirstName().isEmpty()){
+                user.setFirstName(request.getFirstName());
+            }
+            if (request.getAvatar() != null && !request.getLastName().isEmpty()){
+                user.setLastName(request.getLastName());
+            }
             if (user.getAvatar() != null) {
-
-                var urlImage = "";
-                System.out.println(request.getAvatar().getContentType());
                 try {
-                    urlImage = productService.getURLPictureThenUploadToCloudinary(request.getAvatar());
-                    if (!urlImage.isEmpty())
+                    var urlImage = productService.getURLPictureThenUploadToCloudinary(request.getAvatar());
+                    if (urlImage != null && !urlImage.isEmpty())
                         user.setAvatar(urlImage);
                 } catch (Exception e){
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The format is not supported, please try again!");
