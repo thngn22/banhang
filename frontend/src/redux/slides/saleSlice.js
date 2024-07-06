@@ -8,12 +8,16 @@ export const saleSlice = createSlice({
       currentProduct: null,
       choosedProduct: null,
     },
+    detailSale: {
+      currentSale: null,
+    },
   },
   reducers: {
     updateCurrentProductList: saleReducer.updateCurrentProductList,
     updateChoesedProductList: saleReducer.updateChoesedProductList,
     addProductToChoosedList: saleReducer.addProductToChoosedList,
     removeProductFromChoosedList: saleReducer.removeProductFromChoosedList,
+    detailSale: saleReducer.detailSale,
   },
 });
 
@@ -22,6 +26,7 @@ export const {
   updateChoesedProductList,
   addProductToChoosedList,
   removeProductFromChoosedList,
+  detailSale,
 } = saleSlice.actions;
 
 export default saleSlice.reducer;

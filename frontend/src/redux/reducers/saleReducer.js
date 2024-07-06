@@ -27,9 +27,14 @@ const removeProductFromChoosedList = (state, action) => {
   }
 };
 
+const detailSale = (state, action) => {
+  state.detailSale.currentSale = action.payload;
+};
+
 export const saleReducer = {
   updateCurrentProductList,
   updateChoesedProductList,
   addProductToChoosedList,
   removeProductFromChoosedList,
+  detailSale,
 };
