@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pagination, Modal, Select } from "antd";
+import { Pagination, Modal, Select, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   DeleteOutlined,
@@ -28,6 +28,7 @@ const SalesManagementPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const axiosJWT = createAxiosInstance(auth, dispatch);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: sales, refetch } = useQuery({
     queryKey: [pageNumber],
@@ -50,11 +51,14 @@ const SalesManagementPage = () => {
   const mutationDetail = useMutationHook((data) => {
     return apiSales.getSaleDetailAdmin(data, auth?.accessToken, axiosJWT);
   });
-
   const { data: dataDetail } = mutationDetail;
   useEffect(() => {
     if (dataDetail) dispatch(detailSale(dataDetail));
   }, [dataDetail]);
+
+  const mutationDelete = useMutationHook((data) => {
+    return apiSales.deleteSaleAdmin(data, auth?.accessToken, axiosJWT);
+  });
 
   const renderAction = (key, record) => {
     return (
@@ -66,7 +70,7 @@ const SalesManagementPage = () => {
         {record.active && (
           <DeleteOutlined
             style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-            // onClick={() => inActiveORActive(key)}
+            onClick={() => inActiveORActive(key)}
           />
         )}
         <EditOutlined
@@ -126,10 +130,17 @@ const SalesManagementPage = () => {
     },
   ];
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const inActiveORActive = async (id) => {
-    console.log("key delete", id);
+    mutationDelete.mutate(id, {
+      onSuccess: () => {
+        message.success("Chỉnh sửa trạng thái thành công");
+        refetch({ queryKey: ["sales"] });
+      },
+      onError: (error) => {
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        refetch({ queryKey: ["sales"] });
+      },
+    });
   };
 
   const showModal = async (key) => {

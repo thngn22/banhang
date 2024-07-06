@@ -43,11 +43,14 @@ const editSaleAdmin = async (data, accessToken, axiosJWT) => {
 };
 
 const deleteSaleAdmin = async (id, accessToken, axiosJWT) => {
-  const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}sale/${id}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}sale/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
   return res.data;
 };
 
