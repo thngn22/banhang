@@ -47,5 +47,5 @@ export const formatDateEnd = (type, value) => {
 };
 
 export const formatDateInHisoryOrder = (value) => {
-  return value.split(" ")[0];
+  return value?.split(" ")[0];
 };

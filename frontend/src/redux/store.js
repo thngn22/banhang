@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import  userSlice from "./slides/userSlide";
+import userSlice from "./slides/userSlide";
 import authSlice from "./slides/authSlice";
 
 import {
@@ -17,6 +17,7 @@ import productSlice from "./slides/productSlice";
 import categorySlice from "./slides/categorySlice";
 import orderSlice from "./slides/orderSlice";
 import accessSlice from "./slides/accessSlice";
+import saleSlice from "./slides/saleSlice";
 
 // Cấu hình Redux Persist cho slice 'auth'
 const persistConfig = {
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   category: categorySlice,
   order: orderSlice,
   access: accessSlice,
+  sale: saleSlice,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

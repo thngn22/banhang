@@ -19,13 +19,14 @@ import { loginSuccess } from "../../../redux/slides/authSlice";
 import * as AuthService from "../../../services/AuthService";
 import { Option } from "antd/es/mentions";
 import "./styles.css";
+import { useNavigate } from "react-router-dom";
 
 const ProductsManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const [pageNumber, setPageNumber] = useState(1);
   const [dataTable, setDataTable] = useState([]);
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const refreshToken = async () => {
     try {
@@ -210,7 +211,7 @@ const ProductsManagementPage = () => {
   const handleRowClick = async (productId) => {};
 
   const handleAddProduct = () => {
-    console.log("onclick");
+    navigate("/admin/createProduct");
   };
 
   const handleFilterProduct = () => {
