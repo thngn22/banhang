@@ -367,7 +367,10 @@ public class IProductService implements ProductService {
             productDetail.setQuantity(totalQuantity);
             productDetail.setQuantityOfVariation(items.size());
             productDetail.setSalePrice(salePrice);
-            productDetail.setDiscountRate(product.get().getSale().getDiscountRate());
+            if (product.get().getSale().getDiscountRate() != null){
+                productDetail.setDiscountRate(product.get().getSale().getDiscountRate());
+            }
+            else productDetail.setDiscountRate(0.0);
             List<ProductItemDTOv2> productItemDTOv2List = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
 
@@ -429,7 +432,10 @@ public class IProductService implements ProductService {
             productDetail.setQuantity(totalQuantity);
             productDetail.setQuantityOfVariation(items.size());
             productDetail.setSalePrice(salePrice);
-            productDetail.setDiscountRate(product.get().getSale().getDiscountRate());
+            if (product.get().getSale() != null){
+                productDetail.setDiscountRate(product.get().getSale().getDiscountRate());
+            }
+            else productDetail.setDiscountRate(0.0);
             List<ProductItemResponse> productItemResponses = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
                 if (!productDetail.getProductItems().get(0).isActive()) {
