@@ -57,5 +57,5 @@ public interface UserService {
 
     ResponseEntity<?> getDetailUserAddress(Principal connectedUser, Long id);
 
-    List<UserAddressResponse> getDetailUserAddressForAdmin(Long id);
+    PageResponse getDetailUserAddressForAdmin(Long id, Integer pageNumber);
 }

@@ -5,6 +5,7 @@ import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
+import com.ecomerce.roblnk.dto.product.ProductResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
@@ -34,6 +35,7 @@ import java.security.Principal;
 import java.util.*;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_IN_USE;
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE;
 import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
 import static com.ecomerce.roblnk.util.Status.HOAN_TAT;
 
@@ -163,9 +165,25 @@ public class IUserService implements UserService {
     }
 
     @Override
-    public List<UserAddressResponse> getDetailUserAddressForAdmin(Long id) {
+    public PageResponse getDetailUserAddressForAdmin(Long id, Integer pageNumber) {
         var addresses = addressRepository.findAllByUser_Id(id);
-        return userMapper.toListUserAddressResponse(addresses);
+        var addressResponses = userMapper.toListUserAddressResponse(addresses);
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), addressResponses.size());
+        List<UserAddressResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = addressResponses.subList(start, end);
+
+        }
+        Page<UserAddressResponse> page = new PageImpl<>(pageContent, pageable, addressResponses.size());
+        PageResponse userAddressResponse = new PageResponse();
+        userAddressResponse.setContents(pageContent);
+        userAddressResponse.setPageSize(page.getSize());
+        userAddressResponse.setPageNumber(page.getNumber() + 1);
+        userAddressResponse.setTotalPage(page.getTotalPages());
+        userAddressResponse.setTotalElements(page.getTotalElements());
+        return userAddressResponse;
     }
 
     @Override

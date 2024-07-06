@@ -153,8 +153,8 @@ public class AdminController {
 
     @GetMapping("/user_address/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getDetailUserAddress(@PathVariable("id") Long id) {
-        var product = userService.getDetailUserAddressForAdmin(id);
+    public ResponseEntity<?> getDetailUserAddress(@PathVariable("id") Long id, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber){
+        var product = userService.getDetailUserAddressForAdmin(id, pageNumber);
         if (product != null) {
             return ResponseEntity.status(HttpStatus.OK).body(product);
         } else
