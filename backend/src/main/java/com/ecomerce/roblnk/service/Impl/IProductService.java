@@ -120,7 +120,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProductWithOutFlashSale(Long categoryId) {
+    public PageResponse getAllProductWithOutFlashSale(Long categoryId, Integer pageNumber) {
         var list = getAllProduct(categoryId);
         int i = 0;
         while (i < list.size()) {
@@ -129,7 +129,23 @@ public class IProductService implements ProductService {
             }
             else i++;
         }
-        return list;
+
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), list.size());
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = list.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, list.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
     }
 
     @Override

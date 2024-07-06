@@ -37,8 +37,9 @@ public class CategoryController {
     }
     @GetMapping("/with_out_flash_sale")
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllProductInCategoryWithOutFlashSale(@RequestParam(value = "category_id", required = false) Long categoryId){
-        var productDetail = productService.getAllProductWithOutFlashSale(categoryId);
+    public ResponseEntity<?> getAllProductInCategoryWithOutFlashSale(@RequestParam(value = "category_id", required = false) Long categoryId, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+                                                                     ){
+        var productDetail = productService.getAllProductWithOutFlashSale(categoryId, pageNumber);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }
