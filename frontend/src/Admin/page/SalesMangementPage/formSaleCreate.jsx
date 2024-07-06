@@ -13,7 +13,6 @@ import {
 import { DeleteOutlined } from "@ant-design/icons";
 
 import TableComponent from "../../components/TableComponent/TableComponent";
-import { useNavigate } from "react-router-dom";
 
 const FormSaleCreate = ({
   registerCreate,
@@ -138,10 +137,12 @@ const FormSaleCreate = ({
   ];
 
   const filterDataTable = () => {
-    return dataTable?.filter(
-      (product) =>
-        !choosedProductList?.some((choosed) => choosed.id === product.id)
-    );
+    if (dataTable && dataTable?.length > 0) {
+      return dataTable?.filter(
+        (product) =>
+          !choosedProductList?.some((choosed) => choosed.id === product.id)
+      );
+    }
   };
 
   const handleComeback = () => {
