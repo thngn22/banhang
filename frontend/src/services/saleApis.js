@@ -1,5 +1,6 @@
-const getSalesAdmin = async (accessToken, axiosJWT) => {
+const getSalesAdmin = async (params, accessToken, axiosJWT) => {
   const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}sale`, {
+    params,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

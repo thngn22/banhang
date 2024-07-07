@@ -7,10 +7,11 @@ const getVouchers = async (accessToken, axiosJWT) => {
   return res.data;
 };
 
-const getVoucherssAdmin = async (accessToken, axiosJWT) => {
+const getVoucherssAdmin = async (params, accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}voucher/admin`,
     {
+      params,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

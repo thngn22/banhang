@@ -31,7 +31,13 @@ const VouchersManagementPage = () => {
   const { data: vouchers, refetch } = useQuery({
     queryKey: [pageNumber],
     queryFn: () => {
-      return apiVouchers.getVoucherssAdmin(auth.accessToken, axiosJWT);
+      return apiVouchers.getVoucherssAdmin(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
     },
     enabled: Boolean(auth?.accessToken),
   });

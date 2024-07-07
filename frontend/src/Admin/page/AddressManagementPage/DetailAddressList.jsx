@@ -1,22 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TableComponent from "../../components/TableComponent/TableComponent";
+import { Pagination } from "antd";
+import { useQuery } from "@tanstack/react-query";
+import apiAddresses from "../../../services/addressApis.js";
+import createAxiosInstance from "../../../services/createAxiosInstance.js";
 
-const DetailAddressList = () => {
-  const detailAddressList = useSelector(
-    (state) => state.address.detailAddress.currentAddress
-  );
+const DetailAddressList = ({ idUser }) => {
+  const auth = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
   const [dataTable, setDataTable] = useState([]);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const { data: addressList } = useQuery({
+    queryKey: [idUser, pageNumber],
+    queryFn: () => {
+      return apiAddresses.getAddressByUserAdmin(
+        idUser,
+        {
+          page_number: pageNumber,
+        },
+        auth?.accessToken,
+        axiosJWT
+      );
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
 
   useEffect(() => {
     const value =
-      detailAddressList?.length &&
-      detailAddressList?.map((address) => {
+      addressList?.contents?.length &&
+      addressList?.contents?.map((address) => {
         return { ...address, key: address.addressInfor.id };
       });
 
     setDataTable(value);
-  }, [detailAddressList]);
+  }, [addressList]);
 
   const columns = [
     {
@@ -58,9 +78,26 @@ const DetailAddressList = () => {
     },
   ];
 
+  const onChange = (pageNumber, pageSize) => {
+    setPageNumber(pageNumber);
+  };
+
   return (
     <div>
       <TableComponent columns={columns} data={dataTable} />
+
+      <div className="flex justify-center mt-2">
+        {addressList && (
+          <Pagination
+            total={addressList?.totalElements}
+            pageSize={addressList?.pageSize}
+            current={pageNumber}
+            showSizeChanger
+            onShowSizeChange={onChange}
+            onChange={onChange}
+          />
+        )}
+      </div>
     </div>
   );
 };

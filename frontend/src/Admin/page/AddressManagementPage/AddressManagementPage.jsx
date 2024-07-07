@@ -3,13 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import createAxiosInstance from "../../../services/createAxiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import * as UserService from "../../../services/UserService";
-import { useMutationHook } from "../../../hooks/useMutationHook";
-import { message, Modal, Pagination, Select } from "antd";
+import { Modal, Pagination, Select } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Option } from "antd/es/mentions";
 import TableComponent from "../../components/TableComponent/TableComponent";
-import apiAddresses from "../../../services/addressApis.js";
-import { detailAddressList } from "../../../redux/slides/addressSlice.js";
 import DetailAddressList from "./DetailAddressList.jsx";
 
 const AddressManagementPage = () => {
@@ -19,6 +16,7 @@ const AddressManagementPage = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [dataTable, setDataTable] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [idUser, setIdUser] = useState();
 
   const { data: users, refetch } = useQuery({
     queryKey: [pageNumber],
@@ -43,19 +41,6 @@ const AddressManagementPage = () => {
 
     setDataTable(filterUsers);
   }, [users]);
-
-  const mutationDetailAddress = useMutationHook((data) => {
-    const res = apiAddresses.getAddressByUserAdmin(
-      data,
-      auth.accessToken,
-      axiosJWT
-    );
-    return res;
-  });
-  const { data: dataDetail } = mutationDetailAddress;
-  useEffect(() => {
-    if (dataDetail) dispatch(detailAddressList(dataDetail));
-  }, [dataDetail]);
 
   const renderAction = (key, user) => {
     return (
@@ -110,15 +95,13 @@ const AddressManagementPage = () => {
   };
 
   const showModal = async (key) => {
-    mutationDetailAddress.mutate(key);
+    setIdUser(key);
     setIsModalOpen(true);
   };
   const handleOk = () => {
-    dispatch(detailAddressList(null));
     setIsModalOpen(false);
   };
   const handleCancel = () => {
-    dispatch(detailAddressList(null));
     setIsModalOpen(false);
   };
 
@@ -182,7 +165,7 @@ const AddressManagementPage = () => {
         footer={null}
         width={700}
       >
-        {isModalOpen && <DetailAddressList />}
+        {isModalOpen && <DetailAddressList idUser={idUser} />}
       </Modal>
     </div>
   );

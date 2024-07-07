@@ -33,7 +33,13 @@ const SalesManagementPage = () => {
   const { data: sales, refetch } = useQuery({
     queryKey: [pageNumber],
     queryFn: () => {
-      return apiSales.getSalesAdmin(auth.accessToken, axiosJWT);
+      return apiSales.getSalesAdmin(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
     },
     enabled: Boolean(auth?.accessToken),
   });
