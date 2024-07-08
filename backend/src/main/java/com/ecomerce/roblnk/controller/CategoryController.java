@@ -35,11 +35,25 @@ public class CategoryController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
-    @GetMapping("/with_out_flash_sale")
+    @GetMapping("/with_out_flash_sale_edit")
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllProductInCategoryWithOutFlashSale(@RequestParam(value = "category_id", required = false) Long categoryId, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+    public ResponseEntity<?> getAllProductInCategoryWithOutFlashSaleToEdit(@RequestParam(value = "category_id", required = false) Long categoryId,
+                                                                     @RequestParam(value = "sale_id") Long sale_id,
+                                                                     @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
                                                                      ){
-        var productDetail = productService.getAllProductWithOutFlashSale(categoryId, pageNumber);
+        var productDetail = productService.getAllProductWithOutFlashSale(categoryId, sale_id, pageNumber);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
+    @GetMapping("/with_out_flash_sale_create")
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getAllProductInCategoryWithOutFlashSaleToCreate(@RequestParam(value = "category_id", required = false) Long categoryId,
+                                                                           @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+    ){
+        var productDetail = productService.getAllProductWithOutFlashSaleCreate(categoryId, pageNumber);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }

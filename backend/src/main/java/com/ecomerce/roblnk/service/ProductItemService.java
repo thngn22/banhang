@@ -8,5 +8,4 @@ import java.util.List;
 public interface ProductItemService {
     List<?> getAllProductItem();
     ProductItem getProductItem(Long id);
-    Integer getDiscountedPrice(Long id);
 }

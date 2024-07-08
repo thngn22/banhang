@@ -14,6 +14,7 @@ public class ProductDetailResponsev3 {
     private Long id;
     private String name;
     private Integer estimatedPrice;
+    private Long saleId;
     private Integer salePrice;
     private Double discountRate;
     private String description;

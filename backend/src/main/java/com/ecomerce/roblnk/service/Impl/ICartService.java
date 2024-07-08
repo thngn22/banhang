@@ -56,6 +56,7 @@ public class ICartService implements CartService {
     private final EmailService emailService;
     private final ProductItemRepository productItemRepository;
     private final ProductRepository productRepository;
+    private final SaleProductRepository saleProductRepository;
 
     @Override
     public ResponseEntity<?> getUserCart(Principal principal) {
@@ -69,7 +70,35 @@ public class ICartService implements CartService {
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+
+                    var discountRate = 0.0;
                     var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
+                    var salePrice = productItem.getPrice();
+                    var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productItem.getProduct().getId(), true);
+                    if (saleProduct.isPresent()) {
+                        if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                                && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                            discountRate = saleProduct.get().getSale().getDiscountRate();
+                            double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
+                            salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                            var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
+                            if (!cartItem.getPrice().equals(salePrice)){
+                                cartItem.setPrice(salePrice);
+                                cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                                cartItemRepository.save(cartItem);
+                            }
+                        }
+                    }
+                    else {
+                        var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
+                        if (!cartItem.getPrice().equals(salePrice)){
+                            cartItem.setPrice(salePrice);
+                            cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                            cartItemRepository.save(cartItem);
+                        }
+                    }
+                    cartItemDTO.setPrice(salePrice);
+                    cartItemDTO.setTotalPrice(salePrice * cartItemDTO.getQuantity());
                     if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
@@ -146,73 +175,59 @@ public class ICartService implements CartService {
             var userCart = user.get().getCart();
 
             for (CartItemEditRequest cartItemEditRequest : list) {
+                var discountRate = 0.0;
                 var productItem = productItemService.getProductItem(cartItemEditRequest.getProductItemId());
-                if (productItem != null) {
-                    if (productItem.isActive()) {
-                        var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
-                        if (!cartItemsExisted.isEmpty()) {
-                            boolean flag = false;
-                            loop:
+                var salePrice = productItem.getPrice();
+                var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productItem.getProduct().getId(), true);
+                if (saleProduct.isPresent()) {
+                    if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                            && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                        discountRate = saleProduct.get().getSale().getDiscountRate();
+                        double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
+                        salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                    }
+                }
+                if (productItem.isActive()) {
+                    var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
+                    if (!cartItemsExisted.isEmpty()) {
+                        boolean flag = false;
+                        loop:
+                        {
+                            for (CartItem cartItem : cartItemsExisted) {
+                                if (cartItem.getProductItem().getId().equals(productItem.getId())) {
+                                    flag = true;
+                                    break loop;
+                                }
+                            }
+                        }
+                        if (flag) {
+                            miniLoop:
                             {
                                 for (CartItem cartItem : cartItemsExisted) {
                                     if (cartItem.getProductItem().getId().equals(productItem.getId())) {
-                                        flag = true;
-                                        break loop;
-                                    }
-                                }
-                            }
-                            if (flag) {
-                                miniLoop:
-                                {
-                                    for (CartItem cartItem : cartItemsExisted) {
-                                        if (cartItem.getProductItem().getId().equals(productItem.getId())) {
-                                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
-                                                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                                                        .statusCode(403)
-                                                        .message(String.valueOf(HttpStatus.FORBIDDEN))
-                                                        .description("Quantity is more than in stock!")
-                                                        .timestamp(new Date(System.currentTimeMillis()))
-                                                        .build());
-                                            }
-                                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
-                                                cartItem.setQuantity(0);
-                                                cartItem.setTotalPrice(0);
-                                            } else {
-                                                cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
-                                                cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
-                                            }
-                                            double finalPrice = (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01);
-                                            cartItem.setPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
-                                            cartItem = cartItemRepository.save(cartItem);
-                                            System.out.println("Gia: " + cartItem.getPrice());
-                                            System.out.println("So luong: " + cartItem.getQuantity());
-                                            System.out.println(" ");
-                                            break miniLoop;
+                                        if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                                            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                                    .statusCode(403)
+                                                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                                    .description("Quantity is more than in stock!")
+                                                    .timestamp(new Date(System.currentTimeMillis()))
+                                                    .build());
                                         }
+                                        if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
+                                            cartItem.setQuantity(0);
+                                            cartItem.setTotalPrice(0);
+                                        } else {
+                                            cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
+                                            cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                                        }
+                                        cartItem.setPrice(salePrice);
+                                        cartItem = cartItemRepository.save(cartItem);
+                                        System.out.println("Gia: " + cartItem.getPrice());
+                                        System.out.println("So luong: " + cartItem.getQuantity());
+                                        System.out.println(" ");
+                                        break miniLoop;
                                     }
                                 }
-                            } else {
-                                CartItem cartItem = new CartItem();
-                                cartItem.setCart(userCart);
-                                cartItem.setProductItem(productItem);
-                                cartItem.setPrice(productItem.getPrice());
-                                if (cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
-                                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                                            .statusCode(403)
-                                            .message(String.valueOf(HttpStatus.FORBIDDEN))
-                                            .description("Quantity is more than in stock!")
-                                            .timestamp(new Date(System.currentTimeMillis()))
-                                            .build());
-                                }
-                                if (cartItemEditRequest.getQuantity() <= 0) {
-                                    cartItem.setQuantity(0);
-                                    cartItem.setTotalPrice(0);
-                                } else {
-                                    cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                    cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
-                                }
-                                cartItem = cartItemRepository.save(cartItem);
-                                userCart.getCartItems().add(cartItem);
                             }
                         } else {
                             CartItem cartItem = new CartItem();
@@ -232,28 +247,43 @@ public class ICartService implements CartService {
                                 cartItem.setTotalPrice(0);
                             } else {
                                 cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                double finalPrice = (productItem.getProduct().getEstimatedPrice() - productItem.getProduct().getEstimatedPrice() * productItem.getProduct().getSale().getDiscountRate() * 0.01) * cartItemEditRequest.getQuantity();
-                                cartItem.setTotalPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000)  );
+                                cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
                             }
-                            cartItemRepository.save(cartItem);
+                            cartItem = cartItemRepository.save(cartItem);
                             userCart.getCartItems().add(cartItem);
                         }
-
                     } else {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                                .statusCode(403)
-                                .message(String.valueOf(HttpStatus.FORBIDDEN))
-                                .description("Unavailable to add this product! Out of stock!")
-                                .timestamp(new Date(System.currentTimeMillis()))
-                                .build());
+                        CartItem cartItem = new CartItem();
+                        cartItem.setCart(userCart);
+                        cartItem.setProductItem(productItem);
+                        cartItem.setPrice(salePrice);
+                        if (cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                    .statusCode(403)
+                                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                    .description("Quantity is more than in stock!")
+                                    .timestamp(new Date(System.currentTimeMillis()))
+                                    .build());
+                        }
+                        if (cartItemEditRequest.getQuantity() <= 0) {
+                            cartItem.setQuantity(0);
+                            cartItem.setTotalPrice(0);
+                        } else {
+                            cartItem.setQuantity(cartItemEditRequest.getQuantity());
+                            cartItem.setTotalPrice(salePrice * cartItemEditRequest.getQuantity());
+                        }
+                        cartItemRepository.save(cartItem);
+                        userCart.getCartItems().add(cartItem);
                     }
-                } else
+
+                } else {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                             .statusCode(403)
                             .message(String.valueOf(HttpStatus.FORBIDDEN))
-                            .description("Product not found. Invalid to add this product!")
+                            .description("Unavailable to add this product! Out of stock!")
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
+                }
 
 
             }

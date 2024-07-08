@@ -50,5 +50,5 @@ public class Sale {
     //Category
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<Product> products;
+    private List<SaleProduct> saleProducts;
 }

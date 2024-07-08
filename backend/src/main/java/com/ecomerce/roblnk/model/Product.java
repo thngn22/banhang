@@ -70,8 +70,8 @@ public class Product {
     @JsonIgnore
     private List<ProductItem> productItems = new ArrayList<>();
 
-    //Sale
-    @ManyToOne
-    @JoinColumn(name = "sale_id")
-    private Sale sale;
+    //SaleProduct
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<SaleProduct> saleProducts;
 }

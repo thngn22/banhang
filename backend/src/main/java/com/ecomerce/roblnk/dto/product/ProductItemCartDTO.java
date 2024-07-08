@@ -11,4 +11,5 @@ public class ProductItemCartDTO {
     private String name;
     private String size;
     private String color;
+    private Long productId;
 }

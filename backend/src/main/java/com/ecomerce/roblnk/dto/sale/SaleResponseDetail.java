@@ -36,6 +36,6 @@ public class SaleResponseDetail {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
-
+    private boolean active;
     List<ProductResponse> productResponses;
 }

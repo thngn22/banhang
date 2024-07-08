@@ -23,5 +23,4 @@ public class EditFlashSaleRequest {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date endDate;
     private List<Long> idProductList;
-    private boolean active;
 }
