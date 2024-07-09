@@ -473,7 +473,7 @@ public class IProductService implements ProductService {
             }
             list.add(total);
 
-            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(products.get(i).getId(), true);
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(product.getId(), true);
             if (saleProduct.isPresent()) {
                 if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
@@ -486,6 +486,11 @@ public class IProductService implements ProductService {
                     salePrices.add((int) estimatedPrice);
                     saleIds.add(null);
                 }
+            }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
             }
 
         }
