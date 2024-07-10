@@ -1134,15 +1134,9 @@ public class IProductService implements ProductService {
         var product = productRepository.findById(id);
         if (product.isPresent()) {
             product.get().setModifiedDate(new Date(System.currentTimeMillis()));
-            if (product.get().isActive()) {
                 product.get().setActive(false);
                 productRepository.save(product.get());
-                return "Successfully deactive product";
-            } else {
-                product.get().setActive(true);
-                productRepository.save(product.get());
-                return "Successfully active product";
-            }
+                return "Successfully deactive product permanently";
         } else
             return "Product not found or not available to delete!";
     }

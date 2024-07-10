@@ -54,7 +54,7 @@ public class ChatController {
             for (Role role : user.getRoles()){
                 if (role.getRole().equals("ROLE_USER")) {
                     senderId = user.getChatUser().getId();
-                    recipientId = "admin1";
+                    recipientId = ADMIN_USER_NAME;
                     break;
                 }
                 break;

@@ -12,4 +12,5 @@ public class ProductItemCartDTO {
     private String size;
     private String color;
     private Long productId;
+    private boolean active;
 }

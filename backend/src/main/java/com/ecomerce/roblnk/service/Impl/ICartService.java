@@ -67,6 +67,14 @@ public class ICartService implements CartService {
                 UserCart userCart = cartMapper.toUserCart(cart);
                 List<CartItemDTO> list = new ArrayList<>();
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
+                    var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
+                    if (!cartItemDTO.getProductItem().isActive()){
+                        cartItem.setQuantity(0);
+                        cartItem.setTotalPrice(0);
+                        cartItemRepository.save(cartItem);
+                        continue;
+                    }
+
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
@@ -81,7 +89,6 @@ public class ICartService implements CartService {
                             discountRate = saleProduct.get().getSale().getDiscountRate();
                             double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
                             salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
-                            var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
                             if (!cartItem.getPrice().equals(salePrice)){
                                 cartItem.setPrice(salePrice);
                                 cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
@@ -90,7 +97,6 @@ public class ICartService implements CartService {
                         }
                     }
                     else {
-                        var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
                         if (!cartItem.getPrice().equals(salePrice)){
                             cartItem.setPrice(salePrice);
                             cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
@@ -107,7 +113,7 @@ public class ICartService implements CartService {
                         cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                     }
                 }
-                if (cart.getVoucher() == null){
+                if (cart.getVoucher() == null || !cart.getVoucher().isActive()){
                     userCart.setDiscountRate(0.0);
                     userCart.setFinalPrice(userCart.getTotalPrice());
                 }

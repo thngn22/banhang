@@ -1,16 +1,21 @@
 package com.ecomerce.roblnk.dto.category;
 
-import lombok.Data;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
-@NoArgsConstructor
-public class NonNestedCategoryResponse {
+@Getter
+public class EditCategoryRequest {
+
+    @Valid
+    @NotBlank
     private Long id;
+
+    @Valid
     private String name;
-    private boolean active;
+
+    @Valid
     private Long parentCategoryId;
 }

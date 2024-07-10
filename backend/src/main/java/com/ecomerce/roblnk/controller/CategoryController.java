@@ -1,6 +1,8 @@
 package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
+import com.ecomerce.roblnk.dto.category.CreateCategoryRequest;
+import com.ecomerce.roblnk.dto.category.EditCategoryRequest;
 import com.ecomerce.roblnk.dto.product.ProductRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.exception.InputFieldException;
@@ -161,5 +163,80 @@ public class CategoryController {
         }
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any color!");
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<?> createCategory(CreateCategoryRequest request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        var response = categoryService.createCategory(request);
+        if (response.startsWith("Successfully")) {
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.OK))
+                    .description(response)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    .statusCode(404)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description(response)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        }
+    }
+
+    @PutMapping("/")
+    public ResponseEntity<?> editCategory(EditCategoryRequest request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        var response = categoryService.editCategory(request);
+        if (response.startsWith("Successfully")) {
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.OK))
+                    .description(response)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    .statusCode(404)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description(response)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> disableCategory(@PathVariable(name = "id") Long id){
+        var response = categoryService.deleteCategory(id);
+        if (response.startsWith("Successfully")) {
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
+                    .statusCode(200)
+                    .message(String.valueOf(HttpStatus.OK))
+                    .description(response)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        } else {
+            if (response.startsWith("Category")) {
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                        .statusCode(404)
+                        .message(String.valueOf(HttpStatus.BAD_REQUEST))
+                        .description(response)
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
+            else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                    .statusCode(404)
+                    .message(String.valueOf(HttpStatus.NOT_FOUND))
+                    .description(response)
+                    .timestamp(new Date(System.currentTimeMillis()))
+                    .build());
+        }
     }
 }
