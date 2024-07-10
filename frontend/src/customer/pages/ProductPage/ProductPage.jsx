@@ -102,12 +102,12 @@ export default function ProductPage() {
         <div className="w-1/5">
           <div className="flex flex-col p-4 border rounded-lg">
             <div className="flex justify-between items-center mb-4 border-b-2">
-              <p className="text-2xl font-bold">Filter</p>
+              <p className="text-2xl font-bold">Lọc</p>
               <FilterOutlined className="text-xl" />
             </div>
 
             <div className="border-b-2 mt-2">
-              <p className="font-medium">Price</p>
+              <p className="font-medium">Giá</p>
               <Slider
                 range
                 defaultValue={[0, 2000000]}
@@ -141,7 +141,7 @@ export default function ProductPage() {
             </div>
 
             <div className="mt-2">
-              <p className="mt-4 font-medium">Color</p>
+              <p className="mt-4 font-medium">Màu sắc</p>
               <div className="flex flex-wrap gap-2 mt-4">
                 {colorInCate?.map((color, index) => (
                   <div
@@ -171,7 +171,7 @@ export default function ProductPage() {
                   fontWeight: "600",
                 }}
               >
-                Apply Filters
+                Tiến hành lọc
               </Button>
             </div>
           </div>

@@ -86,7 +86,7 @@ const FormFields = ({ register, control, errors, setValue, user }) => {
       <div className="col-span-3 border-r-2 pl-52 pt-14">
         <p className="ml-1 text-5xl font-extrabold text-gray-800">SHOES.CO</p>
         <div className="pt-4 pr-14 flex flex-col gap-2">
-          <p className="text-lg font-medium">Order Information</p>
+          <p className="text-lg font-medium">Thông tin đơn hàng</p>
           <input
             type="text"
             className="input p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-black"
@@ -205,13 +205,13 @@ const FormFields = ({ register, control, errors, setValue, user }) => {
           )}
           <div className="flex justify-between items-center mt-6">
             <p onClick={handleComebackCart} className="cursor-pointer">
-              {"<"} Comeback Cart
+              {"<"} Trở lại giỏ hàng
             </p>
             <button
               className="bg-black text-white text-lg font-medium px-10 py-2 rounded-lg hover:opacity-80"
               type="submit"
             >
-              Continue to Payment
+              Tiếp tục thanh toán
             </button>
           </div>
         </div>
@@ -225,7 +225,7 @@ const FormFields = ({ register, control, errors, setValue, user }) => {
           <input
             type="text"
             className="input flex-1 p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-black"
-            placeholder="Type Voucher"
+            placeholder="Nhập mã Voucher"
             {...register("voucher")}
           />
           {errors.voucher && (
@@ -234,7 +234,7 @@ const FormFields = ({ register, control, errors, setValue, user }) => {
             </span>
           )}
           <button className="bg-red-600 text-white text-base font-medium px-8 py-3 rounded-lg hover:opacity-80">
-            Use
+            Dùng
           </button>
         </div>
         <hr className="border-1 border-gray-300 my-4" />
@@ -302,25 +302,12 @@ const FormFields = ({ register, control, errors, setValue, user }) => {
           <img className="w-[4rem] h-[4rem]" src={imgTrunk} alt="imgTrunk" />
           <div className="text-sm">
             <p className="font-medium">
-              More than 800,000 orders have been successfully delivered to
-              customers by Biti's.
+              Hơn 800.000 đơn hàng đã được Shoes.co giao thành công đến khách
+              hàng.
             </p>
             <p>
-              Shoes.co always makes sure customers are satisfied when receiving
-              products. You just need to order delivery and let the Shoes.co
-              team take care of it.
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <img className="w-[4rem] h-[4rem]" src={imgReload} alt="imgTrunk" />
-          <div className="text-sm">
-            <p className="font-medium">
-              Order online with peace of mind with a return policy
-            </p>
-            <p>
-              Biti's warranty is 3-6 months depending on each product line,
-              return policy within 7 days.
+              Shoes.co luôn đảm bảo khách hàng hài lòng khi nhận sản phẩm. Bạn
+              chỉ cần đặt hàng, đội ngũ Shoes.co sẽ lo hết.
             </p>
           </div>
         </div>

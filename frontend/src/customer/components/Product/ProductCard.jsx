@@ -28,12 +28,32 @@ const ProductCard = ({ data }) => {
           </div>
 
           <div className="flex items-center space-x-2 text-left">
-            <p className="text-red-600 text-lg font-semibold">
-              {Number(data?.estimatedPrice).toLocaleString("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              })}
-            </p>
+            {data?.discountRate > 0 && data?.discountRate !== null ? (
+              <div className="flex items-center space-x-2">
+                <p className="text-red-600 text-lg font-semibold">
+                  {Number(data?.salePrice).toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </p>
+                <p className="line-through text-gray-500 text-sm">
+                  {Number(data?.estimatedPrice).toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </p>
+                <p className="bg-red-500 text-white text-sm font-semibold px-2 rounded">
+                  -{data?.discountRate}%
+                </p>
+              </div>
+            ) : (
+              <p className="text-red-600 text-lg font-semibold">
+                {Number(data?.estimatedPrice).toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                })}
+              </p>
+            )}
           </div>
         </div>
       </Link>

@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   DeleteOutlined,
   EditOutlined,
-  CheckCircleOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Option } from "antd/es/mentions";
+import classNames from "classnames";
 
 import TableComponent from "../../components/TableComponent/TableComponent";
 import { useMutationHook } from "../../../hooks/useMutationHook";
@@ -58,36 +58,59 @@ const SalesManagementPage = () => {
     return apiSales.getSaleDetailAdmin(data, auth?.accessToken, axiosJWT);
   });
   const { data: dataDetail } = mutationDetail;
-  useEffect(() => {
-    if (dataDetail) dispatch(detailSale(dataDetail));
-  }, [dataDetail]);
 
   const mutationDelete = useMutationHook((data) => {
     return apiSales.deleteSaleAdmin(data, auth?.accessToken, axiosJWT);
   });
 
+  const inActiveORActive = async (id) => {
+    mutationDelete.mutate(id, {
+      onSuccess: () => {
+        message.success("Chỉnh sửa trạng thái thành công");
+        refetch({ queryKey: ["sales"] });
+      },
+      onError: (error) => {
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        refetch({ queryKey: ["sales"] });
+      },
+    });
+  };
+
+  const confirmDelete = (id) => {
+    Modal.confirm({
+      title:
+        "Thao tác xóa sẽ không thể thay đổi. Bạn có chắc chắn với quyết định này?",
+      okText: "OK",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: () => inActiveORActive(id),
+    });
+  };
+
   const renderAction = (key, record) => {
     return (
-      <div className="flex justify-between">
+      <div
+        className={classNames("flex", {
+          "justify-between": record.active,
+          "justify-center": !record.active,
+        })}
+      >
         <QuestionCircleOutlined
           style={{ color: "#000", fontSize: "26px", cursor: "pointer" }}
           onClick={() => showModal(key)}
         />
-        {record.active ? (
-          <DeleteOutlined
-            style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-            onClick={() => inActiveORActive(key)}
-          />
-        ) : (
-          <CheckCircleOutlined
-            style={{ color: "green", fontSize: "20px", cursor: "pointer" }}
-            onClick={() => inActiveORActive(key)}
-          />
+        {record.active && (
+          <>
+            <DeleteOutlined
+              style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
+              onClick={() => confirmDelete(key)}
+            />
+            <EditOutlined
+              style={{ color: "blue", fontSize: "26px", cursor: "pointer" }}
+              onClick={() => navigate(`/admin/updateSale/${key}`)}
+            />
+          </>
         )}
-        <EditOutlined
-          style={{ color: "blue", fontSize: "26px", cursor: "pointer" }}
-          //   onClick={() => showModal(key)}
-        />
       </div>
     );
   };
@@ -140,19 +163,6 @@ const SalesManagementPage = () => {
       render: (key, product) => renderAction(key, product),
     },
   ];
-
-  const inActiveORActive = async (id) => {
-    mutationDelete.mutate(id, {
-      onSuccess: () => {
-        message.success("Chỉnh sửa trạng thái thành công");
-        refetch({ queryKey: ["sales"] });
-      },
-      onError: (error) => {
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
-        refetch({ queryKey: ["sales"] });
-      },
-    });
-  };
 
   const showModal = async (key) => {
     mutationDetail.mutate(key);

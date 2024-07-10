@@ -30,6 +30,8 @@ import SalesMangementPage from "../Admin/page/SalesMangementPage/SalesManagement
 import CreateSalePage from "../Admin/page/SalesMangementPage/CreateSalePage";
 import VouchersManagementPage from "../Admin/page/VouchersManagementPage/VouchersManagemetnPage";
 import CreateVoucherPage from "../Admin/page/VouchersManagementPage/CreateVoucherPage";
+import UpdateSalePage from "../Admin/page/SalesMangementPage/UpdateSalePage";
+import UpdateVoucherPage from "../Admin/page/VouchersManagementPage/UpdateVoucherPage";
 
 export default function AppRouter() {
   return (
@@ -173,6 +175,14 @@ export default function AppRouter() {
         }
       />
       <Route
+        path="/admin/updateVoucher/:idVoucher"
+        element={
+          <DefaultPageAdmin>
+            <UpdateVoucherPage />
+          </DefaultPageAdmin>
+        }
+      />
+      <Route
         path="/admin/sales"
         element={
           <DefaultPageAdmin>
@@ -185,6 +195,15 @@ export default function AppRouter() {
         element={
           <DefaultPageAdmin>
             <CreateSalePage />
+          </DefaultPageAdmin>
+        }
+      />
+
+      <Route
+        path="/admin/updateSale/:idSale"
+        element={
+          <DefaultPageAdmin>
+            <UpdateSalePage />
           </DefaultPageAdmin>
         }
       />

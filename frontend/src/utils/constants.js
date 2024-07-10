@@ -16,3 +16,5 @@ export const descReviewStart = [
   "Good",
   "Very good",
 ];
+
+export const numericRegex = /^[0-9]+$/;

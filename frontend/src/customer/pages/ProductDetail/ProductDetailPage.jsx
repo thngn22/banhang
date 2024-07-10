@@ -54,6 +54,8 @@ export default function ProductDetailPage() {
     },
   });
 
+  console.log(productDetail);
+
   useEffect(() => {
     const iframe = iframeRef.current;
     const adjustHeight = () => {
@@ -102,7 +104,11 @@ export default function ProductDetailPage() {
       if (defaultItem) {
         setSelectedSize(defaultItem.variationSize);
         setSelectedQuantityStock(defaultItem.quantityInStock);
-        setSelectedPrice(defaultItem.price);
+        setSelectedPrice({
+          estimatedPrice: defaultItem.price,
+          salePrice: defaultItem.salePrice,
+          discountRate: defaultItem.discountRate,
+        });
       }
     }
   }, [productDetail]);
@@ -128,7 +134,11 @@ export default function ProductDetailPage() {
 
     if (selectedProductItem) {
       setSelectedQuantityStock(selectedProductItem.quantityInStock);
-      setSelectedPrice(selectedProductItem.price);
+      setSelectedPrice({
+        estimatedPrice: selectedProductItem.price,
+        salePrice: selectedProductItem.salePrice,
+        discountRate: selectedProductItem.discountRate,
+      });
       setSelectedQuantity(1);
     }
   };
@@ -149,7 +159,11 @@ export default function ProductDetailPage() {
     if (defaultItem) {
       setSelectedSize(defaultItem.variationSize);
       setSelectedQuantityStock(defaultItem.quantityInStock);
-      setSelectedPrice(defaultItem.price);
+      setSelectedPrice({
+        estimatedPrice: defaultItem.price,
+        salePrice: defaultItem.salePrice,
+        discountRate: defaultItem.discountRate,
+      });
       setSelectedQuantity(1);
     } else {
       setSelectedQuantity(0);
@@ -254,26 +268,52 @@ export default function ProductDetailPage() {
               ) : (
                 <></>
               )}
-
-              <p className="text-red-600 font-bold text-3xl">
-                {selectedPrice.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
-              </p>
+              {selectedPrice?.discountRate > 0 &&
+              selectedPrice?.discountRate !== null ? (
+                <div className="flex items-center space-x-2">
+                  <p className="text-red-600 font-bold text-3xl">
+                    {Number(selectedPrice?.salePrice).toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p className="line-through text-gray-500 text-sm">
+                    {Number(selectedPrice?.estimatedPrice).toLocaleString(
+                      "vi-VN",
+                      {
+                        style: "currency",
+                        currency: "VND",
+                      }
+                    )}
+                  </p>
+                  <p className="bg-red-500 text-white text-sm font-semibold px-2 rounded">
+                    -{selectedPrice?.discountRate}%
+                  </p>
+                </div>
+              ) : (
+                <p className="text-red-600 font-bold text-3xl">
+                  {Number(selectedPrice?.estimatedPrice).toLocaleString(
+                    "vi-VN",
+                    {
+                      style: "currency",
+                      currency: "VND",
+                    }
+                  )}
+                </p>
+              )}
 
               <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
 
               <form className="mt-4">
                 {/* Colors */}
                 <div className="text-xl font-semibold text-gray-900 flex items-center">
-                  <span className="mr-2">Status:</span>
+                  <span className="mr-2">Trạng thái:</span>
                   {selectedQuantityStock > 0 ? (
                     <span className="text-green-600">
-                      In Stock ({selectedQuantityStock})
+                      Còn hàng ({selectedQuantityStock})
                     </span>
                   ) : (
-                    <span className="text-red-600">Out of Stock</span>
+                    <span className="text-red-600">Hết hàng</span>
                   )}
                 </div>
 
@@ -324,14 +364,14 @@ export default function ProductDetailPage() {
                 <div className="">
                   <div className="flex items-center justify-between">
                     <p className="text-lg font-light text-gray-500">
-                      Choose Size
+                      Chọn Size giày
                     </p>
                     <p
                       className="text-sm font-medium text-red-500 hover:opacity-80"
                       style={{ cursor: "pointer" }}
                       onClick={showModal}
                     >
-                      (How to choose Size)
+                      (Cách chọn size)
                     </p>
                   </div>
 
@@ -465,7 +505,7 @@ export default function ProductDetailPage() {
                       mutation.mutate([dataToUpdate], {
                         onSuccess: (data) => {
                           queryClient.invalidateQueries({ queryKey: ["cart"] });
-                          message.success("Successfully Add Cart");
+                          message.success("Thêm sản phẩm vào giỏ thành công");
                         },
                         onError: (err) => {
                           console.log(err.message);
@@ -473,7 +513,7 @@ export default function ProductDetailPage() {
                             err.message ===
                             "Cannot read properties of null (reading 'accessToken')"
                           ) {
-                            message.error("Sign in not yet");
+                            message.error("Bạn chưa năng nhập");
                           } else {
                             message.error(`${err.message}`);
                           }
@@ -481,7 +521,7 @@ export default function ProductDetailPage() {
                       });
                     }}
                   >
-                    Add Cart
+                    Thêm sản phẩm vào Giỏ hàng
                   </Button>
                 </div>
               </form>
@@ -491,7 +531,7 @@ export default function ProductDetailPage() {
 
         {/* Description */}
         <div>
-          <p className="pb-2 text-xl font-extrabold">Detail Product</p>
+          <p className="pb-2 text-xl font-extrabold">Chi tiết sản phẩm</p>
           <div id="productDescription">
             <iframe
               ref={iframeRef}
@@ -509,7 +549,7 @@ export default function ProductDetailPage() {
 
         {/* Recent Review & Ratings */}
         <div className="mt-8">
-          <p className="pb-2 text-xl font-extrabold">Reviews & Ratings</p>
+          <p className="pb-2 text-xl font-extrabold">Review và đánh giá</p>
           <div className="grid grid-cols-2 gap-x-20 gap-y-4">
             {productDetail?.reviews &&
               productDetail.reviews.map((reviewItem) => (
@@ -521,7 +561,7 @@ export default function ProductDetailPage() {
         {/* PRODUCTS RECOMMENDATION */}
         <div className="my-6">
           <p className="text-center text-4xl font-extrabold uppercase">
-            You might also like
+            Có thể bạn cũng sẽ thích
           </p>
           <div className="mt-6 grid grid-cols-4 gap-20">
             {topInDetail &&
@@ -538,7 +578,7 @@ export default function ProductDetailPage() {
         {/* High Rating Products */}
         <div className="my-8">
           <p className="text-center text-4xl font-extrabold uppercase">
-            Highly rated product
+            sản phẩm được đánh giá cao
           </p>
           <div className="mt-6 grid grid-cols-4 gap-20">
             {topInDetail &&

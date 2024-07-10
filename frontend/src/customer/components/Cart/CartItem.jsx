@@ -11,6 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import * as AuthService from "../../../services/AuthService";
 import { CloseOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
 const CartItem = ({ product }) => {
   const queryClient = useQueryClient();
@@ -103,36 +104,39 @@ const CartItem = ({ product }) => {
   };
   return (
     <div className="p-5 border rounded-md mb-5 flex relative">
-      <div className="w-[8rem] h-[8rem]">
-        <img
-          className="w-full object-cover object-top rounded-xl"
-          src={`${product?.productItem.productImage}`}
-          alt={`${product?.productItem.productImage}`}
-        />
-      </div>
-      <div className="ml-2 flex flex-col justify-between">
-        <div className="flex flex-col text-gray-900">
-          <p className="text-xl font-bold">{product?.productItem.name}</p>
-          <div className="flex gap-2 text-sm">
-            <p>Color: </p>
-            <p className="text-gray-400 font-medium">
-              {product?.productItem.color}
-            </p>
-          </div>
-          <div className="flex gap-2 text-sm">
-            <p>Size: </p>
-            <p className="text-gray-400 font-medium">
-              {product?.productItem.size}
-            </p>
-          </div>
+      <Link className="flex" to={`/product/${product?.productItem.productId}`}>
+        <div className="w-[8rem] h-[8rem]">
+          <img
+            className="w-full object-cover object-top rounded-xl"
+            src={`${product?.productItem.productImage}`}
+            alt={`${product?.productItem.productImage}`}
+          />
         </div>
-        <p className="text-red-600 text-xl font-bold">
-          {product.totalPrice.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })}
-        </p>
-      </div>
+        <div className="ml-2 flex flex-col justify-between">
+          <div className="flex flex-col text-gray-900">
+            <p className="text-xl font-bold">{product?.productItem.name}</p>
+            <div className="flex gap-2 text-sm">
+              <p>Color: </p>
+              <p className="text-gray-400 font-medium">
+                {product?.productItem.color}
+              </p>
+            </div>
+            <div className="flex gap-2 text-sm">
+              <p>Size: </p>
+              <p className="text-gray-400 font-medium">
+                {product?.productItem.size}
+              </p>
+            </div>
+          </div>
+          <p className="text-red-600 text-xl font-bold">
+            {product.totalPrice.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </p>
+        </div>
+      </Link>
+
       <div className="ml-auto flex">
         <div className="flex items-end pt-4">
           <div className="flex items-center">

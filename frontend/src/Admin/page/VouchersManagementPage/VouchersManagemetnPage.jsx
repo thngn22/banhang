@@ -10,6 +10,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Option } from "antd/es/mentions";
+import classNames from "classnames";
 
 import TableComponent from "../../components/TableComponent/TableComponent";
 import { useMutationHook } from "../../../hooks/useMutationHook";
@@ -41,6 +42,7 @@ const VouchersManagementPage = () => {
     },
     enabled: Boolean(auth?.accessToken),
   });
+
   useEffect(() => {
     const filterVouchers =
       vouchers?.contents?.length &&
@@ -55,6 +57,7 @@ const VouchersManagementPage = () => {
     return apiVouchers.getDetailVouchers(data, axiosJWT);
   });
   const { data: dataDetail } = mutationDetail;
+
   useEffect(() => {
     if (dataDetail) dispatch(detailVoucher(dataDetail));
   }, [dataDetail]);
@@ -63,34 +66,54 @@ const VouchersManagementPage = () => {
     return apiVouchers.deleteVoucherAdmin(data, auth?.accessToken, axiosJWT);
   });
 
+  const inActive = async (id) => {
+    mutationDeActive.mutate(id, {
+      onSuccess: () => {
+        message.success("Chỉnh sửa trạng thái thành công");
+        refetch({ queryKey: ["vouchers"] });
+      },
+      onError: (error) => {
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        refetch({ queryKey: ["vouchers"] });
+      },
+    });
+  };
+
+  const confirmInActive = (id) => {
+    Modal.confirm({
+      title:
+        "Thao tác này sẽ không thể thay đổi. Bạn có chắc chắn với quyết định này?",
+      okText: "OK",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: () => inActive(id),
+    });
+  };
+
   const renderAction = (key, record) => {
     return (
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          width: "80%",
-        }}
+        className={classNames("flex", {
+          "justify-between": record.active,
+          "justify-center": !record.active,
+        })}
       >
         <QuestionCircleOutlined
-          style={{ color: "#000", fontSize: "20px", cursor: "pointer" }}
+          style={{ color: "#000", fontSize: "24px", cursor: "pointer" }}
           onClick={() => showModal(key)}
         />
-        {record.active ? (
-          <DeleteOutlined
-            style={{ color: "red", fontSize: "20px", cursor: "pointer" }}
-            onClick={() => inActiveORActive(key)}
-          />
-        ) : (
-          <CheckCircleOutlined
-            style={{ color: "green", fontSize: "20px", cursor: "pointer" }}
-            onClick={() => inActiveORActive(key)}
-          />
+        {record.active && (
+          <>
+            <DeleteOutlined
+              style={{ color: "red", fontSize: "24px", cursor: "pointer" }}
+              onClick={() => confirmInActive(key)}
+            />
+            <EditOutlined
+              style={{ color: "blue", fontSize: "24px", cursor: "pointer" }}
+              onClick={() => navigate(`/admin/updateVoucher/${key}`)}
+            />
+          </>
         )}
-        <EditOutlined
-          style={{ color: "blue", fontSize: "20px", cursor: "pointer" }}
-          //   onClick={() => showModal(key)}
-        />
       </div>
     );
   };
@@ -151,26 +174,15 @@ const VouchersManagementPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const inActiveORActive = async (id) => {
-    mutationDeActive.mutate(id, {
-      onSuccess: () => {
-        message.success("Chỉnh sửa trạng thái thành công");
-        refetch({ queryKey: ["vouchers"] });
-      },
-      onError: (error) => {
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
-        refetch({ queryKey: ["vouchers"] });
-      },
-    });
-  };
-
   const showModal = async (key) => {
     mutationDetail.mutate(key);
     setIsModalOpen(true);
   };
+
   const handleOk = () => {
     setIsModalOpen(false);
   };
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -181,7 +193,7 @@ const VouchersManagementPage = () => {
 
   const handleRowClick = async (productId) => {};
 
-  const handleAddProduct = () => {
+  const handleAddVoucher = () => {
     navigate("/admin/createVoucher");
   };
 
@@ -195,7 +207,7 @@ const VouchersManagementPage = () => {
         <p className="text-2xl font-extrabold">Quản lý Voucher</p>
         <button
           className="text-white bg-red-600 py-2 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
-          onClick={handleAddProduct}
+          onClick={handleAddVoucher}
         >
           Thêm mã voucher
         </button>
@@ -226,7 +238,7 @@ const VouchersManagementPage = () => {
             <label htmlFor="status">Tình trạng:</label>
             <Select className="filter__product">
               <Option value="active">Active</Option>
-              <Option value="inActive">Inctive</Option>
+              <Option value="inActive">Inactive</Option>
             </Select>
           </div>
         </div>

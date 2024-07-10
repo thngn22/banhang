@@ -11,6 +11,9 @@ export const saleSlice = createSlice({
     detailSale: {
       currentSale: null,
     },
+    updateSale: {
+      currentSale: null,
+    },
   },
   reducers: {
     updateCurrentProductList: saleReducer.updateCurrentProductList,
@@ -18,6 +21,11 @@ export const saleSlice = createSlice({
     addProductToChoosedList: saleReducer.addProductToChoosedList,
     removeProductFromChoosedList: saleReducer.removeProductFromChoosedList,
     detailSale: saleReducer.detailSale,
+    detailSaleUpdate: saleReducer.detailSaleUpdate,
+    removeProductFromChoosedList_Update:
+      saleReducer.removeProductFromChoosedList_Update,
+    addProductFromChoosedList_Update:
+      saleReducer.addProductFromChoosedList_Update,
   },
 });
 
@@ -27,6 +35,9 @@ export const {
   addProductToChoosedList,
   removeProductFromChoosedList,
   detailSale,
+  detailSaleUpdate,
+  removeProductFromChoosedList_Update,
+  addProductFromChoosedList_Update,
 } = saleSlice.actions;
 
 export default saleSlice.reducer;

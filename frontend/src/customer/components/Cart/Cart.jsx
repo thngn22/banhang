@@ -13,10 +13,9 @@ import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import ProvinceSelection from "./Address";
 import "./styles.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import logoShield from "../../../Data/image/img-shield.png";
-import logoChange from "../../../Data/image/img-change.png";
 import logoBusFreeShip from "../../../Data/image/img-busfreeship.png";
 import logoBus2h from "../../../Data/image/img-bus2h.png";
 
@@ -25,7 +24,6 @@ const objectPrice = {
   2: 45000,
   3: 99000,
 };
-const levelPriceToFreeShip = 1500000;
 
 const Cart = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -185,29 +183,25 @@ const Cart = () => {
     navigate("/checkout");
   };
 
-  console.log(cart);
-  
   return (
     <div className="px-8 py-10">
-      <p className="text-2xl text-left uppercase font-bold">Your cart</p>
+      <p className="text-2xl text-left uppercase font-bold">Giỏ hàng của bạn</p>
       <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
 
       <div className="grid grid-cols-3 relative">
         <div className="col-span-2">
           {cart?.cartItems?.map((item, index) => (
-            <Link to={`/product/${item.id}`}>
-              <CartItem key={index} product={item} />
-            </Link>
+            <CartItem key={index} product={item} />
           ))}
         </div>
 
         <div className="pl-5">
           <div className="border rounded-md p-4">
-            <p className="text-xl font-semibold">Order Summary</p>
+            <p className="text-xl font-semibold">Tóm tắt đơn hàng</p>
 
             <div className="space-y-3">
               <div className="flex text-lg justify-between pt-3 text-black">
-                <p className="font-base text-base">Total:</p>
+                <p className="font-base text-base">Tổng tiền:</p>
                 <p className="text-red-600 font-bold text-lg">
                   {cart?.totalPrice.toLocaleString("vi-VN", {
                     style: "currency",
@@ -221,20 +215,7 @@ const Cart = () => {
             <ul className="text-sm mb-5 flex flex-col gap-4">
               <li className="flex items-center">
                 <img src={logoShield} alt="logoShield" className="w-8 mr-4" />
-                <p>100% genuine commitment.</p>
-              </li>
-              <li className="flex items-center">
-                <img src={logoChange} alt="logoChange" className="w-8 mr-4" />
-                <p>
-                  Return within 7 days (
-                  <a
-                    href="https://bitis.com.vn/pages/chinh-sach-doi-tra"
-                    className="font-medium text-red-500 underline"
-                  >
-                    click to see details
-                  </a>
-                  ).
-                </p>
+                <p>Cam kết chính hãng 100%.</p>
               </li>
               <li className="flex items-center">
                 <img
@@ -243,20 +224,17 @@ const Cart = () => {
                   className="w-8 mr-4"
                 />
                 <p>
-                  Free shipping for orders over{" "}
-                  {levelPriceToFreeShip.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                  .
+                  Hỗ trợ vận chuyển Grab cho đơn hàng ngoại thành (và bán kính
+                  nhiều hơn 10km nội thành).
                 </p>
               </li>
               <li className="flex items-center">
                 <img src={logoBus2h} alt="logoBus2h" className="w-8 mr-4" />
                 <p>
-                  Support 2-hour delivery when choosing Grab method. Applies to
-                  Ho Chi Minh City area Monday to Saturday (from 8:00 - 11:00
-                  and from 2:00 - 5:00 during the day)
+                  Hỗ trợ giao hàng trong 2 giờ khi chọn phương thức nhân viên
+                  Shop. Áp dụng cho khu vực TP. Hồ Chí Minh bán kính 10km từ thứ
+                  Hai đến thứ Bảy (từ 8:00 - 11:00 và từ 14:00 - 17:00 trong
+                  ngày).
                 </p>
               </li>
             </ul>
@@ -274,7 +252,7 @@ const Cart = () => {
                 // onClick={() => setIsModalOpen(true)}
                 onClick={hanldeCheckout}
               >
-                checkout
+                Thủ tục thanh toán
               </Button>
             </div>
 

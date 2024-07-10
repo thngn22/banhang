@@ -4,85 +4,100 @@ import { Controller } from "react-hook-form";
 import dayjs from "dayjs";
 import MultilevelDropdown from "../../components/MultilevelDropdown/MultilevelDropdown";
 import { useQuery } from "@tanstack/react-query";
-import * as ProductService from "../../../services/ProductService";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addProductToChoosedList,
-  removeProductFromChoosedList,
+  addProductFromChoosedList_Update,
+  detailSaleUpdate,
+  removeProductFromChoosedList_Update,
 } from "../../../redux/slides/saleSlice";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import TableComponent from "../../components/TableComponent/TableComponent";
-import apiSales from "../../../services/saleApis";
 import createAxiosInstance from "../../../services/createAxiosInstance";
+import apiSales from "../../../services/saleApis";
+import { formatDayjs } from "../../../utils/untils";
 
-const FormSaleCreate = ({
-  registerCreate,
+const FormSaleUpdate = ({
+  registerUpdate,
   control,
   errors,
-  setValueCreate,
+  setValueUpdate,
   navigate,
+  idSale,
+  data,
 }) => {
   const { RangePicker } = DatePicker;
 
-  const choosedProductList = useSelector(
-    (state) => state.sale.createSale.choosedProduct
-  );
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const detailSale = useSelector((state) => state.sale.updateSale.currentSale);
   const dispatch = useDispatch();
   const axiosJWT = createAxiosInstance(auth, dispatch);
   const [categoryId, setCategoryId] = useState();
   const [pageNumber, setPageNumber] = useState(1);
   const [dataTable, setDataTable] = useState([]);
+  const [time, setTime] = useState([data?.startDate, data?.endDate]);
 
   const handleMenuItemClick = (id) => {
     setCategoryId(id);
   };
 
-  const { data: productsToCreate, refetch: refetchProductsToCreate } = useQuery(
-    {
-      queryKey: [categoryId, pageNumber, "productsToCreate"],
-      queryFn: () => {
-        return apiSales.getProductByCateWithoutCreate(
-          {
-            category_id: categoryId ? categoryId : "",
-            page_number: pageNumber,
-          },
-          auth?.accessToken,
-          axiosJWT
-        );
-      },
-    }
-  );
+  const { data: productsToEdit } = useQuery({
+    queryKey: [categoryId, pageNumber, "productsToEdit"],
+    queryFn: () => {
+      return apiSales.getProductByCateWithoutEdit(
+        {
+          category_id: categoryId ? categoryId : "",
+          page_number: pageNumber,
+          sale_id: idSale,
+        },
+        auth?.accessToken,
+        axiosJWT
+      );
+    },
+  });
   useEffect(() => {
     const data =
-      productsToCreate?.contents?.length &&
-      productsToCreate?.contents?.map((product) => {
+      productsToEdit?.contents?.length &&
+      productsToEdit?.contents?.map((product) => {
         return { ...product, key: product.id };
       });
 
     setDataTable(data);
-  }, [productsToCreate]);
+  }, [productsToEdit]);
 
   useEffect(() => {
-    if (choosedProductList && choosedProductList.length > 0) {
-      const productIds = choosedProductList.map((product) => product.id);
-      setValueCreate("idProductList", productIds);
+    if (detailSale && detailSale?.productResponses.length > 0) {
+      const productIds = detailSale?.productResponses.map(
+        (product) => product.id
+      );
+      setValueUpdate("idProductList", productIds);
     } else {
-      setValueCreate("idProductList", []);
+      setValueUpdate("idProductList", []);
     }
-  }, [choosedProductList, setValueCreate]);
+  }, [detailSale, setValueUpdate]);
+
+  useEffect(() => {
+    if (data) setTime([data?.startDate, data?.endDate]);
+  }, [data]);
 
   const onChange = (pageNumber) => {
     setPageNumber(pageNumber);
   };
 
   const handleChosenRowClick = (key, record) => {
-    dispatch(removeProductFromChoosedList(key));
+    dispatch(removeProductFromChoosedList_Update(key));
   };
 
   const handleRowClick = async (key, record) => {
-    dispatch(addProductToChoosedList(record));
+    dispatch(addProductFromChoosedList_Update(record));
+  };
+
+  const handleChangeTime = (value, onChange) => {
+    const formattedValues = [];
+    formattedValues.push(value[0] ? formatDayjs(value[0]) : "");
+    formattedValues.push(value[1] ? formatDayjs(value[1]) : "");
+    setTime(formattedValues);
+    onChange(formattedValues);
   };
 
   const columns = [
@@ -149,12 +164,15 @@ const FormSaleCreate = ({
     if (dataTable && dataTable?.length > 0) {
       return dataTable?.filter(
         (product) =>
-          !choosedProductList?.some((choosed) => choosed.id === product.id)
+          !detailSale.productResponses?.some(
+            (choosed) => choosed.id === product.id
+          )
       );
     }
   };
 
   const handleComeback = () => {
+    dispatch(detailSaleUpdate(detailSale));
     navigate("/admin/sales");
   };
 
@@ -164,7 +182,8 @@ const FormSaleCreate = ({
         <input
           type="text"
           placeholder="Tên mã khuyến mãi"
-          {...registerCreate("name")}
+          defaultValue={data?.name}
+          {...registerUpdate("name")}
           className="w-full p-3 mb-2 rounded border"
         />
         {errors.name && (
@@ -176,7 +195,8 @@ const FormSaleCreate = ({
         <input
           type="text"
           placeholder="Mô tả"
-          {...registerCreate("description")}
+          defaultValue={data?.description}
+          {...registerUpdate("description")}
           className="w-full p-3 mb-2 rounded border"
         />
         {errors.description && (
@@ -190,7 +210,8 @@ const FormSaleCreate = ({
         <input
           type="text"
           placeholder="Tỉ lệ giảm giá"
-          {...registerCreate("discountRate")}
+          defaultValue={data?.discountRate}
+          {...registerUpdate("discountRate")}
           className="w-full p-3 mb-2 rounded border"
         />
         {errors.discountRate && (
@@ -208,18 +229,12 @@ const FormSaleCreate = ({
             <RangePicker
               className="w-full mb-2"
               placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-              value={
-                value
-                  ? [
-                      dayjs(value[0], "DD/MM/YYYY 00:00:00"),
-                      dayjs(value[1], "DD/MM/YYYY 00:00:00"),
-                    ]
-                  : [null, null]
-              }
+              value={[
+                time[0] ? dayjs(time[0], "DD-MM-YYYY HH:mm:ss") : null,
+                time[1] ? dayjs(time[1], "DD-MM-YYYY HH:mm:ss") : null,
+              ]}
               format={"DD/MM/YYYY"}
-              onChange={(dates, dateStrings) => {
-                onChange(dateStrings);
-              }}
+              onChange={(value) => handleChangeTime(value, onChange)}
             />
           )}
         />
@@ -243,8 +258,8 @@ const FormSaleCreate = ({
         <div className="flex justify-center mt-4">
           <Pagination
             showSizeChanger={false}
-            total={productsToCreate?.totalElements}
-            pageSize={productsToCreate?.pageSize}
+            total={productsToEdit?.totalElements}
+            pageSize={productsToEdit?.pageSize}
             onChange={onChange}
             current={pageNumber}
           />
@@ -253,7 +268,10 @@ const FormSaleCreate = ({
 
       <div className="w-full">
         <p className="text-xl font-extrabold">Bảng sản phẩm đã chọn</p>
-        <TableComponent data={choosedProductList} columns={columnsChoosed} />
+        <TableComponent
+          data={detailSale?.productResponses}
+          columns={columnsChoosed}
+        />
       </div>
 
       <div className="flex justify-between items-center mt-4">
@@ -268,4 +286,4 @@ const FormSaleCreate = ({
   );
 };
 
-export default FormSaleCreate;
+export default FormSaleUpdate;

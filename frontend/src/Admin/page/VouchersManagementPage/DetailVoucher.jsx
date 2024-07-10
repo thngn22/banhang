@@ -43,11 +43,24 @@ const DetailVoucher = () => {
               </div>
               <div className="flex gap-2">
                 <strong>Tổng giá trị tối đa được giảm:</strong>
-                <p>{detailVoucher.maximumDiscountValidPrice}</p>
+                <p>
+                  {detailVoucher.maximumDiscountValidPrice.toLocaleString(
+                    "vi-VN",
+                    {
+                      style: "currency",
+                      currency: "VND",
+                    }
+                  )}
+                </p>
               </div>
               <div className="flex gap-2">
                 <strong>Giá trị đơn hàng tối thiểu:</strong>
-                <p>{detailVoucher.minimumCartPrice}</p>
+                <p>
+                  {detailVoucher.minimumCartPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </p>
               </div>
               <div className="flex gap-2">
                 <strong>Số lượng hiện tại:</strong>

@@ -10,8 +10,10 @@ function DefaultComponent({ children }) {
   return (
     <div>
       <Navigation />
-      {children}
-      {auth && !auth.isAdmin && <Chat />}
+      <div className="mt-20">
+        {children}
+        {auth && !auth.isAdmin && <Chat />}
+      </div>
       <Footer />
     </div>
   );

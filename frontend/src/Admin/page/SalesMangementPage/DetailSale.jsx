@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from "react";
 import TableComponent from "../../components/TableComponent/TableComponent";
-import { useSelector } from "react-redux";
 import { formatDateInHisoryOrder } from "../../../utils/untils";
 
-const DetailSale = () => {
+const DetailSale = ({ data }) => {
   const [dataTable, setDataTable] = useState([]);
-  const detailSale = useSelector((state) => state.sale.detailSale.currentSale);
 
   useEffect(() => {
-    const value =
-      detailSale?.productResponses?.length &&
-      detailSale?.productResponses?.map((sale) => {
+    if (data?.productResponses?.length) {
+      const value = data.productResponses.map((sale) => {
         return { ...sale, key: sale.id };
       });
+      setDataTable(value);
+    }
+  }, [data]);
 
-    setDataTable(value);
-  }, [detailSale]);
+  console.log(dataTable);
 
   const columns = [
     {
@@ -66,36 +65,53 @@ const DetailSale = () => {
 
   return (
     <div className="font-montserrat">
-      {detailSale && (
+      {data && (
         <div className="mt-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex gap-2">
-              <strong>ID:</strong>
-              <p>{detailSale.id}</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <strong>ID:</strong>
+                <p>{data.id}</p>
+              </div>
+              <div className="flex gap-2">
+                <strong>Tên:</strong>
+                <p>{data.name}</p>
+              </div>
+              <div className="flex gap-2">
+                <strong>Mô tả:</strong>
+                <p>{data.description}</p>
+              </div>
+              <div className="flex gap-2">
+                <strong>Tỉ lệ giảm:</strong>
+                <p>{data.discountRate}%</p>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <strong>Tên:</strong>
-              <p>{detailSale.name}</p>
-            </div>
-            <div className="flex gap-2">
-              <strong>Mô tả:</strong>
-              <p>{detailSale.description}</p>
-            </div>
-            <div className="flex gap-2">
-              <strong>Tỉ lệ giảm:</strong>
-              <p>{detailSale.discountRate}%</p>
-            </div>
-            <div className="flex gap-2">
-              <strong>Ngày bắt đầu:</strong>
-              <p>{formatDateInHisoryOrder(detailSale.startDate)}</p>
-            </div>
-            <div className="flex gap-2">
-              <strong>Ngày kết thúc:</strong>
-              <p>{formatDateInHisoryOrder(detailSale.endDate)}</p>
-            </div>
-            <div className="flex gap-2">
-              <strong>Ngày tạo:</strong>
-              <p>{formatDateInHisoryOrder(detailSale.createdAt)}</p>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <strong>Tình trạng sử dụng:</strong>
+                <p
+                  className={
+                    data.active
+                      ? "text-green-500 font-bold"
+                      : "text-red-500 font-bold"
+                  }
+                >
+                  {data.active ? "Active" : "Inactive"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <strong>Ngày bắt đầu:</strong>
+                <p>{formatDateInHisoryOrder(data.startDate)}</p>
+              </div>
+              <div className="flex gap-2">
+                <strong>Ngày kết thúc:</strong>
+                <p>{formatDateInHisoryOrder(data.endDate)}</p>
+              </div>
+              <div className="flex gap-2">
+                <strong>Ngày tạo:</strong>
+                <p>{formatDateInHisoryOrder(data.createdAt)}</p>
+              </div>
             </div>
           </div>
 

@@ -129,7 +129,7 @@ export default function Navigation({
   };
 
   return (
-    <div className="bg-white border-b border-solid border-gray-300">
+    <div className="bg-white border-b border-solid border-gray-300 fixed z-[2000] right-0 left-0 top-0">
       <header className="relative bg-white">
         <nav aria-label="Top" className="py-2 px-8">
           <div className="flex items-center h-16">
@@ -144,7 +144,7 @@ export default function Navigation({
             </div>
 
             {/* Flyout menus */}
-            <div className="flex justify-between ml-20 gap-5">
+            <div className="flex justify-between ml-20 gap-10">
               <div className="relative">
                 <p
                   className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out cursor-pointer"
@@ -196,7 +196,7 @@ export default function Navigation({
                 {showSubCates ? (
                   <div
                     className="absolute left-full top-0 mt-10 z-20"
-                    style={{ marginLeft: "21px" }}
+                    style={{ marginLeft: "15.5px" }}
                   >
                     <div className="rounded-lg ring-1 ring-black ring-opacity-5 overflow-hidden w-44">
                       <div className="relative grid gap-6 bg-white px-5 py-4">
@@ -225,13 +225,7 @@ export default function Navigation({
                 to="/contact-us"
                 className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out"
               >
-                Contact Us
-              </Link>
-              <Link
-                to="/about"
-                className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out"
-              >
-                About
+                Khuyến mãi
               </Link>
             </div>
 
@@ -260,40 +254,25 @@ export default function Navigation({
                     placement="bottomRight"
                     content={
                       <div className="py-1">
-                        {auth?.email ? (
+                        {auth?.email && (
                           <>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={() => handleNavigate("profile")}
                             >
-                              Account Profile
+                              Tài khoản cá nhân
                             </p>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={() => handleNavigate("history-order")}
                             >
-                              Orders
+                              Đơn hàng
                             </p>
                             <p
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={handleLogout}
                             >
-                              Log out
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <p
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => handleNavigate("auth")}
-                            >
-                              Sign Up
-                            </p>
-                            <p
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => handleNavigate("auth")}
-                            >
-                              Sign In
+                              Đăng xuất
                             </p>
                           </>
                         )}
@@ -320,10 +299,10 @@ export default function Navigation({
                         </div>
                       ) : (
                         <div
-                          className={classNames(
-                            "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
-                            { "text-indigo-600": open }
-                          )}
+                          className={
+                            "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1 transition duration-200 transform hover:scale-105 active:scale-95"
+                          }
+                          onClick={() => handleNavigate("auth")}
                         >
                           Đăng nhập/ Đăng ký
                         </div>
@@ -342,7 +321,7 @@ export default function Navigation({
                       <div className="dropdown-cart_content p-4 overflow-hidden w-[420px]">
                         <div>
                           <p className="text-center text-lg uppercase font-extrabold border-b-[1px] pb-1">
-                            Product added to cart
+                            sản phẩm đã được thêm vào Giỏ
                           </p>
                           <div className="content-cart">
                             <div className="list-cart py-4">
@@ -386,7 +365,7 @@ export default function Navigation({
                                             )}
                                           </p>
                                           <div className="flex gap-2">
-                                            <p>Quantity:</p>
+                                            <p>Số lượng:</p>
                                             <p className="font-medium">
                                               {item.quantity}
                                             </p>
@@ -398,14 +377,16 @@ export default function Navigation({
                                 })
                               ) : (
                                 <div className="text-center">
-                                  There are currently no products
+                                  Hiện tại không có sản phẩm nào
                                 </div>
                               )}
                             </div>
                             <div className="line border-b-[1px] w-full mb-1"></div>
                             <div className="cart-total">
                               <div className="flex justify-between items-center py-3">
-                                <p className="uppercase font-medium">Total</p>
+                                <p className="uppercase font-medium">
+                                  Tổng tiền
+                                </p>
                                 <p className="text-red-500 font-bold text-lg">
                                   {cart?.totalPrice.toLocaleString("vi-VN", {
                                     style: "currency",
@@ -417,7 +398,7 @@ export default function Navigation({
                                 to="/carts"
                                 className="uppercase p-2 w-full block text-white bg-black text-center font-medium hover:text-white hover:opacity-80"
                               >
-                                View Cart
+                                Xem giỏ hàng
                               </Link>
                             </div>
                           </div>
