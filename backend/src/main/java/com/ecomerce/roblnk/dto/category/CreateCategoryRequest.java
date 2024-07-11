@@ -8,11 +8,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class CreateCategoryRequest {
-    @Valid
     @NotBlank
     private String name;
 
-    @Valid
-    @NotBlank
     private Long parentCategoryId;
 }

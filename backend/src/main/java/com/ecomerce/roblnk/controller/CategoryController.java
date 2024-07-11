@@ -166,10 +166,7 @@ public class CategoryController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createCategory(CreateCategoryRequest request, BindingResult bindingResult){
-        if (bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
-        }
+    public ResponseEntity<?> createCategory(CreateCategoryRequest request){
         var response = categoryService.createCategory(request);
         if (response.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
@@ -189,7 +186,7 @@ public class CategoryController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<?> editCategory(EditCategoryRequest request, BindingResult bindingResult){
+    public ResponseEntity<?> editCategory(@RequestBody EditCategoryRequest request, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
@@ -202,12 +199,22 @@ public class CategoryController {
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
-                    .statusCode(404)
-                    .message(String.valueOf(HttpStatus.NOT_FOUND))
-                    .description(response)
-                    .timestamp(new Date(System.currentTimeMillis()))
-                    .build());
+            if (response.startsWith("This")) {
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                        .statusCode(400)
+                        .message(String.valueOf(HttpStatus.BAD_REQUEST))
+                        .description(response)
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
+            else
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                        .statusCode(404)
+                        .message(String.valueOf(HttpStatus.NOT_FOUND))
+                        .description(response)
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
         }
     }
 

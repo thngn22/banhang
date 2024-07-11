@@ -16,6 +16,5 @@ public class EditCategoryRequest {
     @Valid
     private String name;
 
-    @Valid
     private Long parentCategoryId;
 }

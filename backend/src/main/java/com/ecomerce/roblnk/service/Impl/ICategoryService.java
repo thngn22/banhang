@@ -183,17 +183,26 @@ public class ICategoryService implements CategoryService {
 
     @Override
     public String createCategory(CreateCategoryRequest request) {
-        var parentCategory = categoryRepository.findById(request.getParentCategoryId());
-        Category category = new Category();
-        if (parentCategory.isPresent()){
-            category.setParentCategoryId(parentCategory.get());
+        if (request.getParentCategoryId() != null) {
+            var parentCategory = categoryRepository.findById(request.getParentCategoryId());
+            Category category = new Category();
+            if (parentCategory.isPresent()) {
+                category.setParentCategoryId(parentCategory.get());
+            } else {
+                category.setParentCategoryId(null);
+            }
+
+            category.setName(request.getName());
+            category.setActive(true);
+            categoryRepository.save(category);
         }
         else {
+            Category category = new Category();
             category.setParentCategoryId(null);
+            category.setName(request.getName());
+            category.setActive(true);
+            categoryRepository.save(category);
         }
-        category.setName(request.getName());
-        category.setActive(true);
-        categoryRepository.save(category);
         return "Successfully created new category!";
     }
 
@@ -201,19 +210,21 @@ public class ICategoryService implements CategoryService {
     public String editCategory(EditCategoryRequest request) {
         var category = categoryRepository.findById(request.getId());
         if (category.isPresent()) {
-            if (request.getName() != null && !request.getName().equals(category.get().getName())) {
-                category.get().setName(request.getName());
-            }
-
-            if (request.getParentCategoryId() == null || !request.getParentCategoryId().equals(category.get().getParentCategoryId().getId())) {
-                var newCategory = categoryRepository.findById(request.getId());
-                if (newCategory.isPresent()) {
-                    category.get().setParentCategoryId(newCategory.get());
-                } else {
-                    category.get().setParentCategoryId(null);
+            if (category.get().isActive()) {
+                if (request.getName() != null && !request.getName().equals(category.get().getName())) {
+                    category.get().setName(request.getName());
                 }
+
+                if (request.getParentCategoryId() == null) {
+                    category.get().setParentCategoryId(null);
+                } else {
+                    var category_ = categoryRepository.findById(request.getParentCategoryId()).orElseThrow();
+                    category.get().setParentCategoryId(category_);
+                }
+                categoryRepository.save(category.get());
+                return "Successfully updated category";
             }
-            return "Successfully updated category";
+            else return "This category is inactive permanently, unavailable to update!";
         }
         else return "Fail to update the category information, please try again!";
 
@@ -236,6 +247,7 @@ public class ICategoryService implements CategoryService {
 
             if (flag){
                 category.get().setActive(false);
+                categoryRepository.save(category.get());
                 return "Successfully de-active category";
             }
             else {
