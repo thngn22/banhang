@@ -24,6 +24,7 @@ import HistoryOrder from "./HistoryOrder";
 import AddressUsers from "./AddressUsers";
 import UpdateProfile from "./UpdateProfile";
 import Default from "./Default";
+import createAxiosInstance from "../../../services/createAxiosInstance";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -31,39 +32,7 @@ const ProfilePage = () => {
   const [selected, setSelected] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
   const { data: profileUser, refetch: refetchProfileUser } = useQuery({
     queryKey: ["profileUser"],
@@ -170,19 +139,10 @@ const ProfilePage = () => {
             handleSelected={handleSelected}
           />
         );
-      case "historyOrder":
-        return (
-          <HistoryOrder data={historyOrder} refetch={refetchHistoryOrder} />
-        );
       case "addressUsers":
         return <AddressUsers />;
       default:
-        return (
-          <>
-            <Default userIn4={userIn4} handleSelected={handleSelected} />
-            <HistoryOrder data={historyOrder} refetch={refetchHistoryOrder} />
-          </>
-        );
+        return <Default userIn4={userIn4} handleSelected={handleSelected} />;
     }
   };
 
@@ -198,7 +158,7 @@ const ProfilePage = () => {
             />
 
             <div className="flex gap-2 text-xl">
-              <p>Hello </p>
+              <p>Xin chào</p>
               <p className="font-medium">
                 {userIn4?.firstName} {userIn4?.lastName}
               </p>
@@ -210,32 +170,25 @@ const ProfilePage = () => {
                 onClick={() => handleSelected("")}
               >
                 <UserOutlined />
-                <p>Account information</p>
-              </div>
-              <div
-                className="flex items-center gap-2 cursor-pointer hover:opacity-70"
-                onClick={() => handleSelected("historyOrder")}
-              >
-                <FileDoneOutlined />
-                <p>Order management</p>
+                <p>Thông tin tài khoản</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer hover:opacity-70"
                 onClick={() => handleSelected("addressUsers")}
               >
                 <HomeOutlined />
-                <p>List of addresses</p>
+                <p>Danh sách địa chỉ</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer hover:opacity-70"
                 onClick={handleChangePassword}
               >
                 <KeyOutlined />
-                <p>Change Password</p>
+                <p>Đổi mật khẩu</p>
               </div>
               <div className="flex items-center gap-2 cursor-pointer hover:opacity-70">
                 <LogoutOutlined />
-                <p>Log out</p>
+                <p>Đăng xuất</p>
               </div>
             </div>
           </div>

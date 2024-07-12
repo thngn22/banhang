@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Popover as PopoverAntd } from "antd";
+import { message, Popover as PopoverAntd } from "antd";
 import {
   MagnifyingGlassIcon,
   ShoppingBagIcon,
@@ -103,16 +103,20 @@ export default function Navigation({
   const handleLogout = async () => {
     setIsLoading(true);
 
-    const res = await AuthService.logout(auth?.accessToken, axiosJWT);
-    if (res) {
-      dispatch(logoutSuccess());
-      dispatch(resetUser());
-
+    try {
+      const res = await AuthService.logout(auth?.accessToken, axiosJWT);
+      if (res) {
+        dispatch(resetUser());
+        dispatch(logoutSuccess());
+        setIsLoading(false);
+        setTimeout(() => {
+          navigate("/");
+          window.location.reload();
+        }, 500);
+      }
+    } catch (error) {
+      message.error(`Đã xảy ra lỗi: ${error.message}`);
       setIsLoading(false);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
     }
   };
 

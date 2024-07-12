@@ -76,7 +76,6 @@ const DashboardPage = () => {
           <p className="text-4xl font-extrabold uppercase">Shoes.co</p>
 
           <div className="flex gap-8 items-center">
-            <img src={chatIcon} alt="iconChat" />
             <img
               className="object-cover rounded-full h-[3rem]"
               src={auth.avatar}

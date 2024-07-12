@@ -262,7 +262,7 @@ export default function ProductDetailPage() {
                   />
 
                   <span className="cursor-pointer text-blue-400 text-lg">
-                    ({productDetail?.reviews?.length} Review)
+                    ({productDetail?.reviews?.length} Đánh giá)
                   </span>
                 </Space>
               ) : (

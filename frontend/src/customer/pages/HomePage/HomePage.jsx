@@ -31,13 +31,13 @@ function HomePage(props) {
         <hr className="border bg-gray-400 mx-5 my-10" />
 
         <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
-          Top Selling
+          Những sản phẩm bán được nhiều
         </p>
         <MultiCarousel homePage={true} dataCarousel={topSold} />
         <hr className="border bg-gray-400 mx-5 my-10" />
 
         <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
-          Top Rating
+          Những sản phẩm được đánh giá cao
         </p>
         <MultiCarousel homePage={true} dataCarousel={topRating} />
       </div>
