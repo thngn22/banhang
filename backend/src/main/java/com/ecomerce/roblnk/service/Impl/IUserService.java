@@ -239,14 +239,23 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        boolean flag = user.getAddresses().isEmpty();
 
         var address = new Address();
         address.setAddress(userAddressRequest.getAddress());
         address.setWard(userAddressRequest.getWard());
         address.setDistrict(userAddressRequest.getDistrict());
         address.setCity(userAddressRequest.getCity());
-        address.set_default(flag);
+
+        if (userAddressRequest.is_default()) {
+            var anotherAddress = addressRepository.findAddressBy_default(true);
+            if (anotherAddress.isPresent()) {
+                anotherAddress.get().set_default(false);
+                addressRepository.save(anotherAddress.get());
+            }
+            address.set_default(true);
+        }
+        else address.set_default(false);
+
         address.setUser(user);
         address.setActive(true);
         addressRepository.save(address);

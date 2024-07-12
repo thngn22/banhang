@@ -8,4 +8,5 @@ public class    UserAddressRequest {
     private String district;
     private String ward;
     private String address;
+    private boolean _default;
 }
