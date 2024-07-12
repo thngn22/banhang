@@ -358,7 +358,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public PageResponse getAllProductFilter(Long categoryId, String minPrice, String maxPrice, String search, String sort, Integer pageNumber, boolean isAdmin) {
+    public PageResponse getAllProductFilter(Long categoryId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber, boolean isAdmin) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -369,6 +369,8 @@ public class IProductService implements ProductService {
         List<Double> discountRate = new ArrayList<>();
         List<Long> saleIds = new ArrayList<>();
         categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
+        boolean flagSize = size != null && !size.isEmpty();
+        boolean flagColor = color != null && !color.isEmpty();
         boolean flagMinPrice = minPrice != null && !minPrice.isEmpty();
         boolean flagMaxPrice = maxPrice != null && !maxPrice.isEmpty();
         var cates = categoryRepository.findAll();
@@ -414,7 +416,28 @@ public class IProductService implements ProductService {
             loop:
             {
                 for (ProductItem productItem : items) {
-                   if (flagMinPrice && flagMaxPrice) {
+                    if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("K")) {
+                        if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("K")) {
+                        if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+
+                    } else if (flagMinPrice && flagMaxPrice) {
                         if ((productItem.getPrice() >= Integer.parseInt(minPrice)) && (productItem.getPrice() <= Integer.parseInt(maxPrice))) {
                             flag = true;
                             break loop;
@@ -433,7 +456,7 @@ public class IProductService implements ProductService {
                     }
                 }
             }
-            boolean temp = (flag || flagMinPrice || flagMaxPrice) && !flag;
+            boolean temp = (flag || flagColor || flagSize || flagMinPrice || flagMaxPrice) && !flag;
 
             if (!temp) {
                 i = i + 1;

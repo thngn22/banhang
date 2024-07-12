@@ -11,6 +11,7 @@ import com.ecomerce.roblnk.repository.SaleProductRepository;
 import com.ecomerce.roblnk.repository.SaleRepository;
 import com.ecomerce.roblnk.service.SaleService;
 import lombok.RequiredArgsConstructor;
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +38,7 @@ public class ISaleService implements SaleService {
 
     @Override
     public PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest) {
+        updateSaleState(filterSaleRequest.getSale_id());
         var sale_id = filterSaleRequest.getSale_id();
         var name = filterSaleRequest.getName();
         var discounted_rate = filterSaleRequest.getDiscount_rate();
@@ -61,6 +63,17 @@ public class ISaleService implements SaleService {
         productResponse.setTotalPage(page.getTotalPages());
         productResponse.setTotalElements(page.getTotalElements());
         return productResponse;
+    }
+
+    @Override
+    public void updateSaleState(Long saleId) {
+        var sale = saleRepository.findById(saleId).orElseThrow();
+        if (sale.isActive()) {
+            if (sale.getEndDate().before(new Date(System.currentTimeMillis()))) {
+                sale.setActive(false);
+                saleRepository.save(sale);
+            }
+        }
     }
 
     private Specification<Sale> specificationSale(Long sale_id, String name, Double discounted_rate, String state, Date start_date, Date end_date) {
@@ -124,6 +137,7 @@ public class ISaleService implements SaleService {
 
     @Override
     public SaleResponseDetail getSaleResponseDetail(Long id) {
+        updateSaleState(id);
         List<Integer> quantity = new ArrayList<>();
         List<Integer> salePrices = new ArrayList<>();
         List<Long> saleId = new ArrayList<>();

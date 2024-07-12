@@ -14,7 +14,7 @@ public interface ProductService {
 
     PageResponse getAllProductWithOutFlashSaleCreate(Long categoryId, Integer pageNumber);
 
-    PageResponse getAllProductFilter(Long categoryId, String minPrice, String maxPrice, String search, String sort, Integer pageNumber, boolean isAdmin);
+    PageResponse getAllProductFilter(Long categoryId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber, boolean isAdmin);
 
     ProductDetailResponsev3 getDetailProductForAdmin(Long productId);
     ProductDetailResponsev2 getDetailProduct(Long productId);

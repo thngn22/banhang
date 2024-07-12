@@ -1,12 +1,17 @@
 package com.ecomerce.roblnk.dto.user;
 
-import lombok.Data;
+import lombok.*;
 
+@Getter
+@Setter
 @Data
-public class    UserAddressRequest {
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class UserAddressRequest {
     private String city;
     private String district;
     private String ward;
     private String address;
-    private boolean _default;
+    private Boolean is_default;
 }

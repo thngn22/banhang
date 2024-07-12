@@ -11,5 +11,5 @@ public class EditUserAddressRequest {
     private String district;
     private String ward;
     private String address;
-    private boolean _default;
+    private Boolean is_default;
 }

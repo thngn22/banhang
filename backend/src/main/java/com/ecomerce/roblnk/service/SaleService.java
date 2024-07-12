@@ -6,10 +6,9 @@ import com.ecomerce.roblnk.dto.sale.FilterSaleRequest;
 import com.ecomerce.roblnk.dto.sale.FlashSaleRequest;
 import com.ecomerce.roblnk.dto.sale.SaleResponseDetail;
 
-import java.util.Date;
-
 public interface SaleService {
     PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest);
+    void updateSaleState(Long saleId);
 
     SaleResponseDetail getSaleResponseDetail(Long id);
 

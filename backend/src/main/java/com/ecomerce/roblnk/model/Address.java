@@ -32,7 +32,7 @@ public class Address {
     private String address;
 
     @Column(name = "is_default")
-    private boolean _default;
+    private boolean is_default;
 
     @Column(name = "is_active")
     private boolean active;

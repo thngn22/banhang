@@ -239,18 +239,19 @@ public class IUserService implements UserService {
     @Override
     public ResponseEntity<?> addUserAddress(Principal connectedUser, UserAddressRequest userAddressRequest) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-
         var address = new Address();
         address.setAddress(userAddressRequest.getAddress());
         address.setWard(userAddressRequest.getWard());
         address.setDistrict(userAddressRequest.getDistrict());
         address.setCity(userAddressRequest.getCity());
-
-        if (userAddressRequest.is_default()) {
-            var anotherAddress = addressRepository.findAddressBy_default(true);
-            if (anotherAddress.isPresent()) {
-                anotherAddress.get().set_default(false);
-                addressRepository.save(anotherAddress.get());
+        if (userAddressRequest.getIs_default()) {
+            var anotherAddress = addressRepository.findAllByUser_EmailAndActive(user.getEmail(), true);
+            for (Address address1 : anotherAddress){
+                if (address1.is_default()){
+                    address1.set_default(false);
+                    addressRepository.save(address1);
+                    break;
+                }
             }
             address.set_default(true);
         }
@@ -265,6 +266,8 @@ public class IUserService implements UserService {
 
     @Override
     public ResponseEntity<?> updateUserAddress(Principal connectedUser, EditUserAddressRequest userUpdateAddressRequest) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+
         var addressId = addressRepository.findById(userUpdateAddressRequest.getId());
         if (addressId.isPresent()) {
             if (userUpdateAddressRequest.getCity() != null && !userUpdateAddressRequest.getCity().isEmpty())
@@ -275,12 +278,17 @@ public class IUserService implements UserService {
                 addressId.get().setWard(userUpdateAddressRequest.getWard());
             if (userUpdateAddressRequest.getAddress() != null && !userUpdateAddressRequest.getAddress().isEmpty())
                 addressId.get().setAddress(userUpdateAddressRequest.getAddress());
+            if (userUpdateAddressRequest.getIs_default()) {
 
-            var anotherAddress = addressRepository.findAddressBy_default(true);
-            if (anotherAddress.isPresent() && !anotherAddress.get().getId().equals(userUpdateAddressRequest.getId())){
-                anotherAddress.get().set_default(false);
-                addressId.get().set_default(true);
-                addressRepository.save(anotherAddress.get());
+                var anotherAddress = addressRepository.findAllByUser_EmailAndActive(user.getEmail(), true);
+                for (Address address1 : anotherAddress) {
+                    if (address1.is_default() && !address1.getId().equals(userUpdateAddressRequest.getId())) {
+                        address1.set_default(false);
+                        addressId.get().set_default(true);
+                        addressRepository.save(address1);
+                        break;
+                    }
+                }
             }
             addressRepository.save(addressId.get());
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.builder()
