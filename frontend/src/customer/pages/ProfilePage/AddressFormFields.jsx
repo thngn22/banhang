@@ -128,13 +128,13 @@ const AddressFormFields = ({
           )}
         </div>
         <div className="flex items-center">
-          <label htmlFor="default" className="text-gray-500 font-medium mr-2">
+          <label htmlFor="is_default" className="text-gray-500 font-medium mr-2">
             Đặt làm địa chỉ mặc định:
           </label>
           <input
-            id="default"
+            id="is_default"
             type="checkbox"
-            {...register("default")}
+            {...register("is_default")}
             className="checkbox"
           />
         </div>

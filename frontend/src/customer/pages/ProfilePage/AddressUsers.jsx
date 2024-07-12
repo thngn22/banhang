@@ -328,14 +328,14 @@ const AddressUsers = () => {
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    id="default"
-                    {...register("default")}
+                    id="is_default"
+                    {...register("is_default")}
                     className="mr-2"
                   />
                   Đặt làm địa chỉ mặc định
                 </label>
-                {errors.default && (
-                  <p className="text-red-500">{errors.default.message}</p>
+                {errors.is_default && (
+                  <p className="text-red-500">{errors.is_default.message}</p>
                 )}
               </div>
               <button

@@ -5,7 +5,7 @@ const createSchema = z.object({
   district: z.string().min(1, "Quận/Huyện không được để trống"),
   ward: z.string().min(1, "phường/Xã không được để trống"),
   address: z.string().min(1, "Địa chỉ cụ thể không được để trống"),
-  default: z.boolean(),
+  is_default: z.boolean(),
 });
 
 const updateSchema = z.object({
@@ -13,7 +13,7 @@ const updateSchema = z.object({
   district: z.string(),
   ward: z.string(),
   address: z.string(),
-  default: z.boolean(),
+  is_default: z.boolean(),
 });
 
 const addressSchema = {

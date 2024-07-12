@@ -28,7 +28,7 @@ const EditAddress = ({ address, handleCancelEdit, refetchListAddress }) => {
       district: address?.addressInfor?.district || "",
       ward: address?.addressInfor?.ward || "",
       address: address?.addressInfor?.address || "",
-      default: address?._default || false,
+      is_default: address?._default || false,
     },
   });
 
@@ -116,9 +116,7 @@ const EditAddress = ({ address, handleCancelEdit, refetchListAddress }) => {
     const formData = {
       ...data,
       id: address?.addressInfor.id,
-      is_default: data.default,
     };
-    delete formData.default; // Xóa thuộc tính 'default' cũ
     console.log(formData);
 
     mutationEdit.mutate(formData, {
