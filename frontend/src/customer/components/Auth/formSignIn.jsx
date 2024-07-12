@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const FormSignIn = ({ registerSignIn, errors }) => {
   return (
     <div className="flex flex-col justify-center items-center w-full">
-      <h1 className="text-4xl font-bold tracking-wide mb-4">Sign In</h1>
+      <h1 className="text-4xl font-bold tracking-wide mb-4">Đăng nhập</h1>
 
       <div className="w-full">
         <input
@@ -23,7 +23,7 @@ const FormSignIn = ({ registerSignIn, errors }) => {
       <div className="w-full">
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Mật khẩu"
           {...registerSignIn("password")}
           className="w-full"
         />
@@ -34,13 +34,13 @@ const FormSignIn = ({ registerSignIn, errors }) => {
         )}
       </div>
 
-      <Link to={"/forgot"}>Forget Your Password?</Link>
+      <Link to={"/forgot"}>Quên mật khẩu?</Link>
 
       <button
         type="submit"
         className="w-full p-2 mt-4 bg-black text-white rounded hover:opacity-80"
       >
-        Sign In
+        Đăng nhập
       </button>
     </div>
   );

@@ -76,7 +76,7 @@ const Auth = () => {
     };
     mutationSignIn.mutate(formData, {
       onError: () => {
-        message.error("Email or password is wrong").toString();
+        message.error("Email hoặc mật khẩu sai").toString();
       },
     });
   };
@@ -87,14 +87,14 @@ const Auth = () => {
     };
     mutationSignUp.mutate(formData, {
       onSuccess: () => {
-        message.success("Sended OTP").toString();
+        message.success("Đã gửi mã OTP").toString();
         dispatch(signSuccess(formData));
         setTimeout(() => {
           navigate(`/otp/${formData.email}`);
         }, 1000);
       },
       onError: (error) => {
-        message.error(`Account already exists`).toString();
+        message.error(`Tài khoản đã tồn tại`).toString();
       },
     });
   };
@@ -117,19 +117,30 @@ const Auth = () => {
           <div className="toggle">
             <div className="toggle-panel toggle-left">
               <h1 className="text-4xl font-bold tracking-wide mb-4">
-                Welcome Back!
+                Xin chào!!!
               </h1>
-              <p>Enter your personal details to use all of site features</p>
-              <button className="hover:opacity-80" onClick={handleLoginClick}>Sign In</button>
+              <p>
+                Đăng ký với thông tin cá nhân của bạn để sử dụng tất cả các tính
+                năng của trang web
+              </p>
+              <button className="hover:opacity-80" onClick={handleLoginClick}>
+                Chuyển qua Đăng nhập
+              </button>
             </div>
             <div className="toggle-panel toggle-right">
               <h1 className="text-4xl font-bold tracking-wide">
-                Hello, Friend!
+                Chào mừng trở lại!
               </h1>
               <p>
-                Register with your personal details to use all of site features
+                Nhập thông tin tài khoản để đăng nhập và sử dụng tất cả các tính
+                năng của trang web
               </p>
-              <button className="hover:opacity-80" onClick={handleRegisterClick}>Sign Up</button>
+              <button
+                className="hover:opacity-80"
+                onClick={handleRegisterClick}
+              >
+                Chuyển qua Đăng ký
+              </button>
             </div>
           </div>
         </div>

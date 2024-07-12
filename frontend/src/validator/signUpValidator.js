@@ -12,43 +12,35 @@ const signUpSchema = z
   .object({
     firstName: z
       .string()
-      .min(1, "Please enter your first name")
-      .max(60, "Name is too long")
-      .regex(specialCharacterRegex, "Name cannot contain special characters")
-      .nonempty({ message: "First name required to enter" }),
+      .min(1, "Bạn phải nhập Họ")
+      .max(60, "Quá dài")
+      .regex(specialCharacterRegex, "Không chứa ký tự đặc biệt"),
     lastName: z
       .string()
-      .min(1, "Please enter your last name")
-      .max(60, "Name is too long")
-      .regex(specialCharacterRegex, "Name cannot contain special characters")
-      .nonempty({ message: "Last name required to enter" }),
+      .min(1, "Bạn phải nhập Tên")
+      .max(60, "Quá dài")
+      .regex(specialCharacterRegex, "Không chứa ký tự đặc biệt"),
     userName: z
       .string()
-      .min(1, "Please enter your user name")
-      .max(60, "Name is too long")
-      .regex(specialCharacterRegex2, "Name cannot contain special characters")
-      .nonempty({ message: "User name required to enter" }),
-    phoneNumber: z
-      .string()
-      .regex(formatPhoneNumber, { message: "Invalid phone number" })
-      .nonempty({ message: "Phone number required to enter" }),
+      .min(1, "Bạn phải nhập Tên đăng nhập")
+      .max(60, "Quá dài")
+      .regex(specialCharacterRegex2, "Không chứa ký tự đặc biệt"),
+    phoneNumber: z.string().regex(formatPhoneNumber, {
+      message: "Số điện thoại không đúng định dạng",
+    }),
     email: z
       .string()
-      .regex(emailRegex, { message: "Invalid Email" })
-      .nonempty({ message: "Email required to enter" }),
-    password: z
-      .string()
-      .regex(strongPasswordRegex, {
-        message:
-          "Password must have at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters",
-      })
-      .nonempty({ message: "Password required to enter" }),
+      .regex(emailRegex, { message: "Email không đúng định dạng" }),
+    password: z.string().regex(strongPasswordRegex, {
+      message:
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+    }),
     confirmPassword: z
       .string()
-      .nonempty({ message: "Confirm password required to enter" }),
+      .nonempty({ message: "Xác nhận mật khẩu không được để trống" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Mật khẩu không khớp",
     path: ["confirmPassword"], // Path of error
   });
 

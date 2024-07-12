@@ -3,13 +3,13 @@ import React from "react";
 const FormSignUp = ({ registerSignUp, errors }) => {
   return (
     <div className="flex flex-col justify-center items-center w-full">
-      <h1 className="text-4xl font-bold tracking-wide mb-4">Sign up</h1>
+      <h1 className="text-4xl font-bold tracking-wide mb-4">Đăng ký</h1>
 
       <div className="w-full flex justify-between gap-2">
         <div>
           <input
             type="text"
-            placeholder="First name"
+            placeholder="Họ"
             {...registerSignUp("firstName")}
           />
           {errors.firstName && (
@@ -22,7 +22,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
         <div>
           <input
             type="text"
-            placeholder="Last name"
+            placeholder="Tên"
             {...registerSignUp("lastName")}
           />
           {errors.lastName && (
@@ -36,7 +36,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
       <div className="w-full">
         <input
           type="text"
-          placeholder="User name"
+          placeholder="Tên tài khoản"
           {...registerSignUp("userName")}
           className="w-full"
         />
@@ -50,7 +50,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
       <div className="w-full">
         <input
           type="text"
-          placeholder="Phone number"
+          placeholder="Số điện thoại"
           {...registerSignUp("phoneNumber")}
           className="w-full"
         />
@@ -78,7 +78,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
       <div className="w-full">
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Mật khẩu"
           {...registerSignUp("password")}
           className="w-full"
         />
@@ -92,7 +92,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
       <div className="w-full">
         <input
           type="password"
-          placeholder="Confirm password"
+          placeholder="Xác nhận mật khẩu"
           {...registerSignUp("confirmPassword")}
           className="w-full"
         />
@@ -107,7 +107,7 @@ const FormSignUp = ({ registerSignUp, errors }) => {
         type="submit"
         className="w-full p-2 mt-4 bg-black text-white rounded hover:opacity-80"
       >
-        Sign Up
+        Đăng ký
       </button>
     </div>
   );
