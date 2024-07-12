@@ -43,10 +43,7 @@ public class ChatController {
 
     @GetMapping("/messages")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> findChatMessages(Principal principal, @RequestParam(value = "recipientId") String recipientId, BindingResult bindingResult){
-        if (bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
-        }
+    public ResponseEntity<?> findChatMessages(Principal principal, @RequestParam(value = "recipientId") String recipientId){
         var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         if (user != null) {
             var senderId = "admin1";
