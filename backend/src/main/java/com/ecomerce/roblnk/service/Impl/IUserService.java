@@ -177,7 +177,17 @@ public class IUserService implements UserService {
     public ResponseEntity<?> getUserAddress(Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         var userAddress = addressRepository.findAllByUser_EmailAndActive(user.getEmail(), true);
-        var addressList = userMapper.toListUserAddressResponse(userAddress);
+        List<Address> list = new ArrayList<>();
+        for (int i = 0; i < userAddress.size(); i++){
+            if (userAddress.get(i).is_default()){
+                list.add(userAddress.get(i));
+                userAddress.remove(i);
+                break;
+            }
+        }
+        list.addAll(userAddress);
+
+        var addressList = userMapper.toListUserAddressResponse(list);
         return ResponseEntity.ok(addressList);
     }
     @Override
