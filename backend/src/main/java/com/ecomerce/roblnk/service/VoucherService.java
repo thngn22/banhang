@@ -1,17 +1,14 @@
 package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.dto.PageResponse;
-import com.ecomerce.roblnk.dto.voucher.ApplyVoucherRequest;
-import com.ecomerce.roblnk.dto.voucher.EditVoucherRequest;
-import com.ecomerce.roblnk.dto.voucher.VoucherRequest;
-import com.ecomerce.roblnk.dto.voucher.VoucherResponse;
+import com.ecomerce.roblnk.dto.voucher.*;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;
 import java.util.List;
 
 public interface VoucherService {
-    PageResponse getListVouchers(Integer pageNumber);
+    PageResponse getListVouchers(FilterVoucherRequest filterVoucherRequest);
 
     String createVoucher(VoucherRequest voucherRequest);
 

@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.sale.EditFlashSaleRequest;
+import com.ecomerce.roblnk.dto.sale.FilterSaleRequest;
 import com.ecomerce.roblnk.dto.sale.FlashSaleRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.service.SaleService;
@@ -22,8 +23,8 @@ public class SaleController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllFlashSales(@RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
-        var saleResponses = saleService.getSaleResponses(pageNumber);
+    public ResponseEntity<?> getAllFlashSales(FilterSaleRequest filterSaleRequest) {
+        var saleResponses = saleService.getSaleResponses(filterSaleRequest);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);
         }

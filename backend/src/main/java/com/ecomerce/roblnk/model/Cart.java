@@ -39,7 +39,7 @@ public class Cart {
     private List<CartItem> cartItems = new ArrayList<>();
 
     //Voucher
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "voucher_id")
     private Voucher voucher;
 

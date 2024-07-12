@@ -166,7 +166,7 @@ public class CategoryController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createCategory(CreateCategoryRequest request){
+    public ResponseEntity<?> createCategory(@RequestBody CreateCategoryRequest request){
         var response = categoryService.createCategory(request);
         if (response.startsWith("Successfully")) {
             return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()

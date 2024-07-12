@@ -12,5 +12,4 @@ public class EditUserAddressRequest {
     private String ward;
     private String address;
     private boolean _default;
-    private boolean active;
 }

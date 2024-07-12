@@ -58,8 +58,13 @@ public class AdminController {
     }
     @GetMapping("/users")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getListUser(Principal connectedUser, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber){
-        var list =  userService.getAllUsersPaging(connectedUser, pageNumber);
+    public ResponseEntity<?> getListUser(Principal connectedUser,
+                                         @RequestParam(value = "user_id", required = false) Long user_id,
+                                         @RequestParam(value = "email", required = false) String email,
+                                         @RequestParam(value = "state", required = false) Boolean state,
+                                         @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+                                         ){
+        var list =  userService.getAllUsersPaging(connectedUser,user_id, email, state, pageNumber);
         if (list != null) {
             return ResponseEntity.status(HttpStatus.OK).body(list);
         } else
@@ -75,8 +80,6 @@ public class AdminController {
     @GetMapping("/products")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
-                                                 @RequestParam(value = "size", required = false) List<String> size,
-                                                 @RequestParam(value = "color", required = false) List<String> color,
                                                  @RequestParam(value = "min_price", required = false) String minPrice,
                                                  @RequestParam(value = "max_price", required = false) String maxPrice,
                                                  @RequestParam(value = "search", required = false) String search,
@@ -84,7 +87,7 @@ public class AdminController {
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
                                                  @RequestParam(value = "flag", required = false, defaultValue = "true") boolean isAdmin
     ){
-        var product = productService.getAllProductFilter(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber, isAdmin);
+        var product = productService.getAllProductFilter(categoryId, minPrice, maxPrice, search, sort, pageNumber, isAdmin);
         if (product != null){
             return ResponseEntity.status(HttpStatus.OK).body(product);
         }
@@ -102,8 +105,15 @@ public class AdminController {
     }
     @GetMapping("/orders")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllOrders(Principal connectedUser, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
-        var userOrders = userService.getAllUserHistoryOrdersForAdmin(connectedUser, pageNumber);
+    public ResponseEntity<?> getAllOrders(Principal connectedUser,
+                                          @RequestParam(value = "order_id", required = false) Long order_id,
+                                          @RequestParam(value = "email", required = false) String email,
+                                          @RequestParam(value = "address", required = false) String address,
+                                          @RequestParam(value = "state", required = false) String state,
+                                          @RequestParam(value = "payment_method", required = false) Long payment_method,
+                                          @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+                                          ) {
+        var userOrders = userService.getAllUserHistoryOrdersForAdmin(connectedUser, order_id, email, address, state, payment_method, pageNumber);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
         } else

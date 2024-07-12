@@ -1,17 +1,10 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.PageResponse;
-import com.ecomerce.roblnk.dto.sale.EditFlashSaleRequest;
-import com.ecomerce.roblnk.dto.sale.FlashSaleRequest;
-import com.ecomerce.roblnk.dto.sale.SaleResponse;
-import com.ecomerce.roblnk.dto.sale.SaleResponseDetail;
-import com.ecomerce.roblnk.dto.voucher.VoucherResponse;
+import com.ecomerce.roblnk.dto.sale.*;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.SaleMapper;
-import com.ecomerce.roblnk.model.Product;
-import com.ecomerce.roblnk.model.ProductItem;
-import com.ecomerce.roblnk.model.Sale;
-import com.ecomerce.roblnk.model.SaleProduct;
+import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.ProductItemRepository;
 import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.repository.SaleProductRepository;
@@ -22,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,9 +36,14 @@ public class ISaleService implements SaleService {
     private final ProductItemRepository productItemRepository;
 
     @Override
-    public PageResponse getSaleResponses(Integer pageNumber) {
-
-        var sales = saleRepository.findAll();
+    public PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest) {
+        var sale_id = filterSaleRequest.getSale_id();
+        var name = filterSaleRequest.getName();
+        var discounted_rate = filterSaleRequest.getDiscount_rate();
+        var state = filterSaleRequest.getState();
+        var pageNumber = filterSaleRequest.getPageNumber() != null ? filterSaleRequest.getPageNumber() : 1;
+        Specification<Sale> specification = specificationSale(sale_id, name, discounted_rate, state, filterSaleRequest.getStart_date(), filterSaleRequest.getEnd_date());
+        var sales = saleRepository.findAll(specification);
         var saleResponse = saleMapper.toSaleResponses(sales);
         Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
         int start = (int) pageable.getOffset();
@@ -62,6 +61,65 @@ public class ISaleService implements SaleService {
         productResponse.setTotalPage(page.getTotalPages());
         productResponse.setTotalElements(page.getTotalElements());
         return productResponse;
+    }
+
+    private Specification<Sale> specificationSale(Long sale_id, String name, Double discounted_rate, String state, Date start_date, Date end_date) {
+        Specification<Sale> saleSpec = hasSaleId(sale_id);
+        Specification<Sale> nameSpec = hasNameSale(name);
+        Specification<Sale> discountedRateSpec = hasDiscountedRateSale(discounted_rate);
+        Specification<Sale> stateSaleSpec = hasStateSale(state);
+        Specification<Sale> startDateSaleSpec = hasStartDateSale(start_date);
+        Specification<Sale> endDateSaleSpec = hasEndDateSale(end_date);
+        Specification<Sale> specification = Specification.where(null);
+
+        if (sale_id != null) {
+            specification = specification.and(saleSpec);
+        }
+        if (name != null && !name.isEmpty()) {
+            specification = specification.and(nameSpec);
+        }
+        if (discounted_rate != null) {
+            specification = specification.and(discountedRateSpec);
+        }
+        if (state != null && !state.isEmpty()) {
+            specification = specification.and(stateSaleSpec);
+        }
+        if (start_date != null) {
+            specification = specification.and(startDateSaleSpec);
+        }if (end_date != null) {
+            specification = specification.and(endDateSaleSpec);
+        }
+        return specification;
+    }
+
+    private Specification<Sale> hasStartDateSale(Date startDate) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), startDate);
+    }
+
+    private Specification<Sale> hasEndDateSale(Date endDate) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.lessThanOrEqualTo(root.get("endDate"), endDate);
+    }
+
+    private Specification<Sale> hasSaleId(Long saleId) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("id"), saleId);
+    }
+
+    private Specification<Sale> hasNameSale(String name) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("name"), "%" + name + "%");
+    }
+
+    private Specification<Sale> hasDiscountedRateSale(Double discountedRate) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("discountRate"), discountedRate);
+    }
+
+    private Specification<Sale> hasStateSale(String state) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("active"), state);
     }
 
     @Override

@@ -2,10 +2,7 @@ package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.PageResponse;
-import com.ecomerce.roblnk.dto.voucher.ApplyVoucherRequest;
-import com.ecomerce.roblnk.dto.voucher.EditVoucherRequest;
-import com.ecomerce.roblnk.dto.voucher.VoucherRequest;
-import com.ecomerce.roblnk.dto.voucher.VoucherResponse;
+import com.ecomerce.roblnk.dto.voucher.*;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.VoucherMapper;
 import com.ecomerce.roblnk.model.CartItem;
@@ -19,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,8 +38,17 @@ public class IVoucherService implements VoucherService {
     private final CartRepository cartRepository;
 
     @Override
-    public PageResponse getListVouchers(Integer pageNumber) {
-        var vouchers = voucherRepository.findAll();
+    public PageResponse getListVouchers(FilterVoucherRequest filterVoucherRequest) {
+        var voucher_id = filterVoucherRequest.getVoucher_id();
+        var voucher_code = filterVoucherRequest.getVoucher_code();
+        var name = filterVoucherRequest.getName().trim();
+        var discounted_rate = filterVoucherRequest.getDiscount_rate();
+        var state = filterVoucherRequest.getState();
+        var pageNumber = filterVoucherRequest.getPageNumber() != null ? filterVoucherRequest.getPageNumber() : 1;
+        Specification<Voucher> specification = specificationVoucher(voucher_id, name, voucher_code, discounted_rate, state, filterVoucherRequest.getStart_date(), filterVoucherRequest.getEnd_date());
+
+
+        var vouchers = voucherRepository.findAll(specification);
         var voucherResponse = voucherMapper.toVoucherResponseList(vouchers);
         Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
         int start = (int) pageable.getOffset();
@@ -62,6 +69,75 @@ public class IVoucherService implements VoucherService {
 
     }
 
+    private Specification<Voucher> specificationVoucher(Long voucherId, String name, String voucherCode, Double discountedRate, String state, Date startDate, Date endDate) {
+        Specification<Voucher> voucherSpec = hasIdVoucher(voucherId);
+        Specification<Voucher> voucherCodeSpec = hasCodeVoucher(voucherCode);
+        Specification<Voucher> nameSpec = hasNameVoucher(name);
+        Specification<Voucher> discountedRateSpec = hasDiscountedRateVoucher(discountedRate);
+        Specification<Voucher> stateSaleSpec = hasStateVoucher(state);
+        Specification<Voucher> startDateSaleSpec = hasStartDateVoucher(startDate);
+        Specification<Voucher> endDateSaleSpec = hasEndDateVoucher(endDate);
+        Specification<Voucher> specification = Specification.where(null);
+
+        if (voucherId != null) {
+            specification = specification.and(voucherSpec);
+        }
+        if (voucherCode != null && !voucherCode.isEmpty()) {
+            specification = specification.and(voucherCodeSpec);
+        }
+        if (name != null && !name.isEmpty()) {
+            specification = specification.and(nameSpec);
+        }
+        if (discountedRate != null) {
+            specification = specification.and(discountedRateSpec);
+        }
+        if (state != null && !state.isEmpty()) {
+            specification = specification.and(stateSaleSpec);
+        }
+        if (startDate != null) {
+            specification = specification.and(startDateSaleSpec);
+        }
+        if (endDate != null) {
+            specification = specification.and(endDateSaleSpec);
+        }
+        return specification;
+    }
+
+    private Specification<Voucher> hasIdVoucher(Long voucherId) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("id"), voucherId);
+    }
+
+    private Specification<Voucher> hasCodeVoucher(String voucherCode) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("voucherCode"), "%" + voucherCode + "%");
+    }
+
+    private Specification<Voucher> hasNameVoucher(String name) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("name"), "%" + name + "%");
+    }
+
+    private Specification<Voucher> hasDiscountedRateVoucher(Double discountedRate) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("discountRate"), discountedRate);
+    }
+
+    private Specification<Voucher> hasStateVoucher(String state) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("active"), state);
+    }
+
+    private Specification<Voucher> hasStartDateVoucher(Date startDate) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), startDate);
+    }
+
+    private Specification<Voucher> hasEndDateVoucher(Date endDate) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.lessThanOrEqualTo(root.get("endDate"), endDate);
+    }
+
     @Override
     public String createVoucher(VoucherRequest voucherRequest) {
         var voucher = new Voucher();
@@ -71,7 +147,7 @@ public class IVoucherService implements VoucherService {
         voucher.setMaximumDiscountValidPrice(voucherRequest.getMaximumDiscountValidPrice());
         voucher.setMinimumCartPrice(voucherRequest.getMinimumCartPrice());
         voucher.setQuantity(voucherRequest.getQuantity());
-        voucher.setCurrentQuantity(0);
+        voucher.setUsedQuantity(0);
         voucher.setStartDate(voucherRequest.getStartDate());
         voucher.setEndDate(voucherRequest.getEndDate());
         voucher.setCreatedAt(new Date(System.currentTimeMillis()));
@@ -145,9 +221,9 @@ public class IVoucherService implements VoucherService {
                         && voucher.get().getMinimumCartPrice() < cart.getTotalPrice()
                         && voucher.get().getEndDate().after(new Date(System.currentTimeMillis()))
                         && voucher.get().getStartDate().before(new Date(System.currentTimeMillis()))
-                        && voucher.get().getCurrentQuantity() < voucher.get().getQuantity()){
+                        && voucher.get().getUsedQuantity() < voucher.get().getQuantity()){
                     cart.setVoucher(voucher.get());
-                    voucher.get().setCurrentQuantity(voucher.get().getCurrentQuantity() + 1);
+                    voucher.get().setUsedQuantity(voucher.get().getUsedQuantity() + 1);
 
                     cartRepository.save(cart);
                     voucherRepository.save(voucher.get());
@@ -194,7 +270,13 @@ public class IVoucherService implements VoucherService {
                 }
                 finalPrice = (int) (Math.round(finalPrice/1000.0) * 1000 + 1000);
                 cart.setTotalPrice(finalPrice);
-                cart.setVoucher(null);
+                var voucher = cart.getVoucher();
+                if (voucher != null){
+                    voucher.setUsedQuantity(voucher.getUsedQuantity() - 1);
+                    voucherRepository.save(voucher);
+                    cart.setVoucher(null);
+                }
+
                 cartRepository.save(cart);
                 return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.builder()
                         .statusCode(200)
@@ -223,7 +305,7 @@ public class IVoucherService implements VoucherService {
         var vouchers = voucherRepository.findAll();
         int i = 0;
         while (i < vouchers.size()){
-            if (vouchers.get(i).getCurrentQuantity() >= vouchers.get(i).getQuantity() || !vouchers.get(i).isActive()){
+            if (vouchers.get(i).getUsedQuantity() >= vouchers.get(i).getQuantity() || !vouchers.get(i).isActive()){
                 vouchers.remove(i);
             }
             else i++;

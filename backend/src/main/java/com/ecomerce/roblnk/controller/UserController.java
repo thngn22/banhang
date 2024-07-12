@@ -51,7 +51,7 @@ public class UserController {
 
     @GetMapping("/account/address/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllAddress(Principal connectedUser, @PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> getDetailAddress(Principal connectedUser, @PathVariable(name = "id") Long id) {
         return userService.getDetailUserAddress(connectedUser, id);
     }
     @PostMapping("/account/address")

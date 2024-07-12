@@ -37,7 +37,7 @@ public class ProductController {
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
                                                  @RequestParam(value = "flag", required = false, defaultValue = "false") boolean isAdmin
     ){
-        var productDetail = productService.getAllProductFilter(categoryId, size, color, minPrice, maxPrice, search, sort, pageNumber, isAdmin);
+        var productDetail = productService.getAllProductFilter(categoryId, minPrice, maxPrice, search, sort, pageNumber, isAdmin);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }

@@ -42,8 +42,8 @@ public class Voucher {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "current_quantity")
-    private Integer currentQuantity;
+    @Column(name = "used_quantity")
+    private Integer usedQuantity;
 
     @Column(name = "start_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")

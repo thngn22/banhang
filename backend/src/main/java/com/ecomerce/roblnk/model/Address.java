@@ -38,7 +38,7 @@ public class Address {
     private boolean active;
 
     //User
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;
 

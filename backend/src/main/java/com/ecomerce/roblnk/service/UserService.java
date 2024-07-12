@@ -20,7 +20,7 @@ public interface UserService {
 
     ResponseEntity<?> findInformationUser(Principal connectedUser);
     List<UserResponse> getAllUsers();
-    PageResponse getAllUsersPaging(Principal connectedUser, Integer pageNumber);
+    PageResponse getAllUsersPaging(Principal connectedUser, Long user_id, String email, Boolean state, Integer pageNumber);
     List<UserResponse> getAllUsersFilter(Date updatedAt, Date updatedAt2);
 
     ResponseEntity<?> editInformation(Principal connectedUser, EditUserProfileRequest request);
@@ -48,7 +48,7 @@ public interface UserService {
 
     String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
 
-    PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Integer pageNumber);
+    PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Long order_id, String email, String address, String state, Long payment_method, Integer pageNumber);
     List<OrderResponsev2> getAllUserHistoryOrdersForAdminFilter(Principal connectedUser, Date updatedAt, Date updateAt2);
 
     String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests);

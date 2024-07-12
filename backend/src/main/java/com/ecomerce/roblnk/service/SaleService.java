@@ -2,14 +2,14 @@ package com.ecomerce.roblnk.service;
 
 import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.sale.EditFlashSaleRequest;
+import com.ecomerce.roblnk.dto.sale.FilterSaleRequest;
 import com.ecomerce.roblnk.dto.sale.FlashSaleRequest;
-import com.ecomerce.roblnk.dto.sale.SaleResponse;
 import com.ecomerce.roblnk.dto.sale.SaleResponseDetail;
 
-import java.util.List;
+import java.util.Date;
 
 public interface SaleService {
-    PageResponse getSaleResponses(Integer pageNumber);
+    PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest);
 
     SaleResponseDetail getSaleResponseDetail(Long id);
 

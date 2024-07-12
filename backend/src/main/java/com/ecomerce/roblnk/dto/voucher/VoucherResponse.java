@@ -21,7 +21,7 @@ public class VoucherResponse {
     private Integer maximumDiscountValidPrice;
     private Integer minimumCartPrice;
     private Integer quantity;
-    private Integer currentQuantity;
+    private Integer usedQuantity;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")

@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.voucher.ApplyVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.EditVoucherRequest;
+import com.ecomerce.roblnk.dto.voucher.FilterVoucherRequest;
 import com.ecomerce.roblnk.dto.voucher.VoucherRequest;
 import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.VoucherService;
@@ -23,8 +24,8 @@ public class VoucherController {
     private final VoucherService voucherService;
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getAllVouchersForAdmin(@RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
-        var saleResponses = voucherService.getListVouchers(pageNumber);
+    public ResponseEntity<?> getAllVouchersForAdmin(FilterVoucherRequest filterVoucherRequest) {
+        var saleResponses = voucherService.getListVouchers(filterVoucherRequest);
         if (saleResponses != null){
             return ResponseEntity.ok(saleResponses);
         }
