@@ -39,10 +39,11 @@ public class IVoucherService implements VoucherService {
 
     @Override
     public PageResponse getListVouchers(FilterVoucherRequest filterVoucherRequest) {
-        updateVoucher(filterVoucherRequest.getVoucher_id());
+        if (filterVoucherRequest.getVoucher_id()!= null)
+            updateVoucher(filterVoucherRequest.getVoucher_id());
         var voucher_id = filterVoucherRequest.getVoucher_id();
         var voucher_code = filterVoucherRequest.getVoucher_code();
-        var name = filterVoucherRequest.getName().trim();
+        var name = filterVoucherRequest.getName();
         var discounted_rate = filterVoucherRequest.getDiscount_rate();
         var state = filterVoucherRequest.getState();
         var pageNumber = filterVoucherRequest.getPageNumber() != null ? filterVoucherRequest.getPageNumber() : 1;

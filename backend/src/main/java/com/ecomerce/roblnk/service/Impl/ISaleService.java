@@ -38,7 +38,8 @@ public class ISaleService implements SaleService {
 
     @Override
     public PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest) {
-        updateSaleState(filterSaleRequest.getSale_id());
+        if (filterSaleRequest.getSale_id()!=null)
+            updateSaleState(filterSaleRequest.getSale_id());
         var sale_id = filterSaleRequest.getSale_id();
         var name = filterSaleRequest.getName();
         var discounted_rate = filterSaleRequest.getDiscount_rate();

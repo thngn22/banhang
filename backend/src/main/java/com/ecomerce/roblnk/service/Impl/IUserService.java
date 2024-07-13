@@ -454,7 +454,7 @@ public class IUserService implements UserService {
     public PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Long order_id, String email, String address, String state, Long payment_method, Integer pageNumber) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null) {
-            Specification<Orders> specification = specificationOrder(order_id, email, address.trim(), state, payment_method);
+            Specification<Orders> specification = specificationOrder(order_id, email, address, state, payment_method);
             var userOrders = orderRepository.findAll(specification);
             var orderResponse = orderMapper.toOrderResponsev2s(userOrders);
             Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
