@@ -494,8 +494,8 @@ public class ICartService implements CartService {
                         }
                     }
                     var cart = cartRepository.findById(userCart.getId()).get();
-                    cart.setTotalItem(cart.getTotalItem() - totalItem);
-                    cart.setTotalPrice(cart.getTotalPrice() - totalPayment);
+                    cart.setTotalItem(0);
+                    cart.setTotalPrice(0);
                     cartRepository.save(cart);
                 } else {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
