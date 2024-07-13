@@ -64,7 +64,7 @@ export const createProduct2 = async (data, accessToken, axiosJWT) => {
     data,
     {
       headers: {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`,
       },
     }
   );
@@ -148,6 +148,18 @@ export const getProductTopInDetail = async (params) => {
     `${process.env.REACT_APP_API_URL}product/carousel_product`,
     {
       params,
+    }
+  );
+  return res.data;
+};
+
+export const getProductsRS = async (accessToken, axiosJWT) => {
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}product/recommend`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     }
   );
   return res.data;

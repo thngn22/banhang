@@ -11,16 +11,13 @@ import { IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import * as AuthService from "../../../services/AuthService";
-import { loginSuccess } from "../../../redux/slides/authSlice";
 import { Modal, Rate, Space, message } from "antd";
 import { descReviewStart } from "../../../utils/constants";
 import "./styles.css";
 import ProductCard from "../../components/Product/ProductCard";
 import Review2 from "../../components/Review/Review2";
 import pageIntroduction from "../../../Data/image/chọn size giày mới.png";
+import createAxiosInstance from "../../../services/createAxiosInstance";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -34,6 +31,7 @@ export default function ProductDetailPage() {
   const queryClient = useQueryClient();
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
   const [selectedQuantityStock, setSelectedQuantityStock] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(0);
   const [defaultImage, setDefaultImage] = useState();
@@ -53,8 +51,10 @@ export default function ProductDetailPage() {
       });
     },
   });
-
-  console.log(productDetail);
+  const { data: productsRS } = useQuery({
+    queryKey: ["productsRS"],
+    queryFn: () => ProductService.getProductsRS(auth?.accessToken, axiosJWT),
+  });
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -180,39 +180,6 @@ export default function ProductDetailPage() {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
 
   const mutation = useMutationHook((data) => {
     const res = CartService.updateCart(data, auth.accessToken, axiosJWT);

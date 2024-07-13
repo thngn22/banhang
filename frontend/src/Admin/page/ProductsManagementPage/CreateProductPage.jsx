@@ -6,15 +6,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as ProductService from "../../../services/ProductService";
 import MultilevelDropdown from "../../components/MultilevelDropdown/MultilevelDropdown";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import * as AuthService from "../../../services/AuthService";
-import { loginSuccess } from "../../../redux/slides/authSlice";
 import CustomInput from "../../../Customer/components/CKEditor/customInput";
+import createAxiosInstance from "../../../services/createAxiosInstance.js";
+import { useNavigate } from "react-router-dom";
 
 const CreateProductPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
+  const navigate = useNavigate();
 
   const [dataNameProduct, setDataNameProduct] = useState("");
   const [dataCategory, setDataCategory] = useState("");
@@ -22,7 +22,6 @@ const CreateProductPage = () => {
   const [saveButtonClicked, setSaveButtonClicked] = useState(false);
   const [defaultImage, setDefaultImage] = useState("");
   const [combinedData, setCombinedData] = useState([]);
-  console.log("combinedData", combinedData);
 
   const handleDefaultImageChange = (imageData) => {
     setDefaultImage(imageData);
@@ -31,40 +30,6 @@ const CreateProductPage = () => {
   const handleCombinedDataChange = (data) => {
     setCombinedData(data);
   };
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
 
   const mutation = useMutationHook((data) => {
     const res = ProductService.createProduct2(data, auth.accessToken, axiosJWT);
@@ -75,7 +40,7 @@ const CreateProductPage = () => {
     if (
       dataNameProduct !== "" &&
       dataDescription !== "" &&
-      defaultImage !== "" &&
+      // defaultImage !== "" &&
       parseInt(dataCategory.id) !== null
     ) {
       const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
@@ -119,18 +84,29 @@ const CreateProductPage = () => {
           );
         });
 
+        // for (let [key, value] of formData.entries()) {
+        //   console.log(key, value);
+        // }
+
+        // const formDataEntries = [];
+        // for (let [key, value] of formData.entries()) {
+        //   formDataEntries.push({ key, value });
+        // }
+        // console.table("tong", formDataEntries);
+
         mutation.mutate(formData, {
           onSuccess: () => {
             message.success("Thêm mới sản phẩm thành công");
             setTimeout(() => {
-              window.location.reload();
+              navigate("/admin/products");
             }, 1000);
           },
           onError: (error) => {
-            message.error(`Đã xảy ra lỗi: ${error.message}`);
+            console.log(`Đã có lỗi ${error.message}`);
+            message.error(`Thêm không thành công`);
             setTimeout(() => {
-              window.location.reload();
-            }, 1000000);
+              navigate("/admin/products");
+            }, 1000);
           },
         });
       }

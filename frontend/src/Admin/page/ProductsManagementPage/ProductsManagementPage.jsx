@@ -13,54 +13,18 @@ import { useDispatch, useSelector } from "react-redux";
 import AdminProductEdit from "../../components/AdminProduct/AdminProductEdit";
 import { updateProductDetail } from "../../../redux/slides/productSlice";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { loginSuccess } from "../../../redux/slides/authSlice";
-import * as AuthService from "../../../services/AuthService";
 import { Option } from "antd/es/mentions";
 import "./styles.css";
 import { useNavigate } from "react-router-dom";
+import createAxiosInstance from "../../../services/createAxiosInstance.js";
 
 const ProductsManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const [pageNumber, setPageNumber] = useState(1);
   const [dataTable, setDataTable] = useState([]);
   const dispatch = useDispatch();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
   const navigate = useNavigate();
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
 
   const { data: products, refetch } = useQuery({
     queryKey: [pageNumber],
@@ -104,14 +68,9 @@ const ProductsManagementPage = () => {
           width: "80%",
         }}
       >
-        {product.active ? (
+        {product.active && (
           <DeleteOutlined
             style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-            onClick={() => inActiveORActive(key)}
-          />
-        ) : (
-          <CheckCircleOutlined
-            style={{ color: "green", fontSize: "26px", cursor: "pointer" }}
             onClick={() => inActiveORActive(key)}
           />
         )}
@@ -289,7 +248,7 @@ const ProductsManagementPage = () => {
         okButtonProps={{
           style: { backgroundColor: "red", color: "white" },
         }}
-        okText="Update"
+        okText="Cập nhật"
         footer={null}
         width={1000}
       >

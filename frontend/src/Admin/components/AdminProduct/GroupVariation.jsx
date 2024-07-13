@@ -187,11 +187,11 @@ const GroupVariation = (props) => {
       </p>
 
       {/* Add Default picture */}
-      <UploadImage2
+      {/* <UploadImage2
         onImageChange={handleDefaultImageChange}
         dataImage={defaultImage}
         isEdit={isEdit}
-      />
+      /> */}
 
       {/* Variations */}
       <Variations
