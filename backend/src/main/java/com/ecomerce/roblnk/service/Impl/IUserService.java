@@ -158,7 +158,10 @@ public class IUserService implements UserService {
             if (request.getAvatar() != null && !request.getLastName().isEmpty()){
                 user.setLastName(request.getLastName());
             }
-            if (user.getAvatar() != null) {
+            if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()){
+                user.setPhone(request.getPhoneNumber());
+            }
+            if (request.getAvatar() != null) {
                 try {
                     var urlImage = productService.getURLPictureThenUploadToCloudinary(request.getAvatar());
                     if (urlImage != null && !urlImage.isEmpty())

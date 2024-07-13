@@ -10,5 +10,6 @@ public class EditUserProfileRequest {
 
     private String firstName;
     private String lastName;
+    private String phoneNumber;
     private MultipartFile avatar;
 }
