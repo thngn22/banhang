@@ -155,7 +155,7 @@ public class IUserService implements UserService {
             if (request.getFirstName() != null && !request.getFirstName().isEmpty()){
                 user.setFirstName(request.getFirstName());
             }
-            if (request.getAvatar() != null && !request.getLastName().isEmpty()){
+            if (request.getLastName() != null && !request.getLastName().isEmpty()){
                 user.setLastName(request.getLastName());
             }
             if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()){
