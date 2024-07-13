@@ -30,6 +30,16 @@ public class SaleController {
         }
         else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllFlashSaleProductForUser(@RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber) {
+        var saleResponses = saleService.getSaleProductsForUser(pageNumber);
+        if (saleResponses != null){
+            return ResponseEntity.ok(saleResponses);
+        }
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailFlashSale(@PathVariable(name = "id") Long id) {

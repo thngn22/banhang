@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -241,7 +243,8 @@ public class IProductService implements ProductService {
         productResponse.setPageNumber(page.getNumber() + 1);
         productResponse.setTotalPage(page.getTotalPages());
         productResponse.setTotalElements(page.getTotalElements());
-        return productResponse;    }
+        return productResponse;
+    }
 
     @Override
     public PageResponse getAllProductWithOutFlashSaleCreate(Long categoryId, Integer pageNumber) {
@@ -302,8 +305,7 @@ public class IProductService implements ProductService {
                 if (saleProduct.getSale() != null) {
                     if (saleProduct.getSale().isActive()) {
                         flag = true;
-                    }
-                    else {
+                    } else {
                         oldSale = true;
                         saleID = saleProduct.getSale().getId();
                     }
@@ -486,8 +488,7 @@ public class IProductService implements ProductService {
                     salePrices.add((int) estimatedPrice);
                     saleIds.add(null);
                 }
-            }
-            else {
+            } else {
                 discountRate.add(0.0);
                 salePrices.add((int) estimatedPrice);
                 saleIds.add(null);
@@ -1075,16 +1076,11 @@ public class IProductService implements ProductService {
 
                     productItem.setName(productEditRequest.getName() + name);
 
-
-                    var image = p.getProductImage();
-                    if (image != null) {
-                        var ImageUrl = getURLPictureThenUploadToCloudinary(image);
-                        if (ImageUrl != null) {
-                            productItem.setProductImage(ImageUrl);
-                        } else
-                            productItem.setProductImage(ImageUtil.urlImage);
-
-                    } else productItem.setProductImage(ImageUtil.urlImage);
+                    if (p.getProductImage() != null) {
+                        var urlImage = getURLPictureThenUploadToCloudinary(p.getProductImage());
+                        if (urlImage != null && !urlImage.isEmpty())
+                            productItem.setProductImage(urlImage);
+                    }
 
 
                     productItem.setActive(p.isActive());
@@ -1134,9 +1130,9 @@ public class IProductService implements ProductService {
         var product = productRepository.findById(id);
         if (product.isPresent()) {
             product.get().setModifiedDate(new Date(System.currentTimeMillis()));
-                product.get().setActive(false);
-                productRepository.save(product.get());
-                return "Successfully deactive product permanently";
+            product.get().setActive(false);
+            productRepository.save(product.get());
+            return "Successfully deactive product permanently";
         } else
             return "Product not found or not available to delete!";
     }

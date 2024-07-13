@@ -1,6 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.PageResponse;
+import com.ecomerce.roblnk.dto.product.ProductResponse;
 import com.ecomerce.roblnk.dto.sale.*;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.mapper.SaleMapper;
@@ -11,7 +12,6 @@ import com.ecomerce.roblnk.repository.SaleProductRepository;
 import com.ecomerce.roblnk.repository.SaleRepository;
 import com.ecomerce.roblnk.service.SaleService;
 import lombok.RequiredArgsConstructor;
-import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -277,5 +277,78 @@ public class ISaleService implements SaleService {
             return "Successfully deactive sale";
         } else
             return "Sale not found or not available to delete!";
+    }
+
+    @Override
+    public PageResponse getSaleProductsForUser(Integer pageNumber) {
+        updateAllSale();
+        List<Integer> quantity = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Long> saleId = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+        List<ProductResponse> productResponses = new ArrayList<>();
+        saleRepository.findAll().forEach(sale -> {
+            ids.add(sale.getId());
+        });
+        int z = 0;
+        while (z < ids.size()) {
+            var sale = saleRepository.findById(ids.get(z));
+            if (sale.isPresent()) {
+
+                var saleDetail = saleMapper.toSaleResponseDetail(sale.get());
+                int i = 0;
+                while (i < sale.get().getSaleProducts().size()) {
+
+                    int total = 0;
+                    var items = productItemRepository.findAllByProduct_Id(sale.get().getSaleProducts().get(i).getProduct().getId());
+                    var estimatedPrice = 0.0;
+                    for (ProductItem productItem : items) {
+                        total += productItem.getQuantityInStock();
+                        estimatedPrice = productItem.getPrice();
+                    }
+                    quantity.add(total);
+                    if (sale.get().getSaleProducts().get(i).getSale() != null && sale.get().isActive()
+                            && sale.get().getEndDate().after(new Date(System.currentTimeMillis()))
+                            && sale.get().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                        double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * sale.get().getDiscountRate());
+                        salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    } else {
+                        salePrices.add((int) estimatedPrice);
+                    }
+                    i++;
+                }
+                List<Product> products = new ArrayList<>();
+                for (SaleProduct saleProduct : sale.get().getSaleProducts()) {
+                    products.add(saleProduct.getProduct());
+                }
+                saleProductRepository.findAllBySale_Id(ids.get(z)).forEach(saleProduct -> saleId.add(saleProduct.getSale().getId()));
+
+                var productResponseList = productMapper.toProductResponseList(products);
+                for (int j = 0; j < productResponseList.size(); j++) {
+                    productResponseList.get(j).setQuantity(quantity.get(j));
+                    productResponseList.get(j).setSalePrice(salePrices.get(j));
+                    productResponseList.get(j).setDiscountRate(saleDetail.getDiscountRate());
+                    productResponseList.get(j).setSaleId(saleId.get(j));
+                }
+                productResponses.addAll(productResponseList);
+            }
+            z += 1;
+        }
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponses.size());
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = productResponses.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponses.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
     }
 }

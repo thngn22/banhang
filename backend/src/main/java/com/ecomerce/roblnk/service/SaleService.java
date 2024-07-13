@@ -17,4 +17,6 @@ public interface SaleService {
     String editFlashSale(EditFlashSaleRequest editFlashSaleRequest);
 
     String deleteSale(Long id);
+
+    PageResponse getSaleProductsForUser(Integer filterSaleRequest);
 }

@@ -87,7 +87,7 @@ public class AdminController {
                                                  @RequestParam(value = "search", required = false) String search,
                                                  @RequestParam(value = "sort", required = false, defaultValue = "rating_desc") String sort,
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
-                                                 @RequestParam(value = "flag", required = false, defaultValue = "false") boolean isAdmin
+                                                 @RequestParam(value = "flag", required = false, defaultValue = "true") boolean isAdmin
     ){
         var product = productService.getAllProductFilter(categoryId, minPrice, maxPrice, size, color, search, sort, pageNumber, isAdmin);
         if (product != null){
