@@ -146,72 +146,75 @@ const CreateProductPage = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ marginTop: "20px" }}>
-        <div
-          style={{
-            margin: "16px 20px",
-            padding: "10px 16px",
-            border: "1px solid",
-            borderRadius: "10px",
-          }}
-        >
-          <h1>Thông tin cơ bản</h1>
-          <Group title={"Tên sản phẩm"} onDataChange={setDataNameProduct} />
-          <Group
-            title={"Hạng mục"}
-            onDataChange={setDataCategory}
-            dataCate={dataCategory}
-            isCategory={true}
-          />
-          <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+    <div className="p-6">
+      <div className="bg-white rounded-xl flex flex-col">
+        <p className="ml-6 mt-4 text-2xl font-semibold">Thêm sản phẩm</p>
+        <div>
+          <div
+            style={{
+              margin: "16px 20px",
+              padding: "10px 16px",
+              border: "1px solid",
+              borderRadius: "10px",
+            }}
+          >
+            <h1>Thông tin cơ bản</h1>
+            <Group title={"Tên sản phẩm"} onDataChange={setDataNameProduct} />
+            <Group
+              title={"Hạng mục"}
+              onDataChange={setDataCategory}
+              dataCate={dataCategory}
+              isCategory={true}
+            />
+            <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+          </div>
+
+          <div
+            style={{
+              margin: "16px 20px",
+              padding: "10px 16px",
+              border: "1px solid",
+              borderRadius: "10px",
+            }}
+          >
+            <h1>Chi tiết sản phẩm</h1>
+            {/* <Group title={"Mô tả sản phẩm"} onDataChange={setDataDescription} /> */}
+            <CustomInput onDataChange={setDataDescription} />
+          </div>
+
+          <div
+            style={{
+              margin: "16px 20px",
+              padding: "10px 16px",
+              border: "1px solid",
+              borderRadius: "10px",
+            }}
+          >
+            <GroupVariation
+              title={"Thông tín bán hàng"}
+              saveButtonClicked={saveButtonClicked}
+              setSaveButtonClicked={setSaveButtonClicked}
+              onDefaultImageChange={handleDefaultImageChange}
+              onCombinedDataChange={handleCombinedDataChange}
+            />
+          </div>
         </div>
 
-        <div
+        <Button
           style={{
-            margin: "16px 20px",
-            padding: "10px 16px",
-            border: "1px solid",
-            borderRadius: "10px",
+            alignSelf: "flex-end",
+            margin: "0 20px 10px 0",
+            backgroundColor: "red",
+            color: "#fff",
+            fontWeight: "bold",
+            height: "56px",
           }}
+          disabled={!saveButtonClicked}
+          onClick={handleCreateProductClick}
         >
-          <h1>Chi tiết sản phẩm</h1>
-          {/* <Group title={"Mô tả sản phẩm"} onDataChange={setDataDescription} /> */}
-          <CustomInput onDataChange={setDataDescription} />
-        </div>
-
-        <div
-          style={{
-            margin: "16px 20px",
-            padding: "10px 16px",
-            border: "1px solid",
-            borderRadius: "10px",
-          }}
-        >
-          <GroupVariation
-            title={"Thông tín bán hàng"}
-            saveButtonClicked={saveButtonClicked}
-            setSaveButtonClicked={setSaveButtonClicked}
-            onDefaultImageChange={handleDefaultImageChange}
-            onCombinedDataChange={handleCombinedDataChange}
-          />
-        </div>
+          <p>Tiến hành tạo Sản phẩm</p>
+        </Button>
       </div>
-
-      <Button
-        style={{
-          alignSelf: "flex-end",
-          margin: "0 20px 10px 0",
-          backgroundColor: "red",
-          color: "#fff",
-          fontWeight: "bold",
-          height: "56px",
-        }}
-        disabled={!saveButtonClicked}
-        onClick={handleCreateProductClick}
-      >
-        <p>Tiến hành tạo Sản phẩm</p>
-      </Button>
     </div>
   );
 };

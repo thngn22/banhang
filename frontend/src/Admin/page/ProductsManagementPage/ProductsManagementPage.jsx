@@ -283,7 +283,6 @@ const ProductsManagementPage = () => {
       </div>
 
       <Modal
-        title="Chi tiết sản phẩm"
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}

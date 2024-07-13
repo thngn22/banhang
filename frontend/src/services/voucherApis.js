@@ -41,6 +41,7 @@ const createVoucherAdmin = async (data, accessToken, axiosJWT) => {
 };
 
 const useVoucher = async (data, accessToken, axiosJWT) => {
+  console.log(data);
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}voucher/apply`,
     data,
@@ -53,11 +54,13 @@ const useVoucher = async (data, accessToken, axiosJWT) => {
   return res.data;
 };
 
-const revokeVoucher = async (cartId, accessToken, axiosJWT) => {
+const revokeVoucher = async (params, accessToken, axiosJWT) => {
+  console.log(params);
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}voucher/revoke`,
-    { params: cartId },
+    null, // No request body, so set to null
     {
+      params, // Pass params in the config object, not the body
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -65,7 +68,6 @@ const revokeVoucher = async (cartId, accessToken, axiosJWT) => {
   );
   return res.data;
 };
-
 const editVoucherAdmin = async (data, accessToken, axiosJWT) => {
   const res = await axiosJWT.put(
     `${process.env.REACT_APP_API_URL}voucher/`,
@@ -91,6 +93,14 @@ const deleteVoucherAdmin = async (id, accessToken, axiosJWT) => {
   return res.data;
 };
 
+const getUserVouchers = async (axiosJWT) => {
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_API_URL}voucher/`,
+    {}
+  );
+  return res.data;
+};
+
 const apiVouchers = {
   getVouchers,
   getVoucherssAdmin,
@@ -100,6 +110,7 @@ const apiVouchers = {
   revokeVoucher,
   editVoucherAdmin,
   deleteVoucherAdmin,
+  getUserVouchers,
 };
 
 export default apiVouchers;

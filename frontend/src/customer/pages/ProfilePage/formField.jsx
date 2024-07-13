@@ -4,17 +4,17 @@ const FormFields = ({ register, errors, user }) => {
   return (
     <div className="pl-8">
       <p className="text-2xl font-extrabold text-gray-800">
-        Update Information
+        Cập nhật thông tin
       </p>
       <div className="pt-4 pr-14 flex flex-col gap-2">
         <div className="flex flex-col">
           <label htmlFor="firstName" className="text-gray-500 font-medium">
-            First name:
+            Họ:
           </label>
           <input
             type="text"
             className="input p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-black"
-            placeholder="First name"
+            placeholder="Họ"
             defaultValue={user.firstName}
             {...register("firstName")}
           />
@@ -27,12 +27,12 @@ const FormFields = ({ register, errors, user }) => {
 
         <div className="flex flex-col">
           <label htmlFor="lastName" className="text-gray-500 font-medium">
-            Last name:
+            Tên:
           </label>
           <input
             type="text"
             className="input p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-black"
-            placeholder="Last name"
+            placeholder="Tên"
             defaultValue={user.lastName}
             {...register("lastName")}
           />
@@ -45,12 +45,12 @@ const FormFields = ({ register, errors, user }) => {
 
         <div className="flex flex-col">
           <label htmlFor="phoneNumber" className="text-gray-500 font-medium">
-            Phone number:
+            Số điện thoại:
           </label>
           <input
             type="text"
             className="input p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-black"
-            placeholder="Phone number"
+            placeholder="Số điện thoại"
             defaultValue={user.phone}
             {...register("phoneNumber")}
           />
@@ -79,7 +79,7 @@ const FormFields = ({ register, errors, user }) => {
             className="bg-black text-white text-lg font-medium px-10 py-2 rounded-lg hover:opacity-80"
             type="submit"
           >
-            Update
+            Cập nhật
           </button>
         </div>
       </div>

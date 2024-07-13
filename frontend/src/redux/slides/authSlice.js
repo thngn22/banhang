@@ -15,10 +15,17 @@ export const authSlice = createSlice({
     loginSuccess: authReducer.loginSuccess,
     loginFailed: authReducer.loginFailed,
     logoutSuccess: authReducer.logoutSuccess,
+    updateAuth: authReducer.updateAuth,
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { loginStart, loginSuccess, loginFailed, logoutSuccess } = authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailed,
+  logoutSuccess,
+  updateAuth,
+} = authSlice.actions;
 
 export default authSlice.reducer;

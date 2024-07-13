@@ -5,30 +5,20 @@ import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../../services/UserService";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
-import * as OrderService from "../../../services/OrderService";
-import { loginSuccess } from "../../../redux/slides/authSlice";
-import { useNavigate } from "react-router-dom";
 import { changeSuccess } from "../../../redux/slides/accessSlice";
-import "./styles.css";
-import {
-  UserOutlined,
-  FileDoneOutlined,
-  HomeOutlined,
-  LogoutOutlined,
-  KeyOutlined,
-} from "@ant-design/icons";
-import HistoryOrder from "./HistoryOrder";
-import AddressUsers from "./AddressUsers";
-import UpdateProfile from "./UpdateProfile";
-import Default from "./Default";
+import { useNavigate } from "react-router-dom";
 import createAxiosInstance from "../../../services/createAxiosInstance";
+import UpdateProfile from "./UpdateProfile";
+import AddressUsers from "./AddressUsers";
+import Default from "./Default";
+import "./styles.css";
+import { updateUser } from "../../../redux/slides/userSlide";
+import { updateAuth } from "../../../redux/slides/authSlice";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
-  const [userIn4, setUserIn4] = useState();
+  const [userIn4, setUserIn4] = useState({});
   const [selected, setSelected] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -36,72 +26,61 @@ const ProfilePage = () => {
 
   const { data: profileUser, refetch: refetchProfileUser } = useQuery({
     queryKey: ["profileUser"],
-    queryFn: () => {
-      return UserService.getProfileUser(auth?.accessToken, axiosJWT);
-    },
+    queryFn: () => UserService.getProfileUser(auth?.accessToken, axiosJWT),
   });
 
-  const { data: historyOrder, refetch: refetchHistoryOrder } = useQuery({
-    queryKey: ["historyOrder"],
-    queryFn: () => {
-      return OrderService.getHistoryOrderUser(auth.accessToken, axiosJWT);
-    },
-    retry: false,
-    enabled: Boolean(auth?.accessToken),
-  });
+  const mutation = useMutationHook((data) =>
+    UserService.editProfileUser2(data, auth?.accessToken, axiosJWT)
+  );
 
-  const mutation = useMutationHook((data) => {
-    const res = UserService.editProfileUser2(data, auth?.accessToken, axiosJWT);
-    return res;
-  });
-  const mutationChange = useMutationHook((data) => {
-    const res = AuthService.sendOTP2(data);
-    return res;
-  });
+  const mutationChange = useMutationHook((data) => AuthService.sendOTP2(data));
 
   useEffect(() => {
     if (profileUser) {
       setUserIn4(profileUser);
+      dispatch(updateUser(profileUser));
+      dispatch(updateAuth(profileUser))
     }
   }, [profileUser]);
 
   const handleChangeAvatar = (value) => {
-    setUserIn4((s) => ({
-      ...s,
+    setUserIn4((prev) => ({
+      ...prev,
       avatar: value,
     }));
   };
 
   const handleChangeData = (type, value) => {
-    setUserIn4((s) => ({
-      ...s,
+    setUserIn4((prev) => ({
+      ...prev,
       [type]: value,
     }));
   };
-  console.log(userIn4);
 
-  const handleSelected = (value) => {
-    setSelected(value);
-  };
-
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = (data) => {
     const formData = new FormData();
 
-    formData.append("firstName", userIn4?.firstName);
-    formData.append("lastName", userIn4?.lastName);
-    formData.append("avatar", userIn4?.avatar);
-    formData.append("phoneNumber", userIn4?.phone);
-
-    for (var pair of formData.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data.lastName);
+    formData.append("phoneNumber", data.phone);
+    if (userIn4.avatar) {
+      if (userIn4.avatar instanceof File) {
+        formData.append("avatar", userIn4.avatar);
+      }
     }
+
+    // for (var pair of formData.entries()) {
+    //   console.log(pair[0] + ", " + pair[1]);
+    // }
+
     mutation.mutate(formData, {
       onSuccess: () => {
-        message.success("Successed");
+        message.success("Cập nhật thành công");
         refetchProfileUser();
       },
       onError: (err) => {
-        message.error(`Error ${err}`);
+        console.error(`Lỗi ${err.message}`);
+        message.error("Cập nhật không thành công");
       },
     });
   };
@@ -113,12 +92,8 @@ const ProfilePage = () => {
       },
       {
         onSuccess: () => {
-          message.success("Sended OTP");
-          dispatch(
-            changeSuccess({
-              email: auth?.email,
-            })
-          );
+          message.success("Đã gửi OTP");
+          dispatch(changeSuccess({ email: auth?.email }));
           navigate(`/otp/change/${"changePassword"}`);
         },
         onError: (error) => {
@@ -136,13 +111,13 @@ const ProfilePage = () => {
             userIn4={userIn4}
             handleChangeData={handleChangeData}
             handleUpdateProfile={handleUpdateProfile}
-            handleSelected={handleSelected}
+            handleSelected={setSelected}
           />
         );
       case "addressUsers":
         return <AddressUsers />;
       default:
-        return <Default userIn4={userIn4} handleSelected={handleSelected} />;
+        return <Default userIn4={userIn4} handleSelected={setSelected} />;
     }
   };
 
@@ -153,47 +128,37 @@ const ProfilePage = () => {
           <div className="profile bg-gray-100 flex flex-col items-center justify-between py-8 rounded-xl">
             <UploadImage2
               onImageChange={handleChangeAvatar}
-              dataImage={userIn4?.avatar}
+              dataImage={userIn4.avatar}
               isEdit={true}
             />
-
-            <div className="flex gap-2 text-xl">
+            <div className="flex gap-2">
               <p>Xin chào</p>
               <p className="font-medium">
-                {userIn4?.firstName} {userIn4?.lastName}
+                {userIn4.firstName} {userIn4.lastName}
               </p>
             </div>
-
             <div className="flex flex-col gap-4 mt-4 text-sm">
               <div
                 className="flex items-center gap-2 cursor-pointer hover:opacity-70"
-                onClick={() => handleSelected("")}
+                onClick={() => setSelected("")}
               >
-                <UserOutlined />
                 <p>Thông tin tài khoản</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer hover:opacity-70"
-                onClick={() => handleSelected("addressUsers")}
+                onClick={() => setSelected("addressUsers")}
               >
-                <HomeOutlined />
                 <p>Danh sách địa chỉ</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer hover:opacity-70"
                 onClick={handleChangePassword}
               >
-                <KeyOutlined />
                 <p>Đổi mật khẩu</p>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:opacity-70">
-                <LogoutOutlined />
-                <p>Đăng xuất</p>
               </div>
             </div>
           </div>
         </div>
-
         <div className="col-span-3">{renderPage(selected)}</div>
       </div>
     </div>

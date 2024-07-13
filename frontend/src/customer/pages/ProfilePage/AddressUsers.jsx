@@ -12,6 +12,7 @@ import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import EditAddress from "./EditAddress";
+import { updateAddressList } from "../../../redux/slides/userSlide";
 
 const AddressUsers = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -45,6 +46,7 @@ const AddressUsers = () => {
   useEffect(() => {
     if (dataAddress) {
       setListAddress(dataAddress);
+      dispatch(updateAddressList(dataAddress));
     }
   }, [dataAddress]);
 

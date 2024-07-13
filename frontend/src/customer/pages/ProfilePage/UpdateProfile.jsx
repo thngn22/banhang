@@ -19,14 +19,17 @@ const UpdateProfile = ({
   } = useForm({ resolver: zodResolver(profileSchema) });
 
   const onSubmit = (data) => {
-    const formData = {
-      ...data,
-    };
-    handleChangeData("firstName", formData.firstName);
-    handleChangeData("lastName", formData.lastName);
-    handleChangeData("phoneNumber", formData.phoneNumber);
+    // Cập nhật thông tin từ form
+    handleChangeData("firstName", data.firstName);
+    handleChangeData("lastName", data.lastName);
+    handleChangeData("phone", data.phoneNumber);
 
-    handleUpdateProfile();
+    // Gọi hàm để cập nhật thông tin người dùng
+    handleUpdateProfile({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phoneNumber,
+    });
   };
 
   return (
@@ -44,7 +47,7 @@ const UpdateProfile = ({
         className="absolute bottom-2.5 left-9"
         onClick={() => handleSelected("")}
       >
-        {"<"} Comeback
+        {"<"} Quay trở lại
       </button>
     </div>
   );

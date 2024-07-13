@@ -5,16 +5,16 @@ const Default = ({ userIn4, handleSelected }) => {
     <div className="grid grid-cols-3 mb-10">
       <div className="col-span-2 pl-8 flex">
         <div className="flex flex-col w-full">
-          <p className="text-2xl font-extrabold mb-4">Information User</p>
+          <p className="text-2xl font-extrabold mb-4">Thông tin người dùng</p>
 
           <div className="flex flex-col gap-2">
             <div className="flex">
-              <p className="w-32 text-gray-500 font-semibold">First Name:</p>
+              <p className="w-32 text-gray-500 font-semibold">Họ:</p>
               <p>{userIn4?.firstName}</p>
             </div>
 
             <div className="flex">
-              <p className="w-32 text-gray-500 font-semibold">Last Name:</p>
+              <p className="w-32 text-gray-500 font-semibold">Tên:</p>
               <p>{userIn4?.lastName}</p>
             </div>
 
@@ -24,7 +24,7 @@ const Default = ({ userIn4, handleSelected }) => {
             </div>
 
             <div className="flex">
-              <p className="w-32 text-gray-500 font-semibold">Phone number:</p>
+              <p className="w-32 text-gray-500 font-semibold">Số điện thoại:</p>
               <p>{userIn4?.phone}</p>
             </div>
           </div>
@@ -36,7 +36,7 @@ const Default = ({ userIn4, handleSelected }) => {
           className="px-4 py-4 bg-red-400 text-lg hover:opacity-80 rounded-xl font-medium"
           onClick={() => handleSelected("updateUser")}
         >
-          Update Information
+          Cập nhật thông tin
         </button>
       </div>
     </div>

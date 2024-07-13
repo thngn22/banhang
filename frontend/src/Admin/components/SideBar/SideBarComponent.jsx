@@ -11,7 +11,7 @@ import {
   PercentageOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getItem } from "../../../utils/untils";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
@@ -23,6 +23,7 @@ import pluginIcon from "../../../Data/icon/plugin.png";
 const SideBarComponent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const items = [
     getItem("Thống kê tổng quan", "statisticalOverview", <BarChartOutlined />),
@@ -36,8 +37,41 @@ const SideBarComponent = () => {
     getItem("Địa chỉ", "address", <EnvironmentOutlined />),
   ];
 
+  const routes = {
+    "/admin/dashboard": "statisticalOverview",
+    "/admin/users": "listUsers",
+    "/admin/categories": "listCategories",
+    "/admin/createCategory": "listCategories",
+    "/admin/products": "listProducts",
+    "/admin/createProduct": "listProducts",
+    "/admin/orders": "listOrders",
+    "/admin/chats": "chatbox",
+    "/admin/sales": "listSales",
+    "/admin/createSale": "listSales",
+    "/admin/vouchers": "listVouchers",
+    "/admin/createVoucher": "listVouchers",
+    "/admin/address": "address",
+  };
+
+  const dynamicRoutes = [
+    { path: "/admin/updateSale/", key: "listSales" },
+    { path: "/admin/updateVoucher/", key: "listVouchers" },
+  ];
+
+  const currentPath = location.pathname;
+  let currentKey = routes[currentPath] || "statisticalOverview";
+
+  // Kiểm tra các đường dẫn động
+  for (const route of dynamicRoutes) {
+    if (currentPath.startsWith(route.path)) {
+      currentKey = route.key;
+      break;
+    }
+  }
+
   const rootSubmenuKeys = ["user", "product", "order", "statistical"];
   const [openKeys, setOpenKeys] = useState(["sub1"]);
+  const [selectedKey, setSelectedKey] = useState(currentKey);
 
   const getAllCatesAdmin = async () => {
     const res = await CategoryService.getAllTreeCategory();
@@ -55,6 +89,20 @@ const SideBarComponent = () => {
     }
   }, [categoriesRes]);
 
+  useEffect(() => {
+    let currentKey = routes[location.pathname] || "statisticalOverview";
+
+    // Kiểm tra các đường dẫn động
+    for (const route of dynamicRoutes) {
+      if (location.pathname.startsWith(route.path)) {
+        currentKey = route.key;
+        break;
+      }
+    }
+
+    setSelectedKey(currentKey);
+  }, [location.pathname]);
+
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
@@ -66,22 +114,11 @@ const SideBarComponent = () => {
 
   const handleMenuClick = (e) => {
     const { key } = e;
-    const routes = {
-      statisticalOverview: "/admin/dashboard",
-      listUsers: "/admin/users",
-      listCategories: "/admin/categories",
-      addCategory: "/admin/createCategory",
-      listProducts: "/admin/products",
-      addProduct: "/admin/createProduct",
-      listOrders: "/admin/orders",
-      chatbox: "/admin/chats",
-      listSales: "/admin/sales",
-      addSale: "/admin/createSale",
-      listVouchers: "/admin/vouchers",
-      addVoucher: "/admin/createVoucher",
-      address: "/admin/address",
-    };
-    navigate(routes[key]);
+    const route = Object.keys(routes).find((path) => routes[path] === key);
+    if (route) {
+      navigate(route);
+      setSelectedKey(key);
+    }
   };
 
   return (
@@ -95,7 +132,7 @@ const SideBarComponent = () => {
       </div>
 
       <Menu
-        defaultSelectedKeys={"statisticalOverview"}
+        selectedKeys={[selectedKey]}
         mode="inline"
         openKeys={openKeys}
         onOpenChange={onOpenChange}

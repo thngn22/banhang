@@ -12,6 +12,7 @@ import * as CartService from "../../../services/CartService";
 import { loginSuccess, logoutSuccess } from "../../../redux/slides/authSlice";
 import {
   resetUser,
+  updateAddressList,
   updateCart,
   updateUser,
 } from "../../../redux/slides/userSlide";
@@ -19,6 +20,8 @@ import Loading from "../LoadingComponent/Loading";
 import * as AuthService from "../../../services/AuthService";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import createAxiosInstance from "../../../services/createAxiosInstance";
+import apiAddresses from "../../../services/addressApis";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -35,45 +38,20 @@ export default function Navigation({
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodedAccessToken = jwtDecode(auth?.accessToken);
-        if (decodedAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
   const { data: cart } = useQuery({
     queryKey: ["cart"],
     queryFn: () => {
       return CartService.getCartItems(auth?.accessToken, axiosJWT);
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
+
+  const { data: dataAddress } = useQuery({
+    queryKey: ["dataAddress"],
+    queryFn: () => {
+      return apiAddresses.getAddressUser(auth.accessToken, axiosJWT);
     },
     enabled: Boolean(auth?.accessToken),
   });
@@ -86,11 +64,12 @@ export default function Navigation({
   });
 
   useEffect(() => {
-    if (cart && auth) {
+    if (cart && auth && dataAddress) {
       dispatch(updateCart(cart));
       dispatch(updateUser(auth));
+      dispatch(updateAddressList(dataAddress));
     }
-  }, [cart, auth]);
+  }, [cart, auth, dataAddress]);
 
   const performSearch = () => {
     console.log("Performing search...");
@@ -299,7 +278,7 @@ export default function Navigation({
                               alt="avatar"
                             />
                           </div>
-                          <p>{auth.email.split("@gmail.com")}</p>
+                          <p>{auth.lastName}</p>
                         </div>
                       ) : (
                         <div

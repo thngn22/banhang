@@ -23,8 +23,13 @@ const resetUser = (state) => {
   state.cart = [];
 };
 
+const updateAddressList = (state, action) => {
+  state.addressList = action.payload;
+};
+
 export const userReducer = {
   updateUser,
   updateCart,
   resetUser,
+  updateAddressList,
 };

@@ -9,6 +9,7 @@ const initialState = {
   accessToken: "",
   isAdmin: false,
   cart: [],
+  addressList: [],
 };
 
 export const userSlice = createSlice({
@@ -18,13 +19,11 @@ export const userSlice = createSlice({
     updateUser: userReducer.updateUser,
     updateCart: userReducer.updateCart,
     resetUser: userReducer.resetUser,
+    updateAddressList: userReducer.updateAddressList,
   },
 });
 
-export const {
-  updateUser,
-  updateCart,
-  resetUser,
-} = userSlice.actions;
+export const { updateUser, updateCart, resetUser, updateAddressList } =
+  userSlice.actions;
 
 export default userSlice.reducer;

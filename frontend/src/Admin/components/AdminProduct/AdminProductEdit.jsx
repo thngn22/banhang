@@ -171,7 +171,7 @@ const AdminProductEdit = (props) => {
       <WrapperHeader style={{ paddingLeft: "20px" }}>
         Chỉnh sửa Sản phẩm
       </WrapperHeader>
-      <div style={{ marginTop: "20px" }}>
+      <div>
         <div
           style={{
             margin: "16px 20px",

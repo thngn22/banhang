@@ -5,23 +5,22 @@ import { specialCharacterRegex, formatPhoneNumber } from "../utils/constants";
 const checkOutSchema = z.object({
   name: z
     .string()
-    .min(1, "Please enter your first and last name")
-    .max(60, "Name is too long")
-    .regex(specialCharacterRegex, "Name cannot contain special characters"),
-  phoneNumber: z
-    .string()
-    .regex(formatPhoneNumber, { message: "Invalid phone number" })
-    .nonempty({ message: "Phone number required to enter" }),
-  province: z.string(),
+    .min(1, "Bạn phải nhập Họ và Tên")
+    .max(60, "Quá dài")
+    .regex(specialCharacterRegex, "Không được chứa các ký tự đặc biệt"),
+  phoneNumber: z.string().regex(formatPhoneNumber, {
+    message: "Không đúng định dạng số điện thoại",
+  }),
+  city: z.string(),
   district: z.string(),
   ward: z.string(),
-  address: z.string().nonempty({ message: "Address required to enter" }),
-  voucher: z.string().max(10, "Voucher is too long"),
-  delivery: z.number().refine((value) => value !== undefined, {
-    message: "Delivery required to enter",
+  address: z.string().min(1, "Bạn phải nhập Địa chỉ cụ thể"),
+  voucher: z.string(),
+  deliveryId: z.number().refine((value) => value !== undefined, {
+    message: "Phải chọn địa chỉ cụ thể để có phương thức giao hàng hợp lý",
   }),
-  paymentMethod: z.number().refine((value) => value !== undefined, {
-    message: "Payment method required to enter",
+  paymentMethodId: z.number().refine((value) => value !== undefined, {
+    message: "Phải chọn phương thức thanh toán",
   }),
 });
 

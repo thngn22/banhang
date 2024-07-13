@@ -180,7 +180,11 @@ const Cart = () => {
   }, []);
 
   const hanldeCheckout = () => {
-    navigate("/checkout");
+    if (cart && cart.cartItems.length > 0) {
+      navigate("/checkout");
+    } else {
+      message.error("Bạn chưa có sản phẩm nào trong Giỏ hàng");
+    }
   };
 
   return (
