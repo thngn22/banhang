@@ -40,6 +40,7 @@ public class ISaleService implements SaleService {
     public PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest) {
         if (filterSaleRequest.getSale_id()!=null)
             updateSaleState(filterSaleRequest.getSale_id());
+
         var sale_id = filterSaleRequest.getSale_id();
         var name = filterSaleRequest.getName();
         var discounted_rate = filterSaleRequest.getDiscount_rate();
@@ -70,6 +71,17 @@ public class ISaleService implements SaleService {
     public void updateSaleState(Long saleId) {
         var sale = saleRepository.findById(saleId).orElseThrow();
         if (sale.isActive()) {
+            if (sale.getEndDate().before(new Date(System.currentTimeMillis()))) {
+                sale.setActive(false);
+                saleRepository.save(sale);
+            }
+        }
+    }
+
+    @Override
+    public void updateAllSale() {
+        var sales = saleRepository.findAll();
+        for (Sale sale : sales) {
             if (sale.getEndDate().before(new Date(System.currentTimeMillis()))) {
                 sale.setActive(false);
                 saleRepository.save(sale);

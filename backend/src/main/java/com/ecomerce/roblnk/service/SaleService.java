@@ -9,7 +9,7 @@ import com.ecomerce.roblnk.dto.sale.SaleResponseDetail;
 public interface SaleService {
     PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest);
     void updateSaleState(Long saleId);
-
+    void updateAllSale();
     SaleResponseDetail getSaleResponseDetail(Long id);
 
     String creatFlashSale(FlashSaleRequest flashSaleRequest);

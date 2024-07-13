@@ -41,6 +41,7 @@ public class IVoucherService implements VoucherService {
     public PageResponse getListVouchers(FilterVoucherRequest filterVoucherRequest) {
         if (filterVoucherRequest.getVoucher_id()!= null)
             updateVoucher(filterVoucherRequest.getVoucher_id());
+        updateAllVoucher();
         var voucher_id = filterVoucherRequest.getVoucher_id();
         var voucher_code = filterVoucherRequest.getVoucher_code();
         var name = filterVoucherRequest.getName();
