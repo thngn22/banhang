@@ -1,138 +1,88 @@
 import React, { useEffect, useState } from "react";
-import { WrapperHeader } from "./style";
-import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
-import InputField from "../../../customer/components/InputField";
-import { Button, message } from "antd";
+import UploadImage2 from "../../../Admin/components/UploadFile/UploadImage2";
+import { message } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../../services/UserService";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
-import { loginSuccess } from "../../../redux/slides/authSlice";
-import { useNavigate } from "react-router-dom";
 import { changeSuccess } from "../../../redux/slides/accessSlice";
+import { useNavigate } from "react-router-dom";
+import createAxiosInstance from "../../../services/createAxiosInstance";
+import UpdateProfile from "./UpdateProfile";
+import AddressUsers from "./AddressUsers";
+import Default from "./Default";
+import "./styles.css";
+import { updateUser } from "../../../redux/slides/userSlide";
+import { updateAuth } from "../../../redux/slides/authSlice";
 
 const ProfilePage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
-  const [userIn4, setUserIn4] = useState();
+  const [userIn4, setUserIn4] = useState({});
+  const [selected, setSelected] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
-  const styleInputField = {
-    width: "388px",
-  };
-  const titleSpanStyle = {
-    textAlign: "left",
-    width: "100px", // Độ dài cố định của các span "Tiêu đề"
-    marginRight: "10px", // Khoảng cách 10px giữa span "Tiêu đề" và InputField
-    fontWeight: "bold",
-  };
+  const { data: profileUser, refetch: refetchProfileUser } = useQuery({
+    queryKey: ["profileUser"],
+    queryFn: () => UserService.getProfileUser(auth?.accessToken, axiosJWT),
+  });
 
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
+  const mutation = useMutationHook((data) =>
+    UserService.editProfileUser2(data, auth?.accessToken, axiosJWT)
   );
 
-  const { data: profileUser, refetch } = useQuery({
-    queryKey: ["profileUser"],
-    queryFn: () => {
-      return UserService.getProfileUser(auth?.accessToken, axiosJWT);
-    },
-  });
-
-  const mutation = useMutationHook((data) => {
-    const res = UserService.editProfileUser(data, auth?.accessToken, axiosJWT);
-    return res;
-  });
-  const mutationChange = useMutationHook((data) => {
-    const res = AuthService.sendOTP2(data);
-    return res;
-  });
+  const mutationChange = useMutationHook((data) => AuthService.sendOTP2(data));
 
   useEffect(() => {
     if (profileUser) {
       setUserIn4(profileUser);
+      dispatch(updateUser(profileUser));
+      dispatch(updateAuth(profileUser))
     }
   }, [profileUser]);
 
-  const handleChangeFirtName = (value) => {
-    setUserIn4((s) => ({
-      ...s,
-      firstName: value,
-    }));
-  };
-  const handleChangeLastName = (value) => {
-    setUserIn4((s) => ({
-      ...s,
-      lastName: value,
-    }));
-  };
   const handleChangeAvatar = (value) => {
-    setUserIn4((s) => ({
-      ...s,
+    setUserIn4((prev) => ({
+      ...prev,
       avatar: value,
     }));
   };
-  const handleUpdateProfile = () => {
-    if (userIn4.firstName !== "" && userIn4.lastName !== "") {
-      const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
-      if (
-        specialCharacterRegex.test(userIn4.firstName) ||
-        specialCharacterRegex.test(userIn4.lastName)
-      ) {
-        message.error("Tên không được chứa các ký tự đặc biệt");
-      } else {
-        mutation.mutate(
-          {
-            firstName: userIn4.firstName,
-            lastName: userIn4.lastName,
-            avatar: userIn4.avatar,
-            dob: "",
-          },
-          {
-            onSuccess: (data) => {
-              message.success("Cập nhật thông tin tài khoản thành công");
-              refetch();
-            },
-            onError: (err) => {
-              message.error(`Lỗi ${err}`);
-            },
-          }
-        );
+
+  const handleChangeData = (type, value) => {
+    setUserIn4((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  };
+
+  const handleUpdateProfile = (data) => {
+    const formData = new FormData();
+
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data.lastName);
+    formData.append("phoneNumber", data.phone);
+    if (userIn4.avatar) {
+      if (userIn4.avatar instanceof File) {
+        formData.append("avatar", userIn4.avatar);
       }
-    } else {
-      message.warning("Hãy nhập đầy đủ thông tin địa chỉ trước khi Đặt hàng");
     }
+
+    // for (var pair of formData.entries()) {
+    //   console.log(pair[0] + ", " + pair[1]);
+    // }
+
+    mutation.mutate(formData, {
+      onSuccess: () => {
+        message.success("Cập nhật thành công");
+        refetchProfileUser();
+      },
+      onError: (err) => {
+        console.error(`Lỗi ${err.message}`);
+        message.error("Cập nhật không thành công");
+      },
+    });
   };
 
   const handleChangePassword = () => {
@@ -142,12 +92,8 @@ const ProfilePage = () => {
       },
       {
         onSuccess: () => {
-          message.success("Đã gửi mã OTP");
-          dispatch(
-            changeSuccess({
-              email: auth?.email,
-            })
-          );
+          message.success("Đã gửi OTP");
+          dispatch(changeSuccess({ email: auth?.email }));
           navigate(`/otp/change/${"changePassword"}`);
         },
         onError: (error) => {
@@ -157,110 +103,63 @@ const ProfilePage = () => {
     );
   };
 
-  return (
-    <div
-      style={{ minHeight: "70vh", backgroundColor: "rgba(169, 169, 169, 0.2)" }}
-    >
-      <div
-        style={{
-          height: "100%",
-          padding: "10px 120px",
-          margin: "0 10rem",
-          backgroundColor: "#fff",
-          position: "relative",
-        }}
-      >
-        <section className="text-2xl text-left font-semibold mt-2">
-          Thông tin người dùng
-        </section>
-        <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
-        <img
-          style={{ height: "480px", position: "absolute", right: "25px" }}
-          src="https://cdn.printgo.vn/uploads/media/774255/logo-giay-1_1586510617.jpg"
-          alt="https://cdn.printgo.vn/uploads/media/774255/logo-giay-1_1586510617.jpg"
-        />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <UploadImage
-            onImageChange={handleChangeAvatar}
-            dataImage={userIn4?.avatar}
-            isEdit={true}
+  const renderPage = (key) => {
+    switch (key) {
+      case "updateUser":
+        return (
+          <UpdateProfile
+            userIn4={userIn4}
+            handleChangeData={handleChangeData}
+            handleUpdateProfile={handleUpdateProfile}
+            handleSelected={setSelected}
           />
-          <div
-            style={{ display: "flex", flexDirection: "column", width: "100%" }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>Họ:</span>
-              <InputField
-                value={userIn4?.firstName}
-                handleOnChange={handleChangeFirtName}
-                style={styleInputField}
-              />
+        );
+      case "addressUsers":
+        return <AddressUsers />;
+      default:
+        return <Default userIn4={userIn4} handleSelected={setSelected} />;
+    }
+  };
+
+  return (
+    <div className="px-56 py-10">
+      <div className="grid grid-cols-4">
+        <div className="col-span-1">
+          <div className="profile bg-gray-100 flex flex-col items-center justify-between py-8 rounded-xl">
+            <UploadImage2
+              onImageChange={handleChangeAvatar}
+              dataImage={userIn4.avatar}
+              isEdit={true}
+            />
+            <div className="flex gap-2">
+              <p>Xin chào</p>
+              <p className="font-medium">
+                {userIn4.firstName} {userIn4.lastName}
+              </p>
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>Tên:</span>
-              <InputField
-                value={userIn4?.lastName}
-                handleOnChange={handleChangeLastName}
-                style={styleInputField}
-              />
+            <div className="flex flex-col gap-4 mt-4 text-sm">
+              <div
+                className="flex items-center gap-2 cursor-pointer hover:opacity-70"
+                onClick={() => setSelected("")}
+              >
+                <p>Thông tin tài khoản</p>
+              </div>
+              <div
+                className="flex items-center gap-2 cursor-pointer hover:opacity-70"
+                onClick={() => setSelected("addressUsers")}
+              >
+                <p>Danh sách địa chỉ</p>
+              </div>
+              <div
+                className="flex items-center gap-2 cursor-pointer hover:opacity-70"
+                onClick={handleChangePassword}
+              >
+                <p>Đổi mật khẩu</p>
+              </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>Email:</span>
-              <InputField
-                disable={true}
-                value={userIn4?.email}
-                style={styleInputField}
-              />
-            </div>
-            {/* <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={titleSpanStyle}>SĐT:</span>
-              <InputField
-                disable={true}
-                value={userIn4?.phone}
-                style={styleInputField}
-              />
-            </div> */}
           </div>
         </div>
-        <div style={{ display: "flex" }}>
-          <Button
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              marginTop: "16px",
-              backgroundColor: "blue",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "18px",
-              height: "50px",
-              padding: "10px",
-              marginRight: "20px",
-            }}
-            onClick={handleUpdateProfile}
-          >
-            <span>Cập nhập thông tin tài khoản</span>
-          </Button>
-          <Button
-            style={{
-              marginTop: "16px",
-              backgroundColor: "orange",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "18px",
-              height: "50px",
-              padding: "10px",
-            }}
-            onClick={handleChangePassword}
-          >
-            <span>Đổi mật khẩu</span>
-          </Button>
-        </div>
+        <div className="col-span-3">{renderPage(selected)}</div>
       </div>
     </div>
   );

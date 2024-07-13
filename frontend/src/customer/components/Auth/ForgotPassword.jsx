@@ -2,10 +2,6 @@ import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -16,11 +12,10 @@ import InputField from "../InputField";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import * as UserSerVice from "../../../services/UserService";
 import * as AuthService from "../../../services/AuthService";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
-import { forgotSuccess, signSuccess } from "../../../redux/slides/accessSlice";
+import { forgotSuccess } from "../../../redux/slides/accessSlice";
 
 const defaultTheme = createTheme();
 
@@ -51,7 +46,7 @@ export default function ForgotPassword() {
       },
       {
         onSuccess: () => {
-          message.success("Đã gửi mã OTP");
+          message.success("Sended OTP");
           dispatch(
             forgotSuccess({
               email: email,
@@ -60,17 +55,16 @@ export default function ForgotPassword() {
           navigate(`/otp/change/${"forgot"}`);
         },
         onError: (error) => {
-          message.error(`Lỗi ${error.message}`);
+          message.error(`Errors ${error.message}`);
         },
       }
     );
-    
   };
 
   return (
     <div
+      className="bg-gradient-to-r from-gray-100 to-gray-400"
       style={{
-        backgroundColor: "rgba(128, 128, 128, 0.8)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -95,7 +89,7 @@ export default function ForgotPassword() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Quên mật khẩu
+              Forgot Password
             </Typography>
             <form onSubmit={handleForgot}>
               <Grid container spacing={2}>
@@ -117,7 +111,7 @@ export default function ForgotPassword() {
                 sx={{ mt: 3, mb: 2 }}
                 onClick={handleForgot}
               >
-                Gửi mã OTP
+                Send OTP
               </Button>
             </form>
           </Box>

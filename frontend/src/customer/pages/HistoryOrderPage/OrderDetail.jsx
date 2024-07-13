@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import OrderIn4 from "./OrderIn4";
-import OrderItems from "./OrderItems";
 import OrderDetailPrice from "./OrderDetailPrice";
 import { useSelector } from "react-redux";
 import OrderItemFix from "./OrderItemFix";

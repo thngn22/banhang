@@ -1,10 +1,10 @@
 import React from "react";
 import HomeCarousel from "../../components/HomeCarousel/HomeCarousel";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../../services/ProductService";
-import ProductCard from "../../components/Product/ProductCard";
 import FooterHomePage from "../../components/CustomLayout/FooterHomePage";
 import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
+import CategoryMenu from "../../components/CategoryMenu/CategoryMenu";
 
 HomePage.propTypes = {};
 
@@ -22,28 +22,26 @@ function HomePage(props) {
     },
   });
 
-  // console.log("topRating", topRating);
-  // console.log("topSold", topSold);
-
   return (
-    <div className="">
+    <div>
       <HomeCarousel />
 
-      <div className="py-10 px-20">
-        {/* Smililer Products */}
-        <section className="text-xl text-left ml-4 font-semibold">
-          Sản phẩm bán được nhiều
-        </section>
-        <hr class="mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
-        <MultiCarousel homePage={true} dataCarousel={topSold} />
+      <div className="px-4 py-8 sm:px-6 lg:px-8">
+        <CategoryMenu />
+        <hr className="border bg-gray-400 mx-5 my-10" />
 
-        {/* High Rating Products */}
-        <section className="text-xl text-left ml-4 font-semibold">
-          Sản phẩm được đánh giá cao
-        </section>
-        <hr class=" mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
+        <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+          Những sản phẩm bán được nhiều
+        </p>
+        <MultiCarousel homePage={true} dataCarousel={topSold} />
+        <hr className="border bg-gray-400 mx-5 my-10" />
+
+        <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+          Những sản phẩm được đánh giá cao
+        </p>
         <MultiCarousel homePage={true} dataCarousel={topRating} />
       </div>
+
       <FooterHomePage />
     </div>
   );

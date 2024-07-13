@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { categoryReducer } from "../reducers/categoryReducer";
 
 export const categorySlice = createSlice({
   name: "category",
@@ -10,11 +11,7 @@ export const categorySlice = createSlice({
     },
   },
   reducers: {
-    getCategory: (state, action) => {
-      state.multilevelCate.currentCate = action.payload;
-      state.multilevelCate.isFetching = false;
-      state.multilevelCate.error = false;
-    },
+    getCategory: categoryReducer.getCategory,
   },
 });
 

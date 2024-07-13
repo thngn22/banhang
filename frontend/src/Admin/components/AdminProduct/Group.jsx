@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import InputField from "../../../customer/components/InputField";
+import InputField from "../../../Customer/components/InputField";
 
 const Group = (props) => {
   const { title, onDataChange, dataDetail, dataCate, isCategory } = props;

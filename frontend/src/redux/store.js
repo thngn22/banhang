@@ -1,6 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { counterSlice } from "./slides/counterSlide";
-import { userSlice } from "./slides/userSlide";
+import userSlice from "./slides/userSlide";
 import authSlice from "./slides/authSlice";
 
 import {
@@ -18,6 +17,9 @@ import productSlice from "./slides/productSlice";
 import categorySlice from "./slides/categorySlice";
 import orderSlice from "./slides/orderSlice";
 import accessSlice from "./slides/accessSlice";
+import saleSlice from "./slides/saleSlice";
+import voucherSlice from "./slides/voucherSlice";
+import addressSlice from "./slides/addressSlice";
 
 // Cấu hình Redux Persist cho slice 'auth'
 const persistConfig = {
@@ -28,13 +30,15 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  counter: counterSlice.reducer,
-  user: userSlice.reducer,
+  user: userSlice,
   auth: authSlice,
   product: productSlice,
   category: categorySlice,
   order: orderSlice,
   access: accessSlice,
+  sale: saleSlice,
+  voucher: voucherSlice,
+  address: addressSlice,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
