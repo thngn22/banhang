@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ApplyVoucherRequest {
-    private Long voucherId;
+    private String voucherCode;
     private Long cartId;
 }

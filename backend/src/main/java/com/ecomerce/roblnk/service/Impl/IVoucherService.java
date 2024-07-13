@@ -140,6 +140,10 @@ public class IVoucherService implements VoucherService {
 
     @Override
     public String createVoucher(VoucherRequest voucherRequest) {
+        var existedVoucher = voucherRepository.findVoucherByVoucherCode(voucherRequest.getVoucherCode());
+        if (existedVoucher.isPresent()){
+            return "Existed voucher code, please try again another voucher code";
+        }
         var voucher = new Voucher();
         voucher.setName(voucherRequest.getName());
         voucher.setVoucherCode(voucherRequest.getVoucherCode());
@@ -215,7 +219,7 @@ public class IVoucherService implements VoucherService {
         var user = userRepository.findByEmail(principal.getName());
         if (user.isPresent()) {
             var cart = user.get().getCart();
-            var voucher = voucherRepository.findById(voucherRequest.getVoucherId());
+            var voucher = voucherRepository.findVoucherByVoucherCode(voucherRequest.getVoucherCode());
             if (voucher.isPresent()){
                 if (cart.getVoucher() == null
                         && voucher.get().getMinimumCartPrice() < cart.getTotalPrice()

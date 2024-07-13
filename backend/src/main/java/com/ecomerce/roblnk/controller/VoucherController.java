@@ -54,11 +54,11 @@ public class VoucherController {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
-        var saleResponses = voucherService.createVoucher(voucherRequest);
-        if (saleResponses != null){
-            return ResponseEntity.ok(saleResponses);
+        var voucher = voucherService.createVoucher(voucherRequest);
+        if (voucher.startsWith("Success")){
+            return ResponseEntity.ok(voucher);
         }
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(voucher);
     }
     @PostMapping("/apply")
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR', 'ROLE_USER')")

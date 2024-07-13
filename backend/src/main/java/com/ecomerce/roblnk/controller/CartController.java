@@ -75,7 +75,7 @@ public class CartController {
 
     }
 
-    @GetMapping("/distance")
+    @PostMapping("/distance")
     public ResponseEntity<?> test(@RequestBody UserAddressRequestv2 address) throws IOException, URISyntaxException {
         var revenue = goong.calculateDistance(address);
         if (revenue != null) {
