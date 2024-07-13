@@ -464,18 +464,15 @@ public class ICartService implements CartService {
                         userPaymentMethod1.getOrders().add(orders);
                         orders.setUserPaymentMethod(userPaymentMethod1);
                     }
-                    var address = addressRepository.findById(list.getAddressId());
-                    if (address.isEmpty()){
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                                ErrorResponse.builder()
-                                        .statusCode(403)
-                                        .message("Not found any address to apply, please add address first!")
-                                        .description("Not found any address to apply, please add address first!")
-                                        .timestamp(new Date(System.currentTimeMillis()))
-                                        .build()
-                        );
-                    }
-                    orders.setAddress(address.get());
+                    Address address = new Address();
+                    address.setCity(list.getUserAddressRequestv2().getCity());
+                    address.setDistrict(list.getUserAddressRequestv2().getDistrict());
+                    address.setWard(list.getUserAddressRequestv2().getWard());
+                    address.setAddress(list.getUserAddressRequestv2().getAddress());
+                    address.setActive(false);
+                    address.set_default(false);
+                    address = addressRepository.save(address);
+                    orders.setAddress(address);
                     orders.setUser(user);
                     orders.setOrderItems(orderItems);
                     userRepository.save(user);
