@@ -23,4 +23,6 @@ public interface VoucherService {
     List<VoucherResponse> getListVouchersForAll();
 
     VoucherResponse getVoucherDetail(Long id);
+    void updateVoucher(Long id);
+    void updateAllVoucher();
 }

@@ -39,6 +39,7 @@ public class IVoucherService implements VoucherService {
 
     @Override
     public PageResponse getListVouchers(FilterVoucherRequest filterVoucherRequest) {
+        updateVoucher(filterVoucherRequest.getVoucher_id());
         var voucher_id = filterVoucherRequest.getVoucher_id();
         var voucher_code = filterVoucherRequest.getVoucher_code();
         var name = filterVoucherRequest.getName().trim();
@@ -141,7 +142,7 @@ public class IVoucherService implements VoucherService {
     @Override
     public String createVoucher(VoucherRequest voucherRequest) {
         var existedVoucher = voucherRepository.findVoucherByVoucherCode(voucherRequest.getVoucherCode());
-        if (existedVoucher.isPresent()){
+        if (existedVoucher.isPresent()) {
             return "Existed voucher code, please try again another voucher code";
         }
         var voucher = new Voucher();
@@ -163,29 +164,29 @@ public class IVoucherService implements VoucherService {
     @Override
     public String editVoucher(EditVoucherRequest editVoucherRequest) {
         var voucher = voucherRepository.findById(editVoucherRequest.getId());
-        if (voucher.isPresent()){
-            if ((editVoucherRequest.getName() != null) && !editVoucherRequest.getName().isEmpty()){
+        if (voucher.isPresent()) {
+            if ((editVoucherRequest.getName() != null) && !editVoucherRequest.getName().isEmpty()) {
                 voucher.get().setName(editVoucherRequest.getName());
             }
-            if (editVoucherRequest.getDiscountRate() != null){
+            if (editVoucherRequest.getDiscountRate() != null) {
                 voucher.get().setDiscountRate(editVoucherRequest.getDiscountRate());
             }
-            if (editVoucherRequest.getMaximumDiscountValidPrice() != null){
+            if (editVoucherRequest.getMaximumDiscountValidPrice() != null) {
                 voucher.get().setMaximumDiscountValidPrice(editVoucherRequest.getMaximumDiscountValidPrice());
             }
-            if (editVoucherRequest.getMinimumCartPrice() != null){
+            if (editVoucherRequest.getMinimumCartPrice() != null) {
                 voucher.get().setMinimumCartPrice(editVoucherRequest.getMinimumCartPrice());
             }
-            if (editVoucherRequest.getDiscountRate() != null){
+            if (editVoucherRequest.getDiscountRate() != null) {
                 voucher.get().setDiscountRate(editVoucherRequest.getDiscountRate());
             }
-            if (editVoucherRequest.getVoucherCode() != null && !editVoucherRequest.getVoucherCode().isEmpty()){
+            if (editVoucherRequest.getVoucherCode() != null && !editVoucherRequest.getVoucherCode().isEmpty()) {
                 voucher.get().setVoucherCode(editVoucherRequest.getVoucherCode());
             }
-            if (editVoucherRequest.getStartDate() != null){
+            if (editVoucherRequest.getStartDate() != null) {
                 voucher.get().setStartDate(editVoucherRequest.getStartDate());
             }
-            if (editVoucherRequest.getEndDate() != null){
+            if (editVoucherRequest.getEndDate() != null) {
                 voucher.get().setEndDate(editVoucherRequest.getEndDate());
             }
             voucher.get().setActive(editVoucherRequest.isActive());
@@ -193,8 +194,7 @@ public class IVoucherService implements VoucherService {
             voucherRepository.save(voucher.get());
             return "Successfully edited voucher!";
 
-        }
-        else return "Not found any voucher!";
+        } else return "Not found any voucher!";
     }
 
     @Override
@@ -216,16 +216,18 @@ public class IVoucherService implements VoucherService {
 
     @Override
     public ResponseEntity<?> applyVoucher(ApplyVoucherRequest voucherRequest, Principal principal) {
+        updateAllVoucher();
         var user = userRepository.findByEmail(principal.getName());
         if (user.isPresent()) {
             var cart = user.get().getCart();
             var voucher = voucherRepository.findVoucherByVoucherCode(voucherRequest.getVoucherCode());
-            if (voucher.isPresent()){
+            System.out.println("voucher: " + voucher.isPresent());
+            if (voucher.isPresent()) {
                 if (cart.getVoucher() == null
                         && voucher.get().getMinimumCartPrice() < cart.getTotalPrice()
                         && voucher.get().getEndDate().after(new Date(System.currentTimeMillis()))
                         && voucher.get().getStartDate().before(new Date(System.currentTimeMillis()))
-                        && voucher.get().getUsedQuantity() < voucher.get().getQuantity()){
+                        && voucher.get().getUsedQuantity() < voucher.get().getQuantity()) {
                     cart.setVoucher(voucher.get());
                     voucher.get().setUsedQuantity(voucher.get().getUsedQuantity() + 1);
 
@@ -237,22 +239,19 @@ public class IVoucherService implements VoucherService {
                             .description("Successfully apply voucher!")
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
-                }
-                else return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.builder()
+                } else return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.builder()
                         .statusCode(403)
                         .message(String.valueOf(HttpStatus.FORBIDDEN))
                         .description("Cart is not qualify to apply voucher or have been applied another voucher!")
                         .timestamp(new Date(System.currentTimeMillis()))
                         .build());
-            }
-            else return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.builder()
+            } else return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.builder()
                     .statusCode(403)
                     .message(String.valueOf(HttpStatus.FORBIDDEN))
                     .description("Voucher is not found!")
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
-        }
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+        } else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
                 .statusCode(404)
                 .message(String.valueOf(HttpStatus.NOT_FOUND))
                 .description(EMAIL_NOT_FOUND)
@@ -267,15 +266,15 @@ public class IVoucherService implements VoucherService {
         System.out.println(principal.getName());
         if (user.isPresent()) {
             var cart = user.get().getCart();
-            if (cart.getVoucher() != null){
+            if (cart.getVoucher() != null) {
                 int finalPrice = 0;
-                for (CartItem cartItem: cart.getCartItems()){
+                for (CartItem cartItem : cart.getCartItems()) {
                     finalPrice += cartItem.getTotalPrice();
                 }
-                finalPrice = (int) (Math.round(finalPrice/1000.0) * 1000 + 1000);
+                finalPrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
                 cart.setTotalPrice(finalPrice);
                 var voucher = cart.getVoucher();
-                if (voucher != null){
+                if (voucher != null) {
                     voucher.setUsedQuantity(voucher.getUsedQuantity() - 1);
                     voucherRepository.save(voucher);
                     cart.setVoucher(null);
@@ -288,15 +287,13 @@ public class IVoucherService implements VoucherService {
                         .description("Successfully revoked voucher!")
                         .timestamp(new Date(System.currentTimeMillis()))
                         .build());
-            }
-            else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.builder()
+            } else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.builder()
                     .statusCode(404)
                     .message(String.valueOf(HttpStatus.NOT_FOUND))
                     .description("Not found any applied voucher to revoke!")
                     .timestamp(new Date(System.currentTimeMillis()))
                     .build());
-        }
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+        } else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
                 .statusCode(404)
                 .message(String.valueOf(HttpStatus.NOT_FOUND))
                 .description(EMAIL_NOT_FOUND)
@@ -306,20 +303,44 @@ public class IVoucherService implements VoucherService {
 
     @Override
     public List<VoucherResponse> getListVouchersForAll() {
+        updateAllVoucher();
         var vouchers = voucherRepository.findAll();
         int i = 0;
-        while (i < vouchers.size()){
-            if (vouchers.get(i).getUsedQuantity() >= vouchers.get(i).getQuantity() || !vouchers.get(i).isActive()){
+        while (i < vouchers.size()) {
+            if (vouchers.get(i).getUsedQuantity() >= vouchers.get(i).getQuantity() || !vouchers.get(i).isActive()) {
                 vouchers.remove(i);
-            }
-            else i++;
+            } else i++;
         }
-        return voucherMapper.toVoucherResponseList(vouchers);    }
+        return voucherMapper.toVoucherResponseList(vouchers);
+    }
 
     @Override
     public VoucherResponse getVoucherDetail(Long id) {
+        updateVoucher(id);
         var vouchers = voucherRepository.findById(id);
         return vouchers.map(voucherMapper::toVoucherResponse).orElse(null);
+    }
+
+    @Override
+    public void updateVoucher(Long id) {
+        var voucher = voucherRepository.findById(id);
+        if (voucher.isPresent()) {
+            if (voucher.get().getEndDate().before(new Date(System.currentTimeMillis()))) {
+                voucher.get().setActive(false);
+                voucherRepository.save(voucher.get());
+            }
+        }
+    }
+
+    @Override
+    public void updateAllVoucher() {
+        var vouchers = voucherRepository.findAll();
+        for (Voucher voucher : vouchers) {
+            if (voucher.getEndDate().before(new Date(System.currentTimeMillis()))) {
+                voucher.setActive(false);
+                voucherRepository.save(voucher);
+            }
+        }
     }
 
 }
