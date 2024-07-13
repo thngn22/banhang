@@ -162,8 +162,8 @@ public class ProductController {
 
     @GetMapping("/recommend")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> getRecommendProductFromUsersReview(Principal principal){
-        var recommendProducts = recommendService.getRecommendProductFromUsersReview(principal);
+    public ResponseEntity<?> getRecommendProductFromUsersReview(Principal principal, @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber){
+        var recommendProducts = recommendService.getRecommendProductFromUsersReview(principal, pageNumber);
         if (recommendProducts != null) {
             return ResponseEntity.status(HttpStatus.OK).body(recommendProducts);
         } else

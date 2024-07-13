@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.ecomerce.roblnk.util.PageUtil.CAROUSEL_SIZE;
+import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE_ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +28,10 @@ public class IRecommendService implements RecommendService {
     private final CollaborativeFilteringRecommender filteringRecommender;
 
     @Override
-    public PageResponse getRecommendProductFromUsersReview(Principal principal) {
-        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
+    public PageResponse getRecommendProductFromUsersReview(Principal principal, Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+
         var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         if (user != null) {
             var productResponseList = filteringRecommender.recommendedProducts(user.getId());

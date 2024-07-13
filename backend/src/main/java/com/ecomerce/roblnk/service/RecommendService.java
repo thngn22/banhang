@@ -6,5 +6,5 @@ import java.security.Principal;
 
 public interface RecommendService {
 
-    PageResponse getRecommendProductFromUsersReview(Principal principal);
+    PageResponse getRecommendProductFromUsersReview(Principal principal, Integer pageNumber);
 }
