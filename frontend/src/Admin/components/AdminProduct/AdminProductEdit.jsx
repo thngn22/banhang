@@ -146,7 +146,7 @@ const AdminProductEdit = (props) => {
             props.setIsModalOpen(false);
 
             setTimeout(() => {
-              navigate("/admin/products");
+              window.location.reload();
             }, 1000);
           },
           onError: (error) => {
@@ -155,7 +155,7 @@ const AdminProductEdit = (props) => {
             props.setIsModalOpen(false);
 
             setTimeout(() => {
-              navigate("/admin/products");
+              window.location.reload();
             }, 1000);
           },
         });

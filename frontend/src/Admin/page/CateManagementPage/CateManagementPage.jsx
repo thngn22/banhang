@@ -6,7 +6,7 @@ import * as CategoryServices from "../../../services/CategoryService";
 const CateManagementPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  
+
   const { data: categories, refetch } = useQuery({
     queryKey: ["categories"],
     queryFn: () => {
@@ -61,13 +61,14 @@ const CateManagementPage = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-extrabold">Quản lý Danh Mục</h2>
+      <p className="text-2xl font-extrabold">Quản lý Danh Mục</p>
       <Table
         dataSource={
           categories?.filter((cat) => cat.parentCategoryId === null) || []
         }
         columns={columns}
         rowKey="id"
+        pagination={false}
       />
 
       <Modal
