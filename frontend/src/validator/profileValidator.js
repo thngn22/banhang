@@ -5,20 +5,17 @@ import { formatPhoneNumber, specialCharacterRegex } from "../utils/constants";
 const profileSchema = z.object({
   firstName: z
     .string()
-    .min(1, "Please enter your first name")
-    .max(60, "Name is too long")
-    .regex(specialCharacterRegex, "Name cannot contain special characters")
-    .nonempty({ message: "First name required to enter" }),
+    .max(60, "Quá dài")
+    .regex(specialCharacterRegex, "Không được chứa ký tự đặc biệt"),
   lastName: z
     .string()
-    .min(1, "Please enter your last name")
-    .max(60, "Name is too long")
-    .regex(specialCharacterRegex, "Name cannot contain special characters")
-    .nonempty({ message: "Last name required to enter" }),
+    .max(60, "Quá dài")
+    .regex(specialCharacterRegex, "Không được chứa ký tự đặc biệt"),
   phoneNumber: z
     .string()
-    .regex(formatPhoneNumber, { message: "Invalid phone number" })
-    .nonempty({ message: "Phone number required to enter" }),
+    .regex(formatPhoneNumber, {
+      message: "Không đúng định dạng số điện thoại",
+    }),
 });
 
 export default profileSchema;

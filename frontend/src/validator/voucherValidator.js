@@ -40,7 +40,7 @@ const voucherSchema = z
       .array(z.string().nonempty("Không được để trống"))
       .length(2, "Phải chọn ngày bắt đầu và ngày kết thúc"),
   })
-  .refine((data) => data.minimumCartPrice < data.maximumDiscountValidPrice, {
+  .refine((data) => data.minimumCartPrice > data.maximumDiscountValidPrice, {
     message: "Giá trị đơn hàng tối thiểu phải nhỏ hơn giá trị giảm giá tối đa",
     path: ["minimumCartPrice"],
   });
