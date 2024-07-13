@@ -54,11 +54,7 @@ const OrderDetailPrice = (props) => {
           className="border-l pr-4"
           style={{ height: "32px", lineHeight: "32px" }}
         >
-          {detailOrder.delivery.name} +
-          {detailOrder.delivery.price.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })}
+          {detailOrder.delivery.name}
         </Col>
       </Row>
       <Row className="border-t border-l border-r border-gray-300 text-right">

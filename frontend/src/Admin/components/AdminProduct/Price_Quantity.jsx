@@ -1,4 +1,4 @@
-import { Table, InputNumber, Button, Checkbox, message } from "antd";
+import { Table, InputNumber, Button, Checkbox, message, Row, Col } from "antd";
 import React, { useEffect, useState } from "react";
 
 const Price_Quantity = (props) => {
@@ -11,6 +11,8 @@ const Price_Quantity = (props) => {
   } = props;
   const [data, setData] = useState([]);
   const [values, setValues] = useState([]);
+  const [priceT, setPriceT] = useState(0);
+  const [warehousePriceT, setWarehousePriceT] = useState(0);
 
   console.log("combinedData in Price_Quantity", combinedData);
   console.log("values in Price_Quantity", values);
@@ -21,6 +23,7 @@ const Price_Quantity = (props) => {
       if (combinedData.length > 0 && values.length === 0) {
         const defaultValues = combinedData.reduce((acc, item, index) => {
           console.log("item", item);
+          setPriceT(item?.price);
           acc[index] = {
             warehousePrice: item?.warehousePrice,
             price: item?.price,
@@ -31,7 +34,6 @@ const Price_Quantity = (props) => {
           };
           return acc;
         }, {});
-
         setValues(defaultValues);
       }
       // Chuyển đổi combinedData thành dữ liệu hiển thị trong bảng
@@ -58,17 +60,14 @@ const Price_Quantity = (props) => {
                 addonAfter="VNĐ"
                 defaultValue={0}
                 value={values[index]?.warehousePrice ?? warehousePrice}
-                onChange={(value) =>
-                  handleValueChange(index, "warehousePrice", value)
-                }
               />
             ),
             price: (
               <InputNumber
                 addonAfter="VNĐ"
-                defaultValue={0}
-                value={values[index]?.price ?? price}
-                onChange={(value) => handleValueChange(index, "price", value)}
+                defaultValue={price}
+                value={priceT}
+                disabled
               />
             ),
             numberQuantity: (
@@ -85,9 +84,6 @@ const Price_Quantity = (props) => {
                 disabled
                 defaultValue={0}
                 value={values[index]?.quantity ?? quantityInStock}
-                onChange={(value) =>
-                  handleValueChange(index, "quantity", value)
-                }
               />
             ),
             active: (
@@ -109,7 +105,7 @@ const Price_Quantity = (props) => {
       // Khởi tạo giá trị mặc định cho values khi combinedData thay đổi lần đầu
       if (combinedData.length > 0 && values.length === 0) {
         const defaultValues = combinedData.reduce((acc, _, index) => {
-          acc[index] = { warehousePrice: 0, price: 0, quantity: 0 };
+          acc[index] = { quantity: 0 };
           return acc;
         }, {});
         setValues(defaultValues);
@@ -125,18 +121,16 @@ const Price_Quantity = (props) => {
             <InputNumber
               addonAfter="VNĐ"
               defaultValue={0}
-              value={values[index]?.warehousePrice ?? 0}
-              onChange={(value) =>
-                handleValueChange(index, "warehousePrice", value)
-              }
+              value={warehousePriceT ?? 0}
+              disabled
             />
           ),
           price: (
             <InputNumber
               addonAfter="VNĐ"
               defaultValue={0}
-              value={values[index]?.price ?? 0}
-              onChange={(value) => handleValueChange(index, "price", value)}
+              value={priceT ?? 0}
+              disabled
             />
           ),
           quantity: (
@@ -169,18 +163,35 @@ const Price_Quantity = (props) => {
     }));
   };
 
-  const handleSaveClick = () => {
-    // Tạo một array chứa giá trị price và quantity từ state values
-    const updatedData = combinedData.map(
-      ({ color, size, productImage }, index) => ({
-        ...values[index],
-        color,
-        size,
-        productImage,
-      })
-    );
+  const handleApplyClick = () => {
+    if (isEdit) {
+      if (priceT === 0) {
+        message.warning("Không được để trống trường này");
+      } else {
+        const updatedData = combinedData.map(
+          (item) => (item = { ...item, price: priceT })
+        );
+        updateCombinedData(updatedData);
+      }
+    } else {
+      if (priceT === 0 || warehousePriceT === 0) {
+        message.warning("Không được để trống 2 trường này");
+      } else {
+        const updatedData = combinedData.map(
+          (item) =>
+            (item = { ...item, price: priceT, warehousePrice: warehousePriceT })
+        );
+        updateCombinedData(updatedData);
+      }
+    }
+  };
 
-    console.log("updatedData", updatedData);
+  const handleSaveClick = () => {
+    const updatedData = combinedData.map((item, index) => {
+      const declare = { ...values[index] };
+      delete declare.price;
+      return (item = { ...item, ...declare });
+    });
     message.success("Lưu biến thể thành công");
 
     // Gọi hàm updateCombinedData để cập nhật combinedData trong GroupVariation
@@ -232,6 +243,45 @@ const Price_Quantity = (props) => {
 
   return (
     <div>
+      <Row gutter={16} style={{ marginTop: "16px" }}>
+        {!isEdit && (
+          <Col>
+            <p>Giá nhập</p>
+            <InputNumber
+              addonAfter="VNĐ"
+              placeholder="Giá nhập mới"
+              defaultValue={0}
+              value={warehousePriceT}
+              onChange={(value) => setWarehousePriceT(value)}
+            />
+          </Col>
+        )}
+
+        <Col>
+          <p>Giá bán</p>
+          <InputNumber
+            addonAfter="VNĐ"
+            placeholder="Giá bán mới"
+            defaultValue={0}
+            value={priceT}
+            onChange={(value) => setPriceT(value)}
+          />
+        </Col>
+        <Col>
+          <Button
+            style={{
+              backgroundColor: "black",
+              color: "#fff",
+              fontWeight: "500",
+              marginTop: "22px",
+            }}
+            onClick={handleApplyClick}
+          >
+            Áp dụng
+          </Button>
+        </Col>
+      </Row>
+
       <Table
         style={{ marginTop: "4px" }}
         columns={columns}

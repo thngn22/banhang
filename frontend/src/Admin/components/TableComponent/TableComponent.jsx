@@ -1,29 +1,15 @@
 import React, { useState } from "react";
-import { Divider, Radio, Table } from "antd";
-import "./styleTableAdmin.css"
-const TableComponent = (props) => {
-  const { selection = "checkbox", data = [], columns = [], onRowClick } = props;
-  const [selectedProductId, setSelectedProductId] = useState(null);
+import { Table } from "antd";
+import "./styleTableAdmin.css";
 
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
-    },
-    getCheckboxProps: (record) => ({
-      disabled: record.name === "Disabled User",
-      // Column configuration not to be checked
-      name: record.name,
-    }),
-  };
+const TableComponent = (props) => {
+  const { data = [], columns = [], onRowClick } = props;
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   const handleRowClick = (record) => {
     setSelectedProductId(record.key);
     if (onRowClick) {
-      onRowClick(record.key);
+      onRowClick(record.key, record);
     }
   };
 
@@ -32,19 +18,15 @@ const TableComponent = (props) => {
   };
 
   return (
-    <div>
-      <Table
-        // rowSelection={{
-        //   ...rowSelection,
-        // }}
-        columns={columns}
-        dataSource={data}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record),
-          className: getRowClassName(record),
-        })}
-      />
-    </div>
+    <Table
+      columns={columns}
+      dataSource={data}
+      onRow={(record) => ({
+        onClick: () => handleRowClick(record),
+        className: getRowClassName(record),
+      })}
+      pagination={false}
+    />
   );
 };
 

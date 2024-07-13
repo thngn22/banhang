@@ -1,0 +1,5 @@
+.custom-modal-title .ant-modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  border-bottom: none; /* Nếu bạn muốn loại bỏ đường viền dưới tiêu đề */
+}

@@ -4,7 +4,7 @@ import TableComponent from "../TableComponent/TableComponent";
 import * as ProductService from "../../../services/ProductService";
 import * as CategoryService from "../../../services/CategoryService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Modal, message } from "antd";
+import { Modal, Pagination, message } from "antd";
 
 import {
   DeleteOutlined,
@@ -23,6 +23,8 @@ import * as AuthService from "../../../services/AuthService";
 
 const AdminProduct = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [dataTable, setDataTable] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -60,19 +62,30 @@ const AdminProduct = () => {
     }
   );
 
-  const getAllProductsAdmin = async () => {
-    const res = await ProductService.getProductAdmin(
-      auth.accessToken,
-      axiosJWT
-    );
-    return res;
-  };
-
   const { data: products, refetch } = useQuery({
-    queryKey: ["products"],
-    queryFn: getAllProductsAdmin,
+    queryKey: [pageNumber],
+    queryFn: () => {
+      return ProductService.getProductAdmin(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
     enabled: Boolean(auth?.accessToken),
   });
+
+  useEffect(() => {
+    const filterProducts =
+      products?.contents?.length &&
+      products?.contents?.map((product) => {
+        return { ...product, key: product.id };
+      });
+
+    setDataTable(filterProducts);
+  }, [products]);
+
   const mutation = useMutationHook((data) => {
     const res = ProductService.changeStatusProduct(
       data,
@@ -152,12 +165,6 @@ const AdminProduct = () => {
     },
   ];
 
-  const dataTable =
-    products?.length &&
-    products.map((product) => {
-      return { ...product, key: product.id };
-    });
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const inActiveORActive = async (id) => {
@@ -203,6 +210,10 @@ const AdminProduct = () => {
     setIsModalOpen(false);
   };
 
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
+
   const handleRowClick = async (productId) => {};
 
   return (
@@ -214,6 +225,15 @@ const AdminProduct = () => {
           columns={columns}
           onRowClick={handleRowClick}
         />
+
+        {products && (
+          <Pagination
+            total={products?.totalElements}
+            pageSize={products?.pageSize}
+            defaultCurrent={pageNumber}
+            onChange={onChange}
+          />
+        )}
       </div>
 
       <Modal
