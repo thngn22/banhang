@@ -159,6 +159,14 @@ export default function AppRouter() {
         }
       />
       <Route
+        path="/admin/updateCategory/:idCate"
+        element={
+          <DefaultPageAdmin>
+            <CreateCatePage />
+          </DefaultPageAdmin>
+        }
+      />
+      <Route
         path="/admin/vouchers"
         element={
           <DefaultPageAdmin>
