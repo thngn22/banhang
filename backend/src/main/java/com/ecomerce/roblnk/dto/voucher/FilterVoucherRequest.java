@@ -14,7 +14,7 @@ public class FilterVoucherRequest {
     private String voucher_code;
     private String name;
     private Double discount_rate;
-    private String state;
+    private Boolean state;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
