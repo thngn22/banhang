@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -360,7 +358,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public PageResponse getAllProductFilter(Long categoryId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber, boolean isAdmin) {
+    public PageResponse getAllProductFilter(Long categoryId, Long productId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber, boolean isAdmin) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -402,7 +400,7 @@ public class IProductService implements ProductService {
         }
 
         for (Category category : categoryList) {
-            Specification<Product> specification = specification(search, category.getId());
+            Specification<Product> specification = specification(search, category.getId(), productId);
             products.addAll(productRepository.findAll(specification, sort(sort)));
         }
 
@@ -540,15 +538,24 @@ public class IProductService implements ProductService {
     }
 
 
-    private Specification<Product> specification(String name, Long id) {
+    private Specification<Product> specification(String name, Long id, Long productId) {
         Specification<Product> nameSpec = hasName(name);
         Specification<Product> categorySpec = hasCategoryId(id);
+        Specification<Product> productSpec = hasProductId(productId);
         Specification<Product> specification = Specification.where(null);
         specification = specification.and(categorySpec);
         if (name != null && !name.isEmpty()) {
             specification = specification.and(nameSpec);
         }
+        if (productId != null) {
+            specification = specification.and(productSpec);
+        }
         return specification;
+    }
+
+    private Specification<Product> hasProductId(Long productId) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("id"), productId);
     }
 
     private Specification<Product> hasCategoryId(Long id) {

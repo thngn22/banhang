@@ -28,6 +28,7 @@ public class ProductController {
     private final RecommendService recommendService;
     @GetMapping("/search")
     public ResponseEntity<?> getAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
+                                                 @RequestParam(value = "product_id", required = false) Long productId,
                                                  @RequestParam(value = "size", required = false) List<String> size,
                                                  @RequestParam(value = "color", required = false) List<String> color,
                                                  @RequestParam(value = "min_price", required = false) String minPrice,
@@ -37,7 +38,7 @@ public class ProductController {
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
                                                  @RequestParam(value = "flag", required = false, defaultValue = "false") boolean isAdmin
     ){
-        var productDetail = productService.getAllProductFilter(categoryId, minPrice, maxPrice, size, color, search, sort, pageNumber, isAdmin);
+        var productDetail = productService.getAllProductFilter(categoryId, productId, minPrice, maxPrice, size, color, search, sort, pageNumber, isAdmin);
         if (productDetail != null){
             return ResponseEntity.status(HttpStatus.OK).body(productDetail);
         }
