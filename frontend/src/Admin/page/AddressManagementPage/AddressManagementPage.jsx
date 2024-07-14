@@ -18,12 +18,19 @@ const AddressManagementPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idUser, setIdUser] = useState();
 
+  const [idUserSearch, setIdUserSearch] = useState("");
+  const [emailSearch, setEmailSearch] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+
   const { data: users, refetch } = useQuery({
-    queryKey: [pageNumber],
+    queryKey: [pageNumber, idUserSearch, emailSearch, activeSearch],
     queryFn: () => {
       return UserService.getAllUser(
         {
           page_number: pageNumber,
+          user_id: idUserSearch,
+          email: emailSearch,
+          state: activeSearch,
         },
         auth.accessToken,
         axiosJWT
@@ -115,28 +122,40 @@ const AddressManagementPage = () => {
         <div className="flex gap-4">
           <div>
             <label htmlFor="idUser">Mã người dùng:</label>
-            <input type="text" id="idUser" className="ml-2 py-1 rounded-lg" />
+            <input
+              type="text"
+              id="idUser"
+              className="ml-2 py-1 px-2 rounded-lg"
+              value={idUserSearch}
+              onChange={(e) => setIdUserSearch(e.target.value)}
+            />
           </div>
 
           <div>
             <label htmlFor="email">Email:</label>
-            <input type="text" id="email" className="ml-2 py-1 rounded-lg" />
+            <input
+              type="text"
+              id="email"
+              className="ml-2 py-1 px-2 rounded-lg"
+              value={emailSearch}
+              onChange={(e) => setEmailSearch(e.target.value)}
+            />
           </div>
 
           <div>
             <label htmlFor="status">Tình trạng:</label>
-            <Select className="filter__product">
-              <Option value="active">Active</Option>
-              <Option value="inActive">Inctive</Option>
+            <Select
+              className="filter__product"
+              value={activeSearch}
+              defaultValue={""}
+              onChange={(value) => setActiveSearch(value)}
+            >
+              <Option value="">Không lọc</Option>
+              <Option value="true">Active</Option>
+              <Option value="false">Inactive</Option>
             </Select>
           </div>
         </div>
-        <button
-          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
-          onClick={handleFilterProduct}
-        >
-          Lọc
-        </button>
       </div>
 
       <TableComponent data={dataTable} columns={columns} />

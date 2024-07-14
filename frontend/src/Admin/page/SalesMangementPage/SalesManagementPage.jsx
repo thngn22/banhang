@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pagination, Modal, Select, message } from "antd";
+import { DatePicker, Pagination, Modal, Select, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   DeleteOutlined,
@@ -20,6 +20,8 @@ import createAxiosInstance from "../../../services/createAxiosInstance.js";
 import DetailSale from "./DetailSale.jsx";
 import { detailSale } from "../../../redux/slides/saleSlice.js";
 import "./styles.css";
+import dayjs from "dayjs";
+const { RangePicker } = DatePicker;
 
 const SalesManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -30,12 +32,33 @@ const SalesManagementPage = () => {
   const axiosJWT = createAxiosInstance(auth, dispatch);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [idSearch, setIdSearch] = useState("");
+  const [nameSearch, setNameSearch] = useState("");
+  const [discountRateSearch, setDiscountRateSearch] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+  const [startDateSearch, setStartDateSearch] = useState("");
+  const [endtDateSearch, setEndDateSearch] = useState("");
+
   const { data: sales, refetch } = useQuery({
-    queryKey: [pageNumber],
+    queryKey: [
+      pageNumber,
+      idSearch,
+      nameSearch,
+      discountRateSearch,
+      activeSearch,
+      startDateSearch,
+      endtDateSearch,
+    ],
     queryFn: () => {
       return apiSales.getSalesAdmin(
         {
           page_number: pageNumber,
+          sale_id: idSearch,
+          name: nameSearch,
+          discount_rate: discountRateSearch,
+          state: activeSearch,
+          start_date: startDateSearch,
+          end_date: endtDateSearch,
         },
         auth.accessToken,
         axiosJWT
@@ -189,10 +212,6 @@ const SalesManagementPage = () => {
     navigate("/admin/createSale");
   };
 
-  const handleFilterProduct = () => {
-    console.log("onclickFilter");
-  };
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -206,15 +225,25 @@ const SalesManagementPage = () => {
       </div>
 
       <div className="flex justify-between items-center mb-2">
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <div>
-            <label htmlFor="idSale">Mã:</label>
-            <input type="text" id="idSale" className="ml-2 py-1 rounded-lg" />
+            <label htmlFor="idSale">Id:</label>
+            <input
+              type="text"
+              id="idSale"
+              className="ml-2 py-1 rounded-lg"
+              onChange={(e) => setIdSearch(e.target.value)}
+            />
           </div>
 
           <div>
             <label htmlFor="name">Tên:</label>
-            <input type="text" id="name" className="ml-2 py-1 rounded-lg" />
+            <input
+              type="text"
+              id="name"
+              className="ml-2 py-1 rounded-lg"
+              onChange={(e) => setNameSearch(e.target.value)}
+            />
           </div>
 
           <div>
@@ -223,23 +252,42 @@ const SalesManagementPage = () => {
               type="text"
               id="discountRate"
               className="ml-2 py-1 rounded-lg"
+              onChange={(e) => setDiscountRateSearch(e.target.value)}
             />
           </div>
 
+          <RangePicker
+            format="DD/MM/YYYY"
+            onChange={(dates, dateStrings) => {
+              if (dates) {
+                const formattedStartDate = dayjs(dates[0]).format(
+                  "DD/MM/YYYY 00:00:00"
+                );
+                const formattedEndDate = dayjs(dates[1]).format(
+                  "DD/MM/YYYY 00:00:00"
+                );
+                setStartDateSearch(formattedStartDate);
+                setEndDateSearch(formattedEndDate);
+              } else {
+                setStartDateSearch("");
+                setEndDateSearch("");
+              }
+            }}
+          />
+
           <div>
             <label htmlFor="status">Tình trạng:</label>
-            <Select className="filter__product">
-              <Option value="active">Active</Option>
-              <Option value="inActive">Inactive</Option>
+            <Select
+              className="filter__product"
+              defaultValue={""}
+              onChange={(value) => setActiveSearch(value)}
+            >
+              <Option value="">Không lọc</Option>
+              <Option value="true">Active</Option>
+              <Option value="false">Inactive</Option>
             </Select>
           </div>
         </div>
-        <button
-          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
-          onClick={handleFilterProduct}
-        >
-          Lọc
-        </button>
       </div>
 
       <TableComponent

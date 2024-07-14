@@ -4,11 +4,7 @@ import * as ProductService from "../../../services/ProductService";
 import { useQuery } from "@tanstack/react-query";
 import { Modal, Pagination, Select, message } from "antd";
 
-import {
-  DeleteOutlined,
-  EditOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import AdminProductEdit from "../../components/AdminProduct/AdminProductEdit";
 import { updateProductDetail } from "../../../redux/slides/productSlice";
@@ -17,6 +13,7 @@ import { Option } from "antd/es/mentions";
 import "./styles.css";
 import { useNavigate } from "react-router-dom";
 import createAxiosInstance from "../../../services/createAxiosInstance.js";
+import MultilevelDropdown from "../../components/MultilevelDropdown/MultilevelDropdown.jsx";
 
 const ProductsManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -26,12 +23,30 @@ const ProductsManagementPage = () => {
   const axiosJWT = createAxiosInstance(auth, dispatch);
   const navigate = useNavigate();
 
+  const [idSearch, setidSearch] = useState("");
+  const [nameSearch, setNameSearch] = useState("");
+  const [categoryIdSearch, setCategoryIdSearch] = useState("");
+  const [minPriceSearch, setMinPriceSearch] = useState("");
+  const [maxPriceSearch, setMaxPriceSearch] = useState("");
+
   const { data: products, refetch } = useQuery({
-    queryKey: [pageNumber],
+    queryKey: [
+      pageNumber,
+      idSearch,
+      nameSearch,
+      categoryIdSearch,
+      minPriceSearch,
+      maxPriceSearch,
+    ],
     queryFn: () => {
       return ProductService.getProductAdmin(
         {
           page_number: pageNumber,
+          category_id: categoryIdSearch?.id,
+          name: nameSearch,
+          min_price: minPriceSearch,
+          max_price: maxPriceSearch,
+          product_id: idSearch,
         },
         auth.accessToken,
         axiosJWT
@@ -71,7 +86,7 @@ const ProductsManagementPage = () => {
         {product.active && (
           <DeleteOutlined
             style={{ color: "red", fontSize: "26px", cursor: "pointer" }}
-            onClick={() => inActiveORActive(key)}
+            onClick={() => confirmInActive(key)}
           />
         )}
         <EditOutlined
@@ -83,6 +98,11 @@ const ProductsManagementPage = () => {
   };
 
   const columns = [
+    {
+      title: "Mã",
+      dataIndex: "id",
+      render: (text) => <a>{text}</a>,
+    },
     {
       title: "Tên",
       dataIndex: "name",
@@ -140,6 +160,17 @@ const ProductsManagementPage = () => {
     });
   };
 
+  const confirmInActive = (id) => {
+    Modal.confirm({
+      title:
+        "Thao tác này sẽ không thể thay đổi. Bạn có chắc chắn với quyết định này?",
+      okText: "OK",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: () => inActiveORActive(id),
+    });
+  };
+
   const showModal = async (key) => {
     console.log("key edit", key);
 
@@ -173,8 +204,8 @@ const ProductsManagementPage = () => {
     navigate("/admin/createProduct");
   };
 
-  const handleFilterProduct = () => {
-    console.log("onclickFilter");
+  const handleMenuItemClick = (id, name) => {
+    setCategoryIdSearch({ id, name });
   };
 
   return (
@@ -191,36 +222,59 @@ const ProductsManagementPage = () => {
       </div>
 
       <div className="flex justify-between items-center mb-2">
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <div>
-            <label htmlFor="name">Tên:</label>
-            <input type="text" id="name" className="ml-2 py-1 rounded-lg" />
+            <label htmlFor="idSale">Id:</label>
+            <input
+              type="text"
+              id="idSale"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setidSearch(e.target.value)}
+            />
           </div>
 
-          <div>
+          <div className="flex gap-2 items-center">
             <label htmlFor="cate">Loại:</label>
-            <input type="text" id="cate" className="ml-2 py-1 rounded-lg" />
+            <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+            <input
+              type="text"
+              id="cate"
+              disabled
+              className="py-1 px-2 rounded-lg bg-white"
+              value={categoryIdSearch?.name}
+            />
           </div>
 
           <div>
-            <label htmlFor="number">Số lượng:</label>
-            <input type="text" id="number" className="ml-2 py-1 rounded-lg" />
+            <label htmlFor="nameSearch">Tên:</label>
+            <input
+              type="text"
+              id="nameSearch"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setNameSearch(e.target.value)}
+            />
           </div>
 
           <div>
-            <label htmlFor="status">Tình trạng:</label>
-            <Select className="filter__product">
-              <Option value="active">Active</Option>
-              <Option value="inActive">Inctive</Option>
-            </Select>
+            <label htmlFor="minPrice">Giá trị từ:</label>
+            <input
+              type="text"
+              id="minPrice"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setMinPriceSearch(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="maxPrice">Giá trị đến:</label>
+            <input
+              type="text"
+              id="maxPrice"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setMaxPriceSearch(e.target.value)}
+            />
           </div>
         </div>
-        <button
-          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
-          onClick={handleFilterProduct}
-        >
-          Lọc
-        </button>
       </div>
 
       <TableComponent
