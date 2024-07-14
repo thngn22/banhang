@@ -92,7 +92,7 @@ const DetailAddressList = ({ idUser }) => {
             total={addressList?.totalElements}
             pageSize={addressList?.pageSize}
             current={pageNumber}
-            showSizeChanger
+            showSizeChanger={false}
             onShowSizeChange={onChange}
             onChange={onChange}
           />

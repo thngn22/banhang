@@ -33,6 +33,7 @@ import CreateVoucherPage from "../Admin/page/VouchersManagementPage/CreateVouche
 import UpdateSalePage from "../Admin/page/SalesMangementPage/UpdateSalePage";
 import UpdateVoucherPage from "../Admin/page/VouchersManagementPage/UpdateVoucherPage";
 import UpdateCatePage from "../Admin/page/CateManagementPage/UpdateCatePage";
+import ProductSalesPage from "../Customer/pages/ProductSalesPage/ProductSalesPage";
 
 export default function AppRouter() {
   return (
@@ -87,6 +88,15 @@ export default function AppRouter() {
         element={
           <DefaultComponent>
             <HistotyOrderPage />
+          </DefaultComponent>
+        }
+      />
+
+      <Route
+        path="/productSales"
+        element={
+          <DefaultComponent>
+            <ProductSalesPage />
           </DefaultComponent>
         }
       />
