@@ -153,14 +153,22 @@ export const getProductTopInDetail = async (params) => {
   return res.data;
 };
 
-export const getProductsRS = async (accessToken, axiosJWT) => {
-  const res = await axiosJWT.delete(
+export const getProductsRS = async (params, accessToken, axiosJWT) => {
+  const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}product/recommend`,
     {
+      params,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     }
   );
+  return res.data;
+};
+
+export const getProductSales = async (params) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}sale/all`, {
+    params,
+  });
   return res.data;
 };

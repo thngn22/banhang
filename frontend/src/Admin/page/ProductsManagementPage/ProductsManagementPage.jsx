@@ -43,7 +43,7 @@ const ProductsManagementPage = () => {
         {
           page_number: pageNumber,
           category_id: categoryIdSearch?.id,
-          name: nameSearch,
+          search: nameSearch,
           min_price: minPriceSearch,
           max_price: maxPriceSearch,
           product_id: idSearch,

@@ -11,7 +11,7 @@ import { IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { useQueryClient } from "@tanstack/react-query";
-import { Modal, Rate, Space, message } from "antd";
+import { Modal, Pagination, Rate, Space, message } from "antd";
 import { descReviewStart } from "../../../utils/constants";
 import "./styles.css";
 import ProductCard from "../../components/Product/ProductCard";
@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
   const [selectedPrice, setSelectedPrice] = useState(0);
   const [defaultImage, setDefaultImage] = useState();
   const iframeRef = useRef(null);
+  const [pageNumber, setPageNumber] = useState(1);
 
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
@@ -52,9 +53,22 @@ export default function ProductDetailPage() {
     },
   });
   const { data: productsRS } = useQuery({
-    queryKey: ["productsRS"],
-    queryFn: () => ProductService.getProductsRS(auth?.accessToken, axiosJWT),
+    queryKey: [pageNumber],
+    queryFn: () => {
+      return ProductService.getProductsRS(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
+    enabled: Boolean(auth?.accessToken),
   });
+
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -525,21 +539,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* PRODUCTS RECOMMENDATION */}
-        <div className="my-6">
-          <p className="text-center text-4xl font-extrabold uppercase">
-            Có thể bạn cũng sẽ thích
-          </p>
-          <div className="mt-6 grid grid-cols-4 gap-20">
-            {topInDetail &&
-              topInDetail.map((product, index) => (
-                <div key={index} className="group relative w-[16rem]">
-                  <ProductCard data={product} />
-                </div>
-              ))}
-          </div>
-        </div>
-
         <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
 
         {/* High Rating Products */}
@@ -556,6 +555,35 @@ export default function ProductDetailPage() {
               ))}
           </div>
         </div>
+
+        {/* PRODUCTS RECOMMENDATION */}
+        {auth && (
+          <div className="mb-4">
+            <hr className="border bg-gray-400 mx-5 my-10" />
+            <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+              Những sản phẩm có thể bạn thích
+            </p>
+            <div className="grid grid-cols-4 justify-items-center">
+              {productsRS &&
+                productsRS.contents.map((product, index) => (
+                  <div key={index} className="group relative w-[16rem]">
+                    <ProductCard data={product} />
+                  </div>
+                ))}
+            </div>
+            <div className="flex justify-center mt-2">
+              {productsRS && (
+                <Pagination
+                  total={productsRS?.totalElements}
+                  pageSize={productsRS?.pageSize}
+                  defaultCurrent={pageNumber}
+                  showSizeChanger={false}
+                  onChange={onChange}
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         <Modal
           open={isModalOpen}

@@ -205,7 +205,7 @@ export default function Navigation({
                 )}
               </div>
               <Link
-                to="/contact-us"
+                to="/productSales"
                 className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out"
               >
                 Khuyến mãi
