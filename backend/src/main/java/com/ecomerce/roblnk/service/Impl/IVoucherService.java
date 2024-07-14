@@ -72,7 +72,7 @@ public class IVoucherService implements VoucherService {
 
     }
 
-    private Specification<Voucher> specificationVoucher(Long voucherId, String name, String voucherCode, Double discountedRate, String state, Date startDate, Date endDate) {
+    private Specification<Voucher> specificationVoucher(Long voucherId, String name, String voucherCode, Double discountedRate, Boolean state, Date startDate, Date endDate) {
         Specification<Voucher> voucherSpec = hasIdVoucher(voucherId);
         Specification<Voucher> voucherCodeSpec = hasCodeVoucher(voucherCode);
         Specification<Voucher> nameSpec = hasNameVoucher(name);
@@ -94,7 +94,7 @@ public class IVoucherService implements VoucherService {
         if (discountedRate != null) {
             specification = specification.and(discountedRateSpec);
         }
-        if (state != null && !state.isEmpty()) {
+        if (state != null) {
             specification = specification.and(stateSaleSpec);
         }
         if (startDate != null) {
@@ -126,7 +126,7 @@ public class IVoucherService implements VoucherService {
                 criteriaBuilder.equal(root.get("discountRate"), discountedRate);
     }
 
-    private Specification<Voucher> hasStateVoucher(String state) {
+    private Specification<Voucher> hasStateVoucher(Boolean state) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("active"), state);
     }

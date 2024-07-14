@@ -89,7 +89,7 @@ public class ISaleService implements SaleService {
         }
     }
 
-    private Specification<Sale> specificationSale(Long sale_id, String name, Double discounted_rate, String state, Date start_date, Date end_date) {
+    private Specification<Sale> specificationSale(Long sale_id, String name, Double discounted_rate, Boolean state, Date start_date, Date end_date) {
         Specification<Sale> saleSpec = hasSaleId(sale_id);
         Specification<Sale> nameSpec = hasNameSale(name);
         Specification<Sale> discountedRateSpec = hasDiscountedRateSale(discounted_rate);
@@ -107,7 +107,7 @@ public class ISaleService implements SaleService {
         if (discounted_rate != null) {
             specification = specification.and(discountedRateSpec);
         }
-        if (state != null && !state.isEmpty()) {
+        if (state != null) {
             specification = specification.and(stateSaleSpec);
         }
         if (start_date != null) {
@@ -143,7 +143,7 @@ public class ISaleService implements SaleService {
                 criteriaBuilder.equal(root.get("discountRate"), discountedRate);
     }
 
-    private Specification<Sale> hasStateSale(String state) {
+    private Specification<Sale> hasStateSale(Boolean state) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("active"), state);
     }
