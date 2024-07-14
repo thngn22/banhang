@@ -26,7 +26,12 @@ const Chat = () => {
 
   const messagesEndRef = useRef(null);
 
-  const { data: communication, refetch } = useQuery({
+  const {
+    data: communication,
+    refetch,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["communication"],
     queryFn: () => {
       return ChatService.findChatMessages(
@@ -38,11 +43,20 @@ const Chat = () => {
       );
     },
     enabled: Boolean(auth?.accessToken),
+    retry: false, // Disable automatic retries
+    onError: (err) => {
+      console.error("Error fetching chat messages:", err);
+    },
   });
 
   useEffect(() => {
-    if (communication && communication.body.length > 0) {
-      setMessages(communication.body);
+    if (communication) {
+      if (Array.isArray(communication.body)) {
+        setMessages(communication.body);
+      } else {
+        console.error("Expected an array but got:", communication.body);
+        setMessages([]);
+      }
     } else {
       setMessages([]);
     }
@@ -117,6 +131,8 @@ const Chat = () => {
     setIsOpen(!isOpen);
   };
 
+  console.log("messages", messages);
+
   return (
     <div
       className={`fixed bottom-0 left-0 bg-white rounded-tr-lg shadow-lg z-50 transition-all duration-300 overflow-hidden`}
@@ -145,7 +161,7 @@ const Chat = () => {
       {isOpen && (
         <div className="rounded-tr-lg flex flex-col">
           <div className="h-56 bg-gray-100 overflow-y-auto p-2">
-            {messages?.length > 0 &&
+            {messages &&
               messages?.map((message, index) => (
                 <div
                   key={index}

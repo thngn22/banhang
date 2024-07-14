@@ -74,7 +74,7 @@ function HomePage(props) {
             <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
               Những sản phẩm có thể bạn thích
             </p>
-            <div className="grid grid-cols-5 justify-items-center">
+            <div className="grid grid-cols-4 justify-items-center">
               {productsRS &&
                 productsRS.contents.map((product, index) => (
                   <div key={index} className="group relative w-[16rem]">
