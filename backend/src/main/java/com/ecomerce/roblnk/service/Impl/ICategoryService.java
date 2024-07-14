@@ -1,18 +1,23 @@
 package com.ecomerce.roblnk.service.Impl;
 
 import com.ecomerce.roblnk.dto.category.CategoryResponse;
+import com.ecomerce.roblnk.dto.category.CreateCategoryRequest;
+import com.ecomerce.roblnk.dto.category.EditCategoryRequest;
 import com.ecomerce.roblnk.dto.category.VariationRequest;
 import com.ecomerce.roblnk.dto.variationOption.VariationOptionResponse;
 import com.ecomerce.roblnk.mapper.CategoryMapper;
 import com.ecomerce.roblnk.mapper.VariationMapper;
 import com.ecomerce.roblnk.mapper.VariationOptionMapper;
 import com.ecomerce.roblnk.model.Category;
+import com.ecomerce.roblnk.model.Product;
 import com.ecomerce.roblnk.model.Variation;
 import com.ecomerce.roblnk.model.VariationOption;
 import com.ecomerce.roblnk.repository.CategoryRepository;
+import com.ecomerce.roblnk.repository.ProductRepository;
 import com.ecomerce.roblnk.repository.VariationOptionRepository;
 import com.ecomerce.roblnk.repository.VariationRepository;
 import com.ecomerce.roblnk.service.CategoryService;
+import com.ecomerce.roblnk.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +33,7 @@ public class ICategoryService implements CategoryService {
     private final VariationRepository variationRepository;
     private final VariationOptionRepository variationOptionRepository;
     private final VariationOptionMapper variationOptionMapper;
+    private final ProductRepository productRepository;
 
     @Override
     public List<?> getAllCategory() {
@@ -90,10 +96,7 @@ public class ICategoryService implements CategoryService {
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
         var cates = categoryRepository.findAll();
         if (categoryId == null){
             categories.addAll(categoryRepository.findAllById(cate));
@@ -137,10 +140,8 @@ public class ICategoryService implements CategoryService {
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
+
         var cates = categoryRepository.findAll();
         if (categoryId == null){
             categories.addAll(categoryRepository.findAllById(cate));
@@ -180,5 +181,78 @@ public class ICategoryService implements CategoryService {
 
     }
 
+    @Override
+    public String createCategory(CreateCategoryRequest request) {
+        if (request.getParentCategoryId() != null) {
+            var parentCategory = categoryRepository.findById(request.getParentCategoryId());
+            Category category = new Category();
+            if (parentCategory.isPresent()) {
+                category.setParentCategoryId(parentCategory.get());
+            } else {
+                category.setParentCategoryId(null);
+            }
 
+            category.setName(request.getName());
+            category.setActive(true);
+            categoryRepository.save(category);
+        }
+        else {
+            Category category = new Category();
+            category.setParentCategoryId(null);
+            category.setName(request.getName());
+            category.setActive(true);
+            categoryRepository.save(category);
+        }
+        return "Successfully created new category!";
+    }
+
+    @Override
+    public String editCategory(EditCategoryRequest request) {
+        var category = categoryRepository.findById(request.getId());
+        if (category.isPresent()) {
+            if (category.get().isActive()) {
+                if (request.getName() != null && !request.getName().equals(category.get().getName())) {
+                    category.get().setName(request.getName());
+                }
+
+                if (request.getParentCategoryId() == null) {
+                    category.get().setParentCategoryId(null);
+                } else {
+                    var category_ = categoryRepository.findById(request.getParentCategoryId()).orElseThrow();
+                    category.get().setParentCategoryId(category_);
+                }
+                categoryRepository.save(category.get());
+                return "Successfully updated category";
+            }
+            else return "This category is inactive permanently, unavailable to update!";
+        }
+        else return "Fail to update the category information, please try again!";
+
+    }
+
+    @Override
+    public String deleteCategory(Long id) {
+        var category = categoryRepository.findById(id);
+        if (category.isPresent()) {
+            var products = productRepository.findAllByCategoryId(id);
+            boolean flag = true;
+            if (!products.isEmpty()) {
+                for (Product product : products) {
+                    if (product.isActive()) {
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+
+            if (flag){
+                category.get().setActive(false);
+                categoryRepository.save(category.get());
+                return "Successfully de-active category";
+            }
+            else {
+                return "Category exist product that is active, please try to de-active product first!";
+            }
+        }
+        else return "Not found any category!";    }
 }

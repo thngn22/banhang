@@ -1,7 +1,7 @@
 package com.ecomerce.roblnk.service.Impl;
 
+import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
-import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.product.*;
 import com.ecomerce.roblnk.mapper.OrderMapper;
 import com.ecomerce.roblnk.mapper.ProductMapper;
@@ -10,22 +10,21 @@ import com.ecomerce.roblnk.model.*;
 import com.ecomerce.roblnk.repository.*;
 import com.ecomerce.roblnk.service.*;
 import com.ecomerce.roblnk.util.ByteMultipartFile;
-import com.ecomerce.roblnk.util.FileUtil;
 import com.ecomerce.roblnk.util.ImageUtil;
-import com.ecomerce.roblnk.util.Status;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
 import java.util.*;
 
-import static com.ecomerce.roblnk.util.PageUtil.PAGE_SIZE;
+import static com.ecomerce.roblnk.util.PageUtil.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,17 +42,19 @@ public class IProductService implements ProductService {
     private final ReviewService reviewService;
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
+    private final SaleProductRepository saleProductRepository;
+
     @Override
     public List<ProductResponse> getAllProduct(Long categoryId) {
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Product> products = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        List<Long> saleIds = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
         var cates = categoryRepository.findAll();
         if (categoryId == null) {
             categories.addAll(categoryRepository.findAllById(cate));
@@ -84,7 +85,6 @@ public class IProductService implements ProductService {
             products.addAll(productRepository.findAllByCategoryId(category.getId()));
         }
 
-        System.out.println("size đầu: " + products.size());
         int i = 0;
         while (i < products.size()) {
             if (!products.get(i).isActive()) {
@@ -93,31 +93,284 @@ public class IProductService implements ProductService {
             }
             int total = 0;
             var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
             list.add(total);
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(products.get(i).getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            }
             i++;
         }
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
             productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
         }
         return productResponseList;
     }
 
     @Override
-    public PageProductResponse getAllProductFilter(Long categoryId, List<String> size, List<String> color, String minPrice, String maxPrice, String search, String sort, Integer pageNumber) {
+    public PageResponse getAllProductWithOutFlashSale(Long categoryId, Long sale_id, Integer pageNumber) {
+        List<Category> categories = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> cate = new ArrayList<>();
+        List<Long> saleId = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
+        var cates = categoryRepository.findAll();
+        if (categoryId == null) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else {
+            var category = categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(categoryRepository.findById(categoryId).orElseThrow());
+            else return null;
+        }
+        while (!categories.isEmpty()) {
+            Long id = categories.get(0).getId();
+            boolean flag = false;
+            for (Category category : cates) {
+                if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(id)) {
+                    flag = true;
+                    categories.add(category);
+                }
+            }
+            if (flag) {
+                categories.remove(0);
+            } else {
+                categoryList.add(categories.get(0));
+                categories.remove(0);
+            }
+        }
+
+        for (Category category : categoryList) {
+            products.addAll(productRepository.findAllByCategoryId(category.getId()));
+        }
+
+        int i = 0;
+        while (i < products.size()) {
+
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            for (ProductItem productItem : items) {
+                total += productItem.getQuantityInStock();
+            }
+            list.add(total);
+
+            var saleProductList = saleProductRepository.findAllByProduct_Id(products.get(i).getId());
+            var flag = false;
+            var oldSale = false;
+            Long saleID = null;
+            loop:
+            {
+                for (SaleProduct saleProduct : saleProductList) {
+                    if (saleProduct.getSale() != null) {
+                        if (saleProduct.getSale().getId().equals(sale_id)) {
+                            oldSale = true;
+                            saleID = saleProduct.getSale().getId();
+                            break loop;
+                        }
+                        if (saleProduct.getSale().isActive()) {
+                            flag = true;
+                        } else {
+                            oldSale = true;
+                            saleID = saleProduct.getSale().getId();
+                        }
+                    }
+
+                }
+            }
+            if (!flag) {
+                if (oldSale)
+                    saleId.add(saleID);
+                else
+                    saleId.add(null);
+                discountRate.add(0.0);
+                salePrices.add(products.get(i).getEstimatedPrice());
+            } else {
+                products.remove(i);
+                continue;
+            }
+            i++;
+        }
+
+        var productResponseList = productMapper.toProductResponseList(products);
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleId.get(j));
+        }
+
+        i = 0;
+        while (i < productResponseList.size()) {
+            if (!productResponseList.get(i).getEstimatedPrice().equals(productResponseList.get(i).getSalePrice())) {
+                productResponseList.remove(i);
+            } else i++;
+        }
+
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = productResponseList.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
+    }
+
+    @Override
+    public PageResponse getAllProductWithOutFlashSaleCreate(Long categoryId, Integer pageNumber) {
+        List<Category> categories = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> cate = new ArrayList<>();
+        List<Long> saleId = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
+        var cates = categoryRepository.findAll();
+        if (categoryId == null) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else {
+            var category = categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(categoryRepository.findById(categoryId).orElseThrow());
+            else return null;
+        }
+        while (!categories.isEmpty()) {
+            Long id = categories.get(0).getId();
+            boolean flag = false;
+            for (Category category : cates) {
+                if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(id)) {
+                    flag = true;
+                    categories.add(category);
+                }
+            }
+            if (flag) {
+                categories.remove(0);
+            } else {
+                categoryList.add(categories.get(0));
+                categories.remove(0);
+            }
+        }
+
+        for (Category category : categoryList) {
+            products.addAll(productRepository.findAllByCategoryId(category.getId()));
+        }
+
+        int i = 0;
+        while (i < products.size()) {
+
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            for (ProductItem productItem : items) {
+                total += productItem.getQuantityInStock();
+            }
+            list.add(total);
+
+            var saleProductList = saleProductRepository.findAllByProduct_Id(products.get(i).getId());
+            var flag = false;
+            var oldSale = false;
+            Long saleID = null;
+            for (SaleProduct saleProduct : saleProductList) {
+                if (saleProduct.getSale() != null) {
+                    if (saleProduct.getSale().isActive()) {
+                        flag = true;
+                    } else {
+                        oldSale = true;
+                        saleID = saleProduct.getSale().getId();
+                    }
+                }
+
+            }
+            if (!flag) {
+                if (oldSale)
+                    saleId.add(saleID);
+                else
+                    saleId.add(null);
+                discountRate.add(0.0);
+                salePrices.add(products.get(i).getEstimatedPrice());
+            } else {
+                products.remove(i);
+                continue;
+            }
+            i++;
+        }
+
+        var productResponseList = productMapper.toProductResponseList(products);
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleId.get(j));
+        }
+
+        i = 0;
+        while (i < productResponseList.size()) {
+            if (!productResponseList.get(i).getEstimatedPrice().equals(productResponseList.get(i).getSalePrice())) {
+                productResponseList.remove(i);
+            } else i++;
+        }
+
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = productResponseList.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
+    }
+
+    @Override
+    public PageResponse getAllProductFilter(Long categoryId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber, boolean isAdmin) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
         List<Product> products = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> saleIds = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
         boolean flagSize = size != null && !size.isEmpty();
         boolean flagColor = color != null && !color.isEmpty();
         boolean flagMinPrice = minPrice != null && !minPrice.isEmpty();
@@ -155,11 +408,10 @@ public class IProductService implements ProductService {
 
 
         int i = 0;
-        System.out.println("size đầu: " + products.size());
         while (i < products.size()) {
             var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
             boolean flag = false;
-            if (!products.get(i).isActive()) {
+            if (!isAdmin && !products.get(i).isActive()) {
                 products.remove(i);
                 continue;
             }
@@ -169,48 +421,36 @@ public class IProductService implements ProductService {
                     if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("K")) {
                         if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmsize1 " + i);
-                            System.out.println(size);
-                            System.out.println(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                             break loop;
                         }
                     } else if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmsize2 " + i);
                             break loop;
                         }
                     } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("K")) {
                         if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmcolor1 " + i);
                             break loop;
                         }
                     } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
                         if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
                             flag = true;
-                            System.out.println("dmcolor2 " + i);
-                            System.out.println(color);
-                            System.out.println(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                             break loop;
                         }
 
                     } else if (flagMinPrice && flagMaxPrice) {
                         if ((productItem.getPrice() >= Integer.parseInt(minPrice)) && (productItem.getPrice() <= Integer.parseInt(maxPrice))) {
-                            System.out.println("dm " + i);
                             flag = true;
                             break loop;
                         }
                     } else if (flagMinPrice) {
                         if (productItem.getPrice() >= Integer.parseInt(minPrice)) {
-                            System.out.println("dm1 " + i);
-
                             flag = true;
                             break loop;
                         }
                     } else if (flagMaxPrice) {
                         if (productItem.getPrice() <= Integer.parseInt(maxPrice)) {
-                            System.out.println("dm2 " + i);
                             flag = true;
                             break loop;
                         }
@@ -218,33 +458,49 @@ public class IProductService implements ProductService {
                     }
                 }
             }
-            System.out.println("flag: " + flag);
-            System.out.println("flagColor: " + flagColor);
-            System.out.println("flagSize: " + flagSize);
-            System.out.println("flagMaxPrice: " + flagMaxPrice);
-            System.out.println("flagMinPrice: " + flagMinPrice);
-            Boolean temp = (flag || flagColor || flagSize || flagMinPrice || flagMaxPrice) && !flag;
-            System.out.println(temp);
+            boolean temp = (flag || flagColor || flagSize || flagMinPrice || flagMaxPrice) && !flag;
 
             if (!temp) {
                 i = i + 1;
             } else
                 products.remove(i);
         }
-        System.out.println("size cuối: " + products.size());
         for (Product product : products) {
             int total = 0;
             var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
             list.add(total);
+
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(product.getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            } else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
+            }
+
         }
-
-
         var productResponseList = productMapper.toProductResponseList(products);
         for (int j = 0; j < productResponseList.size(); j++) {
             productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
         }
         switch (sort) {
             case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
@@ -260,19 +516,20 @@ public class IProductService implements ProductService {
             case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
             default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
         }
-
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        Pageable pageable;
+        if (isAdmin)
+            pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE_ADMIN);
+        else
+            pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
-        System.out.println(start);
-        System.out.println(end);
         List<ProductResponse> pageContent = new ArrayList<>();
         if (start < end) {
             pageContent = productResponseList.subList(start, end);
 
         }
         Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
-        PageProductResponse productResponse = new PageProductResponse();
+        PageResponse productResponse = new PageResponse();
         productResponse.setContents(pageContent);
         productResponse.setPageSize(page.getSize());
         productResponse.setPageNumber(page.getNumber() + 1);
@@ -323,6 +580,22 @@ public class IProductService implements ProductService {
     public ProductDetailResponsev3 getDetailProductForAdmin(Long productId) {
         var product = productRepository.findById(productId);
         if (product.isPresent()) {
+            var estimatedPrice = product.get().getEstimatedPrice();
+            var salePrice = estimatedPrice;
+            Long saleId = null;
+            Double discountRate = 0.0;
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(product.get().getId(), true);
+
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    double finalPrice = estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate();
+                    salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                    saleId = saleProduct.get().getSale().getId();
+                    discountRate = saleProduct.get().getSale().getDiscountRate();
+                }
+            }
+
             var items = productItemRepository.findAllByProduct_Id(product.get().getId());
             var productDetail = productMapper.toDetailResponse(product.get());
             var totalQuantity = 0;
@@ -331,19 +604,21 @@ public class IProductService implements ProductService {
             }
             productDetail.setQuantity(totalQuantity);
             productDetail.setQuantityOfVariation(items.size());
+            productDetail.setSaleId(saleId);
+            productDetail.setSalePrice(salePrice);
+            productDetail.setDiscountRate(discountRate);
             List<ProductItemDTOv2> productItemDTOv2List = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
-                System.out.println(productDetail.getProductItems().size());
 
                 String optionColor;
                 String optionSize = "";
-                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu")) {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
                 } else {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 }
                 ProductItemDTOv2 productItemDTOv2 = new ProductItemDTOv2();
-                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu")
                         && productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
                     optionSize = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 } else if (productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption().equals(optionColor)) {
@@ -352,6 +627,8 @@ public class IProductService implements ProductService {
                 }
                 productItemDTOv2.setId(productDetail.getProductItems().get(0).getId());
                 productItemDTOv2.setPrice(productDetail.getProductItems().get(0).getPrice());
+                productItemDTOv2.setSalePrice(String.valueOf(salePrice));
+                productItemDTOv2.setDiscountRate(productDetail.getDiscountRate());
                 productItemDTOv2.setProductImage(productDetail.getProductItems().get(0).getProductImage());
                 productItemDTOv2.setQuantityInStock(productDetail.getProductItems().get(0).getQuantityInStock());
                 productItemDTOv2.setNumberQuantity(0);
@@ -373,6 +650,22 @@ public class IProductService implements ProductService {
     public ProductDetailResponsev2 getDetailProduct(Long productId) {
         var product = productRepository.findById(productId);
         if (product.isPresent()) {
+            var estimatedPrice = product.get().getEstimatedPrice();
+            var salePrice = estimatedPrice;
+            Long saleId = null;
+            Double discountRate = 0.0;
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(product.get().getId(), true);
+
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    double finalPrice = estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate();
+                    salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                    saleId = saleProduct.get().getSale().getId();
+                    discountRate = saleProduct.get().getSale().getDiscountRate();
+                }
+            }
+
             var items = productItemRepository.findAllByProduct_Id(product.get().getId());
             var productDetail = productMapper.toDetailResponse(product.get());
             var totalQuantity = 0;
@@ -381,32 +674,36 @@ public class IProductService implements ProductService {
             }
             productDetail.setQuantity(totalQuantity);
             productDetail.setQuantityOfVariation(items.size());
+            productDetail.setSaleId(saleId);
+            productDetail.setSalePrice(salePrice);
+            productDetail.setDiscountRate(discountRate);
             List<ProductItemResponse> productItemResponses = new ArrayList<>();
             while (!productDetail.getProductItems().isEmpty()) {
                 if (!productDetail.getProductItems().get(0).isActive()) {
                     productDetail.getProductItems().remove(0);
                     continue;
                 }
-                System.out.println(productDetail.getProductItems().size());
                 ProductItemResponse productItemResponse = new ProductItemResponse();
                 List<ProductItemDTOv3> productItemDTOv3List = new ArrayList<>();
                 List<Integer> indexes = new ArrayList<>();
 
                 String optionColor;
                 String optionSize;
-                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")) {
+                if (productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationName().startsWith("Màu")) {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(0).getVariationOption();
                 } else {
                     optionColor = productDetail.getProductItems().get(0).getProductConfigurations().get(1).getVariationOption();
                 }
                 productItemResponse.setVariationColor(optionColor);
                 for (int i = 0; i < productDetail.getProductItems().size(); i++) {
-                    if (productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationName().startsWith("Màu ")
+                    if (productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationName().startsWith("Màu")
                             && productDetail.getProductItems().get(i).getProductConfigurations().get(0).getVariationOption().equals(optionColor)) {
                         optionSize = productDetail.getProductItems().get(i).getProductConfigurations().get(1).getVariationOption();
                         ProductItemDTOv3 productItemDTOv3 = new ProductItemDTOv3();
                         productItemDTOv3.setId(productDetail.getProductItems().get(i).getId());
                         productItemDTOv3.setPrice(productDetail.getProductItems().get(i).getPrice());
+                        productItemDTOv3.setSalePrice(productDetail.getSalePrice());
+                        productItemDTOv3.setDiscountRate(productDetail.getDiscountRate());
                         productItemDTOv3.setProductImage(productDetail.getProductItems().get(i).getProductImage());
                         productItemDTOv3.setQuantityInStock(productDetail.getProductItems().get(i).getQuantityInStock());
                         productItemDTOv3.setActive(productDetail.getProductItems().get(i).isActive());
@@ -418,6 +715,8 @@ public class IProductService implements ProductService {
                         ProductItemDTOv3 productItemDTOv3 = new ProductItemDTOv3();
                         productItemDTOv3.setId(productDetail.getProductItems().get(i).getId());
                         productItemDTOv3.setPrice(productDetail.getProductItems().get(i).getPrice());
+                        productItemDTOv3.setSalePrice(productDetail.getSalePrice());
+                        productItemDTOv3.setDiscountRate(productDetail.getDiscountRate());
                         productItemDTOv3.setProductImage(productDetail.getProductItems().get(i).getProductImage());
                         productItemDTOv3.setQuantityInStock(productDetail.getProductItems().get(i).getQuantityInStock());
                         productItemDTOv3.setActive(productDetail.getProductItems().get(i).isActive());
@@ -430,7 +729,6 @@ public class IProductService implements ProductService {
 
 
                 for (int j = 0; j < indexes.size(); j++) {
-                    System.out.println(indexes.get(j));
                     productDetail.getProductItems().remove(indexes.get(j) - j);
                 }
 
@@ -439,6 +737,7 @@ public class IProductService implements ProductService {
             }
             var productResponse = productMapper.toProductDetailResponsev2(productDetail);
             productResponse.setProductItemResponses(productItemResponses);
+            productResponse.setDiscountRate(productDetail.getDiscountRate());
             var userReviews = reviewService.findAllByProductId(productId);
             List<Review> reviews = new ArrayList<>();
             List<Long> orderItemIds = new ArrayList<>();
@@ -484,6 +783,7 @@ public class IProductService implements ProductService {
                 var product = new Product();
                 List<ProductItem> productItems = new ArrayList<>();
                 List<ProductItemRequest> productItemRequests = request.getProductItems();
+                var image_product = productItemRequests.get(0).getProductItemImage();
                 var variations = variationRepository.findVariationsByCategory_Id(request.getCategoryId());
                 Long sizeId;
                 String sizeName;
@@ -503,8 +803,7 @@ public class IProductService implements ProductService {
                 }
                 String productItemImage = "";
                 String url = "";
-                Integer minPrice = Integer.MAX_VALUE;
-                Integer maxPrice = 0;
+                var estimatedPrice = 0;
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     ProductItem productItem = new ProductItem();
@@ -512,12 +811,7 @@ public class IProductService implements ProductService {
                     String name = "";
                     var size = variationOptionRepository.findAllByVariation_Id(sizeId);
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
-                    if (p.getPrice() > maxPrice) {
-                        maxPrice = p.getPrice();
-                    }
-                    if (p.getPrice() < minPrice) {
-                        minPrice = p.getPrice();
-                    }
+                    estimatedPrice = p.getPrice();
 
                     String sizeValue = "";
                     String colorValue = "";
@@ -584,18 +878,15 @@ public class IProductService implements ProductService {
 
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
-                    var image = p.getProductImage();
-
+                    var image = p.getProductItemImage();
                     if (productItemImage != null && productItemImage.isEmpty()) {
-                        productItemImage = image;
-                        if (image != null) {
-                            url = getURLPictureAndUploadToCloudinary(image);
-                        } else url = ImageUtil.urlImage;
+                        productItemImage = image.getOriginalFilename();
+                        url = getURLPictureThenUploadToCloudinary(image);
                     }
                     if (image != null) {
-                        if (productItemImage != null && (!productItemImage.equals(image))) {
-                            productItemImage = image;
-                            var ImageUrl = getURLPictureAndUploadToCloudinary(image);
+                        if (productItemImage != null) {
+                            productItemImage = image.getOriginalFilename();
+                            var ImageUrl = getURLPictureThenUploadToCloudinary(image);
                             if (ImageUrl != null) {
                                 productItem.setProductImage(ImageUrl);
                                 url = ImageUrl;
@@ -621,23 +912,21 @@ public class IProductService implements ProductService {
                 product.setProductItems(productItems);
                 product.setDescription(request.getDescription());
                 product.setCategory(category.get());
-                var image = request.getProductImage();
-                if (image != null) {
-                    var urlImage = getURLPictureAndUploadToCloudinary(image);
+
+                if (image_product != null) {
+                    var urlImage = getURLPictureThenUploadToCloudinary(image_product);
                     product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
                 } else product.setProductImage(ImageUtil.urlImage);
+
+
                 product.setCreatedDate(new Date(System.currentTimeMillis()));
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 product.setProductItems(productItems);
                 product.setSold(0);
                 product.setRating(0.0);
-                if (!minPrice.equals(maxPrice)) {
+                product.setEstimatedPrice(estimatedPrice);
 
-                    product.setEstimatedPrice(minPrice + " - " + maxPrice);
-                } else {
-                    product.setEstimatedPrice(minPrice.toString());
-                }
                 productRepository.save(product);
 
                 return "Successfully save product";
@@ -649,7 +938,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public String createProductFromCategory(Long id, ProductRequest request) {
+    public String createProductFromCategory(Long id, ProductRequest request, @Valid @NotNull MultipartFile[] files) {
         var category = categoryRepository.findById(id);
         var cate = request.getCategoryId();
         if (category.isPresent() && category.get().getId().equals(cate)) {
@@ -665,7 +954,7 @@ public class IProductService implements ProductService {
         if (category.isPresent()) {
             if (cateList.isEmpty()) {
                 var product = productRepository.findById(productEditRequest.getId()).orElseThrow();
-                List<ProductItemDTOv2> productItemRequests = productEditRequest.getProductItems();
+                List<ProductItemDTORequest> productItemRequests = productEditRequest.getProductItems();
                 var variations = variationRepository.findVariationsByCategory_Id(productEditRequest.getCategoryId());
                 Long sizeId;
                 String sizeName;
@@ -683,10 +972,10 @@ public class IProductService implements ProductService {
                     colorName = variations.get(0).getName();
 
                 }
-                String productItemImage = "";
-                String url = "";
-                Integer minPrice = Integer.MAX_VALUE;
-                Integer maxPrice = 0;
+                var estimatedPrice = 0;
+
+                var image_product = productItemRequests.get(0).getProductImage();
+
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     String sizeValueFromRequest = p.getSize();
@@ -698,12 +987,7 @@ public class IProductService implements ProductService {
                     var color = variationOptionRepository.findAllByVariation_Id(colorId);
                     boolean sizeFlag = false;
                     boolean colorFlag = false;
-                    if (p.getPrice() > maxPrice) {
-                        maxPrice = p.getPrice();
-                    }
-                    if (p.getPrice() < minPrice) {
-                        minPrice = p.getPrice();
-                    }
+                    estimatedPrice = p.getPrice();
                     loop:
                     {
                         if (!size.isEmpty()) {
@@ -791,55 +1075,46 @@ public class IProductService implements ProductService {
                     }
 
                     productItem.setName(productEditRequest.getName() + name);
-                    var image = p.getProductImage();
-                    if (productItemImage != null && productItemImage.isEmpty()) {
-                        productItemImage = image;
-                        if (image != null) {
-                            url = getURLPictureAndUploadToCloudinary(image);
-                        } else url = ImageUtil.urlImage;
-                    }
-                    if (image != null) {
-                        if (productItemImage != null && (!productItemImage.equals(image))) {
-                            productItemImage = image;
-                            var ImageUrl = getURLPictureAndUploadToCloudinary(image);
-                            if (ImageUrl != null) {
-                                productItem.setProductImage(ImageUrl);
-                                url = ImageUrl;
-                            } else url = ImageUtil.urlImage;
-                        } else {
-                            productItem.setProductImage(url);
-                        }
 
-                    } else productItem.setProductImage(ImageUtil.urlImage);
+                    if (p.getProductImage() != null) {
+                        var urlImage = getURLPictureThenUploadToCloudinary(p.getProductImage());
+                        if (urlImage != null && !urlImage.isEmpty())
+                            productItem.setProductImage(urlImage);
+                    }
+
+
                     productItem.setActive(p.isActive());
-                    productItem.setPrice(p.getPrice());
-                    productItem.setWarehousePrice(p.getWarehousePrice());
-                    if (p.getNumberQuantity() > 0){
+                    if (p.getPrice() != null)
+                        productItem.setPrice(p.getPrice());
+                    if (p.getWarehousePrice() != null)
+                        productItem.setWarehousePrice(p.getWarehousePrice());
+                    if (p.getNumberQuantity() > 0) {
                         productItem.setQuantityInStock(p.getNumberQuantity() + productItem.getQuantityInStock());
                         productItem.setWarehouseQuantity(p.getNumberQuantity());
                     }
+
                     productItem.setModifiedDate(new Date(System.currentTimeMillis()));
                     productItem.setProduct(product);
                     productItem.setProductConfigurations(productConfigurations);
                     productItemRequests.remove(0);
                 }
 
-                product.setName(productEditRequest.getName());
-                product.setDescription(productEditRequest.getDescription());
+                if (productEditRequest.getName() != null && !productEditRequest.getName().isEmpty()) {
+                    product.setName(productEditRequest.getName());
+                }
+                if (productEditRequest.getDescription() != null && !productEditRequest.getDescription().isEmpty()) {
+                    product.setDescription(productEditRequest.getDescription());
+                }
                 product.setCategory(category.get());
-                var image = productEditRequest.getProductImage();
-                if (image != null) {
-                    var urlImage = getURLPictureAndUploadToCloudinary(image);
-                    if (urlImage != null) {
-                        product.setProductImage(urlImage);
-                    }
-                }
-                if (!minPrice.equals(maxPrice)) {
 
-                    product.setEstimatedPrice(minPrice + " - " + maxPrice);
-                } else {
-                    product.setEstimatedPrice(minPrice.toString());
-                }
+                if (image_product != null) {
+                    var urlImage = getURLPictureThenUploadToCloudinary(image_product);
+                    product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
+                } else product.setProductImage(ImageUtil.urlImage);
+
+                if (estimatedPrice != 0)
+                    product.setEstimatedPrice(estimatedPrice);
+
                 product.setModifiedDate(new Date(System.currentTimeMillis()));
                 product.setActive(true);
                 productRepository.save(product);
@@ -855,20 +1130,14 @@ public class IProductService implements ProductService {
         var product = productRepository.findById(id);
         if (product.isPresent()) {
             product.get().setModifiedDate(new Date(System.currentTimeMillis()));
-            if (product.get().isActive()) {
-                product.get().setActive(false);
-                productRepository.save(product.get());
-                return "Successfully deactive product";
-            } else {
-                product.get().setActive(true);
-                productRepository.save(product.get());
-                return "Successfully active product";
-            }
+            product.get().setActive(false);
+            productRepository.save(product.get());
+            return "Successfully deactive product permanently";
         } else
             return "Product not found or not available to delete!";
     }
 
-    @Override
+/*    @Override
     public List<ProductResponse> getAllProductV2() {
         var products = productRepository.findAll();
         List<Integer> list = new ArrayList<>();
@@ -888,9 +1157,9 @@ public class IProductService implements ProductService {
         }
         productResponseList.sort((d1, d2) -> d2.getModifiedDate().compareTo(d1.getModifiedDate()));
         return productResponseList;
-    }
+    }*/
 
-    @Override
+  /*  @Override
     public List<ProductResponse> getAllProductV3() {
         var products = getAllProductV2();
         List<ProductResponse> list = new ArrayList<>();
@@ -900,12 +1169,12 @@ public class IProductService implements ProductService {
             }
         }
         return list;
-    }
+    }*/
 
     @Override
     public List<ProductResponse> getAllProductCarouselRating() {
 
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         var productCarousel = productRepository.findAllByActiveIsTrueOrderByRatingDesc(pageable);
         List<Integer> list = new ArrayList<>();
         for (Product product : productCarousel) {
@@ -926,7 +1195,7 @@ public class IProductService implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProductCarouselSold() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         var productCarousel = productRepository.findAllByActiveIsTrueOrderBySoldDesc(pageable);
         List<Integer> list = new ArrayList<>();
         for (Product product : productCarousel) {
@@ -947,7 +1216,7 @@ public class IProductService implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProductCarouselInCategory(Long categoryId) {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         List<Product> productCarousel = new ArrayList<>();
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -1002,7 +1271,7 @@ public class IProductService implements ProductService {
         return productResponseList;
     }
 
-    @Override
+  /*  @Override
     public String getURLPictureAndUploadToCloudinary(String base64Content) {
         try {
             byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
@@ -1010,7 +1279,8 @@ public class IProductService implements ProductService {
             Tika tika = new Tika();
             String mimetype = tika.detect(fileBytes);
             if (mimetype.contains("image")) {
-                Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Product");
+               // Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Product");
+                Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "test");
                 return (String) map.get("secure_url");
 
             } else
@@ -1019,6 +1289,27 @@ public class IProductService implements ProductService {
             return null;
         }
 
+    }*/
+
+    @Override
+    public String getURLPictureThenUploadToCloudinary(MultipartFile file) {
+        try {
+
+            byte[] fileBytes = file.getBytes();
+
+            MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
+            Tika tika = new Tika();
+            String mimetype = tika.detect(fileBytes);
+            if (mimetype.contains("image")) {
+                // Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "Product");
+                Map<?, ?> map = cloudinaryService.uploadFile(multipartFile, "test");
+                return (String) map.get("secure_url");
+
+            } else
+                return ImageUtil.urlImage;
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
 }

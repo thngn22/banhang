@@ -29,7 +29,7 @@ CREATE TABLE `address` (
   `district` varchar(1000) DEFAULT NULL,
   `ward` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,6 +110,43 @@ CREATE TABLE `category_promotion` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `chat_room`
+--
+
+DROP TABLE IF EXISTS `chat_room`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chat_room` (
+  `id` varchar(255) NOT NULL,
+  `recipient_id` varchar(255) DEFAULT NULL,
+  `sender_id` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKkp5t2dnv4g8jjxxkididvot36` (`recipient_id`),
+  KEY `FKghsw7qse06teuhv69hbkvcnaw` (`sender_id`),
+  CONSTRAINT `FKghsw7qse06teuhv69hbkvcnaw` FOREIGN KEY (`sender_id`) REFERENCES `chat_user` (`id`),
+  CONSTRAINT `FKkp5t2dnv4g8jjxxkididvot36` FOREIGN KEY (`recipient_id`) REFERENCES `chat_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chat_user`
+--
+
+DROP TABLE IF EXISTS `chat_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chat_user` (
+  `id` varchar(255) NOT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
+  `full_name` varchar(255) DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_7sknreslsg70q7sdgwlb55edp` (`user_id`),
+  CONSTRAINT `FK3my5637ob80l32xwbdgrtvms` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `delivery`
 --
 
@@ -124,6 +161,30 @@ CREATE TABLE `delivery` (
   `price` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `message`
+--
+
+DROP TABLE IF EXISTS `message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `message` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `content` varchar(255) DEFAULT NULL,
+  `timestamp` datetime(6) DEFAULT NULL,
+  `chat_room_id` varchar(255) DEFAULT NULL,
+  `recipient_id` varchar(255) DEFAULT NULL,
+  `sender_id` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK5i8ac68n051032d9ga7gg6i85` (`chat_room_id`),
+  KEY `FK5aufmpa72ynv8ltnjf29q3oq7` (`recipient_id`),
+  KEY `FK66wmv4noy06ovj0aytlx3wqs3` (`sender_id`),
+  CONSTRAINT `FK5aufmpa72ynv8ltnjf29q3oq7` FOREIGN KEY (`recipient_id`) REFERENCES `chat_user` (`id`),
+  CONSTRAINT `FK5i8ac68n051032d9ga7gg6i85` FOREIGN KEY (`chat_room_id`) REFERENCES `chat_room` (`id`),
+  CONSTRAINT `FK66wmv4noy06ovj0aytlx3wqs3` FOREIGN KEY (`sender_id`) REFERENCES `chat_user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -146,7 +207,7 @@ CREATE TABLE `order_item` (
   KEY `FKcdqml0b87oh0ukk87wjx9fk86` (`product_item_id`),
   CONSTRAINT `FKcdqml0b87oh0ukk87wjx9fk86` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKt4dc2r9nbvbujrljv3e23iibt` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +241,7 @@ CREATE TABLE `orders` (
   CONSTRAINT `FKf5464gxwc32ongdvka2rtvw96` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKqippj57d958yt8kaefy29bv8q` FOREIGN KEY (`user_payment_method_id`) REFERENCES `user_payment_method` (`id`),
   CONSTRAINT `FKtkrur7wg4d8ax0pwgo0vmy20c` FOREIGN KEY (`delivery_id`) REFERENCES `delivery` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -220,7 +281,7 @@ CREATE TABLE `product` (
   PRIMARY KEY (`product_id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=268 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,7 +300,7 @@ CREATE TABLE `product_configuration` (
   KEY `FKm5sgep9e3ot2covfpw9l3ml7s` (`variation_option_id`),
   CONSTRAINT `FKd9wo8k6srbadxvi3l87wfqnfx` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKm5sgep9e3ot2covfpw9l3ml7s` FOREIGN KEY (`variation_option_id`) REFERENCES `variation_option` (`variation_option_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1860 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7146 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -264,7 +325,7 @@ CREATE TABLE `product_item` (
   PRIMARY KEY (`product_item_id`),
   KEY `FKa9mjpi98ark8eovbtnnreygbb` (`product_id`),
   CONSTRAINT `FKa9mjpi98ark8eovbtnnreygbb` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=754 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3397 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -278,7 +339,7 @@ CREATE TABLE `promotion` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `description` mediumtext,
-  `discount_rate` varchar(255) DEFAULT NULL,
+  `discount_rate` double DEFAULT NULL,
   `end_date` datetime(6) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `start_date` datetime(6) DEFAULT NULL,
@@ -358,7 +419,7 @@ CREATE TABLE `token` (
   UNIQUE KEY `UK_pddrhgwxnms2aceeku9s2ewy5` (`token`),
   KEY `FKe32ek7ixanakfqsdaokm4q9y2` (`user_id`),
   CONSTRAINT `FKe32ek7ixanakfqsdaokm4q9y2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -406,7 +467,7 @@ CREATE TABLE `user_address` (
   KEY `FKk2ox3w9jm7yd6v1m5f68xibry` (`user_id`),
   CONSTRAINT `FKdaaxogn1ss81gkcsdn05wi6jp` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKk2ox3w9jm7yd6v1m5f68xibry` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -476,7 +537,7 @@ CREATE TABLE `variation_option` (
   PRIMARY KEY (`variation_option_id`),
   KEY `FKlfkypq92cr21b9mtc7mihks1e` (`variation_id`),
   CONSTRAINT `FKlfkypq92cr21b9mtc7mihks1e` FOREIGN KEY (`variation_id`) REFERENCES `variation` (`variation_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=489 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=823 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -488,4 +549,4 @@ CREATE TABLE `variation_option` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-28  0:54:21
+-- Dump completed on 2024-05-31 22:20:54

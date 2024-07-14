@@ -1,5 +1,6 @@
 package com.ecomerce.roblnk.dto.review;
 
+import com.ecomerce.roblnk.util.ByteMultipartFile;
 import lombok.*;
 
 import java.util.List;
@@ -12,5 +13,5 @@ public class ReviewRequest {
     private Long productId;
     private Integer ratingStars;
     private String feedback;
-    private String imageFeedback;
+    private ByteMultipartFile imageFeedback;
 }

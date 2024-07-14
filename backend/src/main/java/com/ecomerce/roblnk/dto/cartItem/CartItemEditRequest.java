@@ -1,6 +1,5 @@
 package com.ecomerce.roblnk.dto.cartItem;
 
-import com.ecomerce.roblnk.dto.product.ProductItemCartDTO;
 import lombok.*;
 
 @Data

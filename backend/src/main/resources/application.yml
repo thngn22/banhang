@@ -9,8 +9,14 @@ cloudinary:
     api-secret: 2yGg1_La5nS0VVNZH970wYrFiUw
     cloud-name: dmvncmrci
     secure: true
+goong:
+    api-key: gMk3Ow1ZvHpVheH0TUw87ltXLHXAhUFcgyFgs1hu
+    lat: 10.8506324
+    lng: 106.7719131
+    base-url: https://rsapi.goong.io
+    main-url: https://rsapi.goong.io/geocode?address=số%201%20Võ%20Văn%20Ngân,%20Linh%20Chiểu,%20Thủ%20Đức,%20Thành%20phố%20Hồ%20Chí%20Minh&api_key=gMk3Ow1ZvHpVheH0TUw87ltXLHXAhUFcgyFgs1hu
 server:
-    port: 7586
+    port: 7587
     tomcat:
         redirect-context-root: false
 spring:
@@ -18,9 +24,9 @@ spring:
         import: optional:file:/src/main/resources/.env[.yml]
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        password: ${MYSQL_ROOT_PASSWORD:123456}
+        password: ${MYSQLDB_ROOT_PASSWORD:123456}
         url: jdbc:mysql://${MYSQLDB_HOST:localhost}:${MYSQLDB_DOCKER_PORT:3306}/${MYSQLDB_DATABASE:e_commerce_shoes}?useSSL=false&allowPublicKeyRetrieval=true
-        username: root
+        username: ${MYSQLDB_USER:root}
     devtools:
         livereload:
             enabled: true

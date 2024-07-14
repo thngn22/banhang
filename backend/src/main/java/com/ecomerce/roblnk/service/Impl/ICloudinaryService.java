@@ -2,6 +2,7 @@ package com.ecomerce.roblnk.service.Impl;
 
 import com.cloudinary.Cloudinary;
 import com.ecomerce.roblnk.service.CloudinaryService;
+import com.ecomerce.roblnk.util.ByteMultipartFile;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

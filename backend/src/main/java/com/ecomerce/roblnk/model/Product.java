@@ -28,7 +28,7 @@ public class Product {
     private String name;
 
     @Column(name = "estimated_price")
-    private String estimatedPrice;
+    private Integer estimatedPrice;
 
     @Column(name = "description", length = 100000)
     private String description;
@@ -70,5 +70,8 @@ public class Product {
     @JsonIgnore
     private List<ProductItem> productItems = new ArrayList<>();
 
-
+    //SaleProduct
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<SaleProduct> saleProducts;
 }

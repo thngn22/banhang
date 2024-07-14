@@ -7,6 +7,7 @@ import com.ecomerce.roblnk.dto.cart.UserCart;
 import com.ecomerce.roblnk.dto.cartItem.CartItemDTO;
 import com.ecomerce.roblnk.dto.cartItem.CartItemEditRequest;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
+import com.ecomerce.roblnk.dto.product.ProductItemCartDTO;
 import com.ecomerce.roblnk.exception.ErrorResponse;
 import com.ecomerce.roblnk.mapper.CartMapper;
 import com.ecomerce.roblnk.mapper.OrderMapper;
@@ -31,6 +32,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ecomerce.roblnk.constants.ErrorMessage.EMAIL_NOT_FOUND;
 
@@ -50,13 +52,11 @@ public class ICartService implements CartService {
     private final UserPaymentMethodService userPaymentMethodService;
     private final UserPaymentMethodRepository userPaymentMethodRepository;
     private final AddressRepository addressRepository;
-    private final UserAddressRepository userAddressRepository;
-    private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final EmailService emailService;
     private final ProductItemRepository productItemRepository;
     private final ProductRepository productRepository;
+    private final SaleProductRepository saleProductRepository;
 
     @Override
     public ResponseEntity<?> getUserCart(Principal principal) {
@@ -67,9 +67,60 @@ public class ICartService implements CartService {
                 UserCart userCart = cartMapper.toUserCart(cart);
                 List<CartItemDTO> list = new ArrayList<>();
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
+                    var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
+                    if (!cartItemDTO.getProductItem().isActive()){
+                        cartItem.setQuantity(0);
+                        cartItem.setTotalPrice(0);
+                        cartItemRepository.save(cartItem);
+                        continue;
+                    }
+
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+
+                    var discountRate = 0.0;
+                    var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
+                    var salePrice = productItem.getPrice();
+                    var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productItem.getProduct().getId(), true);
+                    if (saleProduct.isPresent()) {
+                        if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                                && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                            discountRate = saleProduct.get().getSale().getDiscountRate();
+                            double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
+                            salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                            if (!cartItem.getPrice().equals(salePrice)){
+                                cartItem.setPrice(salePrice);
+                                cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                                cartItemRepository.save(cartItem);
+                            }
+                        }
+                    }
+                    else {
+                        if (!cartItem.getPrice().equals(salePrice)){
+                            cartItem.setPrice(salePrice);
+                            cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                            cartItemRepository.save(cartItem);
+                        }
+                    }
+                    cartItemDTO.setPrice(salePrice);
+                    cartItemDTO.setTotalPrice(salePrice * cartItemDTO.getQuantity());
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
+                }
+                if (cart.getVoucher() == null || !cart.getVoucher().isActive()){
+                    userCart.setDiscountRate(0.0);
+                    userCart.setFinalPrice(userCart.getTotalPrice());
+                }
+                else {
+                    userCart.setDiscountRate(cart.getVoucher().getDiscountRate());
+                    double finalPrice = (userCart.getTotalPrice() - userCart.getDiscountRate() * userCart.getTotalPrice() * 0.01);
+                    userCart.setFinalPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
                 }
                 userCart.setCartItems(list);
                 return ResponseEntity.status(HttpStatus.OK).body(userCart);
@@ -102,7 +153,17 @@ public class ICartService implements CartService {
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+
+                    var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
+                    if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                    } else if (productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
+                        cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
+                    }
                 }
+
                 userCart.setCartItems(list);
                 return userCart;
 
@@ -120,72 +181,59 @@ public class ICartService implements CartService {
             var userCart = user.get().getCart();
 
             for (CartItemEditRequest cartItemEditRequest : list) {
+                var discountRate = 0.0;
                 var productItem = productItemService.getProductItem(cartItemEditRequest.getProductItemId());
-                if (productItem != null) {
-                    if (productItem.isActive()) {
-                        var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
-                        if (!cartItemsExisted.isEmpty()) {
-                            boolean flag = false;
-                            loop:
+                var salePrice = productItem.getPrice();
+                var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productItem.getProduct().getId(), true);
+                if (saleProduct.isPresent()) {
+                    if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                            && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                        discountRate = saleProduct.get().getSale().getDiscountRate();
+                        double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
+                        salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                    }
+                }
+                if (productItem.isActive()) {
+                    var cartItemsExisted = cartItemRepository.findAllByCart_Id(userCart.getId());
+                    if (!cartItemsExisted.isEmpty()) {
+                        boolean flag = false;
+                        loop:
+                        {
+                            for (CartItem cartItem : cartItemsExisted) {
+                                if (cartItem.getProductItem().getId().equals(productItem.getId())) {
+                                    flag = true;
+                                    break loop;
+                                }
+                            }
+                        }
+                        if (flag) {
+                            miniLoop:
                             {
                                 for (CartItem cartItem : cartItemsExisted) {
                                     if (cartItem.getProductItem().getId().equals(productItem.getId())) {
-                                        flag = true;
-                                        break loop;
-                                    }
-                                }
-                            }
-                            if (flag) {
-                                miniLoop:
-                                {
-                                    for (CartItem cartItem : cartItemsExisted) {
-                                        if (cartItem.getProductItem().getId().equals(productItem.getId())) {
-                                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
-                                                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                                                        .statusCode(403)
-                                                        .message(String.valueOf(HttpStatus.FORBIDDEN))
-                                                        .description("Quantity is more than in stock!")
-                                                        .timestamp(new Date(System.currentTimeMillis()))
-                                                        .build());
-                                            }
-                                            if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
-                                                cartItem.setQuantity(0);
-                                                cartItem.setTotalPrice(0);
-                                            } else {
-                                                cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
-                                                cartItem.setTotalPrice(cartItem.getPrice() * cartItem.getQuantity());
-                                            }
-                                            cartItem.setPrice(productItem.getPrice());
-                                            cartItem = cartItemRepository.save(cartItem);
-                                            System.out.println("Gia: " + cartItem.getPrice());
-                                            System.out.println("So luong: " + cartItem.getQuantity());
-                                            System.out.println(" ");
-                                            break miniLoop;
+                                        if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                                            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                                    .statusCode(403)
+                                                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                                    .description("Quantity is more than in stock!")
+                                                    .timestamp(new Date(System.currentTimeMillis()))
+                                                    .build());
                                         }
+                                        if (cartItem.getQuantity() + cartItemEditRequest.getQuantity() <= 0) {
+                                            cartItem.setQuantity(0);
+                                            cartItem.setTotalPrice(0);
+                                        } else {
+                                            cartItem.setQuantity(cartItem.getQuantity() + cartItemEditRequest.getQuantity());
+                                            cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                                        }
+                                        cartItem.setPrice(salePrice);
+                                        cartItem = cartItemRepository.save(cartItem);
+                                        System.out.println("Gia: " + cartItem.getPrice());
+                                        System.out.println("So luong: " + cartItem.getQuantity());
+                                        System.out.println(" ");
+                                        break miniLoop;
                                     }
                                 }
-                            } else {
-                                CartItem cartItem = new CartItem();
-                                cartItem.setCart(userCart);
-                                cartItem.setProductItem(productItem);
-                                cartItem.setPrice(productItem.getPrice());
-                                if (cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
-                                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                                            .statusCode(403)
-                                            .message(String.valueOf(HttpStatus.FORBIDDEN))
-                                            .description("Quantity is more than in stock!")
-                                            .timestamp(new Date(System.currentTimeMillis()))
-                                            .build());
-                                }
-                                if (cartItemEditRequest.getQuantity() <= 0) {
-                                    cartItem.setQuantity(0);
-                                    cartItem.setTotalPrice(0);
-                                } else {
-                                    cartItem.setQuantity(cartItemEditRequest.getQuantity());
-                                    cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
-                                }
-                                cartItem = cartItemRepository.save(cartItem);
-                                userCart.getCartItems().add(cartItem);
                             }
                         } else {
                             CartItem cartItem = new CartItem();
@@ -207,25 +255,41 @@ public class ICartService implements CartService {
                                 cartItem.setQuantity(cartItemEditRequest.getQuantity());
                                 cartItem.setTotalPrice(productItem.getPrice() * cartItemEditRequest.getQuantity());
                             }
-                            cartItemRepository.save(cartItem);
+                            cartItem = cartItemRepository.save(cartItem);
                             userCart.getCartItems().add(cartItem);
                         }
-
                     } else {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
-                                .statusCode(403)
-                                .message(String.valueOf(HttpStatus.FORBIDDEN))
-                                .description("Unavailable to add this product! Out of stock!")
-                                .timestamp(new Date(System.currentTimeMillis()))
-                                .build());
+                        CartItem cartItem = new CartItem();
+                        cartItem.setCart(userCart);
+                        cartItem.setProductItem(productItem);
+                        cartItem.setPrice(salePrice);
+                        if (cartItemEditRequest.getQuantity() > productItem.getQuantityInStock()) {
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                                    .statusCode(403)
+                                    .message(String.valueOf(HttpStatus.FORBIDDEN))
+                                    .description("Quantity is more than in stock!")
+                                    .timestamp(new Date(System.currentTimeMillis()))
+                                    .build());
+                        }
+                        if (cartItemEditRequest.getQuantity() <= 0) {
+                            cartItem.setQuantity(0);
+                            cartItem.setTotalPrice(0);
+                        } else {
+                            cartItem.setQuantity(cartItemEditRequest.getQuantity());
+                            cartItem.setTotalPrice(salePrice * cartItemEditRequest.getQuantity());
+                        }
+                        cartItemRepository.save(cartItem);
+                        userCart.getCartItems().add(cartItem);
                     }
-                } else
+
+                } else {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
                             .statusCode(403)
                             .message(String.valueOf(HttpStatus.FORBIDDEN))
-                            .description("Product not found. Invalid to add this product!")
+                            .description("Unavailable to add this product! Out of stock!")
                             .timestamp(new Date(System.currentTimeMillis()))
                             .build());
+                }
 
 
             }
@@ -331,7 +395,6 @@ public class ICartService implements CartService {
                 Orders orders = new Orders();
                 int totalPayment = 0;
                 int totalItem = 0;
-                UserAddress userAddress = new UserAddress();
                 List<OrderItem> orderItems = new ArrayList<>();
                 var userCart = getUserCartv2(principal);
                 boolean flagValid = true;
@@ -406,14 +469,12 @@ public class ICartService implements CartService {
                     address.setDistrict(list.getUserAddressRequestv2().getDistrict());
                     address.setWard(list.getUserAddressRequestv2().getWard());
                     address.setAddress(list.getUserAddressRequestv2().getAddress());
+                    address.setActive(false);
+                    address.set_default(false);
                     address = addressRepository.save(address);
                     orders.setAddress(address);
                     orders.setUser(user);
                     orders.setOrderItems(orderItems);
-                    userAddress.setDefault(false);
-                    userAddress.setUser(user);
-                    userAddress.setAddress(address);
-                    userAddressRepository.save(userAddress);
                     userRepository.save(user);
 
 
@@ -433,8 +494,8 @@ public class ICartService implements CartService {
                         }
                     }
                     var cart = cartRepository.findById(userCart.getId()).get();
-                    cart.setTotalItem(cart.getTotalItem() - totalItem);
-                    cart.setTotalPrice(cart.getTotalPrice() - totalPayment);
+                    cart.setTotalItem(0);
+                    cart.setTotalPrice(0);
                     cartRepository.save(cart);
                 } else {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(

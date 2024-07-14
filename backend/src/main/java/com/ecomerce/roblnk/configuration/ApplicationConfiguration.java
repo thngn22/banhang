@@ -1,6 +1,5 @@
 package com.ecomerce.roblnk.configuration;
 
-import com.cloudinary.Cloudinary;
 import com.ecomerce.roblnk.repository.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +16,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor

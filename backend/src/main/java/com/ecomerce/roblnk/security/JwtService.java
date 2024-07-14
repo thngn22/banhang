@@ -1,10 +1,12 @@
 package com.ecomerce.roblnk.security;
 
 import com.ecomerce.roblnk.model.User;
+import com.ecomerce.roblnk.repository.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +19,9 @@ import java.util.*;
 import java.util.function.Function;
 
 @Component
+@RequiredArgsConstructor
 public class JwtService {
+    private final TokenRepository tokenRepository;
 
     @Value("${application.secret-key}")
     private String secretKey;

@@ -1,34 +1,27 @@
-package com.ecomerce.roblnk.model;
+package com.ecomerce.roblnk.dto.sale;
 
+import com.ecomerce.roblnk.model.Product;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 
-@Entity
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "promotion")
-public class Promotion {
+public class SaleResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "description", length = 100000)
     private String description;
-
-    @Column(name = "discount_rate")
-    private String discountRate;
+    private Double discountRate;
 
     @Column(name = "start_date")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
@@ -45,7 +38,5 @@ public class Promotion {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
 
-    //Category
-    @ManyToMany(mappedBy = "promotions")
-    private List<Category> categories;
+    private boolean active;
 }

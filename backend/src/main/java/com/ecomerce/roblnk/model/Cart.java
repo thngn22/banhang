@@ -37,4 +37,10 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<CartItem> cartItems = new ArrayList<>();
+
+    //Voucher
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "voucher_id")
+    private Voucher voucher;
+
 }

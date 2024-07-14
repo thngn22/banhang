@@ -4,37 +4,32 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 
-@Getter
+@AllArgsConstructor
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ByteMultipartFile implements MultipartFile {
     private byte[] content;
-    private String name;
-    private String originalFilename;
+    private String fileName;
     private String contentType;
 
     public ByteMultipartFile(byte[] fileBytes) {
         this.content = fileBytes;
     }
-
     @Override
     public String getName() {
-        return name;
+        return fileName;
     }
 
     @Override
     public String getOriginalFilename() {
-        return originalFilename;
+        return fileName;
     }
 
     @Override
@@ -44,7 +39,7 @@ public class ByteMultipartFile implements MultipartFile {
 
     @Override
     public boolean isEmpty() {
-        return content.length == 0;
+        return content == null || content.length == 0;
     }
 
     @Override

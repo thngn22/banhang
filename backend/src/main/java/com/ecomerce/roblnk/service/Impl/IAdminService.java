@@ -9,47 +9,79 @@ import com.ecomerce.roblnk.service.UserService;
 import com.ecomerce.roblnk.util.CalendarUtil;
 import com.ecomerce.roblnk.util.Status;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IAdminService implements AdminService {
     private final UserService userService;
 
     @Override
-    public RevenueResponse getAllRevenue(Principal principal, String filter) {
-        boolean flag = filter != null && !filter.isEmpty();
+    public RevenueResponse getAllRevenue(Principal principal, String from, String to, String type) throws ParseException {
+        boolean flag = from != null && !from.isEmpty();
+        boolean flag2 = to != null && !to.isEmpty();
         DateTimeZone timeZone = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-        DateTime now_ = new DateTime(timeZone);
-//        DateTime hourStart1 = now_.withHourOfDay(1);
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        DateTime now = new DateTime(timeZone);
+//        DateTime hourStart1 = end_time.withHourOfDay(1);
 //        DateTime hourEnd1 = hourStart1.plusHours(1);
-//        DateTime dayStart1 = now_.withTimeAtStartOfDay();
+//        DateTime dayStart1 = end_time.withTimeAtStartOfDay();
 //        DateTime dayEnd1 = dayStart1.plusDays(1).withTimeAtStartOfDay();
-//        DateTime weekStart1 = now_.withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
-//        DateTime weekEnd1 = now_.withDayOfWeek(DateTimeConstants.SUNDAY).plusDays(1).withTimeAtStartOfDay();
-//        DateTime monthStart1 = now_.withDayOfMonth(1).withTimeAtStartOfDay();
+//        DateTime weekStart1 = end_time.withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+//        DateTime weekEnd1 = end_time.withDayOfWeek(DateTimeConstants.SUNDAY).plusDays(1).withTimeAtStartOfDay();
+//        DateTime monthStart1 = end_time.withDayOfMonth(1).withTimeAtStartOfDay();
 //        DateTime monthEnd1 = monthStart1.plusMonths(1).withDayOfMonth(1);
-//        DateTime yearStart1 = now_.withDayOfYear(1);
+//        DateTime yearStart1 = end_time.withDayOfYear(1);
 //        DateTime yearEnd1 = yearStart1.plusYears(1).withDayOfYear(1);
 
-
-        var filter_ = "";
-        if (flag) {
-            filter_ = filter;
-        } else {
-            filter_ = "day";
-        }
-
+//
+//
+//        var filter_ = "lmao";
+//        if (flag && flag2) {
+//            Date start_time = format.parse(from);
+//            Date end_time = format.parse(to);
+//            long difference_in_time = end_time.getTime() - start_time.getTime();
+//            long difference_in_seconds = (difference_in_time / 1000) % 60;
+//            long difference_in_minutes = (difference_in_time / (1000 * 60)) % 60;
+//            long difference_in_hours = (difference_in_time / (1000 * 60 * 60)) % 24;
+//            long difference_in_days = (difference_in_time / (1000 * 60 * 60 * 24)) % 365;
+//            long difference_in_weeks = (difference_in_time / (1000 * 60 * 60 * 24 * 7)) % 365;
+//            long difference_in_months = (difference_in_time / (1000L * 60 * 60 * 24 * 30)) % 365;
+//            long difference_in_years = (difference_in_time / (1000L * 60 * 60 * 24 * 365));
+//
+//            if (difference_in_years == 0) {
+//                if (difference_in_months == 0) {
+//                    if (difference_in_weeks == 0) {
+//                        if (difference_in_days == 0) {
+//                            filter_ = "day";
+//                        } else filter_ = "week";
+//
+//                    } else filter_ = "month";
+//
+//                } else filter_ = "year";
+//
+//            } else filter_ = "year";
+//
+//
+//        } else {
+//            filter_ = "day";
+//        }
+//        System.out.println(filter_);
         var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         if (user != null) {
+            DateTime end_time = new DateTime(format.parse(to), timeZone);
+            DateTime start_time = new DateTime(format.parse(from), timeZone);
             RevenueResponse revenueResponse = new RevenueResponse();
             List<OrderResponsev2> orderLists = new ArrayList<>();
             List<OrdersObject> listOrdersRevenue = new ArrayList<>();
@@ -59,35 +91,28 @@ public class IAdminService implements AdminService {
             var totalNumberOrders = 0;
             var newAccount = 0;
             var totalAccount = userService.getAllUsers().size();
-            switch (filter_) {
-                case "day" -> {
-                    DateTime hourStart = now_.withTimeAtStartOfDay();
-                    DateTime hourEnd = hourStart.plusHours(1);
-                    DateTime dayStart = now_.withTimeAtStartOfDay();
-                    DateTime dayEnd = dayStart.plusDays(1).withTimeAtStartOfDay();
+            switch (type) {
+                case "hour" -> {
+                    DateTime hourStart = start_time.hourOfDay().getDateTime();
+                    DateTime hourEnd = hourStart.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).minusSeconds(1);
+                    DateTime dayStart = hourStart;
+                    DateTime dayEnd = end_time.hourOfDay().getDateTime();
                     orderLists = userService.getAllUserHistoryOrdersForAdminFilter(principal, dayStart.toDate(), dayEnd.toDate());
-                    System.out.println(orderLists.size());
                     newAccount = userService.getAllUsersFilter(hourStart.toDate(), hourEnd.toDate()).size();
                     List<OrderResponsev2> temp = new ArrayList<>(orderLists);
-                    for (int i = 1; i <= 24; i++) {
+                    while (hourStart.isBefore(dayEnd)) {
+                        if (hourStart.isAfter(dayEnd)) {
+                            break;
+                        }
                         OrdersObject ordersObject = new OrdersObject();
                         boolean check = false;
                         Integer total = 0;
-                        System.out.println("i: " + i);
                         if (!temp.isEmpty()) {
                             var time = temp.get(0).getUpdateAt();
                             DateTime dateTime = new DateTime(time);
-                            System.out.println("dayStart" + hourStart);
-                            System.out.println("dayEnd" + hourEnd);
-                            System.out.println("dateTime" + dateTime);
                             while (dateTime.isAfter(hourStart) && dateTime.isBefore(hourEnd) && hourStart.isBefore(hourEnd)) {
-                                System.out.println("DDax vao");
-                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
+                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
                                     check = true;
-                                    System.out.println("DDax vao trhanh cong");
-                                    System.out.println("status: " + temp.get(0).getStatusOrder());
                                     total += temp.get(0).getTotalPayment();
                                     temp.remove(0);
                                     if (!temp.isEmpty()) {
@@ -101,72 +126,71 @@ public class IAdminService implements AdminService {
                                 }
 
                             }
-                            System.out.println("check" + check);
-                            System.out.println("dayStart.isBefore(dayEnd)" + hourStart.isBefore(hourEnd));
+
                             if (check && hourStart.isBefore(hourEnd)) {
-                                ordersObject.setTime(CalendarUtil.convertToHour(hourStart.toDate()));
+                                if (hourEnd.getMinuteOfHour()-hourStart.getMinuteOfHour() != hourEnd.getMinuteOfHour()-hourEnd.withMinuteOfHour(0).getMinuteOfHour()){
+                                    System.out.println("1hourStart");
+                                    ordersObject.setTime(CalendarUtil.convertToHour(hourStart, now));
+                                }
+                                else{
+                                    System.out.println("1hourEnd");
+                                    ordersObject.setTime(CalendarUtil.convertToHour(hourEnd, now));
+
+                                }
                                 ordersObject.setTotalRevenue(total);
                                 listOrdersRevenue.add(ordersObject);
-                                System.out.println("total con: " + total);
-                                System.out.println("listOrdersRevenue con: " + listOrdersRevenue.size());
                             }
+
                             ;
                         }
-                        System.out.println("check" + check);
-                        System.out.println("dayStart.isBefore(dayEnd)" + hourStart.isBefore(hourEnd));
-                        if (!check && hourStart.isBefore(hourEnd)) {
-                            ordersObject.setTime(CalendarUtil.convertToHour(hourStart.toDate()));
+
+                        if (!check && hourStart.isBefore(hourEnd.plusSeconds(1))) {
+                            if (hourEnd.getMinuteOfHour()-hourStart.getMinuteOfHour() != hourEnd.getMinuteOfHour()-hourEnd.withMinuteOfHour(0).getMinuteOfHour()){
+                                ordersObject.setTime(CalendarUtil.convertToHour(hourStart, now));
+                            }
+                            else{
+                                ordersObject.setTime(CalendarUtil.convertToHour(hourEnd, now));
+
+                            }
                             ordersObject.setTotalRevenue(total);
                             listOrdersRevenue.add(ordersObject);
-                            System.out.println("total" + total);
-                            System.out.println("listOrdersRevenue" + listOrdersRevenue.size());
-
                         }
-                        if ((hourEnd.plusHours(1).getWeekOfWeekyear() > hourEnd.getWeekOfWeekyear()) ||
-                                (hourEnd.plusHours(1).getMonthOfYear() > hourEnd.getMonthOfYear()) ||
-                                (hourEnd.plusHours(1).getYear() > hourEnd.getYear())) {
-                            var coefficient = 60;
-                            while ((hourEnd.plusMinutes(coefficient).getMonthOfYear() > hourEnd.getMonthOfYear()) ||
-                                    (hourEnd.plusMinutes(coefficient).getYear() > hourEnd.getYear())) {
-                                coefficient--;
-                            }
-                            hourEnd = hourEnd.plusMinutes(coefficient);
-                            hourStart = hourStart.plusHours(1);
-                            System.out.println("coefficient" + coefficient);
+                        log.info("hourStart: {}, hourEnd: {}", hourStart, hourEnd);
+
+                        if (hourEnd.plusSeconds(1).plusHours(1).isAfter(dayEnd)) {
+                            hourStart = hourEnd.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0);
+                            hourEnd = dayEnd;
                         } else {
-                            hourStart = hourStart.plusHours(1);
-                            hourEnd = hourEnd.plusHours(1);
+                            hourStart = hourStart.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0);
+                            hourEnd = hourStart.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).minusSeconds(1);
                         }
                     }
 
-
                 }
-                case "week" -> {
-                    DateTime weekStart = now_.withDayOfWeek(1).withTimeAtStartOfDay();
-                    DateTime weekEnd = now_.withDayOfWeek(DateTimeConstants.SUNDAY).plusDays(1).withTimeAtStartOfDay();
-                    DateTime dayStart = weekStart.withTimeAtStartOfDay();
-                    DateTime dayEnd = dayStart.plusDays(1).withTimeAtStartOfDay();
+                case "day" -> {
+                    DateTime dayStart = start_time.dayOfMonth().getDateTime();
+                    DateTime dayEnd = start_time.plusDays(1).withTimeAtStartOfDay().minusSeconds(1);
+                    DateTime weekStart = dayStart;
+                    DateTime weekEnd = end_time.dayOfMonth().getDateTime();
+
                     orderLists = userService.getAllUserHistoryOrdersForAdminFilter(principal, weekStart.toDate(), weekEnd.toDate());
-                    System.out.println(orderLists.size());
                     newAccount = userService.getAllUsersFilter(weekStart.toDate(), weekEnd.toDate()).size();
                     List<OrderResponsev2> temp = new ArrayList<>(orderLists);
-                    for (int i = 1; i <= 7; i++) {
+                    while (dayStart.isBefore(weekEnd)) {
+                        log.info("dayStart: {}, dayEnd: {}", dayStart, dayEnd);
+
+                        if (dayStart.isAfter(weekEnd) || dayStart.isAfterNow()) {
+                            break;
+                        }
                         OrdersObject ordersObject = new OrdersObject();
                         boolean check = false;
                         Integer total = 0;
-                        System.out.println("i: " + i);
                         if (!temp.isEmpty()) {
                             var time = temp.get(0).getUpdateAt();
                             DateTime dateTime = new DateTime(time);
-                            System.out.println("dayStart" + dayStart);
-                            System.out.println("dayEnd" + dayEnd);
-                            System.out.println("dateTime" + dateTime);
                             while (dateTime.isAfter(dayStart) && dateTime.isBefore(dayEnd) && dayStart.isBefore(dayEnd)) {
                                 check = true;
-                                System.out.println("DDax vao");
-                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
+                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
                                     total += temp.get(0).getTotalPayment();
                                     temp.remove(0);
                                     if (!temp.isEmpty()) {
@@ -180,54 +204,50 @@ public class IAdminService implements AdminService {
                                 }
 
                             }
-                            System.out.println("check" + check);
-                            System.out.println("dayStart.isBefore(dayEnd)" + dayStart.isBefore(dayEnd));
                             if (check && dayStart.isBefore(dayEnd)) {
-                                ordersObject.setTime(CalendarUtil.convertToDay(dayStart.toDate()));
+                                if (dayEnd.getHourOfDay()-dayStart.getHourOfDay() != dayEnd.getHourOfDay()-dayEnd.withHourOfDay(1).getHourOfDay()){
+                                    ordersObject.setTime(CalendarUtil.convertToDay(dayStart, now));
+                                }
+                                else
+                                    ordersObject.setTime(CalendarUtil.convertToDay(dayEnd, now));
                                 ordersObject.setTotalRevenue(total);
                                 listOrdersRevenue.add(ordersObject);
-                                System.out.println("total con: " + total);
-                                System.out.println("listOrdersRevenue con: " + listOrdersRevenue.size());
                             }
-                            ;
-                        }
-                        System.out.println("check" + check);
-                        System.out.println("dayStart.isBefore(dayEnd)" + dayStart.isBefore(dayEnd));
-                        if (!check && dayStart.isBefore(dayEnd)) {
-                            ordersObject.setTime(CalendarUtil.convertToDay(dayStart.toDate()));
-                            ordersObject.setTotalRevenue(total);
-                            listOrdersRevenue.add(ordersObject);
-                            System.out.println("total" + total);
-                            System.out.println("listOrdersRevenue" + listOrdersRevenue.size());
 
                         }
-                        if ((dayEnd.plusDays(1).getWeekOfWeekyear() > dayEnd.getWeekOfWeekyear()) ||
-                                (dayEnd.plusDays(1).getMonthOfYear() > dayEnd.getMonthOfYear()) ||
-                                (dayEnd.plusDays(1).getYear() > dayEnd.getYear())) {
-                            var coefficient = 24;
-                            while ((dayEnd.plusHours(coefficient).getMonthOfYear() > dayEnd.getMonthOfYear()) ||
-                                    (dayEnd.plusHours(coefficient).getYear() > dayEnd.getYear())) {
-                                coefficient--;
+                        if (!check && dayStart.isBefore(dayEnd)) {
+                            if (dayEnd.getHourOfDay()-dayStart.getHourOfDay() != dayEnd.getHourOfDay()-dayEnd.withHourOfDay(0).getHourOfDay()){
+                                ordersObject.setTime(CalendarUtil.convertToDay(dayStart, now));
                             }
-                            dayEnd = dayEnd.plusHours(coefficient);
-                            dayStart = dayStart.plusDays(1);
-                            System.out.println("coefficient" + coefficient);
+                            else
+                                ordersObject.setTime(CalendarUtil.convertToDay(dayEnd, now));
+                            ordersObject.setTotalRevenue(total);
+                            listOrdersRevenue.add(ordersObject);
+                        }
+
+                        if (dayEnd.plusSeconds(1).plusDays(1).isAfter(weekEnd)) {
+
+                            dayStart = dayEnd.plusDays(1).withTimeAtStartOfDay();
+                            dayEnd = weekEnd;
                         } else {
                             dayStart = dayStart.plusDays(1).withTimeAtStartOfDay();
-                            dayEnd = dayEnd.plusDays(1).withTimeAtStartOfDay();
+                            dayEnd = dayStart.plusDays(1).withTimeAtStartOfDay().minusSeconds(1);
                         }
                     }
 
                 }
                 case "month" -> {
-                    DateTime weekStart = now_.withDayOfMonth(1).withTimeAtStartOfDay();
-                    DateTime weekEnd = weekStart.plusWeeks(1).withTimeAtStartOfDay();
-                    DateTime monthStart = now_.withDayOfMonth(1).withTimeAtStartOfDay();
-                    DateTime monthEnd = weekStart.plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay();
+                    DateTime weekStart = start_time.monthOfYear().getDateTime();
+                    DateTime weekEnd = weekStart.plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay().minusSeconds(1);
+                    DateTime monthStart = weekStart;
+                    DateTime monthEnd = end_time.monthOfYear().getDateTime();
                     orderLists = userService.getAllUserHistoryOrdersForAdminFilter(principal, monthStart.toDate(), monthEnd.toDate());
                     newAccount = userService.getAllUsersFilter(monthStart.toDate(), monthEnd.toDate()).size();
                     List<OrderResponsev2> temp = new ArrayList<>(orderLists);
-                    for (int i = 1; i <= 5; i++) {
+                    while (weekStart.isBefore(monthEnd.plusSeconds(1))) {
+                        if (weekStart.isAfter(monthEnd) || weekStart.isAfterNow()) {
+                            break;
+                        }
                         OrdersObject ordersObject = new OrdersObject();
                         boolean check = false;
                         Integer total = 0;
@@ -237,10 +257,7 @@ public class IAdminService implements AdminService {
                             DateTime dateTime = new DateTime(time);
                             while (dateTime.isAfter(weekStart) && dateTime.isBefore(weekEnd) && weekStart.isBefore(weekEnd)) {
                                 check = true;
-                                System.out.println("DDax vao");
-                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
+                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
                                     total += temp.get(0).getTotalPayment();
                                     temp.remove(0);
                                     if (!temp.isEmpty()) {
@@ -255,44 +272,56 @@ public class IAdminService implements AdminService {
 
                             }
                             if (weekStart.isBefore(weekEnd) && check) {
-                                ordersObject.setTime(CalendarUtil.convertToDay(weekStart.toDate()));
+                                if (weekEnd.getDayOfMonth()-weekStart.getDayOfMonth() != weekEnd.getDayOfMonth()-weekEnd.withDayOfMonth(1).getDayOfMonth()){
+                                    ordersObject.setTime(CalendarUtil.convertToMonth(weekStart, now));
+                                }
+                                else{
+                                    ordersObject.setTime(CalendarUtil.convertToMonth(weekEnd, now));
+                                }
                                 ordersObject.setTotalRevenue(total);
                                 listOrdersRevenue.add(ordersObject);
-
                             }
                         }
-                        if (!check && weekStart.isBefore(weekEnd)) {
-                            ordersObject.setTime(CalendarUtil.convertToDay(weekStart.toDate()));
+                        if (!check && weekStart.isBefore(weekEnd.plusSeconds(2))) {
+                            if (weekEnd.getDayOfMonth()-weekStart.getDayOfMonth() != weekEnd.getDayOfMonth()-weekEnd.withDayOfMonth(1).getDayOfMonth()){
+                                ordersObject.setTime(CalendarUtil.convertToMonth(weekStart, now));
+                            }
+                            else{
+                                ordersObject.setTime(CalendarUtil.convertToMonth(weekEnd, now));
+                            }
                             ordersObject.setTotalRevenue(total);
                             listOrdersRevenue.add(ordersObject);
 
                         }
-                        if ((weekEnd.plusWeeks(1).getMonthOfYear() > weekEnd.getMonthOfYear()) ||
-                                (weekEnd.plusWeeks(1).getYear() > weekEnd.getYear())) {
-                            var coefficient = 6;
-                            while ((weekEnd.plusDays(coefficient).getMonthOfYear() > weekEnd.getMonthOfYear()) ||
-                                    (weekEnd.plusDays(coefficient).getYear() > weekEnd.getYear())) {
-                                coefficient--;
-                            }
-                            weekEnd = weekEnd.plusDays(coefficient);
-                            weekStart = weekStart.plusWeeks(1);
-                            System.out.println(coefficient);
+                        if (weekEnd.plusSeconds(1).plusMonths(1).isAfter(monthEnd)) {
+                            weekStart = weekStart.plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay();
+                            weekEnd = monthEnd;
                         } else {
-                            weekStart = weekStart.plusWeeks(1);
-                            weekEnd = weekEnd.plusWeeks(1);
+                            weekStart = weekStart.plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay();
+                            weekEnd = weekStart.plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay().minusSeconds(1);
                         }
 
                     }
+
                 }
-                case "year", "all" -> {
-                    DateTime yearStart = now_.withDayOfYear(1).withTimeAtStartOfDay();
-                    DateTime yearEnd = yearStart.plusYears(1).withDayOfYear(1).withTimeAtStartOfDay();
-                    DateTime monthStart = yearStart.withDayOfMonth(1).withTimeAtStartOfDay();
-                    DateTime monthEnd = monthStart.plusMonths(1).withDayOfMonth(1);
+                case "year" -> {
+                    DateTime monthStart = start_time.year().getDateTime();
+                    DateTime monthEnd = monthStart.plusYears(1).withDayOfYear(1).withTimeAtStartOfDay().minusSeconds(1);
+                    DateTime yearStart = monthStart;
+                    DateTime yearEnd = end_time.year().getDateTime();
+
                     orderLists = userService.getAllUserHistoryOrdersForAdminFilter(principal, yearStart.toDate(), yearEnd.toDate());
                     newAccount = userService.getAllUsersFilter(monthStart.toDate(), monthEnd.toDate()).size();
                     List<OrderResponsev2> temp = new ArrayList<>(orderLists);
-                    for (int i = 1; i <= 12; i++) {
+                    while (monthStart.isBefore(yearEnd)){
+                        log.info("monthStart: {}, monthEnd: {}", monthStart, monthEnd);
+
+                        if (monthStart.isAfter(yearEnd) || monthStart.isAfterNow()) {
+                            break;
+                        }
+                        if (yearEnd.isBefore(monthEnd)){
+                            monthEnd = yearEnd;
+                        }
                         OrdersObject ordersObject = new OrdersObject();
                         boolean check = false;
                         Integer total = 0;
@@ -302,13 +331,7 @@ public class IAdminService implements AdminService {
                             DateTime dateTime = new DateTime(time);
                             while (dateTime.isAfter(monthStart) && dateTime.isBefore(monthEnd) && monthStart.isBefore(monthEnd)) {
                                 check = true;
-                                System.out.println("DDax vao");
-                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) &&
-                                        !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
-                                    System.out.println("monthStart" + monthStart);
-                                    System.out.println("monthEnd" + monthEnd);
-                                    System.out.println("dateTime" + dateTime);
+                                if (!temp.isEmpty() && !temp.get(0).getStatusOrder().equals(Status.BI_TU_CHOI.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) && !temp.get(0).getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
                                     total += temp.get(0).getTotalPayment();
                                     temp.remove(0);
                                     if (!temp.isEmpty()) {
@@ -322,51 +345,41 @@ public class IAdminService implements AdminService {
                                 }
 
                             }
-                            System.out.println("check" + check);
-                            System.out.println("dayStart.isBefore(dayEnd)" + monthStart.isBefore(monthEnd));
-
                             if (monthStart.isBefore(monthEnd) && check) {
-                                ordersObject.setTime(CalendarUtil.convertToMonth(monthStart.toDate()));
+                                if (monthEnd.getDayOfYear()-monthStart.getDayOfYear() != monthEnd.getDayOfYear()-monthEnd.withDayOfYear(1).getDayOfYear()){
+                                    ordersObject.setTime(CalendarUtil.convertToYear(monthStart, now));
+                                }
+                                else
+                                    ordersObject.setTime(CalendarUtil.convertToYear(monthEnd, now));
                                 ordersObject.setTotalRevenue(total);
                                 listOrdersRevenue.add(ordersObject);
-                                System.out.println("total con: " + total);
-                                System.out.println("listOrdersRevenue con: " + listOrdersRevenue.size());
-
                             }
                         }
-                        System.out.println("check" + check);
-                        System.out.println("dayStart.isBefore(dayEnd)" + monthStart.isBefore(monthEnd));
-
-                        if (!check && monthStart.isBefore(monthEnd)) {
-                            ordersObject.setTime(CalendarUtil.convertToMonth(monthStart.toDate()));
+                        if (!check && monthStart.isBefore(monthEnd.plusSeconds(2))) {
+                            if (monthEnd.getDayOfYear()-monthStart.getDayOfYear() != monthEnd.getDayOfYear()-monthEnd.withDayOfYear(1).getDayOfYear()){
+                                ordersObject.setTime(CalendarUtil.convertToYear(monthStart, now));
+                            }
+                            else
+                                ordersObject.setTime(CalendarUtil.convertToYear(monthEnd, now));
                             ordersObject.setTotalRevenue(total);
                             listOrdersRevenue.add(ordersObject);
-                            System.out.println("total con: " + total);
-                            System.out.println("listOrdersRevenue con: " + listOrdersRevenue.size());
-
                         }
-                        if (monthEnd.plusMonths(1).getYear() > monthEnd.getYear()) {
-                            var coefficient = 31;
-                            while ((monthEnd.plusDays(coefficient).getMonthOfYear() > monthEnd.getMonthOfYear()) ||
-                                    (monthEnd.plusDays(coefficient).getYear() > monthEnd.getYear())) {
-                                coefficient--;
-                            }
-                            monthEnd = monthEnd.plusDays(coefficient);
-                            monthStart = monthStart.plusMonths(1);
-                            System.out.println("coefficient" + coefficient);
+
+                        if (monthEnd.plusSeconds(1).plusYears(1).isAfter(yearEnd)) {
+
+                            monthStart = monthEnd.plusYears(1).withDayOfYear(1).withTimeAtStartOfDay();
+                            monthEnd = yearEnd;
                         } else {
-                            monthStart = monthStart.plusMonths(1);
-                            monthEnd = monthEnd.plusMonths(1);
+                            monthStart = monthStart.plusYears(1).withDayOfYear(1).withTimeAtStartOfDay();
+                            monthEnd = monthStart.plusYears(1).withDayOfYear(1).withTimeAtStartOfDay().minusSeconds(1);
                         }
 
                     }
+
                 }
             }
-            System.out.println(orderLists.size());
             for (OrderResponsev2 orders : orderLists) {
-                if (!orders.getStatusOrder().equals(Status.BI_TU_CHOI.toString()) &&
-                        !orders.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) &&
-                        !orders.getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
+                if (!orders.getStatusOrder().equals(Status.BI_TU_CHOI.toString()) && !orders.getStatusOrder().equals(Status.DA_BI_NGUOI_DUNG_HUY.toString()) && !orders.getStatusOrder().equals(Status.DA_BI_HE_THONG_HUY.toString())) {
                     totalNumberOrdersSuccess++;
                     totalRevenue += orders.getTotalPayment();
                 } else {

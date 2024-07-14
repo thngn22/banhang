@@ -1,16 +1,15 @@
 package com.ecomerce.roblnk.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ecomerce.roblnk.util.ByteMultipartFile;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-
-import java.time.LocalDate;
-import java.util.Date;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class EditUserProfileRequest {
+
     private String firstName;
     private String lastName;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private Date dob;
-    private String avatar;
+    private String phoneNumber;
+    private MultipartFile avatar;
 }
