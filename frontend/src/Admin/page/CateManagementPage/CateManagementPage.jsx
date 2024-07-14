@@ -59,6 +59,10 @@ const CateManagementPage = () => {
   });
   const { data: dataDetail } = mutationDetail;
 
+  const mutationDelete = useMutationHook((id) => {
+    return CategoryServices.deleteCate(id, auth?.accessToken, axiosJWT);
+  });
+
   const handleRowClick = (category) => {
     setSelectedCategory(category);
     setIsModalOpen(true);
@@ -119,16 +123,16 @@ const CateManagementPage = () => {
   };
 
   const inActive = async (id) => {
-    // mutationDeActive.mutate(id, {
-    //   onSuccess: () => {
-    //     message.success("Chỉnh sửa trạng thái thành công");
-    //     refetch({ queryKey: ["vouchers"] });
-    //   },
-    //   onError: (error) => {
-    //     message.error(`Đã xảy ra lỗi: ${error.message}`);
-    //     refetch({ queryKey: ["vouchers"] });
-    //   },
-    // });
+    mutationDelete.mutate(id, {
+      onSuccess: () => {
+        message.success("Chỉnh sửa trạng thái thành công");
+        refetch({ queryKey: ["listCategories"] });
+      },
+      onError: (error) => {
+        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        refetch({ queryKey: ["listCategories"] });
+      },
+    });
   };
 
   const confirmInActive = (id) => {

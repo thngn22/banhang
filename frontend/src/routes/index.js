@@ -32,6 +32,7 @@ import VouchersManagementPage from "../Admin/page/VouchersManagementPage/Voucher
 import CreateVoucherPage from "../Admin/page/VouchersManagementPage/CreateVoucherPage";
 import UpdateSalePage from "../Admin/page/SalesMangementPage/UpdateSalePage";
 import UpdateVoucherPage from "../Admin/page/VouchersManagementPage/UpdateVoucherPage";
+import UpdateCatePage from "../Admin/page/CateManagementPage/UpdateCatePage";
 
 export default function AppRouter() {
   return (
@@ -162,7 +163,7 @@ export default function AppRouter() {
         path="/admin/updateCategory/:idCate"
         element={
           <DefaultPageAdmin>
-            <CreateCatePage />
+            <UpdateCatePage />
           </DefaultPageAdmin>
         }
       />

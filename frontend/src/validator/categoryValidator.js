@@ -15,10 +15,7 @@ const updateSchema = z.object({
     .min(1, "Quận/Huyện không được để trống")
     .regex(numericRegex, "Chỉ được là chữ số từ 0-9"),
   name: z.string().max(20, "Quá dài"),
-  parentCategoryId: z
-    .string()
-    .min(1, "Quận/Huyện không được để trống")
-    .regex(numericRegex, "Chỉ được là chữ số từ 0-9"),
+  parentCategoryId: z.string(),
 });
 
 const categorySchema = {

@@ -42,3 +42,15 @@ export const updateCate = async (data, accessToken, axiosJWT) => {
   );
   return res.data;
 };
+
+export const deleteCate = async (id, accessToken, axiosJWT) => {
+  const res = await axiosJWT.delete(
+    `${process.env.REACT_APP_API_URL}category/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
