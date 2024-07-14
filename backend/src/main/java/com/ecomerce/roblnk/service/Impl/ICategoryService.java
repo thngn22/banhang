@@ -232,27 +232,52 @@ public class ICategoryService implements CategoryService {
 
     @Override
     public String deleteCategory(Long id) {
-        var category = categoryRepository.findById(id);
-        if (category.isPresent()) {
-            var products = productRepository.findAllByCategoryId(id);
-            boolean flag = true;
-            if (!products.isEmpty()) {
-                for (Product product : products) {
-                    if (product.isActive()) {
-                        flag = false;
-                        break;
-                    }
+        List<Category> categories = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
+        List<Long> cate = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
+        var cates = categoryRepository.findAll();
+        if (id == null) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else
+            categories.add(categoryRepository.findById(id).orElseThrow());
+        while (!categories.isEmpty()) {
+            Long cateid = categories.get(0).getId();
+            boolean flag = false;
+            for (Category category : cates) {
+                if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(cateid)) {
+                    flag = true;
+                    categories.add(category);
                 }
             }
-
-            if (flag){
-                category.get().setActive(false);
-                categoryRepository.save(category.get());
-                return "Successfully de-active category";
-            }
-            else {
-                return "Category exist product that is active, please try to de-active product first!";
+            if (flag) {
+                categories.remove(0);
+            } else {
+                categoryList.add(categories.get(0));
+                categories.remove(0);
             }
         }
-        else return "Not found any category!";    }
+        boolean flag = true;
+        for (Category category : categoryList) {
+                var products = productRepository.findAllByCategoryId(category.getId());
+                if (!products.isEmpty()) {
+                    for (Product product : products) {
+                        System.out.println("product state: " + product.isActive());
+                        if (product.isActive()) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+
+        }
+        if (flag) {
+            var cat = categoryRepository.findById(id).orElseThrow();
+            cat.setActive(false);
+            categoryRepository.save(cat);
+            return "Successfully de-active category";
+        } else {
+            return "Category exist product that is active, please try to de-active product first!";
+        }
+    }
 }
