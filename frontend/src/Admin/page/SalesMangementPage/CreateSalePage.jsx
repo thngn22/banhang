@@ -22,7 +22,7 @@ const CreateSalePage = () => {
     formState: { errors: errorsCreate },
     setValue: setValueCreate,
   } = useForm({
-    resolver: zodResolver(saleSchema),
+    resolver: zodResolver(saleSchema.createSchema),
   });
 
   const dispatch = useDispatch();

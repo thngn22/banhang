@@ -8,6 +8,9 @@ import createAxiosInstance from "../../../services/createAxiosInstance";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as CartService from "../../../services/CartService";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { updateCart } from "../../../redux/slides/userSlide";
 
 const CheckoutPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -15,6 +18,24 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const axiosJWT = createAxiosInstance(auth, dispatch);
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
+
+  const { data: cart, refetch: refetchCart } = useQuery({
+    queryKey: ["cart"],
+    queryFn: () => {
+      return CartService.getCartItems(auth?.accessToken, axiosJWT);
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
+
+  useEffect(
+    (cart) => {
+      if (cart) {
+        dispatch(updateCart(cart));
+      }
+    },
+    [cart]
+  );
 
   useEffect(() => {
     if (user) {
@@ -37,7 +58,11 @@ const CheckoutPage = () => {
   const { data, isSuccess } = mutationCheckout;
   useEffect(() => {
     if (isSuccess && data) {
-      window.location.href = data;
+      if (getValues().paymentMethodId === 1) {
+        window.location.href = data;
+      } else {
+        navigate("/history-order");
+      }
     }
   }, [data, isSuccess]);
 
@@ -60,6 +85,9 @@ const CheckoutPage = () => {
     console.log(formData);
 
     mutationCheckout.mutate(formData, {
+      onSuccess: () => {
+        refetchCart();
+      },
       onError: (error) => {
         console.log(`Đã xảy ra lỗi ${error.message}`);
         message.error("Không thành công");

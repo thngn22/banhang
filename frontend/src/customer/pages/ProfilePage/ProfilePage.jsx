@@ -39,7 +39,7 @@ const ProfilePage = () => {
     if (profileUser) {
       setUserIn4(profileUser);
       dispatch(updateUser(profileUser));
-      dispatch(updateAuth(profileUser))
+      dispatch(updateAuth(profileUser));
     }
   }, [profileUser]);
 
@@ -77,10 +77,12 @@ const ProfilePage = () => {
       onSuccess: () => {
         message.success("Cập nhật thành công");
         refetchProfileUser();
+        window.location.reload();
       },
       onError: (err) => {
         console.error(`Lỗi ${err.message}`);
         message.error("Cập nhật không thành công");
+        window.location.reload();
       },
     });
   };
