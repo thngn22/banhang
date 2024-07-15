@@ -13,7 +13,6 @@ import java.security.Principal;
 import java.util.List;
 
 public interface CartService {
-
     ResponseEntity<?> getUserCart(Principal principal);
     UserCart getUserCartv2(Principal principal);
 
