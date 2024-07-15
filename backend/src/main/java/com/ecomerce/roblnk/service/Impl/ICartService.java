@@ -66,13 +66,31 @@ public class ICartService implements CartService {
             if (cart != null) {
                 UserCart userCart = cartMapper.toUserCart(cart);
                 List<CartItemDTO> list = new ArrayList<>();
+                boolean flag = false;
+                boolean flagVoucher = false;
+                var voucher = cart.getVoucher();
+                if (voucher!=null) {
+                    if (!voucher.isActive()) {
+                        int finalPrice = 0;
+                        for (CartItem cartItem : cart.getCartItems()) {
+                            finalPrice += cartItem.getTotalPrice();
+                        }
+                        finalPrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
+
+                        cart.setTotalPrice(finalPrice);
+                        cart.setVoucher(null);
+                        cartRepository.save(cart);
+                        flagVoucher = true;
+                    }
+
+                }
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
                     var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
                     if (!cartItemDTO.getProductItem().isActive()){
                         cartItem.setQuantity(0);
                         cartItem.setTotalPrice(0);
                         cartItemRepository.save(cartItem);
-                        continue;
+                        flag = true;
                     }
 
                     if (cartItemDTO.getQuantity() > 0) {
@@ -112,6 +130,23 @@ public class ICartService implements CartService {
                         cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
                         cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                     }
+                }
+
+                if (flag || flagVoucher){
+                    if (flag) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                                .statusCode(404)
+                                .message(String.valueOf(HttpStatus.NOT_FOUND))
+                                .description("Product Item is not available, please reload cart again")
+                                .timestamp(new Date(System.currentTimeMillis()))
+                                .build());
+                    }
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                            .statusCode(404)
+                            .message(String.valueOf(HttpStatus.NOT_FOUND))
+                            .description("Voucher is not available, please reload cart again")
+                            .timestamp(new Date(System.currentTimeMillis()))
+                            .build());
                 }
                 if (cart.getVoucher() == null || !cart.getVoucher().isActive()){
                     userCart.setDiscountRate(0.0);
@@ -329,6 +364,50 @@ public class ICartService implements CartService {
                                 .build()
                 );
             }
+            boolean flagProduct = false;
+            boolean flagVoucher = false;
+            var cartUser = user.getCart();
+            var voucher = cartUser.getVoucher();
+            if (voucher!=null) {
+                if (!voucher.isActive()) {
+                    int finalPrice = 0;
+                    for (CartItem cartItem : cartUser.getCartItems()) {
+                        finalPrice += cartItem.getTotalPrice();
+                    }
+                    finalPrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
+
+                    cartUser.setTotalPrice(finalPrice);
+                    cartUser.setVoucher(null);
+                    cartRepository.save(cartUser);
+                    flagVoucher = true;
+                }
+
+            }
+//            for (CartItem cartItem : cartUser.getCartItems()) {
+//                if (!cartItem.getProductItem().isActive()) {
+//                    cartItem.setQuantity(0);
+//                    cartItem.setTotalPrice(0);
+//                    cartItemRepository.save(cartItem);
+//                    flagProduct = true;
+//                }
+//            }
+
+            if (flagProduct || flagVoucher){
+                if (flagProduct) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                            .statusCode(404)
+                            .message(String.valueOf(HttpStatus.NOT_FOUND))
+                            .description("Product Item is not available, please reload cart again")
+                            .timestamp(new Date(System.currentTimeMillis()))
+                            .build());
+                }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
+                        .statusCode(404)
+                        .message(String.valueOf(HttpStatus.NOT_FOUND))
+                        .description("Voucher is not available, please reload cart again")
+                        .timestamp(new Date(System.currentTimeMillis()))
+                        .build());
+            }
             //COD
             var payments = paymentMethodService.getAllPaymentMethod(principal);
             boolean flag = false;
@@ -496,6 +575,8 @@ public class ICartService implements CartService {
                     var cart = cartRepository.findById(userCart.getId()).get();
                     cart.setTotalItem(0);
                     cart.setTotalPrice(0);
+                    cart.setVoucher(null);
+
                     cartRepository.save(cart);
                 } else {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(

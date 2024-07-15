@@ -87,10 +87,11 @@ public class AdminController {
                                                  @RequestParam(value = "max_price", required = false) String maxPrice,
                                                  @RequestParam(value = "search", required = false) String search,
                                                  @RequestParam(value = "sort", required = false, defaultValue = "rating_desc") String sort,
+                                                 @RequestParam(value = "state", required = false) Boolean state,
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
                                                  @RequestParam(value = "flag", required = false, defaultValue = "true") boolean isAdmin
     ){
-        var product = productService.getAllProductFilter(categoryId, productId, minPrice, maxPrice, size, color, search, sort, pageNumber, isAdmin);
+        var product = productService.getAllProductFilter(categoryId, productId, minPrice, maxPrice, size, color, search, sort, state, pageNumber, isAdmin);
         if (product != null){
             return ResponseEntity.status(HttpStatus.OK).body(product);
         }

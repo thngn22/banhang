@@ -8,5 +8,5 @@ public class PageUtil {
     public static final String ADMIN_USER_NAME = "admin1";
     public static final int NUM_NEIGHBOURHOODS = 10;
     public static final int NUM_RECOMMENDATIONS = 10;
-    public static final int MIN_VALUE_RECOMMENDATION = 2;
+    public static final int MIN_VALUE_RECOMMENDATION = 4;
 }

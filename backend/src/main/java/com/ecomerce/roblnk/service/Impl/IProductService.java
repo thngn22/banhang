@@ -358,7 +358,7 @@ public class IProductService implements ProductService {
     }
 
     @Override
-    public PageResponse getAllProductFilter(Long categoryId, Long productId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber, boolean isAdmin) {
+    public PageResponse getAllProductFilter(Long categoryId, Long productId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Boolean state, Integer pageNumber, boolean isAdmin) {
 
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
@@ -400,7 +400,7 @@ public class IProductService implements ProductService {
         }
 
         for (Category category : categoryList) {
-            Specification<Product> specification = specification(search, category.getId(), productId);
+            Specification<Product> specification = specification(search, category.getId(), productId, state);
             products.addAll(productRepository.findAll(specification, sort(sort)));
         }
 
@@ -538,10 +538,11 @@ public class IProductService implements ProductService {
     }
 
 
-    private Specification<Product> specification(String name, Long id, Long productId) {
+    private Specification<Product> specification(String name, Long id, Long productId, Boolean state) {
         Specification<Product> nameSpec = hasName(name);
         Specification<Product> categorySpec = hasCategoryId(id);
         Specification<Product> productSpec = hasProductId(productId);
+        Specification<Product> stateSpec = hasState(state);
         Specification<Product> specification = Specification.where(null);
         specification = specification.and(categorySpec);
         if (name != null && !name.isEmpty()) {
@@ -550,7 +551,15 @@ public class IProductService implements ProductService {
         if (productId != null) {
             specification = specification.and(productSpec);
         }
+        if (state != null) {
+            specification = specification.and(stateSpec);
+        }
         return specification;
+    }
+
+    private Specification<Product> hasState(Boolean state) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("active"), state);
     }
 
     private Specification<Product> hasProductId(Long productId) {

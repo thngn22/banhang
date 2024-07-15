@@ -273,7 +273,8 @@ public class IVoucherService implements VoucherService {
                 for (CartItem cartItem : cart.getCartItems()) {
                     finalPrice += cartItem.getTotalPrice();
                 }
-                finalPrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                finalPrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
+
                 cart.setTotalPrice(finalPrice);
                 var voucher = cart.getVoucher();
                 if (voucher != null) {
