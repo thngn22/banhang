@@ -37,4 +37,5 @@ public interface ProductService {
 //    String getURLPictureAndUploadToCloudinary(String base64Content);
     String getURLPictureThenUploadToCloudinary(MultipartFile file);
 
+    PageResponse getMiniSearchAllProductFilter(Long categoryId, Long productId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber);
 }

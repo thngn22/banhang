@@ -1328,4 +1328,197 @@ public class IProductService implements ProductService {
         }
     }
 
+    @Override
+    public PageResponse getMiniSearchAllProductFilter(Long categoryId, Long productId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber) {
+        List<Category> categories = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+        List<Long> cate = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> saleIds = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
+        boolean flagSize = size != null && !size.isEmpty();
+        boolean flagColor = color != null && !color.isEmpty();
+        boolean flagMinPrice = minPrice != null && !minPrice.isEmpty();
+        boolean flagMaxPrice = maxPrice != null && !maxPrice.isEmpty();
+        var cates = categoryRepository.findAll();
+        if (categoryId == null) {
+            categories.addAll(categoryRepository.findAllById(cate));
+        } else {
+            var category = categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(categoryRepository.findById(categoryId).orElseThrow());
+            else return null;
+        }
+        while (!categories.isEmpty()) {
+            Long id = categories.get(0).getId();
+            boolean flag = false;
+            for (Category category : cates) {
+                if (category.getParentCategoryId() != null && category.getParentCategoryId().getId().equals(id)) {
+                    flag = true;
+                    categories.add(category);
+                }
+            }
+            if (flag) {
+                categories.remove(0);
+            } else {
+                categoryList.add(categories.get(0));
+                categories.remove(0);
+            }
+        }
+        System.out.println("before");
+        for (Category category : categoryList) {
+            Specification<Product> specification = specification_mini(search, category.getId(), productId);
+            products.addAll(productRepository.findAll(specification, sort(sort)));
+        }
+        System.out.println("after");
+
+
+        int i = 0;
+        while (i < products.size()) {
+            var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            boolean flag = false;
+            if (!products.get(i).isActive()) {
+                products.remove(i);
+                continue;
+            }
+            loop:
+            {
+                for (ProductItem productItem : items) {
+                    if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("K")) {
+                        if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagSize && productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
+                        if (size.contains(productItem.getProductConfigurations().get(0).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("K")) {
+                        if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagColor && productItem.getProductConfigurations().get(1).getVariationOption().getVariation().getName().startsWith("M")) {
+                        if (color.contains(productItem.getProductConfigurations().get(1).getVariationOption().getValue())) {
+                            flag = true;
+                            break loop;
+                        }
+
+                    } else if (flagMinPrice && flagMaxPrice) {
+                        if ((productItem.getPrice() >= Integer.parseInt(minPrice)) && (productItem.getPrice() <= Integer.parseInt(maxPrice))) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagMinPrice) {
+                        if (productItem.getPrice() >= Integer.parseInt(minPrice)) {
+                            flag = true;
+                            break loop;
+                        }
+                    } else if (flagMaxPrice) {
+                        if (productItem.getPrice() <= Integer.parseInt(maxPrice)) {
+                            flag = true;
+                            break loop;
+                        }
+
+                    }
+                }
+            }
+            boolean temp = (flag || flagColor || flagSize || flagMinPrice || flagMaxPrice) && !flag;
+
+            if (!temp) {
+                i = i + 1;
+            } else
+                products.remove(i);
+        }
+        for (Product product : products) {
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var estimatedPrice = 0.0;
+            for (ProductItem productItem : items) {
+                total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
+            }
+            list.add(total);
+
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(product.getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            } else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
+            }
+
+        }
+        var productResponseList = productMapper.toProductResponseList(products);
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+        }
+        switch (sort) {
+            case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
+            case "name_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName).reversed());
+            case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
+            case "old_to_new" ->
+                    productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
+            case "price_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice));
+            case "price_desc" ->
+                    productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());
+            case "rating_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating));
+            case "sold_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold));
+            case "sold_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getSold).reversed());
+            default -> productResponseList.sort(Comparator.comparing(ProductResponse::getRating).reversed());
+        }
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), PAGE_SIZE);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = productResponseList.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
+    }
+    private Specification<Product> specification_mini(String name, Long id, Long productId) {
+        Specification<Product> nameSpec = hasName(name);
+        Specification<Product> categorySpec = hasCategoryId(id);
+        Specification<Product> productSpec = hasProductId(productId);
+        Specification<Product> stateSpec = hasState(true);
+        Specification<Product> specification = Specification.where(null);
+        specification = specification.and(categorySpec);
+        if (name != null) {
+            specification = specification.and(nameSpec);
+        }
+        if (productId != null) {
+            specification = specification.and(productSpec);
+        }
+        if ((Boolean) true != null) {
+            specification = specification.and(stateSpec);
+        }
+        return specification;
+    }
+
 }
