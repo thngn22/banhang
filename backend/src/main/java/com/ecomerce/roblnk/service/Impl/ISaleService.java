@@ -40,7 +40,7 @@ public class ISaleService implements SaleService {
     public PageResponse getSaleResponses(FilterSaleRequest filterSaleRequest) {
         if (filterSaleRequest.getSale_id()!=null)
             updateSaleState(filterSaleRequest.getSale_id());
-
+        updateAllSale();
         var sale_id = filterSaleRequest.getSale_id();
         var name = filterSaleRequest.getName();
         var discounted_rate = filterSaleRequest.getDiscount_rate();
