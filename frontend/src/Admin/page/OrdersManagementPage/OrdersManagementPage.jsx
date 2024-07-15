@@ -237,7 +237,7 @@ const OrdersManagementPage = () => {
           </div>
 
           <div>
-            <label htmlFor="status">Tình trạng:</label>
+            <label htmlFor="status">Thanh toán:</label>
             <Select
               className="filter__product"
               defaultValue={""}

@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import * as CategoryService from "../../../services/CategoryService";
 import * as CartService from "../../../services/CartService";
-import { loginSuccess, logoutSuccess } from "../../../redux/slides/authSlice";
+import { logoutSuccess } from "../../../redux/slides/authSlice";
 import {
   resetUser,
   updateAddressList,
@@ -18,10 +18,10 @@ import {
 } from "../../../redux/slides/userSlide";
 import Loading from "../LoadingComponent/Loading";
 import * as AuthService from "../../../services/AuthService";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import createAxiosInstance from "../../../services/createAxiosInstance";
 import apiAddresses from "../../../services/addressApis";
+import * as ProductService from "../../../services/ProductService";
+import BoxSearchResults from "../BoxSearchResults/BoxSearchResults";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -39,6 +39,16 @@ export default function Navigation({
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
   const axiosJWT = createAxiosInstance(auth, dispatch);
+
+  const [searchResults, setSearchResults] = useState([]);
+  const [nameSearch, setNameSearch] = useState("");
+
+  const { data: searchProducts } = useQuery({
+    queryKey: [nameSearch, "searchProducts"],
+    queryFn: () => {
+      return ProductService.getFilterProduct({ search: nameSearch });
+    },
+  });
 
   const { data: cart } = useQuery({
     queryKey: ["cart"],
@@ -64,16 +74,18 @@ export default function Navigation({
   });
 
   useEffect(() => {
+    if (searchProducts) {
+      setSearchResults(searchProducts?.contents);
+    }
+  }, [searchProducts]);
+
+  useEffect(() => {
     if (cart && auth && dataAddress) {
       dispatch(updateCart(cart));
       dispatch(updateUser(auth));
       dispatch(updateAddressList(dataAddress));
     }
   }, [cart, auth, dataAddress]);
-
-  const performSearch = () => {
-    console.log("Performing search...");
-  };
 
   const handleNavigate = (url) => {
     navigate(`/${url}`);
@@ -109,6 +121,10 @@ export default function Navigation({
   const handleCloseCategories = () => {
     setShowCategories(!showCategories);
     setShowSubCates(false);
+  };
+
+  const handleSetNameSearch = () => {
+    setNameSearch("");
   };
 
   return (
@@ -218,14 +234,30 @@ export default function Navigation({
                 <input
                   type="text"
                   placeholder="Search"
+                  value={nameSearch}
                   className="w-full rounded-full bg-gray-100 border border-gray-300 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2"
+                  onChange={(e) => setNameSearch(e.target.value)}
                 />
-                <button
-                  className="absolute inset-y-0 right-0 flex items-center px-3"
-                  onClick={performSearch}
-                >
+                <div className="absolute inset-y-0 right-0 flex items-center px-3">
                   <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" />
-                </button>
+                </div>
+                {/* Hiển thị kết quả tìm kiếm */}
+                {searchResults?.length > 0 && (
+                  <div className="absolute w-full bg-gray-50 shadow-lg rounded-md z-[2000]">
+                    <BoxSearchResults
+                      searchResults={searchResults}
+                      handleNavigate={handleNavigate}
+                      handleSetNameSearch={handleSetNameSearch}
+                    />
+                    <Link
+                      to={`/searchProducts/${encodeURIComponent(nameSearch)}`}
+                      onClick={() => setNameSearch("")}
+                      className="border-transparent py-2 bg-gray-300 hover:text-blue-500 relative z-10 flex justify-center items-center text-sm font-medium transition-colors duration-200 ease-out"
+                    >
+                      Xem thêm {searchProducts?.totalElements} sản phẩm ở đây
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 
