@@ -383,14 +383,14 @@ public class ICartService implements CartService {
                 }
 
             }
-            for (CartItem cartItem : cartUser.getCartItems()) {
-                if (!cartItem.getProductItem().isActive()) {
-                    cartItem.setQuantity(0);
-                    cartItem.setTotalPrice(0);
-                    cartItemRepository.save(cartItem);
-                    flagProduct = true;
-                }
-            }
+//            for (CartItem cartItem : cartUser.getCartItems()) {
+//                if (!cartItem.getProductItem().isActive()) {
+//                    cartItem.setQuantity(0);
+//                    cartItem.setTotalPrice(0);
+//                    cartItemRepository.save(cartItem);
+//                    flagProduct = true;
+//                }
+//            }
 
             if (flagProduct || flagVoucher){
                 if (flagProduct) {
