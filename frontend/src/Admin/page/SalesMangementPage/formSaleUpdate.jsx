@@ -77,7 +77,10 @@ const FormSaleUpdate = ({
   }, [detailSale, setValueUpdate]);
 
   useEffect(() => {
-    if (data) setTime([data?.startDate, data?.endDate]);
+    if (data) {
+      setTime([data?.startDate, data?.endDate]);
+      setValueUpdate("dateRange", [data?.startDate, data?.endDate]);
+    }
   }, [data]);
 
   const onChange = (pageNumber) => {
@@ -279,7 +282,7 @@ const FormSaleUpdate = ({
           {"<"} Quay lại
         </p>
         <button className="px-4 py-2 bg-red-600 text-white font-bold rounded hover:bg-red-500">
-          Tạo mã khuyến mãi
+          Cập nhật mã khuyến mãi
         </button>
       </div>
     </div>

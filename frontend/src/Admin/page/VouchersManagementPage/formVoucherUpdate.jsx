@@ -2,53 +2,48 @@ import React, { useEffect, useState } from "react";
 import { DatePicker } from "antd";
 import { Controller } from "react-hook-form";
 import dayjs from "dayjs";
-import { formatDayjs } from "../../../utils/untils";
 
 const FormVoucherUpdate = ({
   registerUpdate,
   control,
   errors,
-  navigate,
-  detailVoucher,
   setValueUpdate,
+  navigate,
+  idVoucher,
+  data,
 }) => {
   const { RangePicker } = DatePicker;
-
-  const [time, setTime] = useState([
-    detailVoucher?.startDate,
-    detailVoucher?.endDate,
-  ]);
+  const [time, setTime] = useState([data?.startDate, data?.endDate]);
 
   useEffect(() => {
-    if (detailVoucher)
-      setTime([detailVoucher?.startDate, detailVoucher?.endDate]);
-  }, [detailVoucher]);
+    if (data) {
+      setTime([data?.startDate, data?.endDate]);
+      setValueUpdate("dateRange", [data?.startDate, data?.endDate]);
+    }
+  }, [data, setValueUpdate]);
 
   const handleChangeTime = (value, onChange) => {
     const formattedValues = [];
-    formattedValues.push(value[0] ? formatDayjs(value[0]) : "");
-    formattedValues.push(value[1] ? formatDayjs(value[1]) : "");
+    if (value && value[0] && value[1]) {
+      formattedValues.push(dayjs(value[0]).format("DD-MM-YYYY 00:00:00"));
+      formattedValues.push(dayjs(value[1]).format("DD-MM-YYYY 00:00:00"));
+    } else {
+      formattedValues.push("");
+      formattedValues.push("");
+    }
     setTime(formattedValues);
     onChange(formattedValues);
-  };
-
-  const handleComeback = () => {
-    navigate("/admin/vouchers");
   };
 
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="w-full">
-        <label className="block font-semibold" htmlFor="voucherCode">
-          Mã Voucher:
-        </label>
         <input
           type="text"
-          id="voucherCode"
-          placeholder="Nhập mã voucher"
+          placeholder="Mã Voucher"
+          defaultValue={data?.voucherCode}
           {...registerUpdate("voucherCode")}
-          defaultValue={detailVoucher?.voucherCode}
-          className="w-full p-3 rounded border"
+          className="w-full p-3 mb-2 rounded border"
         />
         {errors.voucherCode && (
           <span className="text-red-600 text-sm">
@@ -58,16 +53,12 @@ const FormVoucherUpdate = ({
       </div>
 
       <div className="w-full">
-        <label className="block font-semibold" htmlFor="name">
-          Tên:
-        </label>
         <input
           type="text"
-          id="name"
-          placeholder="Nhập tên"
+          placeholder="Tên"
+          defaultValue={data?.name}
           {...registerUpdate("name")}
-          defaultValue={detailVoucher?.name}
-          className="w-full p-3 rounded border"
+          className="w-full p-3 mb-2 rounded border"
         />
         {errors.name && (
           <span className="text-red-600 text-sm">{errors.name.message}</span>
@@ -75,16 +66,12 @@ const FormVoucherUpdate = ({
       </div>
 
       <div className="w-full">
-        <label className="block font-semibold" htmlFor="discountRate">
-          Tỉ lệ giảm giá:
-        </label>
         <input
           type="text"
-          id="discountRate"
-          placeholder="Nhập tỉ lệ giảm giá"
+          placeholder="Tỉ lệ giảm giá"
+          defaultValue={data?.discountRate}
           {...registerUpdate("discountRate")}
-          defaultValue={detailVoucher?.discountRate}
-          className="w-full p-3 rounded border"
+          className="w-full p-3 mb-2 rounded border"
         />
         {errors.discountRate && (
           <span className="text-red-600 text-sm">
@@ -94,81 +81,22 @@ const FormVoucherUpdate = ({
       </div>
 
       <div className="w-full">
-        <label
-          className="block font-semibold"
-          htmlFor="maximumDiscountValidPrice"
-        >
-          Giá trị giảm giá tối đa:
-        </label>
-        <input
-          type="text"
-          id="maximumDiscountValidPrice"
-          placeholder="Nhập giá trị giảm giá tối đa"
-          {...registerUpdate("maximumDiscountValidPrice")}
-          defaultValue={detailVoucher?.maximumDiscountValidPrice}
-          className="w-full p-3 rounded border"
-        />
-        {errors.maximumDiscountValidPrice && (
-          <span className="text-red-600 text-sm">
-            {errors.maximumDiscountValidPrice.message}
-          </span>
-        )}
-      </div>
-
-      <div className="w-full">
-        <label className="block font-semibold" htmlFor="minimumCartPrice">
-          Giá trị đơn hàng tối thiểu:
-        </label>
-        <input
-          type="text"
-          id="minimumCartPrice"
-          placeholder="Nhập giá trị đơn hàng tối thiểu"
-          {...registerUpdate("minimumCartPrice")}
-          defaultValue={detailVoucher?.minimumCartPrice}
-          className="w-full p-3 rounded border"
-        />
-        {errors.minimumCartPrice && (
-          <span className="text-red-600 text-sm">
-            {errors.minimumCartPrice.message}
-          </span>
-        )}
-      </div>
-
-      <div className="w-full">
-        <label className="block font-semibold" htmlFor="quantity">
-          Số lượng:
-        </label>
-        <input
-          type="text"
-          id="quantity"
-          placeholder="Nhập số lượng"
-          {...registerUpdate("quantity")}
-          defaultValue={detailVoucher?.quantity}
-          className="w-full p-3 rounded border"
-        />
-        {errors.quantity && (
-          <span className="text-red-600 text-sm">
-            {errors.quantity.message}
-          </span>
-        )}
-      </div>
-
-      <div className="w-full">
-        <label className="block font-semibold" htmlFor="dateRange">
-          Ngày áp dụng:
-        </label>
         <Controller
           name="dateRange"
           control={control}
-          render={({ field: { onChange } }) => (
+          rules={{ required: "Không được để trống" }}
+          render={({ field: { value, onChange } }) => (
             <RangePicker
-              id="dateRange"
-              className="w-full"
+              className="w-full mb-2"
               placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-              value={[
-                time[0] ? dayjs(time[0], "DD-MM-YYYY HH:mm:ss") : null,
-                time[1] ? dayjs(time[1], "DD-MM-YYYY HH:mm:ss") : null,
-              ]}
+              value={
+                value && value[0] && value[1]
+                  ? [
+                      dayjs(value[0], "DD-MM-YYYY"),
+                      dayjs(value[1], "DD-MM-YYYY"),
+                    ]
+                  : [null, null]
+              }
               format={"DD/MM/YYYY"}
               onChange={(value) => handleChangeTime(value, onChange)}
             />
@@ -181,15 +109,60 @@ const FormVoucherUpdate = ({
         )}
       </div>
 
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Giá trị giảm giá tối đa"
+          defaultValue={data?.maximumDiscountValidPrice}
+          {...registerUpdate("maximumDiscountValidPrice")}
+          className="w-full p-3 mb-2 rounded border"
+        />
+        {errors.maximumDiscountValidPrice && (
+          <span className="text-red-600 text-sm">
+            {errors.maximumDiscountValidPrice.message}
+          </span>
+        )}
+      </div>
+
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Giá trị đơn hàng tối thiểu"
+          defaultValue={data?.minimumCartPrice}
+          {...registerUpdate("minimumCartPrice")}
+          className="w-full p-3 mb-2 rounded border"
+        />
+        {errors.minimumCartPrice && (
+          <span className="text-red-600 text-sm">
+            {errors.minimumCartPrice.message}
+          </span>
+        )}
+      </div>
+
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Số lượng"
+          defaultValue={data?.quantity}
+          {...registerUpdate("quantity")}
+          className="w-full p-3 mb-2 rounded border"
+        />
+        {errors.quantity && (
+          <span className="text-red-600 text-sm">
+            {errors.quantity.message}
+          </span>
+        )}
+      </div>
+
       <div className="flex justify-between items-center mt-4">
-        <p className="cursor-pointer" onClick={handleComeback}>
+        <p
+          className="cursor-pointer"
+          onClick={() => navigate("/admin/vouchers")}
+        >
           {"<"} Quay lại
         </p>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white p-2 rounded hover:opacity-80"
-        >
-          Tiến hành cập nhật Voucher
+        <button className="px-4 py-2 bg-red-600 text-white font-bold rounded hover:bg-red-500">
+          Cập nhật mã voucher
         </button>
       </div>
     </div>

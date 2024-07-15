@@ -8,62 +8,31 @@ import { useQuery } from "@tanstack/react-query";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import AdminOrderDetail from "../../components/AdminOrder/AdminOrderDetail";
 import { updateDetailOrder } from "../../../redux/slides/orderSlice";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { loginSuccess } from "../../../redux/slides/authSlice";
-import * as AuthService from "../../../services/AuthService";
 import { Option } from "antd/es/mentions";
+import createAxiosInstance from "../../../services/createAxiosInstance";
 
 const OrdersManagementPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
   const [pageNumber, setPageNumber] = useState(1);
   const [dataTable, setDataTable] = useState([]);
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      // console.log("data", data);
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          // console.log("data in axiosJWT", data);
-          // console.log("refreshUser", refreshUser);
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  const [idSearch, setIdSearch] = useState("");
+  const [emailSearch, setEmailSearch] = useState("");
+  const [addressSearch, setAddressSearch] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
 
   const { data: orders, refetch } = useQuery({
-    queryKey: [pageNumber],
+    queryKey: [pageNumber, idSearch, emailSearch, addressSearch, activeSearch],
     queryFn: () => {
       return OrderService.getAllOrderAdmin(
         {
           page_number: pageNumber,
+          order_id: idSearch,
+          email: emailSearch,
+          address: addressSearch,
+          payment_method: activeSearch,
         },
         auth.accessToken,
         axiosJWT
@@ -235,50 +204,51 @@ const OrdersManagementPage = () => {
         <p className="text-2xl font-extrabold">Quản lý đơn hàng</p>
       </div>
 
-      <div className="flex justify-between items-end mb-2">
-        <div>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex gap-1">
-              <label htmlFor="name">Mã đơn:</label>
-              <input type="text" id="name" className="py-1 rounded-lg" />
-            </div>
-
-            <div className="flex gap-1">
-              <label htmlFor="cate">Email:</label>
-              <input type="text" id="cate" className="py-1 rounded-lg" />
-            </div>
-
-            <div className="flex gap-1">
-              <label htmlFor="number">Địa chỉ:</label>
-              <input type="text" id="number" className="py-1 rounded-lg" />
-            </div>
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex gap-4 flex-wrap">
+          <div>
+            <label htmlFor="idSale">Mã đơn:</label>
+            <input
+              type="text"
+              id="idSale"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setIdSearch(e.target.value)}
+            />
           </div>
 
-          <div className="flex gap-4 mt-2">
-            <div className="flex gap-1">
-              <label htmlFor="status">Tình trạng:</label>
-              <Select className="filter__product">
-                <Option value="active">Active</Option>
-                <Option value="inActive">Inctive</Option>
-              </Select>
-            </div>
+          <div>
+            <label htmlFor="nameSearch">Email:</label>
+            <input
+              type="text"
+              id="nameSearch"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setEmailSearch(e.target.value)}
+            />
+          </div>
 
-            <div className="flex gap-1">
-              <label htmlFor="paymentMethod">Phương thức thanh toán:</label>
-              <Select className="filter__product">
-                <Option value="COD">COD</Option>
-                <Option value="VnPay">VnPay</Option>
-              </Select>
-            </div>
+          <div>
+            <label htmlFor="minPrice">Địa chỉ:</label>
+            <input
+              type="text"
+              id="minPrice"
+              className="ml-2 py-1 px-2 rounded-lg"
+              onChange={(e) => setAddressSearch(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="status">Tình trạng:</label>
+            <Select
+              className="filter__product"
+              defaultValue={""}
+              onChange={(value) => setActiveSearch(value)}
+            >
+              <Option value="">Không lọc</Option>
+              <Option value="2">COD</Option>
+              <Option value="1">VnPay</Option>
+            </Select>
           </div>
         </div>
-
-        <button
-          className="text-white bg-black py-1 px-8 border border-transparent rounded-md font-bold tracking-wide cursor-pointer hover:opacity-70"
-          onClick={handleFilterProduct}
-        >
-          Lọc
-        </button>
       </div>
 
       <TableComponent columns={columns} data={dataTable} />

@@ -18,7 +18,7 @@ const CreateVoucherPage = () => {
     formState: { errors: errorsCreate },
     setValue: setValueCreate,
   } = useForm({
-    resolver: zodResolver(voucherSchema),
+    resolver: zodResolver(voucherSchema.createSchema),
   });
 
   const dispatch = useDispatch();

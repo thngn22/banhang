@@ -25,7 +25,7 @@ const UpdateSalePage = () => {
     formState: { errors: errorsUpdate },
     setValue: setValueUpdate,
   } = useForm({
-    resolver: zodResolver(saleSchema),
+    resolver: zodResolver(saleSchema.updateSchema),
   });
 
   const dispatch = useDispatch();
@@ -93,17 +93,28 @@ const UpdateSalePage = () => {
         <div className="mb-6 text-center">
           <h2 className="text-3xl font-extrabold">Cập nhật mã khuyến mãi</h2>
         </div>
-        <form onSubmit={handleSubmitUpdate(onSubmitUpdate)}>
-          <FormSaleUpdate
-            registerUpdate={registerUpdate}
-            control={control}
-            errors={errorsUpdate}
-            setValueUpdate={setValueUpdate}
-            navigate={navigate}
-            idSale={idSale}
-            data={detailSale}
-          />
-        </form>
+        {detailSale && (
+          <form onSubmit={handleSubmitUpdate(onSubmitUpdate)}>
+            <FormSaleUpdate
+              defaultValues={{
+                name: detailSale.name,
+                description: detailSale.description,
+                discountRate: detailSale.discountRate,
+                dateRange: [detailSale.startDate, detailSale.endDate],
+                idProductList: detailSale.productResponses.map(
+                  (product) => product.id
+                ),
+              }}
+              registerUpdate={registerUpdate}
+              control={control}
+              errors={errorsUpdate}
+              setValueUpdate={setValueUpdate}
+              navigate={navigate}
+              idSale={idSale}
+              data={detailSale}
+            />
+          </form>
+        )}
       </div>
     </div>
   );

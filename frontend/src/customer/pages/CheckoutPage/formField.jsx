@@ -539,7 +539,7 @@ const FormFields = ({
                   </p>
                 </div>
                 <p className="text-xs text-gray-500 line-through">
-                  {user?.cart.finalPrice.toLocaleString("vi-VN", {
+                  {user?.cart.totalPrice.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
                   })}
@@ -547,7 +547,7 @@ const FormFields = ({
               </>
             )}
             <p className="text-xl font-bold text-red-600">
-              {user?.cart.totalPrice.toLocaleString("vi-VN", {
+              {user?.cart.finalPrice.toLocaleString("vi-VN", {
                 style: "currency",
                 currency: "VND",
               })}

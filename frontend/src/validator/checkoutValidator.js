@@ -1,13 +1,9 @@
 import { z } from "zod";
 
-import { specialCharacterRegex, formatPhoneNumber } from "../utils/constants";
+import { formatPhoneNumber } from "../utils/constants";
 
 const checkOutSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Bạn phải nhập Họ và Tên")
-    .max(60, "Quá dài")
-    .regex(specialCharacterRegex, "Không được chứa các ký tự đặc biệt"),
+  name: z.string().min(1, "Bạn phải nhập Họ và Tên").max(60, "Quá dài"),
   phoneNumber: z.string().regex(formatPhoneNumber, {
     message: "Không đúng định dạng số điện thoại",
   }),
