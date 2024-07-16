@@ -131,8 +131,6 @@ const Chat = () => {
     setIsOpen(!isOpen);
   };
 
-  console.log("messages", messages);
-
   return (
     <div
       className={`fixed bottom-0 left-0 bg-white rounded-tr-lg shadow-lg z-50 transition-all duration-300 overflow-hidden`}

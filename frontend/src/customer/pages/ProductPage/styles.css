@@ -1,18 +1,18 @@
 .sortByProduct .ant-select-selector {
-    border: none !important;
+  margin-left: 4px;
+  width: 200px !important;
 }
 .sortByProduct .ant-select-selection-item {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .btn__custom-filter:hover {
-    color: #fff !important
+  color: #fff !important;
 }
 
 .ant-pagination .ant-pagination-item-active {
-    border-color: black !important;
+  border-color: black !important;
 }
-.ant-pagination .ant-pagination-item-active a{
-    color: black !important;
-    
+.ant-pagination .ant-pagination-item-active a {
+  color: black !important;
 }

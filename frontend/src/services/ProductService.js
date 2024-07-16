@@ -172,3 +172,13 @@ export const getProductSales = async (params) => {
   });
   return res.data;
 };
+
+export const getMiniSearchProducts = async (params) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/mini_search`,
+    {
+      params,
+    }
+  );
+  return res.data;
+};

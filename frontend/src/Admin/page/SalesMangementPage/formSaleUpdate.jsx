@@ -37,16 +37,16 @@ const FormSaleUpdate = ({
   const [dataTable, setDataTable] = useState([]);
   const [time, setTime] = useState([data?.startDate, data?.endDate]);
 
-  const handleMenuItemClick = (id) => {
-    setCategoryId(id);
+  const handleMenuItemClick = (id, title) => {
+    setCategoryId({ id, title });
   };
 
   const { data: productsToEdit } = useQuery({
-    queryKey: [categoryId, pageNumber, "productsToEdit"],
+    queryKey: [categoryId?.id, pageNumber, "productsToEdit"],
     queryFn: () => {
       return apiSales.getProductByCateWithoutEdit(
         {
-          category_id: categoryId ? categoryId : "",
+          category_id: categoryId?.id ? categoryId?.id : "",
           page_number: pageNumber,
           sale_id: idSale,
         },
@@ -248,7 +248,12 @@ const FormSaleUpdate = ({
         )}
       </div>
 
-      <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+      <div className="flex gap-2 items-center">
+        <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+        {categoryId && (
+          <p className="font-medium">Danh mục {categoryId?.title}</p>
+        )}
+      </div>
 
       <div className="w-full">
         <p className="text-xl font-extrabold">Bảng sản phẩm</p>

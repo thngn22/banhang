@@ -36,20 +36,6 @@ const FormSignUp = ({ registerSignUp, errors }) => {
       <div className="w-full">
         <input
           type="text"
-          placeholder="Tên tài khoản"
-          {...registerSignUp("userName")}
-          className="w-full"
-        />
-        {errors.userName && (
-          <span className="text-sm text-red-600 font-medium">
-            {errors.userName.message}
-          </span>
-        )}
-      </div>
-
-      <div className="w-full">
-        <input
-          type="text"
           placeholder="Số điện thoại"
           {...registerSignUp("phoneNumber")}
           className="w-full"

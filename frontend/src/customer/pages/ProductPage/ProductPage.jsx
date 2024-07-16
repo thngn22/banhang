@@ -184,23 +184,25 @@ export default function ProductPage() {
             </p>
 
             <div className="flex items-center">
-              <p className="font-normal text-base text-gray-500">Sort By:</p>
+              <p className="font-normal text-base text-gray-500">
+                Sắp xếp theo:
+              </p>
               <Select
                 defaultValue="name_asc"
                 defaultActiveFirstOption
                 onChange={(value) => handleField(value, setSort)}
-                className="sortByProduct"
+                className="sortByProduct rounded-xl"
               >
-                <Option value="name_asc">Từ A-Z</Option>
-                <Option value="name_desc">Từ Z-A</Option>
-                <Option value="rating_asc">Rating từ Cao-Thấp</Option>
-                <Option value="rating_desc">Rating từ Thấp-Cao</Option>
-                <Option value="old_to_new">Từ Cũ - Mới</Option>
-                <Option value="new_to_old">Từ Mới - Cũ</Option>
-                <Option value="price_asc">Giá từ Thấp-Cao</Option>
-                <Option value="price_desc">Giá từ Cao-Thấp</Option>
-                <Option value="sold_asc">Số lượng bán từ Cao-Thấp</Option>
-                <Option value="sold_desc">Số lượng bán từ Thấp-Cao</Option>
+                <Option value="name_asc">A-Z</Option>
+                <Option value="name_desc">Z-A</Option>
+                <Option value="rating_asc">Đánh giá Cao-Thấp</Option>
+                <Option value="rating_desc">Đánh giá Thấp-Cao</Option>
+                <Option value="old_to_new">Cũ-Mới</Option>
+                <Option value="new_to_old">Mới-Cũ</Option>
+                <Option value="price_asc">Giá Thấp-Cao</Option>
+                <Option value="price_desc">Giá Cao-Thấp</Option>
+                <Option value="sold_asc">Số lượng bán Cao-Thấp</Option>
+                <Option value="sold_desc">Số lượng bán Thấp-Cao</Option>
               </Select>
             </div>
           </div>

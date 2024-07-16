@@ -308,14 +308,14 @@ const FormFields = ({
                 ship ? "opacity-50 pointer-events-none" : ""
               }`}
             >
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
                 <Controller
                   control={control}
                   name="city"
                   render={({ field: { value, onChange } }) => (
                     <select
                       id="city"
-                      className="border-2 p-3 rounded-lg border-gray-300 focus:outline-none focus:border-black"
+                      className="border-2 p-3 rounded-lg border-gray-300 max-w-[260px] focus:outline-none focus:border-black"
                       value={value}
                       onChange={(e) => {
                         onChange(e);
@@ -344,7 +344,7 @@ const FormFields = ({
                   render={({ field: { value, onChange } }) => (
                     <select
                       id="district"
-                      className="border-2 p-3 rounded-lg border-gray-300 focus:outline-none focus:border-black"
+                      className="border-2 p-3 rounded-lg border-gray-300 max-w-[260px] focus:outline-none focus:border-black"
                       value={value}
                       onChange={(e) => {
                         onChange(e);
@@ -373,7 +373,7 @@ const FormFields = ({
                   render={({ field: { value, onChange } }) => (
                     <select
                       id="ward"
-                      className="border-2 p-3 rounded-lg border-gray-300 focus:outline-none focus:border-black"
+                      className="border-2 p-3 rounded-lg border-gray-300 max-w-[260px] focus:outline-none focus:border-black"
                       value={value}
                       onChange={onChange}
                     >
@@ -559,7 +559,7 @@ const FormFields = ({
           <img className="w-[4rem] h-[4rem]" src={imgTrunk} alt="imgTrunk" />
           <div className="text-sm">
             <p className="font-medium">
-              Hơn 800.000 đơn hàng đã được Shoes.co giao thành công đến khách
+              Rất nhiều đơn hàng đã được Shoes.co giao thành công đến khách
               hàng.
             </p>
             <p>

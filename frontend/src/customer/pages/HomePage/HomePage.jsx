@@ -54,9 +54,6 @@ function HomePage(props) {
       <HomeCarousel />
 
       <div className="px-8 py-8">
-        <CategoryMenu />
-        <hr className="border bg-gray-400 mx-5 my-10" />
-
         <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
           Những sản phẩm bán được nhiều
         </p>

@@ -28,14 +28,11 @@ const CheckoutPage = () => {
     enabled: Boolean(auth?.accessToken),
   });
 
-  useEffect(
-    (cart) => {
-      if (cart) {
-        dispatch(updateCart(cart));
-      }
-    },
-    [cart]
-  );
+  useEffect(() => {
+    if (cart) {
+      dispatch(updateCart(cart));
+    }
+  }, [cart]);
 
   useEffect(() => {
     if (user) {
@@ -91,6 +88,7 @@ const CheckoutPage = () => {
       onError: (error) => {
         console.log(`Đã xảy ra lỗi ${error.message}`);
         message.error("Không thành công");
+        navigate("/carts");
       },
     });
   };

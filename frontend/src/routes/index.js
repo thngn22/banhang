@@ -34,6 +34,7 @@ import UpdateSalePage from "../Admin/page/SalesMangementPage/UpdateSalePage";
 import UpdateVoucherPage from "../Admin/page/VouchersManagementPage/UpdateVoucherPage";
 import UpdateCatePage from "../Admin/page/CateManagementPage/UpdateCatePage";
 import ProductSalesPage from "../Customer/pages/ProductSalesPage/ProductSalesPage";
+import SearchProductPage from "../Customer/pages/SearchProductPage/SearchProductPage";
 
 export default function AppRouter() {
   return (
@@ -97,6 +98,14 @@ export default function AppRouter() {
         element={
           <DefaultComponent>
             <ProductSalesPage />
+          </DefaultComponent>
+        }
+      />
+      <Route
+        path="/searchProducts/:name"
+        element={
+          <DefaultComponent>
+            <SearchProductPage />
           </DefaultComponent>
         }
       />

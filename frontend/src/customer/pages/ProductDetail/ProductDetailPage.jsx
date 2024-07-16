@@ -37,6 +37,7 @@ export default function ProductDetailPage() {
   const [defaultImage, setDefaultImage] = useState();
   const iframeRef = useRef(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumberTopInDetail, setPageNumberTopInDetail] = useState(1);
 
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
@@ -49,6 +50,7 @@ export default function ProductDetailPage() {
     queryFn: () => {
       return ProductService.getProductTopInDetail({
         category_id: productDetail?.categoryId?.id,
+        page_number: pageNumberTopInDetail,
       });
     },
   });
@@ -68,6 +70,10 @@ export default function ProductDetailPage() {
 
   const onChange = (pageNumber) => {
     setPageNumber(pageNumber);
+  };
+
+  const onChangeTopInDetail = (pageNumber) => {
+    setPageNumberTopInDetail(pageNumber);
   };
 
   useEffect(() => {
@@ -544,15 +550,26 @@ export default function ProductDetailPage() {
         {/* High Rating Products */}
         <div className="my-8">
           <p className="text-center text-4xl font-extrabold uppercase">
-            sản phẩm được đánh giá cao
+            sản phẩm cùng loại được đánh giá cao
           </p>
           <div className="mt-6 grid grid-cols-4 gap-20">
             {topInDetail &&
-              topInDetail.map((product, index) => (
+              topInDetail?.contents.map((product, index) => (
                 <div key={index} className="group relative w-[16rem]">
                   <ProductCard data={product} />
                 </div>
               ))}
+          </div>
+          <div className="flex justify-center mt-2">
+            {topInDetail && (
+              <Pagination
+                total={topInDetail?.totalElements}
+                pageSize={topInDetail?.pageSize}
+                defaultCurrent={pageNumberTopInDetail}
+                showSizeChanger={false}
+                onChange={onChangeTopInDetail}
+              />
+            )}
           </div>
         </div>
 
