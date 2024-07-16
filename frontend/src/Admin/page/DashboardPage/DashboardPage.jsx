@@ -29,6 +29,8 @@ const DashboardPage = () => {
     setDate(value);
   };
 
+  console.log({ optionChart, date });
+
   const { data: revenue, refetch } = useQuery({
     queryKey: ["revenue", date],
     queryFn: () => {
