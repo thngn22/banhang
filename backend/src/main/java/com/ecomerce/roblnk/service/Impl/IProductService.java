@@ -1223,6 +1223,11 @@ public class IProductService implements ProductService {
                     saleIds.add(null);
                 }
             }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
+            }
             i++;
         }
         var productResponseList = productMapper.toProductResponseList(productCarousel);
@@ -1270,6 +1275,11 @@ public class IProductService implements ProductService {
                     salePrices.add((int) estimatedPrice);
                     saleIds.add(null);
                 }
+            }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
             }
             i++;
         }
@@ -1352,6 +1362,11 @@ public class IProductService implements ProductService {
                     salePrices.add((int) estimatedPrice);
                     saleIds.add(null);
                 }
+            }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
             }
             i++;
         }
