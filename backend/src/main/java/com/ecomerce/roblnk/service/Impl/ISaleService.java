@@ -293,8 +293,8 @@ public class ISaleService implements SaleService {
         System.out.println(saleProducts.size());
         int z = 0;
         while (z < saleProducts.size()){
-            if (!saleProducts.get(z).getSale().isActive() && saleProducts.get(z).getSale().getEndDate().before(new Date(System.currentTimeMillis()))
-                    && saleProducts.get(z).getSale().getStartDate().after(new Date(System.currentTimeMillis()))){
+            if (!saleProducts.get(z).getSale().isActive() || saleProducts.get(z).getSale().getEndDate().before(new Date(System.currentTimeMillis()))
+                    || saleProducts.get(z).getSale().getStartDate().after(new Date(System.currentTimeMillis()))){
                 saleProducts.remove(z);
                 continue;
             }
