@@ -503,9 +503,9 @@ public class IProductService implements ProductService {
         switch (sort) {
             case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
             case "name_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName).reversed());
-            case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
+            case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
             case "old_to_new" ->
-                    productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
+                    productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
             case "price_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice));
             case "price_desc" ->
                     productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());
@@ -1474,9 +1474,9 @@ public class IProductService implements ProductService {
         switch (sort) {
             case "name_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName));
             case "name_desc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getName).reversed());
-            case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
+            case "new_to_old" -> productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
             case "old_to_new" ->
-                    productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate).reversed());
+                    productResponseList.sort(Comparator.comparing(ProductResponse::getModifiedDate));
             case "price_asc" -> productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice));
             case "price_desc" ->
                     productResponseList.sort(Comparator.comparing(ProductResponse::getEstimatedPrice).reversed());

@@ -185,6 +185,10 @@ public class IVoucherService implements VoucherService {
             if (editVoucherRequest.getVoucherCode() != null && !editVoucherRequest.getVoucherCode().isEmpty()) {
                 voucher.get().setVoucherCode(editVoucherRequest.getVoucherCode());
             }
+            var existedVoucher = voucherRepository.findVoucherByVoucherCode(voucher.get().getVoucherCode());
+            if (existedVoucher.isPresent()) {
+                return "Existed voucher code, please try again another voucher code";
+            }
             if (editVoucherRequest.getStartDate() != null) {
                 voucher.get().setStartDate(editVoucherRequest.getStartDate());
             }

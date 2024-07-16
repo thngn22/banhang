@@ -450,7 +450,7 @@ public class IUserService implements UserService {
             var userOrders = orderRepository.findAllByUser_Email(user.getEmail());
             if (userOrders != null) {
                 var response = orderMapper.toOrderResponsev2s(userOrders);
-                response.sort(Comparator.comparing(OrderResponsev2::getUpdateAt));
+                response.sort(Comparator.comparing(OrderResponsev2::getUpdateAt).reversed());
                 return response;
             }
 
@@ -472,8 +472,8 @@ public class IUserService implements UserService {
             switch (sort) {
                 case "id_asc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getId));
                 case "id_desc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getId).reversed());
-                case "new_to_old" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getUpdateAt));
-                case "old_to_new" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getUpdateAt).reversed());
+                case "new_to_old" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getUpdateAt).reversed());
+                case "old_to_new" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getUpdateAt));
                 case "price_asc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getFinalPayment));
                 case "price_desc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getFinalPayment).reversed());
 
@@ -721,6 +721,7 @@ public class IUserService implements UserService {
                     status.getOrders().add(userOrders.get());
                     statusOrderRepository.save(status);
                     userOrders.get().setStatusOrder(status);
+                    userOrders.get().setUpdateAt(new Date(System.currentTimeMillis()));
                     orderRepository.save(userOrders.get());
                     return "Successfully canceled this order!";
                 }
@@ -745,6 +746,7 @@ public class IUserService implements UserService {
                     status.getOrders().add(userOrders.get());
                     statusOrderRepository.save(status);
                     userOrders.get().setStatusOrder(status);
+                    userOrders.get().setUpdateAt(new Date(System.currentTimeMillis()));
                     orderRepository.save(userOrders.get());
                     return "Successfully confirm this order!";
                 }
@@ -837,6 +839,7 @@ public class IUserService implements UserService {
                     statusOrder.getOrders().add(userOrders.get());
                     statusOrderRepository.save(statusOrder);
                     userOrders.get().setStatusOrder(statusOrder);
+                    userOrders.get().setUpdateAt(new Date(System.currentTimeMillis()));
                     orderRepository.save(userOrders.get());
 
 
