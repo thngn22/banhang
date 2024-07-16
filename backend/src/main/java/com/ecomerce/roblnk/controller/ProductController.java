@@ -177,8 +177,10 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
     }
     @GetMapping("/carousel_product")
-    public ResponseEntity<?> getCarouselForDetailProduct(@RequestParam("category_id") Long categoryId){
-        var productCarousel = productService.getAllProductCarouselInCategory(categoryId);
+    public ResponseEntity<?> getCarouselForDetailProduct(@RequestParam("category_id") Long categoryId,
+                                                         @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+    ){
+        var productCarousel = productService.getAllProductCarouselInCategory(categoryId, pageNumber);
         return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
     }
 

@@ -33,7 +33,7 @@ public interface ProductService {
 
     List<ProductResponse> getAllProductCarouselRating();
     List<ProductResponse> getAllProductCarouselSold();
-    List<ProductResponse> getAllProductCarouselInCategory(Long categoryId);
+    PageResponse getAllProductCarouselInCategory(Long categoryId, Integer pageNumber);
 //    String getURLPictureAndUploadToCloudinary(String base64Content);
     String getURLPictureThenUploadToCloudinary(MultipartFile file);
 

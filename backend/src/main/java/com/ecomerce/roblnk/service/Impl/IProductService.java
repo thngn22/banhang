@@ -1189,58 +1189,112 @@ public class IProductService implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProductCarouselRating() {
-
+        List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> saleIds = new ArrayList<>();
         Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         var productCarousel = productRepository.findAllByActiveIsTrueOrderByRatingDesc(pageable);
-        List<Integer> list = new ArrayList<>();
-        for (Product product : productCarousel) {
+        int i = 0;
+        while (i < productCarousel.size()) {
+            if (!productCarousel.get(i).isActive()) {
+                productCarousel.remove(i);
+                continue;
+            }
             int total = 0;
-            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var items = productItemRepository.findAllByProduct_Id(productCarousel.get(i).getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
-
             list.add(total);
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productCarousel.get(i).getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            }
+            i++;
         }
         var productResponseList = productMapper.toProductResponseList(productCarousel);
-        for (int i = 0; i < productResponseList.size(); i++) {
-            productResponseList.get(i).setQuantity(list.get(i));
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
         }
         return productResponseList;
     }
 
     @Override
     public List<ProductResponse> getAllProductCarouselSold() {
+        List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> saleIds = new ArrayList<>();
         Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
         var productCarousel = productRepository.findAllByActiveIsTrueOrderBySoldDesc(pageable);
-        List<Integer> list = new ArrayList<>();
-        for (Product product : productCarousel) {
+        int i = 0;
+        while (i < productCarousel.size()) {
+            if (!productCarousel.get(i).isActive()) {
+                productCarousel.remove(i);
+                continue;
+            }
             int total = 0;
-            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var items = productItemRepository.findAllByProduct_Id(productCarousel.get(i).getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
-
             list.add(total);
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productCarousel.get(i).getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            }
+            i++;
         }
         var productResponseList = productMapper.toProductResponseList(productCarousel);
-        for (int i = 0; i < productResponseList.size(); i++) {
-            productResponseList.get(i).setQuantity(list.get(i));
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
         }
         return productResponseList;
     }
 
     @Override
-    public List<ProductResponse> getAllProductCarouselInCategory(Long categoryId) {
-        Pageable pageable = PageRequest.of(0, CAROUSEL_SIZE);
-        List<Product> productCarousel = new ArrayList<>();
+    public PageResponse getAllProductCarouselInCategory(Long categoryId, Integer pageNumber) {
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), CAROUSEL_SIZE);
         List<Category> categories = new ArrayList<>();
         List<Category> categoryList = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
         List<Long> cate = new ArrayList<>();
-        cate.add(1L);
-        cate.add(2L);
-        cate.add(21L);
-        cate.add(22L);
+        List<Long> saleIds = new ArrayList<>();
+        categoryRepository.findAllByParentCategoryId_Id(null).forEach(category -> cate.add(category.getId()));
         var cates = categoryRepository.findAll();
         if (categoryId == null) {
             categories.addAll(categoryRepository.findAllById(cate));
@@ -1248,7 +1302,7 @@ public class IProductService implements ProductService {
             var category = categoryRepository.findById(categoryId);
             if (category.isPresent())
                 categories.add(categoryRepository.findById(categoryId).orElseThrow());
-            else return List.of();
+            else return null;
         }
         while (!categories.isEmpty()) {
             Long id = categories.get(0).getId();
@@ -1268,23 +1322,61 @@ public class IProductService implements ProductService {
         }
 
         for (Category category : categoryList) {
-            productCarousel.addAll(productRepository.findAllByCategory_IdAndActiveTrueOrderByRatingDescSoldDesc(category.getId(), pageable));
+            products.addAll(productRepository.findAllByCategory_IdAndActiveTrueOrderByRatingDescSoldDesc(category.getId(), pageable));
         }
-        List<Integer> list = new ArrayList<>();
-        for (Product product : productCarousel) {
+
+        int i = 0;
+        while (i < products.size()) {
+            if (!products.get(i).isActive()) {
+                products.remove(i);
+                continue;
+            }
             int total = 0;
-            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            var items = productItemRepository.findAllByProduct_Id(products.get(i).getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
-
             list.add(total);
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(products.get(i).getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            }
+            i++;
         }
-        var productResponseList = productMapper.toProductResponseList(productCarousel);
-        for (int i = 0; i < productResponseList.size(); i++) {
-            productResponseList.get(i).setQuantity(list.get(i));
+        var productResponseList = productMapper.toProductResponseList(products);
+        for (int j = 0; j < productResponseList.size(); j++) {
+            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
         }
-        return productResponseList;
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
+        List<ProductResponse> pageContent = new ArrayList<>();
+        if (start < end) {
+            pageContent = productResponseList.subList(start, end);
+
+        }
+        Page<ProductResponse> page = new PageImpl<>(pageContent, pageable, productResponseList.size());
+        PageResponse productResponse = new PageResponse();
+        productResponse.setContents(pageContent);
+        productResponse.setPageSize(page.getSize());
+        productResponse.setPageNumber(page.getNumber() + 1);
+        productResponse.setTotalPage(page.getTotalPages());
+        productResponse.setTotalElements(page.getTotalElements());
+        return productResponse;
     }
 
   /*  @Override
