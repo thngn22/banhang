@@ -58,7 +58,10 @@ public class VoucherController {
         if (voucher.startsWith("Success")){
             return ResponseEntity.ok(voucher);
         }
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(voucher);
+        else if (voucher.startsWith("Ex"))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(voucher);
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error when creating voucher!");
     }
     @PostMapping("/apply")
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR', 'ROLE_USER')")
@@ -76,11 +79,14 @@ public class VoucherController {
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
         }
-        var saleResponses = voucherService.editVoucher(editVoucherRequest);
-        if (saleResponses != null){
-            return ResponseEntity.ok(saleResponses);
+        var voucher = voucherService.editVoucher(editVoucherRequest);
+        if (voucher.startsWith("Success")){
+            return ResponseEntity.ok(voucher);
         }
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found anything!");
+        else if (voucher.startsWith("Ex"))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(voucher);
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error when editing voucher!");
     }
 
     @DeleteMapping("/{id}")

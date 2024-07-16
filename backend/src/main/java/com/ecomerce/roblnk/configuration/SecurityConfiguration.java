@@ -71,6 +71,7 @@ public class SecurityConfiguration{
                             new AntPathRequestMatcher("/api/v1/category/color**", "GET"),
                             new AntPathRequestMatcher("/api/v1/product/search**", "GET"),
                             new AntPathRequestMatcher("/api/v1/product/search", "GET"),
+                            new AntPathRequestMatcher("/api/v1/product/mini_search", "GET"),
                             new AntPathRequestMatcher("/api/v1/product/**", "GET"),
                             new AntPathRequestMatcher("/api/v1/product/carousel_rating", "GET"),
                             new AntPathRequestMatcher("/api/v1/product/carousel_sold", "GET"),

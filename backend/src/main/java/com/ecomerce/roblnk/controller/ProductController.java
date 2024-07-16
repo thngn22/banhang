@@ -46,6 +46,26 @@ public class ProductController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
     }
+
+    @GetMapping("/mini_search")
+    public ResponseEntity<?> getMiniSearchAllFilterProduct(@RequestParam(value = "category_id", required = false) Long categoryId,
+                                                 @RequestParam(value = "product_id", required = false) Long productId,
+                                                 @RequestParam(value = "size", required = false) List<String> size,
+                                                 @RequestParam(value = "color", required = false) List<String> color,
+                                                 @RequestParam(value = "min_price", required = false) String minPrice,
+                                                 @RequestParam(value = "max_price", required = false) String maxPrice,
+                                                 @RequestParam(value = "search", required = false, defaultValue = "          ") String search,
+                                                 @RequestParam(value = "sort", required = false, defaultValue = "new_to_old") String sort,
+                                                 @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+    ){
+        var productDetail = productService.getMiniSearchAllProductFilter(categoryId, productId, minPrice, maxPrice, size, color, search, sort, pageNumber);
+        if (productDetail != null){
+            return ResponseEntity.status(HttpStatus.OK).body(productDetail);
+        }
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found any shoes!");
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getDetailProduct(@PathVariable("id") Long id) {
         var productDetail = productService.getDetailProduct(id);
@@ -157,8 +177,10 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
     }
     @GetMapping("/carousel_product")
-    public ResponseEntity<?> getCarouselForDetailProduct(@RequestParam("category_id") Long categoryId){
-        var productCarousel = productService.getAllProductCarouselInCategory(categoryId);
+    public ResponseEntity<?> getCarouselForDetailProduct(@RequestParam("category_id") Long categoryId,
+                                                         @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
+    ){
+        var productCarousel = productService.getAllProductCarouselInCategory(categoryId, pageNumber);
         return ResponseEntity.status(HttpStatus.OK).body(productCarousel);
     }
 

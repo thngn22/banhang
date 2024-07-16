@@ -5,6 +5,7 @@ import com.ecomerce.roblnk.dto.PageResponse;
 import com.ecomerce.roblnk.dto.order.OrderItemDTO;
 import com.ecomerce.roblnk.dto.order.OrderResponsev2;
 import com.ecomerce.roblnk.dto.order.OrdersResponse;
+import com.ecomerce.roblnk.dto.product.ProductResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
 import com.ecomerce.roblnk.dto.review.ReviewResponseForUser;
 import com.ecomerce.roblnk.dto.user.*;
@@ -448,13 +449,16 @@ public class IUserService implements UserService {
         if (user != null) {
             var userOrders = orderRepository.findAllByUser_Email(user.getEmail());
             if (userOrders != null) {
-                return orderMapper.toOrderResponsev2s(userOrders);
+                var response = orderMapper.toOrderResponsev2s(userOrders);
+                response.sort(Comparator.comparing(OrderResponsev2::getUpdateAt).reversed());
+                return response;
             }
+
         }
         return null;
     }
     @Override
-    public PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Long order_id, String email, String address, String state, Long payment_method, Integer pageNumber) {
+    public PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Long order_id, String email, String address, String state, Long payment_method, String sort, Integer pageNumber) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (user != null) {
             Specification<Orders> specification = specificationOrder(order_id, email, address, state, payment_method);
@@ -465,11 +469,21 @@ public class IUserService implements UserService {
             int end = Math.min((start + pageable.getPageSize()), orderResponse.size());
             System.out.println(start);
             System.out.println(end);
+            switch (sort) {
+                case "id_asc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getId));
+                case "id_desc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getId).reversed());
+                case "new_to_old" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getUpdateAt).reversed());
+                case "old_to_new" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getUpdateAt));
+                case "price_asc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getFinalPayment));
+                case "price_desc" -> orderResponse.sort(Comparator.comparing(OrderResponsev2::getFinalPayment).reversed());
+
+            }
             List<OrderResponsev2> pageContent = new ArrayList<>();
             if (start < end) {
                 pageContent = orderResponse.subList(start, end);
 
             }
+
             Page<OrderResponsev2> page = new PageImpl<>(pageContent, pageable, orderResponse.size());
             PageResponse productResponse = new PageResponse();
             productResponse.setContents(pageContent);
@@ -707,6 +721,7 @@ public class IUserService implements UserService {
                     status.getOrders().add(userOrders.get());
                     statusOrderRepository.save(status);
                     userOrders.get().setStatusOrder(status);
+                    userOrders.get().setUpdateAt(new Date(System.currentTimeMillis()));
                     orderRepository.save(userOrders.get());
                     return "Successfully canceled this order!";
                 }
@@ -731,6 +746,7 @@ public class IUserService implements UserService {
                     status.getOrders().add(userOrders.get());
                     statusOrderRepository.save(status);
                     userOrders.get().setStatusOrder(status);
+                    userOrders.get().setUpdateAt(new Date(System.currentTimeMillis()));
                     orderRepository.save(userOrders.get());
                     return "Successfully confirm this order!";
                 }
@@ -823,6 +839,7 @@ public class IUserService implements UserService {
                     statusOrder.getOrders().add(userOrders.get());
                     statusOrderRepository.save(statusOrder);
                     userOrders.get().setStatusOrder(statusOrder);
+                    userOrders.get().setUpdateAt(new Date(System.currentTimeMillis()));
                     orderRepository.save(userOrders.get());
 
 

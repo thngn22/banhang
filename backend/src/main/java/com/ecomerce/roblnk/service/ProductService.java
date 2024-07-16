@@ -33,8 +33,9 @@ public interface ProductService {
 
     List<ProductResponse> getAllProductCarouselRating();
     List<ProductResponse> getAllProductCarouselSold();
-    List<ProductResponse> getAllProductCarouselInCategory(Long categoryId);
+    PageResponse getAllProductCarouselInCategory(Long categoryId, Integer pageNumber);
 //    String getURLPictureAndUploadToCloudinary(String base64Content);
     String getURLPictureThenUploadToCloudinary(MultipartFile file);
 
+    PageResponse getMiniSearchAllProductFilter(Long categoryId, Long productId, String minPrice, String maxPrice, List<String> size, List<String> color, String search, String sort, Integer pageNumber);
 }

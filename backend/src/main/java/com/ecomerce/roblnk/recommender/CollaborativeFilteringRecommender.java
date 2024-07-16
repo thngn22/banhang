@@ -3,10 +3,7 @@ import com.ecomerce.roblnk.dto.product.ProductResponse;
 import com.ecomerce.roblnk.mapper.ProductMapper;
 import com.ecomerce.roblnk.model.Product;
 import com.ecomerce.roblnk.model.ProductItem;
-import com.ecomerce.roblnk.repository.ProductItemRepository;
-import com.ecomerce.roblnk.repository.ProductRepository;
-import com.ecomerce.roblnk.repository.ReviewRepository;
-import com.ecomerce.roblnk.repository.UserRepository;
+import com.ecomerce.roblnk.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,67 +23,10 @@ public class CollaborativeFilteringRecommender {
     private final ReviewRepository reviewRepository;
     private final ProductItemRepository productItemRepository;
     private final ProductMapper productMapper;
+    private final SaleProductRepository saleProductRepository;
     private Map<Long, Map<Long, Integer>> ratings = new HashMap<>();
     private final Map<Long, Double> averageRating = new HashMap<>();
 
-
-    private static final int MIN_DF = 0; // Minimum document frequency
-
-    public static Map<String, Map<String, Double>> generateTfidfMatrix(Map<String, String> productPrices) {
-        Map<String, Map<String, Double>> productTfidf = new HashMap<>();
-
-        // Calculate word frequencies and TF-IDF for each product
-        for (Map.Entry<String, String> entry : productPrices.entrySet()) {
-            String productId = entry.getKey();
-            String priceText = entry.getValue();
-            Map<String, Integer> wordFrequencies = calculateWordFrequencies(priceText);
-            Map<String, Double> productTfIdf = calculateTfIdf(wordFrequencies, productPrices);
-            productTfidf.put(productId, productTfIdf);
-        }
-
-        return productTfidf;
-    }
-
-    private static Map<String, Integer> calculateWordFrequencies(String text) {
-        Map<String, Integer> wordFrequencies = new HashMap<>();
-        StringTokenizer tokenizer = new StringTokenizer(text);
-
-        while (tokenizer.hasMoreTokens()) {
-            String word = tokenizer.nextToken().toLowerCase();
-            wordFrequencies.put(word, wordFrequencies.getOrDefault(word, 0) + 1);
-        }
-
-        return wordFrequencies;
-    }
-
-    private static Map<String, Double> calculateTfIdf(Map<String, Integer> wordFrequencies, Map<String, String> productPrices) {
-        int numDocuments = productPrices.size();
-        Map<String, Double> productTfIdf = new HashMap<>();
-        int totalWords = wordFrequencies.values().stream().mapToInt(Integer::valueOf).sum();
-
-        for (Map.Entry<String, Integer> entry : wordFrequencies.entrySet()) {
-            String word = entry.getKey();
-            int wordFrequency = entry.getValue();
-
-            // Calculate Term Frequency (TF)
-            double tf = (double) wordFrequency / totalWords;
-
-            // Calculate Inverse Document Frequency (IDF)
-            int documentFrequency = 0;
-            for (Map.Entry<String, String> priceEntry : productPrices.entrySet()) {
-                if (calculateWordFrequencies(priceEntry.getValue()).containsKey(word)) {
-                    documentFrequency++;
-                }
-            }
-            double idf = Math.log((double) numDocuments / documentFrequency);
-
-            // Calculate TF-IDF
-            double tfIdf = tf * idf;
-            productTfIdf.put(word, tfIdf);
-        }
-
-        return productTfIdf;
-    }
     public List<ProductResponse> recommendedProducts(Long userId) {
         log.info("CollaborativeFilteringRecommender: recommendedBooks() called - user id: " + userId);
         Map<Long, Map<Long, Integer>> myRatesMap = new TreeMap<>();
@@ -133,14 +73,6 @@ public class CollaborativeFilteringRecommender {
 
         Map<Long, String> products = new HashMap<>();
         productRepository.findAll().forEach(product -> products.put(product.getId(), product.getName()));
-        Map<String, String> productPrices = new HashMap<>();
-        productPrices.put("P1", "460000");
-        productPrices.put("P2", "480000");
-        productPrices.put("P3", "480000");
-
-        Map<String, Map<String, Double>> productTfidf = generateTfidfMatrix(productPrices);
-
-        log.info("productTfidf: {}", productTfidf);
 
 
         Map<Long, Double> neighbourhoods = getNeighbourhoods(myRatesMap.get(userId), averageRating, ratings);
@@ -168,24 +100,54 @@ public class CollaborativeFilteringRecommender {
         }
         log.info("CollaborativeFilteringRecommender: recommendedProducts() ended - size: " + recommendedProducts.size());
 
-        //Convert to Response
 
-        for (Product product : recommendedProducts) {
-            int total = 0;
-            if (!product.isActive()){
-                recommendedProducts.remove(product);
+
+        List<Integer> list_products = new ArrayList<>();
+        List<Integer> salePrices = new ArrayList<>();
+        List<Double> discountRate = new ArrayList<>();
+        List<Long> saleIds = new ArrayList<>();
+        //Convert to Response
+        i = 0;
+        while (i < recommendedProducts.size()) {
+            if (!recommendedProducts.get(i).isActive()) {
+                recommendedProducts.remove(i);
                 continue;
             }
-            var items = productItemRepository.findAllByProduct_Id(product.getId());
+            int total = 0;
+            var items = productItemRepository.findAllByProduct_Id(recommendedProducts.get(i).getId());
+            var estimatedPrice = 0.0;
             for (ProductItem productItem : items) {
                 total += productItem.getQuantityInStock();
+                estimatedPrice = productItem.getPrice();
             }
-            list.add(total);
+            list_products.add(total);
+            var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(recommendedProducts.get(i).getId(), true);
+            if (saleProduct.isPresent()) {
+                if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                        && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                    discountRate.add(saleProduct.get().getSale().getDiscountRate());
+                    double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    saleIds.add(saleProduct.get().getSale().getId());
+                } else {
+                    discountRate.add(0.0);
+                    salePrices.add((int) estimatedPrice);
+                    saleIds.add(null);
+                }
+            }
+            else {
+                discountRate.add(0.0);
+                salePrices.add((int) estimatedPrice);
+                saleIds.add(null);
+            }
+            i++;
         }
-
         var productResponseList = productMapper.toProductResponseList(recommendedProducts);
         for (int j = 0; j < productResponseList.size(); j++) {
-            productResponseList.get(j).setQuantity(list.get(j));
+            productResponseList.get(j).setQuantity(list_products.get(j));
+            productResponseList.get(j).setSalePrice(salePrices.get(j));
+            productResponseList.get(j).setDiscountRate(discountRate.get(j));
+            productResponseList.get(j).setSaleId(saleIds.get(j));
         }
         return productResponseList;
     }
