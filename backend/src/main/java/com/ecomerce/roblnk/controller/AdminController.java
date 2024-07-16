@@ -86,7 +86,7 @@ public class AdminController {
                                                  @RequestParam(value = "min_price", required = false) String minPrice,
                                                  @RequestParam(value = "max_price", required = false) String maxPrice,
                                                  @RequestParam(value = "search", required = false) String search,
-                                                 @RequestParam(value = "sort", required = false, defaultValue = "rating_desc") String sort,
+                                                 @RequestParam(value = "sort", required = false, defaultValue = "new_to_old") String sort,
                                                  @RequestParam(value = "state", required = false) Boolean state,
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber,
                                                  @RequestParam(value = "flag", required = false, defaultValue = "true") boolean isAdmin
@@ -115,9 +115,10 @@ public class AdminController {
                                           @RequestParam(value = "address", required = false) String address,
                                           @RequestParam(value = "state", required = false) String state,
                                           @RequestParam(value = "payment_method", required = false) Long payment_method,
+                                          @RequestParam(value = "sort", required = false, defaultValue = "new_to_old") String sort,
                                           @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
                                           ) {
-        var userOrders = userService.getAllUserHistoryOrdersForAdmin(connectedUser, order_id, email, address, state, payment_method, pageNumber);
+        var userOrders = userService.getAllUserHistoryOrdersForAdmin(connectedUser, order_id, email, address, state, payment_method, sort, pageNumber);
         if (userOrders != null) {
             return ResponseEntity.status(HttpStatus.OK).body(userOrders);
         } else

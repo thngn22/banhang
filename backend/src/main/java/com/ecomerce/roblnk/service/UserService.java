@@ -48,7 +48,7 @@ public interface UserService {
 
     String changeStatusOrderByAdmin(Principal connectedUser, Long orderId, String status);
 
-    PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Long order_id, String email, String address, String state, Long payment_method, Integer pageNumber);
+    PageResponse getAllUserHistoryOrdersForAdmin(Principal connectedUser, Long order_id, String email, String address, String state, Long payment_method, String sort, Integer pageNumber);
     List<OrderResponsev2> getAllUserHistoryOrdersForAdminFilter(Principal connectedUser, Date updatedAt, Date updateAt2);
 
     String ratingProduct(Principal connectedUser, Long id, List<ReviewRequest> reviewRequests);

@@ -55,7 +55,7 @@ public class ProductController {
                                                  @RequestParam(value = "min_price", required = false) String minPrice,
                                                  @RequestParam(value = "max_price", required = false) String maxPrice,
                                                  @RequestParam(value = "search", required = false, defaultValue = "          ") String search,
-                                                 @RequestParam(value = "sort", required = false, defaultValue = "rating_desc") String sort,
+                                                 @RequestParam(value = "sort", required = false, defaultValue = "new_to_old") String sort,
                                                  @RequestParam(value = "page_number", required = false, defaultValue = "1") Integer pageNumber
     ){
         var productDetail = productService.getMiniSearchAllProductFilter(categoryId, productId, minPrice, maxPrice, size, color, search, sort, pageNumber);

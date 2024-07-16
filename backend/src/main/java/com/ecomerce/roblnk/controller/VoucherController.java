@@ -58,7 +58,10 @@ public class VoucherController {
         if (voucher.startsWith("Success")){
             return ResponseEntity.ok(voucher);
         }
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(voucher);
+        else if (voucher.startsWith("Ex"))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(voucher);
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error when creating voucher!");
     }
     @PostMapping("/apply")
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR', 'ROLE_USER')")
