@@ -87,15 +87,24 @@ public class ICartService implements CartService {
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
                     var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
                     if (!cartItemDTO.getProductItem().isActive()){
-                        cartItem.setQuantity(0);
-                        cartItem.setTotalPrice(0);
-                        cartItemRepository.save(cartItem);
-                        flag = true;
+                        if (cartItemDTO.getQuantity() > 0) {
+                            cart.setTotalItem(cart.getTotalItem() - cartItemDTO.getQuantity());
+                            cart.setTotalPrice(cart.getTotalPrice() - cartItemDTO.getQuantity() * cartItemDTO.getPrice());
+                            cartItem.setQuantity(0);
+                            cartItem.setTotalPrice(0);
+                            cartItemDTO.setQuantity(0);
+                            cartItemDTO.setTotalPrice(0);
+                            cartItemRepository.save(cartItem);
+                            cartRepository.save(cart);
+                            flag = true;
+                        }
+                        else continue;
                     }
 
                     if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+                    else continue;
 
                     var discountRate = 0.0;
                     var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
@@ -388,10 +397,13 @@ public class ICartService implements CartService {
                 var productItem = productItemRepository.findById(cartItem.getProductItem().getId()).orElseThrow();
                 var product = productRepository.findById(productItem.getProduct().getId()).orElseThrow();
                 if (!productItem.isActive() || !product.isActive()) {
+                    cartUser.setTotalItem(cartUser.getTotalItem() - cartItem.getQuantity());
+                    cartUser.setTotalPrice(cartUser.getTotalPrice() - cartItem.getQuantity() * cartItem.getPrice());
                     cartItem.setQuantity(0);
                     cartItem.setTotalPrice(0);
-                    cartItem.setProductItem(null);
+//                    cartItem.setProductItem(null);
                     cartItemRepository.save(cartItem);
+                    cartRepository.save(cartUser);
                     flagProduct = true;
                 }
             }
