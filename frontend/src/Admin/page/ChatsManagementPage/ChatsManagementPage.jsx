@@ -153,7 +153,7 @@ const ChatsManagementPage = () => {
                     onClick={() => handleUserClick(user)}
                   >
                     <UserOutlined className="mr-2" />
-                    {user.fullName}
+                    {user?.id}
                     {newMessageFlags[user.id] &&
                       selectedUser?.id !== user.id && (
                         <span className="ml-2 bg-green-400 w-2 h-2 rounded-full inline-block" />
@@ -177,14 +177,14 @@ const ChatsManagementPage = () => {
                 />
 
                 <p className="mt-1 text-2xl font-medium">
-                  {selectedUser?.fullName}
+                  {selectedUser?.id}
                 </p>
               </div>
             ) : (
               <div className="flex gap-4">
                 <UserOutlined />
                 <p className="mt-1 text-2xl font-medium">
-                  {selectedUser?.fullName}
+                  {selectedUser?.id}
                 </p>
               </div>
             )}
