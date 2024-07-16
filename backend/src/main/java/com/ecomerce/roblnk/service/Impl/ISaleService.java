@@ -45,7 +45,7 @@ public class ISaleService implements SaleService {
         var name = filterSaleRequest.getName();
         var discounted_rate = filterSaleRequest.getDiscount_rate();
         var state = filterSaleRequest.getState();
-        var pageNumber = filterSaleRequest.getPageNumber() != null ? filterSaleRequest.getPageNumber() : 1;
+        var pageNumber = filterSaleRequest.getPage_number() != null ? filterSaleRequest.getPage_number() : 1;
         Specification<Sale> specification = specificationSale(sale_id, name, discounted_rate, state, filterSaleRequest.getStart_date(), filterSaleRequest.getEnd_date());
         var sales = saleRepository.findAll(specification);
         var saleResponse = saleMapper.toSaleResponses(sales);

@@ -23,5 +23,5 @@ public class FilterSaleRequest {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date end_date;
-    private Integer pageNumber;
+    private Integer page_number;
 }
