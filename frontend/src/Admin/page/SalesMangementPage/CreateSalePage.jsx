@@ -63,7 +63,8 @@ const CreateSalePage = () => {
         }, 500);
       },
       onError: (error) => {
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
+        console.log(`Đã xảy ra lỗi: ${error.message}`);
+        message.error("Thêm không thành công");
         setTimeout(() => {
           navigate("/admin/sales");
         }, 500);

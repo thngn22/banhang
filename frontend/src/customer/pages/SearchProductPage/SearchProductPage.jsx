@@ -12,7 +12,7 @@ const SearchProductPage = () => {
   const { data: searchProducts } = useQuery({
     queryKey: [name, pageNumber, "searchProducts"],
     queryFn: () => {
-      return ProductService.getFilterProduct({
+      return ProductService.getMiniSearchProducts({
         search: name,
         page_number: pageNumber,
       });
@@ -22,8 +22,8 @@ const SearchProductPage = () => {
     setPageNumber(pageNumber);
   };
   return (
-    <div className="flex flex-col justify-center px-20 mb-4 mt-8">
-      <p className="text-center text-3xl font-semibold">
+    <div className="flex flex-col justify-center px-20 mb-4">
+      <p className="text-center text-3xl font-semibold mt-8">
         Các sản phẩm đã tìm kiếm
       </p>
       <div className="mt-6 grid grid-cols-4 gap-4 justify-items-center">

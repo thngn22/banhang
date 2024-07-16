@@ -64,10 +64,18 @@ const UpdateVoucherPage = () => {
         }, 500);
       },
       onError: (error) => {
-        message.error(`Đã xảy ra lỗi: ${error.message}`);
-        setTimeout(() => {
-          navigate("/admin/vouchers");
-        }, 500);
+        console.log(`Đã xảy ra lỗi: ${error.message}`);
+        if (error.message.includes("403")) {
+          message.error("Mã voucher bị trùng, không thể chỉnh sửa");
+          setTimeout(() => {
+            navigate("/admin/vouchers");
+          }, 500);
+        } else {
+          message.error("Chỉnh sửa không thành công");
+          setTimeout(() => {
+            navigate("/admin/vouchers");
+          }, 500);
+        }
       },
     });
   };

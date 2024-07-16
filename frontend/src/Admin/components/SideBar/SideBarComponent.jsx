@@ -1,4 +1,4 @@
-import { Menu } from "antd";
+import { Menu, message } from "antd";
 import {
   SkinOutlined,
   UserOutlined,
@@ -9,21 +9,28 @@ import {
   EnvironmentOutlined,
   TagsOutlined,
   PercentageOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getItem } from "../../../utils/untils";
 import { useQuery } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as CategoryService from "../../../services/CategoryService";
 import { getCategory } from "../../../redux/slides/categorySlice";
 import "./styles.css";
 import pluginIcon from "../../../Data/icon/plugin.png";
+import { resetUser } from "../../../redux/slides/userSlide";
+import { logoutSuccess } from "../../../redux/slides/authSlice";
+import * as AuthService from "../../../services/AuthService";
+import createAxiosInstance from "../../../services/createAxiosInstance";
 
 const SideBarComponent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const auth = useSelector((state) => state.auth.login.currentUser);
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
   const items = [
     getItem("Thống kê tổng quan", "statisticalOverview", <BarChartOutlined />),
@@ -56,6 +63,7 @@ const SideBarComponent = () => {
   const dynamicRoutes = [
     { path: "/admin/updateSale/", key: "listSales" },
     { path: "/admin/updateVoucher/", key: "listVouchers" },
+    { path: "/admin/updateCategory/", key: "listCategories" },
   ];
 
   const currentPath = location.pathname;
@@ -104,7 +112,7 @@ const SideBarComponent = () => {
   }, [location.pathname]);
 
   const onOpenChange = (keys) => {
-    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    const latestOpenKey = keys?.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
       setOpenKeys(keys);
     } else {
@@ -118,6 +126,19 @@ const SideBarComponent = () => {
     if (route) {
       navigate(route);
       setSelectedKey(key);
+    }
+  };
+
+  const handleLogoutAdmin = async () => {
+    try {
+      const res = await AuthService.logout(auth?.accessToken, axiosJWT);
+      if (res) {
+        dispatch(resetUser());
+        dispatch(logoutSuccess());
+        navigate("/");
+      }
+    } catch (error) {
+      message.error(`Đã xảy ra lỗi: ${error.message}`);
     }
   };
 
@@ -140,6 +161,16 @@ const SideBarComponent = () => {
         className="custom-menu"
         onClick={handleMenuClick}
       />
+
+      <div
+        className="flex justify-center items-center cursor-pointer mt-14 mx-12 py-2 gap-4 text-xl rounded-3xl font-semibold hover:opacity-70 bg-slate-200"
+        onClick={handleLogoutAdmin}
+      >
+        <div>
+          <LogoutOutlined />
+        </div>
+        <p>Đăng xuất</p>
+      </div>
     </div>
   );
 };

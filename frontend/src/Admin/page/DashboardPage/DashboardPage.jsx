@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import createAxiosInstance from "../../../services/createAxiosInstance";
 import { useQuery } from "@tanstack/react-query";
@@ -7,12 +7,10 @@ import StatCard from "../../components/AdminStatistical/StatCard";
 import DateField from "../../components/AdminStatistical/DateField";
 import LineChart from "../../components/AdminStatistical/LineChart";
 import PieChart from "../../components/AdminStatistical/PieChart";
-import Loading from "../../../Customer/components/LoadingComponent/Loading";
 
 import moneyIcon from "../../../Data/icon/Remove-bg.ai_1719739592370.png";
 import userIcon from "../../../Data/icon/Remove-bg.ai_1719739646383.png";
 import cartIcon from "../../../Data/icon/Remove-bg.ai_1719739681936.png";
-import chatIcon from "../../../Data/icon/chat.png";
 
 const DashboardPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -23,7 +21,6 @@ const DashboardPage = () => {
     "01-01-2023 00:00:00",
     "31-12-2024 23:59:59",
   ]);
-  const [isLoading, setIsLoading] = useState(true);
 
   const handleOptionChange = (value) => {
     setOptionChart(value);
@@ -32,14 +29,8 @@ const DashboardPage = () => {
     setDate(value);
   };
 
-  useEffect(() => {
-    if (auth) {
-      setIsLoading(false);
-    }
-  }, [auth]);
-
   const { data: revenue, refetch } = useQuery({
-    queryKey: "revenue",
+    queryKey: ["revenue", date],
     queryFn: () => {
       return RevenueService.getRevenue(
         { from: date[0], to: date[1], type: optionChart },
@@ -71,19 +62,18 @@ const DashboardPage = () => {
 
   return (
     <div className="p-6">
-      <Loading isLoading={isLoading}>
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-4xl font-extrabold uppercase">Shoes.co</p>
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-4xl font-extrabold uppercase">Shoes.co</p>
 
-          <div className="flex gap-8 items-center">
-            <img
-              className="object-cover rounded-full h-[3rem]"
-              src={auth.avatar}
-              alt="avatar"
-            />
-          </div>
+        <div className="flex gap-8 items-center">
+          <img
+            className="object-cover rounded-full h-[3rem]"
+            src={auth?.avatar}
+            alt="avatar"
+          />
         </div>
-      </Loading>
+      </div>
+
       <div className="grid grid-cols-3 gap-8 mb-4">
         <StatCard
           title="Doanh thu"

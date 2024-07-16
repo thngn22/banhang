@@ -17,11 +17,11 @@ const ProductCard = ({ data }) => {
         </div>
 
         <div className="textPart bg-white p-2">
-          <div className="text-left">
+          <div className="flex text-left items-center justify-between">
             <Space className="configStar">
               <Rate tooltips={desc} disabled value={data?.rating} allowHalf />
             </Space>
-            <span className="float-right">Sold: {data?.sold}</span>
+            <span className="float-right text-sm">Đã bán: {data?.sold}</span>
           </div>
           <div className="text-left h-14 overflow-hidden">
             <p className="font-bold line-clamp-2 text-lg">{data?.name}</p>

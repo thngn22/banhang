@@ -46,7 +46,7 @@ export default function Navigation({
   const { data: searchProducts } = useQuery({
     queryKey: [nameSearch, "searchProducts"],
     queryFn: () => {
-      return ProductService.getFilterProduct({ search: nameSearch });
+      return ProductService.getMiniSearchProducts({ search: nameSearch });
     },
   });
 
