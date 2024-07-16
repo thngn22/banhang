@@ -559,7 +559,7 @@ const FormFields = ({
           <img className="w-[4rem] h-[4rem]" src={imgTrunk} alt="imgTrunk" />
           <div className="text-sm">
             <p className="font-medium">
-              Hơn 800.000 đơn hàng đã được Shoes.co giao thành công đến khách
+              Rất nhiều đơn hàng đã được Shoes.co giao thành công đến khách
               hàng.
             </p>
             <p>

@@ -1,8 +1,6 @@
 import { z } from "zod";
 
 import {
-  specialCharacterRegex,
-  specialCharacterRegex2,
   formatPhoneNumber,
   emailRegex,
   strongPasswordRegex,
@@ -10,21 +8,8 @@ import {
 
 const signUpSchema = z
   .object({
-    firstName: z
-      .string()
-      .min(1, "Bạn phải nhập Họ")
-      .max(60, "Quá dài")
-      .regex(specialCharacterRegex, "Không chứa ký tự đặc biệt"),
-    lastName: z
-      .string()
-      .min(1, "Bạn phải nhập Tên")
-      .max(60, "Quá dài")
-      .regex(specialCharacterRegex, "Không chứa ký tự đặc biệt"),
-    userName: z
-      .string()
-      .min(1, "Bạn phải nhập Tên đăng nhập")
-      .max(60, "Quá dài")
-      .regex(specialCharacterRegex2, "Không chứa ký tự đặc biệt"),
+    firstName: z.string().min(1, "Bạn phải nhập Họ").max(60, "Quá dài"),
+    lastName: z.string().min(1, "Bạn phải nhập Tên").max(60, "Quá dài"),
     phoneNumber: z.string().regex(formatPhoneNumber, {
       message: "Số điện thoại không đúng định dạng",
     }),

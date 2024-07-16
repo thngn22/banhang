@@ -88,7 +88,7 @@ const CheckoutPage = () => {
       onError: (error) => {
         console.log(`Đã xảy ra lỗi ${error.message}`);
         message.error("Không thành công");
-        // navigate("/carts");
+        navigate("/carts");
       },
     });
   };

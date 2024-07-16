@@ -113,14 +113,14 @@ const Cart = () => {
                 />
                 <p>
                   Hỗ trợ vận chuyển Grab cho đơn hàng ngoại thành (và bán kính
-                  nhiều hơn 10km nội thành).
+                  nhiều hơn 7km nội thành).
                 </p>
               </li>
               <li className="flex items-center">
                 <img src={logoBus2h} alt="logoBus2h" className="w-8 mr-4" />
                 <p>
                   Hỗ trợ giao hàng trong 2 giờ. Áp dụng cho khu vực TP. Hồ Chí
-                  Minh bán kính 10km từ thứ Hai đến thứ Bảy (từ 8:00 - 11:00 và
+                  Minh bán kính 7km từ thứ Hai đến thứ Bảy (từ 8:00 - 11:00 và
                   từ 14:00 - 17:00 trong ngày).
                 </p>
               </li>
