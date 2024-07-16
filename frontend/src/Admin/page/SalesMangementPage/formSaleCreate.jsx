@@ -35,17 +35,17 @@ const FormSaleCreate = ({
   const [pageNumber, setPageNumber] = useState(1);
   const [dataTable, setDataTable] = useState([]);
 
-  const handleMenuItemClick = (id) => {
-    setCategoryId(id);
+  const handleMenuItemClick = (id, title) => {
+    setCategoryId({ id, title });
   };
 
   const { data: productsToCreate, refetch: refetchProductsToCreate } = useQuery(
     {
-      queryKey: [categoryId, pageNumber, "productsToCreate"],
+      queryKey: [categoryId?.id, pageNumber, "productsToCreate"],
       queryFn: () => {
         return apiSales.getProductByCateWithoutCreate(
           {
-            category_id: categoryId ? categoryId : "",
+            category_id: categoryId?.id ? categoryId?.id : "",
             page_number: pageNumber,
           },
           auth?.accessToken,
@@ -230,7 +230,12 @@ const FormSaleCreate = ({
         )}
       </div>
 
-      <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+      <div className="flex gap-2 items-center">
+        <MultilevelDropdown onMenuItemClick={handleMenuItemClick} />
+        {categoryId && (
+          <p className="font-medium">Danh mục {categoryId?.title}</p>
+        )}
+      </div>
 
       <div className="w-full">
         <p className="text-xl font-extrabold">Bảng sản phẩm</p>
