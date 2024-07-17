@@ -28,8 +28,13 @@ CREATE TABLE `address` (
   `address` varchar(255) DEFAULT NULL,
   `district` varchar(1000) DEFAULT NULL,
   `ward` varchar(1000) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `is_default` bit(1) DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKda8tuywtf0gb6sedwk7la1pgi` (`user_id`),
+  CONSTRAINT `FKda8tuywtf0gb6sedwk7la1pgi` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,10 +49,13 @@ CREATE TABLE `cart` (
   `total_item` int DEFAULT NULL,
   `total_price` int DEFAULT NULL,
   `user_id` bigint NOT NULL,
+  `voucher_id` bigint DEFAULT NULL,
   PRIMARY KEY (`cart_id`),
+  UNIQUE KEY `UK_7gdss5s6vl2tj1yd6kylvwstp` (`voucher_id`),
   KEY `FKl70asp4l4w0jmbm1tqyofho4o` (`user_id`),
+  CONSTRAINT `FKc251mbx6hw7613vnknobredv2` FOREIGN KEY (`voucher_id`) REFERENCES `voucher` (`id`),
   CONSTRAINT `FKl70asp4l4w0jmbm1tqyofho4o` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -72,7 +80,7 @@ CREATE TABLE `cart_item` (
   CONSTRAINT `FK1uobyhgl1wvgt1jpccia8xxs3` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`),
   CONSTRAINT `FKj46f52s31n4pbpgucd6x2ci46` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
   CONSTRAINT `FKjf5jd3pbctwr3xerd2hlsa6m1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -86,6 +94,7 @@ CREATE TABLE `category` (
   `category_id` bigint NOT NULL AUTO_INCREMENT,
   `parent_category_id` bigint DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
   PRIMARY KEY (`category_id`),
   KEY `FKs2ride9gvilxy2tcuv7witnxc` (`parent_category_id`),
   CONSTRAINT `FKs2ride9gvilxy2tcuv7witnxc` FOREIGN KEY (`parent_category_id`) REFERENCES `category` (`category_id`)
@@ -160,7 +169,7 @@ CREATE TABLE `delivery` (
   `name` varchar(255) DEFAULT NULL,
   `price` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,12 +211,15 @@ CREATE TABLE `order_item` (
   `order_id` bigint DEFAULT NULL,
   `total_price` int DEFAULT NULL,
   `product_item_id` bigint DEFAULT NULL,
+  `cart_item_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKt4dc2r9nbvbujrljv3e23iibt` (`order_id`),
   KEY `FKcdqml0b87oh0ukk87wjx9fk86` (`product_item_id`),
+  KEY `FKjjejp1dmbelv9icv8bh9f67ad` (`cart_item_id`),
   CONSTRAINT `FKcdqml0b87oh0ukk87wjx9fk86` FOREIGN KEY (`product_item_id`) REFERENCES `product_item` (`product_item_id`),
+  CONSTRAINT `FKjjejp1dmbelv9icv8bh9f67ad` FOREIGN KEY (`cart_item_id`) REFERENCES `cart_item` (`cart_item_id`),
   CONSTRAINT `FKt4dc2r9nbvbujrljv3e23iibt` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -241,7 +253,7 @@ CREATE TABLE `orders` (
   CONSTRAINT `FKf5464gxwc32ongdvka2rtvw96` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKqippj57d958yt8kaefy29bv8q` FOREIGN KEY (`user_payment_method_id`) REFERENCES `user_payment_method` (`id`),
   CONSTRAINT `FKtkrur7wg4d8ax0pwgo0vmy20c` FOREIGN KEY (`delivery_id`) REFERENCES `delivery` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,7 +289,7 @@ CREATE TABLE `product` (
   `is_active` bit(1) DEFAULT NULL,
   `rating` double DEFAULT NULL,
   `sold` int DEFAULT NULL,
-  `estimated_price` varchar(255) DEFAULT NULL,
+  `estimated_price` int DEFAULT NULL,
   PRIMARY KEY (`product_id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
@@ -371,7 +383,7 @@ CREATE TABLE `review` (
   CONSTRAINT `FKcpceqmajrln2x7iqc4jua0hu1` FOREIGN KEY (`order_item_id`) REFERENCES `order_item` (`id`),
   CONSTRAINT `FKiyf57dy48lyiftdrf7y87rnxi` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKiyof1sindb9qiqr9o8npj8klt` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -386,6 +398,45 @@ CREATE TABLE `role` (
   `role` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sale`
+--
+
+DROP TABLE IF EXISTS `sale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sale` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `description` mediumtext,
+  `discount_rate` double DEFAULT NULL,
+  `end_date` datetime(6) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `start_date` datetime(6) DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sale_product`
+--
+
+DROP TABLE IF EXISTS `sale_product`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sale_product` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `product_id` bigint DEFAULT NULL,
+  `sale_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKrtwiisrmdqeslt86pacdwwn1o` (`product_id`),
+  KEY `FK4dtibi1vwxkx8gjs59nhp0cnq` (`sale_id`),
+  CONSTRAINT `FK4dtibi1vwxkx8gjs59nhp0cnq` FOREIGN KEY (`sale_id`) REFERENCES `sale` (`id`),
+  CONSTRAINT `FKrtwiisrmdqeslt86pacdwwn1o` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -419,7 +470,7 @@ CREATE TABLE `token` (
   UNIQUE KEY `UK_pddrhgwxnms2aceeku9s2ewy5` (`token`),
   KEY `FKe32ek7ixanakfqsdaokm4q9y2` (`user_id`),
   CONSTRAINT `FKe32ek7ixanakfqsdaokm4q9y2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -467,7 +518,7 @@ CREATE TABLE `user_address` (
   KEY `FKk2ox3w9jm7yd6v1m5f68xibry` (`user_id`),
   CONSTRAINT `FKdaaxogn1ss81gkcsdn05wi6jp` FOREIGN KEY (`address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `FKk2ox3w9jm7yd6v1m5f68xibry` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -486,7 +537,7 @@ CREATE TABLE `user_payment_method` (
   KEY `FKjj97m3tgdq73q80p2xh4xe5rn` (`payment_method_id`),
   CONSTRAINT `FKjj97m3tgdq73q80p2xh4xe5rn` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`),
   CONSTRAINT `FKm3fq7vaahnq9eb7al7cdxh519` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -539,6 +590,30 @@ CREATE TABLE `variation_option` (
   CONSTRAINT `FKlfkypq92cr21b9mtc7mihks1e` FOREIGN KEY (`variation_id`) REFERENCES `variation` (`variation_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=823 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `voucher`
+--
+
+DROP TABLE IF EXISTS `voucher`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `voucher` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `is_active` bit(1) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `discount_rate` double DEFAULT NULL,
+  `end_date` datetime(6) DEFAULT NULL,
+  `maximum_discount_valid_price` int DEFAULT NULL,
+  `minimum_cart_price` int DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `quantity` int DEFAULT NULL,
+  `start_date` datetime(6) DEFAULT NULL,
+  `voucher_code` varchar(255) DEFAULT NULL,
+  `used_quantity` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -549,4 +624,4 @@ CREATE TABLE `variation_option` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-31 22:20:54
+-- Dump completed on 2024-07-17 18:14:25

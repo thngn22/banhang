@@ -115,7 +115,7 @@ public class ICartService implements CartService {
                                 && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                             discountRate = saleProduct.get().getSale().getDiscountRate();
                             double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
-                            salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                            salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
                             if (!cartItem.getPrice().equals(salePrice)){
                                 cartItem.setPrice(salePrice);
                                 cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
@@ -164,7 +164,7 @@ public class ICartService implements CartService {
                 else {
                     userCart.setDiscountRate(cart.getVoucher().getDiscountRate());
                     double finalPrice = (userCart.getTotalPrice() - userCart.getDiscountRate() * userCart.getTotalPrice() * 0.01);
-                    userCart.setFinalPrice((int) (Math.round(finalPrice/1000.0) * 1000 + 1000));
+                    userCart.setFinalPrice((int) (Math.round(finalPrice/1000.0) * 1000));
                 }
                 userCart.setCartItems(list);
                 return ResponseEntity.status(HttpStatus.OK).body(userCart);
@@ -234,7 +234,7 @@ public class ICartService implements CartService {
                             && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                         discountRate = saleProduct.get().getSale().getDiscountRate();
                         double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
-                        salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                        salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
                     }
                 }
                 if (productItem.isActive()) {

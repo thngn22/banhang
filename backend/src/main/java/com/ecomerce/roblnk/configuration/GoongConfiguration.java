@@ -62,12 +62,9 @@ public class GoongConfiguration {
         System.out.println(main_lng);
 
         var distance =  distance(lat, lng, main_lat, main_lng);
-        var type = 3L;
-        if (distance <= 7.0 || address.getCity().startsWith("Thành phố Hồ Chí Minh")){
-            if (distance <= 7.0){
-                type = 1L;
-            }
-            else type = 2L;
+        var type = 2L;
+        if (distance <= 7.0){
+            type = 1L;
         }
         var delivery = deliveryRepository.findById(type).orElseThrow();
         return DeliveryResponse.builder()

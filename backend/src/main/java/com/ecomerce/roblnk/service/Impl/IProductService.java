@@ -103,7 +103,7 @@ public class IProductService implements ProductService {
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     discountRate.add(saleProduct.get().getSale().getDiscountRate());
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                     saleIds.add(saleProduct.get().getSale().getId());
                 } else {
                     discountRate.add(0.0);
@@ -479,7 +479,7 @@ public class IProductService implements ProductService {
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     discountRate.add(saleProduct.get().getSale().getDiscountRate());
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                     saleIds.add(saleProduct.get().getSale().getId());
                 } else {
                     discountRate.add(0.0);
@@ -606,7 +606,7 @@ public class IProductService implements ProductService {
                 if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     double finalPrice = estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate();
-                    salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                    salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
                     saleId = saleProduct.get().getSale().getId();
                     discountRate = saleProduct.get().getSale().getDiscountRate();
                 }
@@ -676,7 +676,7 @@ public class IProductService implements ProductService {
                 if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     double finalPrice = estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate();
-                    salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000 + 1000);
+                    salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
                     saleId = saleProduct.get().getSale().getId();
                     discountRate = saleProduct.get().getSale().getDiscountRate();
                 }
@@ -1215,7 +1215,7 @@ public class IProductService implements ProductService {
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     discountRate.add(saleProduct.get().getSale().getDiscountRate());
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                     saleIds.add(saleProduct.get().getSale().getId());
                 } else {
                     discountRate.add(0.0);
@@ -1268,7 +1268,7 @@ public class IProductService implements ProductService {
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     discountRate.add(saleProduct.get().getSale().getDiscountRate());
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                     saleIds.add(saleProduct.get().getSale().getId());
                 } else {
                     discountRate.add(0.0);
@@ -1355,7 +1355,7 @@ public class IProductService implements ProductService {
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     discountRate.add(saleProduct.get().getSale().getDiscountRate());
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                     saleIds.add(saleProduct.get().getSale().getId());
                 } else {
                     discountRate.add(0.0);
@@ -1557,7 +1557,7 @@ public class IProductService implements ProductService {
                         && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     discountRate.add(saleProduct.get().getSale().getDiscountRate());
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProduct.get().getSale().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                     saleIds.add(saleProduct.get().getSale().getId());
                 } else {
                     discountRate.add(0.0);

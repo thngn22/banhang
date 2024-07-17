@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.33, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: e_commerce_shoes
 -- ------------------------------------------------------
--- Server version	8.0.34
+-- Server version	8.0.33
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -247,7 +247,7 @@ CREATE TABLE `delivery` (
 
 LOCK TABLES `delivery` WRITE;
 /*!40000 ALTER TABLE `delivery` DISABLE KEYS */;
-INSERT INTO `delivery` VALUES (1,'Miễn phí vận chuyển',2,'Miễn phí vận chuyển',0),(2,'Phí vận chuyển được tính theo đơn vị vận chuyển Grab',2,'Giao nội thành',0),(3,'Phí vận chuyển được tính theo đơn vị vận chuyển Grab (Ngoại thành)',0,'Giao ngoại thành',0);
+INSERT INTO `delivery` VALUES (1,'Nhân viên hệ thống sẽ giao hàng cho bạn',2,'Miễn phí vận chuyển',0),(2,'Phí vận chuyển được tính theo đơn vị vận chuyển Grab',2,'Có phí vận chuyển',0);
 /*!40000 ALTER TABLE `delivery` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -912,4 +912,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-07-17  0:30:56
+-- Dump completed on 2024-07-17 18:14:00

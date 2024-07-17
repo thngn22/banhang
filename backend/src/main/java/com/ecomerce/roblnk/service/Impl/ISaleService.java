@@ -174,7 +174,7 @@ public class ISaleService implements SaleService {
                         && sale.get().getEndDate().after(new Date(System.currentTimeMillis()))
                         && sale.get().getStartDate().before(new Date(System.currentTimeMillis()))) {
                     double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * sale.get().getDiscountRate());
-                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                    salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                 } else {
                     salePrices.add((int) estimatedPrice);
                 }
@@ -325,7 +325,7 @@ public class ISaleService implements SaleService {
                     && saleProductList.get(i).getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
                 discountRate.add(saleProductList.get(i).getSale().getDiscountRate());
                 double finalPrice = (estimatedPrice - estimatedPrice * 0.01 * saleProductList.get(i).getSale().getDiscountRate());
-                salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000 + 1000));
+                salePrices.add((int) (Math.round(finalPrice / 1000.0) * 1000));
                 saleIds.add(saleProductList.get(i).getSale().getId());
             } else {
                 discountRate.add(0.0);
