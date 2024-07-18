@@ -68,6 +68,7 @@ public class ICartService implements CartService {
                 List<CartItemDTO> list = new ArrayList<>();
                 boolean flag = false;
                 boolean flagVoucher = false;
+                boolean flagSale = false;
                 var voucher = cart.getVoucher();
                 if (voucher!=null) {
                     if (!voucher.isActive()) {
@@ -86,8 +87,8 @@ public class ICartService implements CartService {
                 }
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
                     var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
-                    if (!cartItemDTO.getProductItem().isActive()){
-                        if (cartItemDTO.getQuantity() > 0) {
+                    if (cartItemDTO.getQuantity() > 0){
+                        if (!cartItemDTO.getProductItem().isActive()) {
                             cart.setTotalItem(cart.getTotalItem() - cartItemDTO.getQuantity());
                             cart.setTotalPrice(cart.getTotalPrice() - cartItemDTO.getQuantity() * cartItemDTO.getPrice());
                             cartItem.setQuantity(0);
@@ -98,12 +99,9 @@ public class ICartService implements CartService {
                             cartRepository.save(cart);
                             flag = true;
                         }
-                        else continue;
-                    }
-
-                    if (cartItemDTO.getQuantity() > 0) {
                         list.add(cartItemDTO);
                     }
+
                     else continue;
 
                     var discountRate = 0.0;
@@ -120,6 +118,17 @@ public class ICartService implements CartService {
                                 cartItem.setPrice(salePrice);
                                 cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
                                 cartItemRepository.save(cartItem);
+                                var totalQuantity = 0;
+                                var totalPrice = 0;
+                                var cart_temp = cartRepository.findById(cart.getId()).orElseThrow();
+                                for (CartItem cartItem1 : cart_temp.getCartItems()){
+                                    totalQuantity += cartItem1.getQuantity();
+                                    totalPrice += cartItem1.getTotalPrice();
+                                }
+                                cart.setTotalItem(totalQuantity);
+                                cart.setTotalPrice(totalPrice);
+                                cartRepository.save(cart);
+                                flagSale = true;
                             }
                         }
                     }
@@ -128,6 +137,17 @@ public class ICartService implements CartService {
                             cartItem.setPrice(salePrice);
                             cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
                             cartItemRepository.save(cartItem);
+                            var totalQuantity = 0;
+                            var totalPrice = 0;
+                            var cart_temp = cartRepository.findById(cart.getId()).orElseThrow();
+                            for (CartItem cartItem1 : cart_temp.getCartItems()){
+                                totalQuantity += cartItem1.getQuantity();
+                                totalPrice += cartItem1.getTotalPrice();
+                            }
+                            cart.setTotalItem(totalQuantity);
+                            cart.setTotalPrice(totalPrice);
+                            cartRepository.save(cart);
+                            flagSale = true;
                         }
                     }
                     cartItemDTO.setPrice(salePrice);
@@ -141,8 +161,8 @@ public class ICartService implements CartService {
                     }
                 }
 
-                if (flag || flagVoucher){
-                    if (flag) {
+                if (flag || flagVoucher || flagSale){
+                    if (flag || flagSale) {
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
                                 .statusCode(404)
                                 .message(String.valueOf(HttpStatus.NOT_FOUND))
@@ -193,12 +213,92 @@ public class ICartService implements CartService {
             if (cart != null) {
                 UserCart userCart = cartMapper.toUserCart(cart);
                 List<CartItemDTO> list = new ArrayList<>();
+                boolean flag = false;
+                boolean flagVoucher = false;
+                boolean flagSale = false;
+                var voucher = cart.getVoucher();
+                if (voucher!=null) {
+                    if (!voucher.isActive()) {
+                        int finalPrice = 0;
+                        for (CartItem cartItem : cart.getCartItems()) {
+                            finalPrice += cartItem.getTotalPrice();
+                        }
+                        finalPrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
+
+                        cart.setTotalPrice(finalPrice);
+                        cart.setVoucher(null);
+                        cartRepository.save(cart);
+                        flagVoucher = true;
+                    }
+
+                }
                 for (CartItemDTO cartItemDTO : userCart.getCartItems()) {
-                    if (cartItemDTO.getQuantity() > 0) {
+                    var cartItem = cartItemRepository.findById(cartItemDTO.getId()).orElseThrow();
+                    if (cartItemDTO.getQuantity() > 0){
+                        if (!cartItemDTO.getProductItem().isActive()) {
+                            cart.setTotalItem(cart.getTotalItem() - cartItemDTO.getQuantity());
+                            cart.setTotalPrice(cart.getTotalPrice() - cartItemDTO.getQuantity() * cartItemDTO.getPrice());
+                            cartItem.setQuantity(0);
+                            cartItem.setTotalPrice(0);
+                            cartItemDTO.setQuantity(0);
+                            cartItemDTO.setTotalPrice(0);
+                            cartItemRepository.save(cartItem);
+                            cartRepository.save(cart);
+                            flag = true;
+                        }
                         list.add(cartItemDTO);
                     }
 
+                    else continue;
+
+                    var discountRate = 0.0;
                     var productItem = productItemRepository.findById(cartItemDTO.getProductItem().getId()).orElseThrow();
+                    var salePrice = productItem.getPrice();
+                    var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productItem.getProduct().getId(), true);
+                    if (saleProduct.isPresent()) {
+                        if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                                && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                            discountRate = saleProduct.get().getSale().getDiscountRate();
+                            double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
+                            salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
+                            if (!cartItem.getPrice().equals(salePrice)){
+                                cartItem.setPrice(salePrice);
+                                cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                                cartItemRepository.save(cartItem);
+                                var totalQuantity = 0;
+                                var totalPrice = 0;
+                                var cart_temp = cartRepository.findById(cart.getId()).orElseThrow();
+                                for (CartItem cartItem1 : cart_temp.getCartItems()){
+                                    totalQuantity += cartItem1.getQuantity();
+                                    totalPrice += cartItem1.getTotalPrice();
+                                }
+                                cart.setTotalItem(totalQuantity);
+                                cart.setTotalPrice(totalPrice);
+                                cartRepository.save(cart);
+                                flagSale = true;
+                            }
+                        }
+                    }
+                    else {
+                        if (!cartItem.getPrice().equals(salePrice)){
+                            cartItem.setPrice(salePrice);
+                            cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                            cartItemRepository.save(cartItem);
+                            var totalQuantity = 0;
+                            var totalPrice = 0;
+                            var cart_temp = cartRepository.findById(cart.getId()).orElseThrow();
+                            for (CartItem cartItem1 : cart_temp.getCartItems()){
+                                totalQuantity += cartItem1.getQuantity();
+                                totalPrice += cartItem1.getTotalPrice();
+                            }
+                            cart.setTotalItem(totalQuantity);
+                            cart.setTotalPrice(totalPrice);
+                            cartRepository.save(cart);
+                            flagSale = true;
+                        }
+                    }
+                    cartItemDTO.setPrice(salePrice);
+                    cartItemDTO.setTotalPrice(salePrice * cartItemDTO.getQuantity());
                     if (productItem.getProductConfigurations().get(0).getVariationOption().getVariation().getName().startsWith("M")) {
                         cartItemDTO.getProductItem().setColor(productItem.getProductConfigurations().get(0).getVariationOption().getValue());
                         cartItemDTO.getProductItem().setSize(productItem.getProductConfigurations().get(1).getVariationOption().getValue());
@@ -208,6 +308,18 @@ public class ICartService implements CartService {
                     }
                 }
 
+                if (flag || flagVoucher || flagSale){
+                    return null;
+                }
+                if (cart.getVoucher() == null || !cart.getVoucher().isActive()){
+                    userCart.setDiscountRate(0.0);
+                    userCart.setFinalPrice(userCart.getTotalPrice());
+                }
+                else {
+                    userCart.setDiscountRate(cart.getVoucher().getDiscountRate());
+                    double finalPrice = (userCart.getTotalPrice() - userCart.getDiscountRate() * userCart.getTotalPrice() * 0.01);
+                    userCart.setFinalPrice((int) (Math.round(finalPrice/1000.0) * 1000));
+                }
                 userCart.setCartItems(list);
                 return userCart;
 
@@ -339,8 +451,10 @@ public class ICartService implements CartService {
 
             }
             for (CartItem cartItem : userCart.getCartItems()) {
-                totalQuantity += cartItem.getQuantity();
-                totalPrice += cartItem.getTotalPrice();
+                if (cartItem.getQuantity() > 0) {
+                    totalQuantity += cartItem.getQuantity();
+                    totalPrice += cartItem.getTotalPrice();
+                }
             }
             userCart.setTotalItem(totalQuantity);
             userCart.setTotalPrice(totalPrice);
@@ -376,6 +490,7 @@ public class ICartService implements CartService {
             }
             boolean flagProduct = false;
             boolean flagVoucher = false;
+            boolean flagSale = false;
             var cartUser = user.getCart();
             var voucher = cartUser.getVoucher();
             if (voucher!=null) {
@@ -394,22 +509,77 @@ public class ICartService implements CartService {
 
             }
             for (CartItem cartItem : cartUser.getCartItems()) {
-                var productItem = productItemRepository.findById(cartItem.getProductItem().getId()).orElseThrow();
-                var product = productRepository.findById(productItem.getProduct().getId()).orElseThrow();
-                if (!productItem.isActive() || !product.isActive()) {
-                    cartUser.setTotalItem(cartUser.getTotalItem() - cartItem.getQuantity());
-                    cartUser.setTotalPrice(cartUser.getTotalPrice() - cartItem.getQuantity() * cartItem.getPrice());
-                    cartItem.setQuantity(0);
-                    cartItem.setTotalPrice(0);
+                if (cartItem.getQuantity() > 0) {
+                    var productItem = productItemRepository.findById(cartItem.getProductItem().getId()).orElseThrow();
+                    var product = productRepository.findById(productItem.getProduct().getId()).orElseThrow();
+                    if (!productItem.isActive() || !product.isActive()) {
+                        System.out.println(product.isActive());
+                        System.out.println(productItem.isActive());
+                        cartUser.setTotalItem(cartUser.getTotalItem() - cartItem.getQuantity());
+                        cartUser.setTotalPrice(cartUser.getTotalPrice() - cartItem.getQuantity() * cartItem.getPrice());
+                        cartItem.setQuantity(0);
+                        cartItem.setTotalPrice(0);
 //                    cartItem.setProductItem(null);
-                    cartItemRepository.save(cartItem);
-                    cartRepository.save(cartUser);
-                    flagProduct = true;
+                        cartItemRepository.save(cartItem);
+                        cartRepository.save(cartUser);
+                        flagProduct = true;
+                    }
+                    var discountRate = 0.0;
+                    var salePrice = productItem.getPrice();
+                    var saleProduct = saleProductRepository.findSaleProductByProduct_IdAndSaleNotNullAndSale_Active(productItem.getProduct().getId(), true);
+                    if (saleProduct.isPresent()) {
+                        if (saleProduct.get().getSale().getEndDate().after(new Date(System.currentTimeMillis()))
+                                && saleProduct.get().getSale().getStartDate().before(new Date(System.currentTimeMillis()))) {
+                            discountRate = saleProduct.get().getSale().getDiscountRate();
+                            double finalPrice = (productItem.getPrice() - productItem.getPrice() * 0.01 * discountRate);
+                            salePrice = (int) (Math.round(finalPrice / 1000.0) * 1000);
+                            if (!cartItem.getPrice().equals(salePrice)) {
+                                cartItem.setPrice(salePrice);
+                                cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                                cartItemRepository.save(cartItem);
+                                var totalQuantity = 0;
+                                var totalPrice = 0;
+                                var cart_temp = cartRepository.findById(cartUser.getId()).orElseThrow();
+                                for (CartItem cartItem1 : cart_temp.getCartItems()) {
+                                    totalQuantity += cartItem1.getQuantity();
+                                    totalPrice += cartItem1.getTotalPrice();
+                                }
+                                cartUser.setTotalItem(totalQuantity);
+                                cartUser.setTotalPrice(totalPrice);
+                                cartRepository.save(cartUser);
+                                flagSale = true;
+                                System.out.println("vao 1");
+
+                            }
+                        }
+                    } else {
+                        if (!cartItem.getPrice().equals(salePrice)) {
+                            cartItem.setPrice(salePrice);
+                            cartItem.setTotalPrice(salePrice * cartItem.getQuantity());
+                            cartItemRepository.save(cartItem);
+                            var totalQuantity = 0;
+                            var totalPrice = 0;
+                            var cart_temp = cartRepository.findById(cartUser.getId()).orElseThrow();
+                            for (CartItem cartItem1 : cart_temp.getCartItems()) {
+                                totalQuantity += cartItem1.getQuantity();
+                                totalPrice += cartItem1.getTotalPrice();
+                            }
+                            cartUser.setTotalItem(totalQuantity);
+                            cartUser.setTotalPrice(totalPrice);
+                            cartRepository.save(cartUser);
+                            flagSale = true;
+                            System.out.println("vao 2");
+
+                        }
+                    }
                 }
             }
+            System.out.println(flagVoucher);
+            System.out.println(flagProduct);
+            System.out.println(flagSale);
 
-            if (flagProduct || flagVoucher){
-                if (flagProduct) {
+            if (flagProduct || flagVoucher || flagSale){
+                if (flagProduct || flagSale) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
                             .statusCode(404)
                             .message(String.valueOf(HttpStatus.NOT_FOUND))
@@ -492,6 +662,17 @@ public class ICartService implements CartService {
                 int totalItem = 0;
                 List<OrderItem> orderItems = new ArrayList<>();
                 var userCart = getUserCartv2(principal);
+                if (userCart == null){
+                    System.out.println("cart bi null");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                            ErrorResponse.builder()
+                                    .statusCode(403)
+                                    .message("Please update the cart first!")
+                                    .description("Please update the cart first!")
+                                    .timestamp(new Date(System.currentTimeMillis()))
+                                    .build()
+                    );
+                }
                 boolean flagValid = true;
                 valid:
                 {
