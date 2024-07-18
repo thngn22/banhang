@@ -818,6 +818,7 @@ public class IProductService implements ProductService {
 
                 }
                 String productItemImage = "";
+                String productItemImage_before = "";
                 String url = "";
                 var estimatedPrice = 0;
                 while (!productItemRequests.isEmpty()) {
@@ -895,13 +896,12 @@ public class IProductService implements ProductService {
                     productItem.setName(request.getName() + " " + name);
                     productItem.setProductConfigurations(productConfigurations);
                     var image = p.getProductItemImage();
-                    if (productItemImage != null && productItemImage.isEmpty()) {
+                    if (productItemImage != null) {
                         productItemImage = image.getOriginalFilename();
-                        url = getURLPictureThenUploadToCloudinary(image);
                     }
                     if (image != null) {
-                        if (productItemImage != null) {
-                            productItemImage = image.getOriginalFilename();
+                        if (productItemImage != null && !productItemImage.equals(productItemImage_before)) {
+                            productItemImage_before = image.getOriginalFilename();
                             var ImageUrl = getURLPictureThenUploadToCloudinary(image);
                             if (ImageUrl != null) {
                                 productItem.setProductImage(ImageUrl);
@@ -991,7 +991,11 @@ public class IProductService implements ProductService {
                 var estimatedPrice = 0;
 
                 var image_product = productItemRequests.get(0).getProductImage();
-
+                String productItemImage = "";
+                String productItemImage_before = "";
+                String url = "";
+                String main_url = product.getProductItems().get(0).getProductImage();
+                boolean change = false;
                 while (!productItemRequests.isEmpty()) {
                     var p = productItemRequests.get(0);
                     String sizeValueFromRequest = p.getSize();
@@ -1092,10 +1096,25 @@ public class IProductService implements ProductService {
 
                     productItem.setName(productEditRequest.getName() + name);
 
-                    if (p.getProductImage() != null) {
-                        var urlImage = getURLPictureThenUploadToCloudinary(p.getProductImage());
-                        if (urlImage != null && !urlImage.isEmpty())
-                            productItem.setProductImage(urlImage);
+                    var image = p.getProductImage();
+                    if (image != null) {
+                        productItemImage = image.getOriginalFilename();
+                    }
+                    if (image != null) {
+                        if (productItemImage != null && !productItemImage.equals(productItemImage_before)) {
+                            productItemImage_before = image.getOriginalFilename();
+                            var ImageUrl = getURLPictureThenUploadToCloudinary(image);
+                            if (ImageUrl != null) {
+                                productItem.setProductImage(ImageUrl);
+                                productItemRepository.save(productItem);
+                                url = ImageUrl;
+                                change = true;
+                                main_url = productItemRepository.findById(product.getProductItems().get(0).getId()).orElseThrow().getProductImage();
+                            } else url = ImageUtil.urlImage;
+                        } else {
+                            productItem.setProductImage(url);
+                        }
+
                     }
 
 
@@ -1123,10 +1142,9 @@ public class IProductService implements ProductService {
                 }
                 product.setCategory(category.get());
 
-                if (image_product != null) {
-                    var urlImage = getURLPictureThenUploadToCloudinary(image_product);
-                    product.setProductImage(urlImage != null ? urlImage : ImageUtil.urlImage);
-                } else product.setProductImage(ImageUtil.urlImage);
+                if (change)
+                    product.setProductImage(main_url);
+
 
                 if (estimatedPrice != 0)
                     product.setEstimatedPrice(estimatedPrice);
