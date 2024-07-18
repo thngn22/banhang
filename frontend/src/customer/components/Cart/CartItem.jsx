@@ -116,13 +116,13 @@ const CartItem = ({ product }) => {
           <div className="flex flex-col text-gray-900">
             <p className="text-xl font-bold">{product?.productItem.name}</p>
             <div className="flex gap-2 text-sm">
-              <p>Color: </p>
+              <p>Màu: </p>
               <p className="text-gray-400 font-medium">
                 {product?.productItem.color}
               </p>
             </div>
             <div className="flex gap-2 text-sm">
-              <p>Size: </p>
+              <p>Kích thướcc: </p>
               <p className="text-gray-400 font-medium">
                 {product?.productItem.size}
               </p>
