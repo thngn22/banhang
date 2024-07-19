@@ -152,7 +152,16 @@ const ChatsManagementPage = () => {
                     } hover:bg-blue-50`}
                     onClick={() => handleUserClick(user)}
                   >
-                    <UserOutlined className="mr-2" />
+                    {user?.avatar ? (
+                      <img
+                        src={user?.avatar}
+                        alt="avatar"
+                        className="rounded-full w-[2rem] h-[2rem] mr-2"
+                      />
+                    ) : (
+                      <UserOutlined className="mr-2" />
+                    )}
+
                     {user?.id}
                     {newMessageFlags[user.id] &&
                       selectedUser?.id !== user.id && (
@@ -173,19 +182,15 @@ const ChatsManagementPage = () => {
                 <img
                   src={selectedUser?.avatar}
                   alt="avatar"
-                  className="rounded-full"
+                  className="rounded-full w-[3rem] h-[3rem]"
                 />
 
-                <p className="mt-1 text-2xl font-medium">
-                  {selectedUser?.id}
-                </p>
+                <p className="mt-1 text-2xl font-medium">{selectedUser?.id}</p>
               </div>
             ) : (
               <div className="flex gap-4">
                 <UserOutlined />
-                <p className="mt-1 text-2xl font-medium">
-                  {selectedUser?.id}
-                </p>
+                <p className="mt-1 text-2xl font-medium">{selectedUser?.id}</p>
               </div>
             )}
           </div>

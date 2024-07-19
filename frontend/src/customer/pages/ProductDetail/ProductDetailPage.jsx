@@ -24,6 +24,7 @@ function classNames(...classes) {
 }
 
 export default function ProductDetailPage() {
+  const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
   const [selectedColor, setSelectedColor] = useState();
   const [selectedSize, setSelectedSize] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState(1);
@@ -242,7 +243,7 @@ export default function ProductDetailPage() {
                   className="pt-1"
                 >
                   <Rate
-                    tooltips={descReviewStart}
+                    tooltips={desc}
                     disabled
                     value={productDetail?.rating}
                     allowHalf
@@ -574,7 +575,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* PRODUCTS RECOMMENDATION */}
-        {auth && (
+        {productsRS?.totalElements && (
           <div className="mb-4">
             <hr className="border bg-gray-400 mx-5 my-10" />
             <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
@@ -589,7 +590,7 @@ export default function ProductDetailPage() {
                 ))}
             </div>
             <div className="flex justify-center mt-2">
-              {productsRS && (
+              {productsRS?.totalElements && (
                 <Pagination
                   total={productsRS?.totalElements}
                   pageSize={productsRS?.pageSize}

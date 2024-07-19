@@ -16,10 +16,10 @@ const DashboardPage = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
   const axiosJWT = createAxiosInstance(auth, dispatch);
-  const [optionChart, setOptionChart] = useState("year");
+  const [optionChart, setOptionChart] = useState("day");
   const [date, setDate] = useState([
-    "01-01-2023 00:00:00",
-    "31-12-2024 23:59:59",
+    "01-07-2024 00:00:00",
+    "31-08-2024 23:59:59",
   ]);
 
   const handleOptionChange = (value) => {

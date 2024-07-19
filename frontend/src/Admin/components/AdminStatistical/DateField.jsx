@@ -71,8 +71,6 @@ const DateField = ({ optionChart, onOptionChange, date, onDateChange }) => {
       <Select value={type} onChange={handleOptionChange}>
         <Option value="hour">Giờ</Option>
         <Option value="day">Ngày</Option>
-        <Option value="month">Tháng</Option>
-        <Option value="year">Năm</Option>
       </Select>
       <PickerWithType type={type} />
 

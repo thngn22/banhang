@@ -65,7 +65,7 @@ function HomePage(props) {
         </p>
         <MultiCarousel homePage={true} dataCarousel={topRating} />
 
-        {auth && (
+        {productsRS?.totalElements > 0 && (
           <div className="">
             <hr className="border bg-gray-400 mx-5 my-10" />
             <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
@@ -80,7 +80,7 @@ function HomePage(props) {
                 ))}
             </div>
             <div className="flex justify-center mt-2">
-              {productsRS && (
+              {productsRS?.totalElements > 0 && (
                 <Pagination
                   total={productsRS?.totalElements}
                   pageSize={productsRS?.pageSize}
