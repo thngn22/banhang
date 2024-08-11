@@ -13,5 +13,6 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Orders, Long>, JpaSpecificationExecutor<Orders> {
     List<Orders> findAllByUser_Email(String user_email);
     List<Orders> findAllByUpdateAtBetween(Date updateAt, Date updateAt2);
+    List<Orders> findAllByCreatedAtBetween(Date updateAt, Date updateAt2);
     Optional<Orders> findOrdersByUser_EmailAndId(String user_email, Long id);
 }
