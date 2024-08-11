@@ -16,7 +16,7 @@ public interface ProductMapper {
     @Mapping(source = "active", target = "active")
     ProductResponse toProductResponse(Product product);
 
-    List<ProductResponse> toProductResponseList(List<Product> products);
+    List<ProductResponse>   toProductResponseList(List<Product> products);
 
     @Mapping(source = "active", target = "active")
     @Mapping(source = "category", target = "categoryId")

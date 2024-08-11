@@ -311,7 +311,8 @@ public class IAdminService implements AdminService {
                     DateTime yearEnd = end_time.year().getDateTime();
 
                     orderLists = userService.getAllUserHistoryOrdersForAdminFilter(principal, yearStart.toDate(), yearEnd.toDate());
-                    newAccount = userService.getAllUsersFilter(monthStart.toDate(), monthEnd.toDate()).size();
+                    log.info(String.valueOf(orderLists.size()));
+                    newAccount = userService.getAllUsersFilter(yearStart.toDate(), yearEnd.toDate()).size();
                     List<OrderResponsev2> temp = new ArrayList<>(orderLists);
                     while (monthStart.isBefore(yearEnd)){
                         log.info("monthStart: {}, monthEnd: {}", monthStart, monthEnd);
@@ -327,6 +328,7 @@ public class IAdminService implements AdminService {
                         Integer total = 0;
 
                         if (!temp.isEmpty()) {
+                            log.info(String.valueOf(temp.size()));
                             var time = temp.get(0).getUpdateAt();
                             DateTime dateTime = new DateTime(time);
                             while (dateTime.isAfter(monthStart) && dateTime.isBefore(monthEnd) && monthStart.isBefore(monthEnd)) {
