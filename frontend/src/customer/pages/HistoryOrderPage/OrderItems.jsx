@@ -122,26 +122,33 @@ const OrderItems = (props) => {
                           height: "42px",
                         }}
                         onClick={() => {
-                          mutationRating.mutate(
-                            [
-                              {
-                                orderItemId: orderItem?.id,
-                                productId: orderItem?.productId,
-                                ratingStars: countStar,
-                                feedback: feedbackText,
-                                imageFeedback: null,
-                              },
-                            ],
-                            {
-                              onSuccess: () => {
-                                message.success("Đánh giá thành công");
-                                props.setIsModalOpen(false);
-                              },
-                              onError: (err) => {
-                                message.error(`Lỗi ${err}`);
-                              },
-                            }
-                          );
+                          // mutationRating.mutate(
+                          //   [
+                          //     {
+                          //       orderItemId: orderItem?.id,
+                          //       productId: orderItem?.productId,
+                          //       ratingStars: countStar,
+                          //       feedback: feedbackText,
+                          //       imageFeedback: null,
+                          //     },
+                          //   ],
+                          //   {
+                          //     onSuccess: () => {
+                          //       message.success("Đánh giá thành công");
+                          //       props.setIsModalOpen(false);
+                          //     },
+                          //     onError: (err) => {
+                          //       message.error(`Lỗi ${err}`);
+                          //     },
+                          //   }
+                          // );
+                          console.log({
+                            orderItemId: orderItem?.id,
+                            productId: orderItem?.productId,
+                            ratingStars: countStar,
+                            feedback: feedbackText,
+                            imageFeedback: null,
+                          });
                         }}
                       >
                         <span className="text-white font-semibold">

@@ -1,173 +1,27 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
-import React, { Fragment, useEffect, useState } from "react";
-import { Dialog, Popover, Tab, Transition } from "@headlessui/react";
-import { Button, Popover as PopoverAntd } from "antd";
+import React, { useEffect, useState } from "react";
+import { message, Popover as PopoverAntd } from "antd";
 import {
-  Bars3Icon,
   MagnifyingGlassIcon,
   ShoppingBagIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import { faEnvelope, faCircleUser } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as CategoryService from "../../../services/CategoryService";
 import * as CartService from "../../../services/CartService";
-import * as UserService from "../../../services/UserService";
-import { loginSuccess, logoutSuccess } from "../../../redux/slides/authSlice";
-import { resetUser } from "../../../redux/slides/userSlide";
+import { logoutSuccess } from "../../../redux/slides/authSlice";
+import {
+  resetUser,
+  updateAddressList,
+  updateCart,
+  updateUser,
+} from "../../../redux/slides/userSlide";
 import Loading from "../LoadingComponent/Loading";
 import * as AuthService from "../../../services/AuthService";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
-const navigation = {
-  categories: [
-    {
-      id: "women",
-      name: "Women",
-      featured: [
-        {
-          name: "New Arrivals",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg",
-          imageAlt:
-            "Models sitting back to back, wearing Basic Tee in black and bone.",
-        },
-        {
-          name: "Basic Tees",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/mega-menu-category-02.jpg",
-          imageAlt:
-            "Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.",
-        },
-      ],
-      sections: [
-        {
-          id: "clothing",
-          name: "Clothing",
-          items: [
-            { name: "Tops", href: "#" },
-            { name: "Dresses", href: "#" },
-            { name: "Pants", href: "#" },
-            { name: "Denim", href: "#" },
-            { name: "Sweaters", href: "#" },
-            { name: "T-Shirts", href: "#" },
-            { name: "Jackets", href: "#" },
-            { name: "Activewear", href: "#" },
-            { name: "Browse All", href: "#" },
-          ],
-        },
-        {
-          id: "accessories",
-          name: "Accessories",
-          items: [
-            { name: "Watches", href: "#" },
-            { name: "Wallets", href: "#" },
-            { name: "Bags", href: "#" },
-            { name: "Sunglasses", href: "#" },
-            { name: "Hats", href: "#" },
-            { name: "Belts", href: "#" },
-          ],
-        },
-        {
-          id: "brands",
-          name: "Brands",
-          items: [
-            { name: "Full Nelson", href: "#" },
-            { name: "My Way", href: "#" },
-            { name: "Re-Arranged", href: "#" },
-            { name: "Counterfeit", href: "#" },
-            { name: "Significant Other", href: "#" },
-          ],
-        },
-      ],
-    },
-    {
-      id: "men",
-      name: "Men",
-      featured: [
-        {
-          name: "New Arrivals",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg",
-          imageAlt:
-            "Drawstring top with elastic loop closure and textured interior padding.",
-        },
-        {
-          name: "Artwork Tees",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/category-page-02-image-card-06.jpg",
-          imageAlt:
-            "Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.",
-        },
-      ],
-      sections: [
-        {
-          id: "clothing",
-          name: "Clothing",
-          items: [
-            { name: "Tops", href: "#" },
-            { name: "Pants", href: "#" },
-            { name: "Sweaters", href: "#" },
-            { name: "T-Shirts", href: "#" },
-            { name: "Jackets", href: "#" },
-            { name: "Activewear", href: "#" },
-            { name: "Browse All", href: "#" },
-          ],
-        },
-        {
-          id: "accessories",
-          name: "Accessories",
-          items: [
-            { name: "Watches", href: "#" },
-            { name: "Wallets", href: "#" },
-            { name: "Bags", href: "#" },
-            { name: "Sunglasses", href: "#" },
-            { name: "Hats", href: "#" },
-            { name: "Belts", href: "#" },
-          ],
-        },
-        {
-          id: "brands",
-          name: "Brands",
-          items: [
-            { name: "Re-Arranged", href: "#" },
-            { name: "Counterfeit", href: "#" },
-            { name: "Full Nelson", href: "#" },
-            { name: "My Way", href: "#" },
-          ],
-        },
-      ],
-    },
-  ],
-  pages: [
-    { name: "Company", href: "#" },
-    { name: "Stores", href: "#" },
-  ],
-};
+import createAxiosInstance from "../../../services/createAxiosInstance";
+import apiAddresses from "../../../services/addressApis";
+import * as ProductService from "../../../services/ProductService";
+import BoxSearchResults from "../BoxSearchResults/BoxSearchResults";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -176,49 +30,25 @@ function classNames(...classes) {
 export default function Navigation({
   isHiddenSearch = false,
   isHiddenCart = false,
-  isHiddenCate = false,
 }) {
   const [open, setOpen] = useState(false);
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [showCategories, setShowCategories] = useState(false);
+  const [showSubCates, setShowSubCates] = useState(false);
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
 
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
+  const [searchResults, setSearchResults] = useState([]);
+  const [nameSearch, setNameSearch] = useState("");
 
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
+  const { data: searchProducts } = useQuery({
+    queryKey: [nameSearch, "searchProducts"],
+    queryFn: () => {
+      return ProductService.getMiniSearchProducts({ search: nameSearch });
     },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  });
 
   const { data: cart } = useQuery({
     queryKey: ["cart"],
@@ -228,546 +58,386 @@ export default function Navigation({
     enabled: Boolean(auth?.accessToken),
   });
 
-  const toggleSearch = () => {
-    console.log("vao dc");
-    setIsSearchVisible(!isSearchVisible);
+  const { data: dataAddress } = useQuery({
+    queryKey: ["dataAddress"],
+    queryFn: () => {
+      return apiAddresses.getAddressUser(auth.accessToken, axiosJWT);
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
+
+  const { data: listCategories } = useQuery({
+    queryKey: ["listCategories"],
+    queryFn: () => {
+      return CategoryService.getAllTreeCategory();
+    },
+  });
+
+  useEffect(() => {
+    if (searchProducts) {
+      setSearchResults(searchProducts?.contents);
+    }
+  }, [searchProducts]);
+
+  useEffect(() => {
+    if (cart && auth && dataAddress) {
+      dispatch(updateCart(cart));
+      dispatch(updateUser(auth));
+      dispatch(updateAddressList(dataAddress));
+    }
+  }, [cart, auth, dataAddress]);
+
+  const handleNavigate = (url) => {
+    navigate(`/${url}`);
   };
 
-  const performSearch = () => {
-    // Thực hiện các công việc liên quan đến tìm kiếm ở đây
-    console.log("Performing search...");
-  };
-
-  const handleLogin = () => {
-    navigate("/login");
-  };
-  const handleSignUp = () => {
-    navigate("/register");
-  };
-
-  const handleProfile = () => {
-    navigate("/profile");
-  };
-  const handleOrder = () => {
-    navigate("/history-order");
-  };
-  const handleComeToAdmin = () => {
-    navigate("/admin");
-  };
   const handleLogout = async () => {
     setIsLoading(true);
 
-    const res = await AuthService.logout(auth?.accessToken, axiosJWT);
-    dispatch(logoutSuccess());
-    dispatch(resetUser());
-
-    setIsLoading(false);
-
-    setTimeout(() => {
-      window.location.reload();
-    });
+    try {
+      const res = await AuthService.logout(auth?.accessToken, axiosJWT);
+      if (res) {
+        dispatch(resetUser());
+        dispatch(logoutSuccess());
+        setIsLoading(false);
+        setTimeout(() => {
+          navigate("/");
+          window.location.reload();
+        }, 500);
+      }
+    } catch (error) {
+      message.error(`Đã xảy ra lỗi: ${error.message}`);
+      setIsLoading(false);
+    }
   };
+
   const handleLogo = () => {
     navigate("/");
   };
 
-  const fetchAllCategory = async () => {
-    const res = await CategoryService.getAllTreeCategory();
-    setListCategories(res);
-
-    return res;
+  const handleClickCate = (index) => {
+    setShowSubCates(index + 1);
+  };
+  const handleCloseCategories = () => {
+    setShowCategories(!showCategories);
+    setShowSubCates(false);
   };
 
-  const [listCategories, setListCategories] = React.useState([]);
-  React.useEffect(() => {
-    fetchAllCategory();
-  }, []);
+  const handleSetNameSearch = () => {
+    setNameSearch("");
+  };
 
   return (
-    <div className="bg-white border-b border-solid border-gray-300">
-      {/* Mobile menu */}
-      <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="relative z-40 lg:hidden" onClose={setOpen}>
-          <Transition.Child
-            as={Fragment}
-            enter="transition-opacity ease-linear duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity ease-linear duration-300"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 z-40 flex">
-            <Transition.Child
-              as={Fragment}
-              enter="transition ease-in-out duration-300 transform"
-              enterFrom="-translate-x-full"
-              enterTo="translate-x-0"
-              leave="transition ease-in-out duration-300 transform"
-              leaveFrom="translate-x-0"
-              leaveTo="-translate-x-full"
-            >
-              <Dialog.Panel className="relative flex w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl">
-                <div className="flex px-4 pb-2 pt-5">
-                  <button
-                    type="button"
-                    className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
-                    onClick={() => setOpen(false)}
-                  >
-                    <span className="absolute -inset-0.5" />
-                    <span className="sr-only">Close menu</span>
-                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
-                </div>
-
-                {/* Links */}
-                <Tab.Group as="div" className="mt-2">
-                  <div className="">
-                    <Tab.List className="-mb-px flex space-x-8 px-4">
-                      {listCategories.map((listCategory) => (
-                        <Tab
-                          key={listCategory.name}
-                          className={({ selected }) =>
-                            classNames(
-                              selected
-                                ? "border-indigo-600 text-indigo-600"
-                                : "border-transparent text-gray-900",
-                              "flex-1 whitespace-nowrap border-b-2 px-1 py-4 text-base font-medium"
-                            )
-                          }
-                        >
-                          {listCategory.name}
-                        </Tab>
-                      ))}
-                    </Tab.List>
-                  </div>
-                  <Tab.Panels as={Fragment}>
-                    {listCategories.map((listCategory) => (
-                      <Tab.Panel key={listCategory.name} className="space-y-10">
-                        <ul
-                          role="list"
-                          aria-labelledby={`${listCategory.id}--heading-mobile`}
-                          className="mt-6 flex flex-col space-y-6"
-                        >
-                          {listCategory.categories.map((item, index) => (
-                            <li
-                              key={item.name}
-                              className={`flow-root ${
-                                index === listCategory.categories.length - 1
-                                  ? ""
-                                  : "border-b-[1px]"
-                              } px-4`}
-                            >
-                              <a
-                                href={"1123"}
-                                className="-m-2 block p-2 text-gray-500"
-                              >
-                                {item.name}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </Tab.Panel>
-                    ))}
-                  </Tab.Panels>
-                </Tab.Group>
-
-                <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-                  <div className="flow-root">
-                    <a
-                      href="#"
-                      className="-m-2 block p-2 font-medium text-gray-900"
-                    >
-                      Sign in
-                    </a>
-                  </div>
-                  <div className="flow-root">
-                    <a
-                      href="#"
-                      className="-m-2 block p-2 font-medium text-gray-900"
-                    >
-                      Create account
-                    </a>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-200 px-4 py-6">
-                  <a href="#" className="-m-2 flex items-center p-2">
-                    <img
-                      src="https://tailwindui.com/img/flags/flag-canada.svg"
-                      alt=""
-                      className="block h-auto w-5 flex-shrink-0"
-                    />
-                    <span className="ml-3 block text-base font-medium text-gray-900">
-                      CAD
-                    </span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition.Root>
-
+    <div className="bg-white border-b border-solid border-gray-300 fixed z-[2000] right-0 left-0 top-0">
       <header className="relative bg-white">
-        <p className="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">
-          Welcome to THE BEST SHOES SHOP
-        </p>
+        <nav aria-label="Top" className="py-2 px-8">
+          <div className="flex items-center h-16">
+            {/* Logo */}
+            <div
+              className="flex items-center justify-start flex-none cursor-pointer"
+              onClick={handleLogo}
+            >
+              <h1 className="ml-1 text-4xl font-extrabold text-gray-800">
+                SHOES.CO
+              </h1>
+            </div>
 
-        <nav
-          aria-label="Top"
-          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-        >
-          <div className="">
-            <div className="flex h-16 items-center">
-              <button
-                type="button"
-                className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
-                onClick={() => setOpen(true)}
-              >
-                <span className="absolute -inset-0.5" />
-                <span className="sr-only">Open menu</span>
-                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-              </button>
-
-              {/* Logo */}
-              <div className="ml-4 flex lg:ml-0">
-                <p onClick={handleLogo}>
-                  <span className="sr-only">Your Company</span>
-                  <img
-                    className="h-[64px] w-auto"
-                    src="https://cdn.printgo.vn/uploads/media/772948/thiet-ke-logo-shop-giay-10_1583990006.jpg"
-                    alt="https://cdn.printgo.vn/uploads/media/772948/thiet-ke-logo-shop-giay-10_1583990006.jpg"
-                  />
-                </p>
-              </div>
-
-              {/* Flyout menus */}
-              {!isHiddenCate && (
-                <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch z-50">
-                  <div className="flex h-full space-x-8">
-                    {listCategories.map((listCategory) => (
-                      <Popover key={listCategory.name} className="flex">
-                        {({ open, close }) => (
-                          <>
-                            <div className="relative flex">
-                              <Popover.Button
-                                onClose={() => close()}
-                                className={classNames(
-                                  open
-                                    ? "border-indigo-600 text-indigo-600"
-                                    : "border-transparent text-gray-700 hover:text-gray-800",
-                                  "relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out outline-[0px]"
-                                )}
-                              >
-                                {listCategory.name}
-                              </Popover.Button>
-                            </div>
-
-                            <Transition
-                              as={Fragment}
-                              enter="transition ease-out duration-200"
-                              enterFrom="opacity-0"
-                              enterTo="opacity-100"
-                              leave="transition ease-in duration-150"
-                              leaveFrom="opacity-100"
-                              leaveTo="opacity-0"
-                            >
-                              <Popover.Panel className="absolute  top-full text-sm text-gray-500">
-                                <div
-                                  className="absolute inset-0 top-1/2 bg-white shadow"
-                                  aria-hidden="true"
-                                />
-
-                                <div className="relative bg-white shadow-lg">
-                                  <div className="mx-auto max-w-7xl ">
-                                    <ul
-                                      role="list"
-                                      aria-labelledby={`${listCategory.name}-heading`}
-                                      className=""
-                                    >
-                                      {listCategory.categories.map((item) => (
-                                        <li
-                                          key={item.name}
-                                          className="flex border-b-[1px] hover:text-gray-800 px-8"
-                                        >
-                                          <Link
-                                            to={`/products/category/${
-                                              item.id
-                                            }/${encodeURIComponent(item.name)}`}
-                                            onClick={() => close()}
-                                            className=" my-3"
-                                          >
-                                            {item.name}
-                                          </Link>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                </div>
-                              </Popover.Panel>
-                            </Transition>
-                          </>
-                        )}
-                      </Popover>
-                    ))}
-                  </div>
-                </Popover.Group>
-              )}
-
-              <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  {/* Thông tin người dùng với Popover từ headlessui/react */}
-                  <Loading isLoading={isLoading}>
-                    <Popover style={{ position: "relative" }}>
-                      {({ open }) => (
-                        <>
-                          <Popover.Button>
-                            {auth?.email ? (
-                              <div
-                                className={classNames(
-                                  "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
-                                  { "text-indigo-600": open }
-                                )}
-                              >
-                                <FontAwesomeIcon icon={faCircleUser} />
-                                <div>{auth.email}</div>
-                              </div>
-                            ) : (
-                              <div
-                                className={classNames(
-                                  "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
-                                  { "text-indigo-600": open }
-                                )}
-                              >
-                                Bạn chưa đăng nhập? Hãy Click vào đây
-                              </div>
-                            )}
-                          </Popover.Button>
-
-                          <Transition
-                            show={open}
-                            as={Fragment}
-                            enter="transition ease-out duration-200"
-                            enterFrom="opacity-0 scale-95"
-                            enterTo="opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="opacity-100 scale-100"
-                            leaveTo="opacity-0 scale-95"
-                          >
-                            <Popover.Panel
-                              static
-                              style={{ marginTop: "0.4rem" }}
-                              className="absolute z-10 top-[36px] right-[-22px] w-48 bg-white border border-gray-200 rounded-md shadow-lg"
-                            >
-                              <div className="py-1">
-                                {auth?.email ? (
-                                  <>
-                                    <p
-                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                      onClick={handleProfile}
-                                    >
-                                      Thông tin tài khoản
-                                    </p>
-                                    <p
-                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                      onClick={handleOrder}
-                                    >
-                                      Đơn hàng
-                                    </p>
-                                    {auth.isAdmin && (
-                                      <p
-                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                        onClick={handleComeToAdmin}
-                                      >
-                                        Vào trang quản lý
-                                      </p>
-                                    )}
-                                    <p
-                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                      onClick={handleLogout}
-                                    >
-                                      Đăng xuất
-                                    </p>
-                                  </>
-                                ) : (
-                                  <>
-                                    <p
-                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                      onClick={handleLogin}
-                                    >
-                                      Đăng nhập
-                                    </p>
-                                    <p
-                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                      onClick={handleSignUp}
-                                    >
-                                      Đăng ký
-                                    </p>
-                                  </>
-                                )}
-                              </div>
-                            </Popover.Panel>
-                          </Transition>
-                        </>
-                      )}
-                    </Popover>
-                  </Loading>
-                </div>
-
-                <div className="hidden lg:ml-8 lg:flex">
-                  <a
-                    href="#"
-                    className="flex items-center text-gray-700 hover:text-gray-800"
+            {/* Flyout menus */}
+            <div className="flex justify-between ml-20 gap-10">
+              <div className="relative">
+                <p
+                  className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out cursor-pointer"
+                  onClick={() => {
+                    setShowCategories(!showCategories);
+                    setShowSubCates(false);
+                  }}
+                >
+                  Shop
+                  <svg
+                    className="ml-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
                   >
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg"
-                      alt=""
-                      className="block h-auto w-5 flex-shrink-0"
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
                     />
-                    <span className="ml-3 block text-sm font-medium">VND</span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
-                </div>
-
-                {/* Search */}
-                {!isHiddenSearch && (
-                  <div className="flex lg:ml-6 relative">
-                    <a className="p-2 text-gray-400 hover:text-gray-500">
-                      <span className="sr-only">Search</span>
-                      <MagnifyingGlassIcon
-                        className="h-6 w-6"
-                        aria-hidden="true"
-                        onClick={toggleSearch}
-                      />
-                    </a>
-
-                    {/* Search Input and Button (Initially Hidden) */}
-                    {isSearchVisible && (
-                      <div
-                        className="absolute top-full left-0 mt-2 bg-white border rounded-md shadow-lg py-2 px-4"
-                        style={{
-                          zIndex: 1,
-                          left: "-266px",
-                          display: "flex",
-                          marginTop: "12px",
-                        }}
-                      >
-                        <input
-                          type="text"
-                          placeholder="Search..."
-                          className="border-2 border-gray-300 rounded-md p-2 mr-2"
-                        />
-                        <button
-                          className="bg-gray-800 text-white rounded-md p-2"
-                          onClick={performSearch}
-                        >
-                          Search
-                        </button>
+                  </svg>
+                </p>
+                {showCategories && (
+                  <div className="absolute z-10 mt-3">
+                    <div className="rounded-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
+                      <div className="relative grid gap-6 bg-white px-5 py-4">
+                        {listCategories.map((parentCategory, index) => (
+                          <div
+                            key={parentCategory.name}
+                            className="relative group w-14 cursor-pointer"
+                            onClick={() => handleClickCate(index)}
+                          >
+                            <p
+                              className={classNames(
+                                "text-gray-900 flex items-center w-full text-left font-medium transition-colors duration-150 ease-in-out"
+                              )}
+                            >
+                              {parentCategory.name}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
+                {showSubCates ? (
+                  <div
+                    className="absolute left-full top-0 mt-10 z-20"
+                    style={{ marginLeft: "15.5px" }}
+                  >
+                    <div className="rounded-lg ring-1 ring-black ring-opacity-5 overflow-hidden w-44">
+                      <div className="relative grid gap-6 bg-white px-5 py-4">
+                        {listCategories[showSubCates - 1].categories.map(
+                          (childCategory) => (
+                            <Link
+                              key={childCategory.name}
+                              to={`/products/category/${
+                                childCategory.id
+                              }/${encodeURIComponent(childCategory.name)}`}
+                              className="flex items-center text-gray-900"
+                              onClick={handleCloseCategories}
+                            >
+                              {childCategory.name}
+                            </Link>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <></>
+                )}
+              </div>
+              <Link
+                to="/productSales"
+                className="border-transparent hover:text-gray-800 relative z-10 -mb-px flex items-center border-b-2 pt-px text-xl font-medium transition-colors duration-200 ease-out"
+              >
+                Khuyến mãi
+              </Link>
+            </div>
 
-                {/* Cart */}
-                {/* {!isHiddenCart && (
-                  <div className="ml-4 flow-root lg:ml-6">
-                    <a href="#" className="group -m-2 flex items-center p-2">
+            {/* Search */}
+            <div className="flex-1 flex justify-center mx-4">
+              <div className="relative w-full max-w-xl">
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={nameSearch}
+                  className="w-full rounded-full bg-gray-100 border border-gray-300 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2"
+                  onChange={(e) => setNameSearch(e.target.value)}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center px-3">
+                  <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" />
+                </div>
+                {/* Hiển thị kết quả tìm kiếm */}
+                {searchResults?.length > 0 && (
+                  <div className="absolute w-full bg-gray-50 shadow-lg rounded-md z-[2000]">
+                    <BoxSearchResults
+                      searchResults={searchResults}
+                      handleNavigate={handleNavigate}
+                      handleSetNameSearch={handleSetNameSearch}
+                    />
+                    <Link
+                      to={`/searchProducts/${encodeURIComponent(nameSearch)}`}
+                      onClick={() => setNameSearch("")}
+                      className="border-transparent py-2 bg-gray-300 hover:text-blue-500 relative z-10 flex justify-center items-center text-sm font-medium transition-colors duration-200 ease-out"
+                    >
+                      Xem thêm {searchProducts?.totalElements} sản phẩm ở đây
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right section */}
+            <div className="flex justify-end items-center space-x-6">
+              <div className="hidden lg:flex lg:items-center lg:space-x-6">
+                <Loading isLoading={isLoading}>
+                  <PopoverAntd
+                    placement="bottomRight"
+                    content={
+                      <div className="py-1">
+                        {auth?.email && (
+                          <>
+                            <p
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleNavigate("profile")}
+                            >
+                              Tài khoản cá nhân
+                            </p>
+                            <p
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleNavigate("history-order")}
+                            >
+                              Đơn hàng
+                            </p>
+                            <p
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                              onClick={handleLogout}
+                            >
+                              Đăng xuất
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    }
+                    trigger="click"
+                  >
+                    <div className="focus:outline-none active:shadow-none">
+                      {auth?.email ? (
+                        <div
+                          className={classNames(
+                            "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1",
+                            { "text-indigo-600": open }
+                          )}
+                        >
+                          <div className="relative">
+                            <img
+                              className="w-10 h-10 rounded-full border border-gray-300"
+                              src={auth?.avatar}
+                              alt="avatar"
+                            />
+                          </div>
+                          <p>{auth.lastName}</p>
+                        </div>
+                      ) : (
+                        <div
+                          className={
+                            "text-sm font-medium text-gray-700 hover:text-gray-800 cursor-pointer flex items-center space-x-1 transition duration-200 transform hover:scale-105 active:scale-95"
+                          }
+                          onClick={() => handleNavigate("auth")}
+                        >
+                          Đăng nhập/ Đăng ký
+                        </div>
+                      )}
+                    </div>
+                  </PopoverAntd>
+                </Loading>
+              </div>
+
+              {/* Cart */}
+              {!isHiddenCart && (
+                <PopoverAntd
+                  placement="bottom"
+                  content={
+                    <>
+                      <div className="dropdown-cart_content p-4 overflow-hidden w-[420px]">
+                        <div>
+                          <p className="text-center text-lg uppercase font-extrabold border-b-[1px] pb-1">
+                            sản phẩm đã được thêm vào Giỏ
+                          </p>
+                          <div className="content-cart">
+                            <div className="list-cart py-4">
+                              {cart?.cartItems?.length > 0 ? (
+                                cart?.cartItems?.map((item, index) => {
+                                  return (
+                                    <div key={index} className="flex mb-4">
+                                      <div className="flex-shrink-0">
+                                        <img
+                                          src={`${item?.productItem?.productImage}`}
+                                          className="w-24 h-24 mr-2 object-cover rounded-xl"
+                                          alt="giaybitis"
+                                        />
+                                      </div>
+                                      <div className="flex-grow">
+                                        <div>
+                                          <p className="text-sm font-bold">
+                                            {item?.productItem?.name}
+                                          </p>
+                                          <div className="flex gap-2">
+                                            <p>Color:</p>
+                                            <p className="text-gray-400 font-medium">
+                                              {item?.productItem?.color}
+                                            </p>
+                                          </div>
+                                          <div className="flex gap-2">
+                                            <p>Size:</p>
+                                            <p className="text-gray-400 font-medium">
+                                              {item?.productItem?.size}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className="flex mt-2 justify-between">
+                                          <p className="text-red-400 text-sm font-medium">
+                                            {item.totalPrice.toLocaleString(
+                                              "vi-VN",
+                                              {
+                                                style: "currency",
+                                                currency: "VND",
+                                              }
+                                            )}
+                                          </p>
+                                          <div className="flex gap-2">
+                                            <p>Số lượng:</p>
+                                            <p className="font-medium">
+                                              {item.quantity}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div className="text-center">
+                                  Hiện tại không có sản phẩm nào
+                                </div>
+                              )}
+                            </div>
+                            <div className="line border-b-[1px] w-full mb-1"></div>
+                            <div className="cart-total">
+                              <div className="flex justify-between items-center py-3">
+                                <p className="uppercase font-medium">
+                                  Tổng tiền
+                                </p>
+                                <p className="text-red-500 font-bold text-lg">
+                                  {cart?.totalPrice.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  })}
+                                </p>
+                              </div>
+                              <Link
+                                to="/carts"
+                                className="uppercase p-2 w-full block text-white bg-black text-center font-medium hover:text-white hover:opacity-80"
+                              >
+                                Xem giỏ hàng
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  }
+                >
+                  <div className="relative ml-4 flow-root lg:ml-6 cursor-pointer">
+                    <a className="group -m-2 flex items-center p-2 relative">
                       <ShoppingBagIcon
                         className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                         aria-hidden="true"
                       />
-                      <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                        0
+                      <span className="absolute top-2 right-2 transform translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white rounded-full px-2 py-1 text-xs font-bold">
+                        {cart?.cartItems?.length > 0
+                          ? cart.cartItems.length
+                          : 0}
                       </span>
                       <span className="sr-only">items in cart, view bag</span>
                     </a>
                   </div>
-                )} */}
-                {!isHiddenCart && (
-                  <PopoverAntd
-                    placement="bottom"
-                    content={
-                      <>
-                        <div className="dropdown-cart_content p-5 overflow-hidden lg:w-[420px]">
-                          <div>
-                            <p className="text-center uppercase font-bold border-b-[1px] pb-2">
-                              Giỏ hàng
-                            </p>
-                            <div className="content-cart">
-                              <div className="list-cart py-4">
-                                {cart?.cartItems?.length > 0 ? (
-                                  cart?.cartItems?.map((item, index) => {
-                                    return (
-                                      <div key={index} className="flex mb-4">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src={`${item?.productItem?.productImage}`}
-                                            className="w-20 h-20 mr-2 object-cover"
-                                            alt="giaybitis"
-                                          />
-                                        </div>
-                                        <div className="flex-grow">
-                                          <div>
-                                            <p>{item?.productItem?.name}</p>
-                                            {/* <p>{item?.colorBuy} / {item?.sizeBuy}</p> */}
-                                          </div>
-                                          <div className="flex mt-2 justify-between">
-                                            <div>{item.quantity}</div>
-                                            <div>{item.totalPrice}đ</div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })
-                                ) : (
-                                  <div className="text-center">
-                                    HIện chưa có sản phẩm
-                                  </div>
-                                )}
-                              </div>
-                              <div className="line border-b-[1px] w-full mb-1"></div>
-                              <div className="cart-total">
-                                <div className="flex justify-between items-center py-3">
-                                  <p className="uppercase">Tổng tiền</p>
-                                  <p className="text-red-500">
-                                    {cart?.totalPrice}đ
-                                  </p>
-                                </div>
-                                <Link
-                                  to="/carts"
-                                  className="uppercase p-2 w-full block text-white bg-black text-center"
-                                >
-                                  Xem giỏ hàng
-                                </Link>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    }
-                  >
-                    <div className="ml-4 flow-root lg:ml-6">
-                      <a href="#" className="group -m-2 flex items-center p-2">
-                        <ShoppingBagIcon
-                          className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                          aria-hidden="true"
-                        />
-                        <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                          {cart?.cartItems?.length > 0
-                            ? cart.cartItems.length
-                            : 0}
-                        </span>
-                        <span className="sr-only">items in cart, view bag</span>
-                      </a>
-                    </div>
-                  </PopoverAntd>
-                )}
-              </div>
+                </PopoverAntd>
+              )}
             </div>
           </div>
         </nav>

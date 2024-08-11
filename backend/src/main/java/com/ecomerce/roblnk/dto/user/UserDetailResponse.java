@@ -18,7 +18,7 @@ public class UserDetailResponse {
     private String lastName;
     private String phone;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "Asia/Ho_Chi_Minh")
     private Date dob;
     private String gender;
     private boolean isEmailActive;
@@ -26,7 +26,7 @@ public class UserDetailResponse {
     private boolean isActive;
     private String avatar;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
     private Set<Role> roles;
 }

@@ -23,10 +23,12 @@ public class IReviewService implements ReviewService {
     private final CloudinaryService cloudinaryService;
     private final ReviewRepository reviewRepository;
     @Override
-    public String getURLPictureAndUploadToCloudinaryReview(String base64Content) {
+    public String getURLPictureAndUploadToCloudinaryReview(ByteMultipartFile file) {
         try {
-            byte[] fileBytes = FileUtil.base64ToBytes(base64Content);
-            MultipartFile multipartFile = new ByteMultipartFile(fileBytes);
+            byte[] fileBytes = file.getBytes();
+            String contentType = file.getContentType();
+            String name = file.getOriginalFilename();
+            MultipartFile multipartFile = new ByteMultipartFile(fileBytes, name, contentType);
             Tika tika = new Tika();
             String mimetype = tika.detect(fileBytes);
             if (mimetype.contains("image")) {

@@ -11,11 +11,7 @@ import {
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 const LineChart = (props) => {
-  return (
-    <div>
-      <Line data={props.data} options={props.options}></Line>
-    </div>
-  );
+  return <Line data={props.data}></Line>;
 };
 
 export default LineChart;

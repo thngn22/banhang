@@ -1,6 +1,6 @@
 import React from "react";
-import { DownOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Menu, message, Space, Tooltip } from "antd";
+import { DownOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
 
 const MultilevelDropdown = (props) => {
@@ -11,7 +11,7 @@ const MultilevelDropdown = (props) => {
   );
 
   const renderSubMenu = (categories) => {
-    return categories.map((category, index) => {
+    return categories?.map((category, index) => {
       if (category.categories && category.categories.length > 0) {
         return (
           <Menu.SubMenu key={category.id} title={category.name}>
@@ -29,7 +29,7 @@ const MultilevelDropdown = (props) => {
   };
 
   const renderMenu = (categories) => {
-    return categories.map((category) => {
+    return categories?.map((category) => {
       return (
         <Menu.Item
           key={category.id}

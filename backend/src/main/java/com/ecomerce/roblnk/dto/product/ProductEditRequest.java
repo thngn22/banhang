@@ -15,8 +15,7 @@ public class ProductEditRequest {
     private Long id;
     private String name;
     private String description;
-    private String productImage;
     private Long categoryId;
     private boolean active;
-    private List<ProductItemDTOv2> productItems;
+    private List<ProductItemDTORequest> productItems;
 }

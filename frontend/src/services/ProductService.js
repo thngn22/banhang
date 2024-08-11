@@ -32,10 +32,11 @@ export const getProductDetail = async (productId) => {
   );
   return res.data;
 };
-export const getProductAdmin = async (accessToken, axiosJWT) => {
+export const getProductAdmin = async (params, accessToken, axiosJWT) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}admin/products`,
     {
+      params,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -45,6 +46,19 @@ export const getProductAdmin = async (accessToken, axiosJWT) => {
 };
 
 export const createProduct = async (data, accessToken, axiosJWT) => {
+  const res = await axiosJWT.post(
+    `${process.env.REACT_APP_API_URL}product/`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const createProduct2 = async (data, accessToken, axiosJWT) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_API_URL}product/`,
     data,
@@ -132,6 +146,36 @@ export const getProductTopSoldHome = async () => {
 export const getProductTopInDetail = async (params) => {
   const res = await axios.get(
     `${process.env.REACT_APP_API_URL}product/carousel_product`,
+    {
+      params,
+    }
+  );
+  return res.data;
+};
+
+export const getProductsRS = async (params, accessToken, axiosJWT) => {
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_API_URL}product/recommend`,
+    {
+      params,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const getProductSales = async (params) => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}sale/all`, {
+    params,
+  });
+  return res.data;
+};
+
+export const getMiniSearchProducts = async (params) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}product/mini_search`,
     {
       params,
     }

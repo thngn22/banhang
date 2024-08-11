@@ -2,23 +2,25 @@ package com.ecomerce.roblnk.controller;
 
 import com.ecomerce.roblnk.dto.ApiResponse;
 import com.ecomerce.roblnk.dto.review.ReviewRequest;
+import com.ecomerce.roblnk.dto.user.EditUserAddressRequest;
 import com.ecomerce.roblnk.dto.user.EditUserProfileRequest;
 import com.ecomerce.roblnk.dto.user.UserAddressRequest;
-import com.ecomerce.roblnk.dto.user.UserPaymentRequest;
-import com.ecomerce.roblnk.dto.user.UserUpdateAddressRequest;
 import com.ecomerce.roblnk.exception.ErrorResponse;
-import com.ecomerce.roblnk.exception.UserException;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -35,28 +37,33 @@ public class UserController {
 
     }
 
-    @PutMapping("/account/profile")
+    @PutMapping(value = "/account/profile")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> editInformation(Principal connectedUser, @RequestBody EditUserProfileRequest request) {
+    public ResponseEntity<?> editInformation(Principal connectedUser, @ModelAttribute @Valid EditUserProfileRequest request) {
         return userService.editInformation(connectedUser, request);
     }
 
     @GetMapping("/account/address")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> address(Principal connectedUser) {
+    public ResponseEntity<?> getAllAddress(Principal connectedUser) {
         return userService.getUserAddress(connectedUser);
     }
 
+    @GetMapping("/account/address/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<?> getDetailAddress(Principal connectedUser, @PathVariable(name = "id") Long id) {
+        return userService.getDetailUserAddress(connectedUser, id);
+    }
     @PostMapping("/account/address")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> addAddress(Principal connectedUser, @RequestBody UserAddressRequest userAddressRequest) {
         return userService.addUserAddress(connectedUser, userAddressRequest);
     }
 
-    @PutMapping("/account/address/{id}")
+    @PutMapping("/account/address")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<?> updateAddress(Principal connectedUser, @PathVariable("id") Long id, @RequestBody UserAddressRequest userUpdateAddressRequest) {
-        return userService.updateUserAddress(connectedUser, id, userUpdateAddressRequest);
+    public ResponseEntity<?> updateAddress(Principal connectedUser, @RequestBody EditUserAddressRequest userUpdateAddressRequest) {
+        return userService.updateUserAddress(connectedUser, userUpdateAddressRequest);
     }
 
     @DeleteMapping("/account/address/{id}")
@@ -69,10 +76,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> getDetailOrderHistoryById(Principal connectedUser, @PathVariable("id") Long id) {
         var userOrders = userService.getUserHistoryOrderForUser(connectedUser, id);
-        if (userOrders != null) {
-            return ResponseEntity.status(OK).body(userOrders);
-        } else
-            return ResponseEntity.status(OK).body("Did not found any orders!");
+        return ResponseEntity.status(OK).body(Objects.requireNonNullElse(userOrders, "Did not found any orders!"));
     }
 
     @GetMapping("/account/orders")

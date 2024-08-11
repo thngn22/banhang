@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import { WrapperHeader } from "./style";
-import UploadImage from "../../../Admin/components/UploadFile/UploadImage";
-import InputField from "../../components/InputField";
-import { Button, Modal, Select, Slider, Pagination, message } from "antd";
-import { Option } from "antd/es/mentions";
+import { Button, Modal, Pagination, message } from "antd";
 import OrderItem from "../../components/Order/OrderItem";
 import OrderDetail from "./OrderDetail";
 import * as OrderService from "../../../services/OrderService";
@@ -65,14 +61,7 @@ const HistotyOrderPage = () => {
       axiosJWT
     );
 
-    const filteredHistoryOrder = res
-      .filter((order) => {
-        const orderDate = new Date(order.updateAt);
-        const filterDate = new Date();
-        return orderDate < filterDate;
-      })
-      .sort((a, b) => new Date(b.updateAt) - new Date(a.updateAt));
-    return filteredHistoryOrder;
+    return res;
   };
 
   const { data: historyOrder, refetch } = useQuery({
@@ -81,6 +70,8 @@ const HistotyOrderPage = () => {
     retry: false,
     enabled: Boolean(auth?.accessToken),
   });
+
+  console.log("historyOrder", historyOrder);
 
   const pageSize = 3;
   const startIndex = (pageNumber - 1) * pageSize;
@@ -125,7 +116,7 @@ const HistotyOrderPage = () => {
   };
   const renderTextState = (orderStatus) => {
     switch (orderStatus) {
-      case "DA_VAN_CHUYEN":
+      case "DANG_VAN_CHUYEN":
         return "Đang vận chuyển";
       case "DA_GIAO_HANG":
         return "Đã giao hàng";
@@ -155,23 +146,20 @@ const HistotyOrderPage = () => {
   });
 
   return (
-    <div>
-      <div style={{ backgroundColor: "rgba(169, 169, 169, 0.2)" }}>
+    <div className="font-montserrat">
+      <div className="bg-gray-100">
         <div
           style={{
             padding: "10px 120px",
             margin: "0 10rem",
             backgroundColor: "#fff",
             position: "relative",
-            minHeight: "70vh",
           }}
         >
-          <section className="text-2xl text-left font-semibold mt-2">
+          <p className="text-3xl text-left font-semibold my-4">
             Lịch sử mua hàng
-          </section>
-          <hr class="w-full mb-4 mt-1 border-t border-gray-300" />
+          </p>
 
-          {/* List */}
           {visibleHistoryOrder ? (
             visibleHistoryOrder.map((order, index) => (
               <div
@@ -182,7 +170,7 @@ const HistotyOrderPage = () => {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  height: "100%", // Đảm bảo chiếm hết độ cao của cha
+                  height: "100%",
                   marginBottom: "30px",
                 }}
               >
@@ -195,10 +183,8 @@ const HistotyOrderPage = () => {
                     justifyContent: "space-between",
                     alignItems: "center",
                     minHeight: "28px",
-                    backgroundColor: "#034ea1",
-                    color: "#fff",
                   }}
-                  className="font-semibold"
+                  className="font-semibold text-white bg-black"
                 >
                   <p>{order.createdAt}</p>
                   <div style={{ display: "flex" }}>
@@ -311,6 +297,7 @@ const HistotyOrderPage = () => {
               pageSize={pageSize}
               defaultCurrent={1}
               onChange={onChange}
+              className="flex justify-center mb-4"
             />
           )}
         </div>

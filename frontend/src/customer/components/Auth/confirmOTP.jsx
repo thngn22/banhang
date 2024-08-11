@@ -2,11 +2,6 @@ import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
@@ -15,33 +10,25 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InputField from "../InputField";
 import { useState } from "react";
 import { useMutationHook } from "../../../hooks/useMutationHook";
-import * as UserSerVice from "../../../services/UserService";
-import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as AuthService from "../../../services/AuthService";
+import { useDispatch } from "react-redux";
+import { signSuccess } from "../../../redux/slides/accessSlice";
+import { message } from "antd";
 
 const defaultTheme = createTheme();
 
 export default function ConfirmOTP() {
   const [otp, setOtp] = useState("");
-  const { email } = useParams();
-  console.log(("email", email));
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { email } = useParams();
 
-  const mutation = useMutationHook((data) => AuthService.sendOTP(data));
-
-  const { isSuccess, isError } = mutation;
-
-  const message = "";
-
-  useEffect(() => {
-    if (isSuccess) {
-      navigate("/login");
-    } else if (isError) {
-      message = "Mã OTP sai, mời bạn kiểm tra lại";
-    }
-  }, [isSuccess, isError]);
+  const mutation = useMutationHook((data) => {
+    const res = AuthService.sendOTP(data);
+    console.log("res", res);
+    return res;
+  });
 
   const inputFullWidth = {
     width: "100%",
@@ -55,15 +42,15 @@ export default function ConfirmOTP() {
       },
       {
         onSuccess: () => {
-          message.success("Xác thực thành công");
+          message.success("Successful Authentication").toString();
+          dispatch(signSuccess({}));
+          navigate("/auth");
         },
         onError: (error) => {
-          message.error(`Lỗi ${error.message}`);
+          message.error(`Errors ${error.message}`).toString();
         },
       }
     );
-
-    localStorage.clear();
   };
 
   const handleOnChangeOTP = (value) => {
@@ -72,8 +59,8 @@ export default function ConfirmOTP() {
 
   return (
     <div
+      className="bg-gradient-to-r from-gray-100 to-gray-400"
       style={{
-        backgroundColor: "rgba(128, 128, 128, 0.8)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -98,7 +85,7 @@ export default function ConfirmOTP() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Mã OTP đã được gửi, hãy kiểm tra Email
+              Sended OTP, check your Email
             </Typography>
             <Box
               component="form"
@@ -106,11 +93,6 @@ export default function ConfirmOTP() {
               noValidate
               sx={{ mt: 1 }}
             >
-              {message !== "" && (
-                <Typography style={{ color: "red", marginLeft: "16px" }}>
-                  {message}
-                </Typography>
-              )}
               <InputField
                 value={otp}
                 label={"OTP"}

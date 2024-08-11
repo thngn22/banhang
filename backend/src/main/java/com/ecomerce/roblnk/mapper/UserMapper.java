@@ -19,9 +19,15 @@ public interface UserMapper {
     UserResponse toUserResponse(User user);
     List<UserResponse> toListUserResponse(List<User> userList);
 
-    @Mapping(source = "default", target = "default")
-    UserAddressResponse toUserAddressResponse(UserAddress userAddress);
-    List<UserAddressResponse> toListUserAddressResponse(List<UserAddress> userAddresses);
+    @Mapping(source = "_default", target = "_default")
+    @Mapping(source = "id", target = "addressInfor.id")
+    @Mapping(source = "active", target = "active")
+    @Mapping(source = "city", target = "addressInfor.city")
+    @Mapping(source = "district", target = "addressInfor.district")
+    @Mapping(source = "ward", target = "addressInfor.ward")
+    @Mapping(source = "address", target = "addressInfor.address")
+    UserAddressResponse toUserAddressResponse(Address userAddress);
+    List<UserAddressResponse> toListUserAddressResponse(List<Address> userAddresses);
     AddressDTO toUserAddressDTO(Address address);
 
     Address toAddressEntity(UserAddressRequest userAddressRequest);

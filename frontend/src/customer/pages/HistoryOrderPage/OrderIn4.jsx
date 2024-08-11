@@ -3,9 +3,11 @@ import React from "react";
 const OrderIn4 = (props) => {
   const { detailOrder } = props;
 
+  console.log(detailOrder);
+
   const renderTextState = (orderStatus) => {
     switch (orderStatus) {
-      case "DA_VAN_CHUYEN":
+      case "DANG_VAN_CHUYEN":
         return "Đang vận chuyển";
       case "DA_GIAO_HANG":
         return "Đã giao hàng";
@@ -50,7 +52,8 @@ const OrderIn4 = (props) => {
           <div className="flex items-center space-x-2">
             <p className="font-semibold">Địa chỉ:</p>
             <p>
-              {detailOrder.address.address}, {detailOrder.address.ward}, {detailOrder.address.district}, {detailOrder.address.city}
+              {detailOrder.address.address}, {detailOrder.address.ward},{" "}
+              {detailOrder.address.district}, {detailOrder.address.city}
             </p>
           </div>
         </div>

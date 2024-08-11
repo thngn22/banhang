@@ -1,31 +1,37 @@
-import ProductCard from "../../components/Product/ProductCard";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
+import { Pagination, Select, Slider, Button } from "antd";
+import { FilterOutlined } from "@ant-design/icons";
+import ProductCard from "../../components/Product/ProductCard";
 import * as ProductService from "../../../services/ProductService";
-import { Pagination, Select, Slider } from "antd";
-import { useState } from "react";
-import { Option } from "antd/es/mentions";
 import * as FilterService from "../../../services/FilterService";
+import { Option } from "antd/es/mentions";
+import "./styles.css";
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export default function ProductPage() {
   const { categoryId, categoryName } = useParams();
-
   const [pageNumber, setPageNumber] = useState(1);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
-  const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
+  const [sizes, setSizes] = useState([]);
+  const [colors, setColors] = useState([]);
   const [sort, setSort] = useState("");
+  const [applyFilters, setApplyFilters] = useState(false);
 
-  const { data: filterProducts } = useQuery({
-    queryKey: [categoryId, pageNumber, sort, size, color, priceMax, priceMin],
+  const { data: filterProducts, refetch } = useQuery({
+    queryKey: [categoryId, pageNumber, sort, applyFilters],
     queryFn: () => {
       return ProductService.getFilterProduct({
         category_id: categoryId,
         page_number: pageNumber,
         sort: sort,
-        size: size,
-        color: color,
+        size: sizes.join(","), // Join selected sizes for the API request
+        color: colors.join(","), // Join selected colors for the API request
         min_price: priceMin,
         max_price: priceMax,
       });
@@ -35,45 +41,27 @@ export default function ProductPage() {
   const { data: sizeInCate } = useQuery({
     queryKey: ["sizeInCate", categoryId],
     queryFn: () => {
-      return FilterService.getSizeInCate({
-        category_id: categoryId,
-      });
+      return FilterService.getSizeInCate({ category_id: categoryId });
     },
   });
 
   const { data: colorInCate } = useQuery({
     queryKey: ["colorInCate", categoryId],
     queryFn: () => {
-      return FilterService.getColorInCate({
-        category_id: categoryId,
-      });
+      return FilterService.getColorInCate({ category_id: categoryId });
     },
   });
-
-  // console.log("filterProducts", filterProducts);
-  // console.log("sizeInCate", sizeInCate);
-  // console.log("colorInCate", colorInCate);
 
   const onChange = (pageNumber) => {
     setPageNumber(pageNumber);
   };
-  const handleSizeChange = (value) => {
+
+  const handleField = (value, setField) => {
     setTimeout(() => {
-      setSize(value);
+      setField(value);
     }, 0);
   };
 
-  const handleColorChange = (value) => {
-    setTimeout(() => {
-      setColor(value);
-    }, 0);
-  };
-
-  const handleSort = (value) => {
-    setTimeout(() => {
-      setSort(value);
-    }, 0);
-  };
   const handlePriceChange = (value) => {
     setTimeout(() => {
       setPriceMin(value[0]);
@@ -81,116 +69,166 @@ export default function ProductPage() {
     }, 1000);
   };
 
-  // console.log("filterProducts", filterProducts);
+  const toggleSize = (size) => {
+    setSizes((prevSizes) =>
+      prevSizes.includes(size)
+        ? prevSizes.filter((s) => s !== size)
+        : [...prevSizes, size]
+    );
+  };
+
+  const toggleColor = (color) => {
+    setColors((prevColors) =>
+      prevColors.includes(color)
+        ? prevColors.filter((c) => c !== color)
+        : [...prevColors, color]
+    );
+  };
+
+  const applyFilterChanges = () => {
+    setApplyFilters(true);
+    refetch();
+  };
+
+  useEffect(() => {
+    if (applyFilters) {
+      refetch();
+    }
+  }, [applyFilters, refetch]);
 
   return (
-    <div className="bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:max-w-7xl lg:px-8">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          {categoryName}
-        </h2>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "30px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "stretch",
-              justifyContent: "space-between",
-              width: "60%", // Chiều rộng cố định cho phần chứa Slider
-            }}
-          >
-            {/* Combo box for Size and Color */}
-            <div style={{ display: "flex" }}>
-              <Select
-                defaultValue=""
-                defaultActiveFirstOption
-                onChange={handleSizeChange}
-                style={{ marginRight: "10px", width: "120px" }}
-              >
-                <Option value="">Chọn Size</Option>
-                {sizeInCate &&
-                  sizeInCate.map((size) => (
-                    <Option value={size}>{size}</Option>
-                  ))}
-              </Select>
-
-              <Select
-                defaultValue=""
-                defaultActiveFirstOption
-                onChange={handleColorChange}
-                style={{ marginRight: "10px", width: "150px" }}
-              >
-                <Option value="">Chọn màu</Option>
-                {colorInCate &&
-                  colorInCate.map((color) => (
-                    <Option value={color}>{color}</Option>
-                  ))}
-              </Select>
+    <div className="bg-white flex justify-center">
+      <div className="flex w-full px-8 py-10">
+        <div className="w-1/5">
+          <div className="flex flex-col p-4 border rounded-lg">
+            <div className="flex justify-between items-center mb-4 border-b-2">
+              <p className="text-2xl font-bold">Lọc</p>
+              <FilterOutlined className="text-xl" />
             </div>
 
-            {/* Slider for Price */}
-            <Slider
-              range
-              defaultValue={[0, 2000000]}
-              min={0}
-              max={2000000}
-              tipFormatter={(value) => `${value.toLocaleString()} VNĐ`}
-              onChange={handlePriceChange}
-              style={{ width: "70%" }} // Chiều rộng cố định cho Slider
-              trackStyle={[{ backgroundColor: "dodgerblue" }]}
-              handleStyle={[{ borderColor: "dodgerblue" }]}
-            />
+            <div className="border-b-2 mt-2">
+              <p className="font-medium">Giá</p>
+              <Slider
+                range
+                defaultValue={[0, 2000000]}
+                min={0}
+                max={2000000}
+                tipFormatter={(value) => `${value.toLocaleString()} VNĐ`}
+                onChange={handlePriceChange}
+                trackStyle={[{ backgroundColor: "black" }]}
+                handleStyle={[{ borderColor: "black" }]}
+              />
+            </div>
+
+            <div className="border-b-2 mt-2 pb-4">
+              <p className="mt-4 font-medium">Size</p>
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {sizeInCate?.map((size, index) => (
+                  <div
+                    key={index}
+                    onClick={() => toggleSize(size)}
+                    className={classNames(
+                      sizes.includes(size)
+                        ? "bg-black text-white"
+                        : "bg-white text-black hover:bg-gray-200",
+                      "group relative flex items-center justify-center rounded-full border py-4 text-sm font-medium cursor-pointer"
+                    )}
+                  >
+                    <span>{size}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-2">
+              <p className="mt-4 font-medium">Màu sắc</p>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {colorInCate?.map((color, index) => (
+                  <div
+                    key={index}
+                    onClick={() => toggleColor(color)}
+                    className={classNames(
+                      colors.includes(color)
+                        ? "bg-black text-white"
+                        : "bg-gray-50 text-gray-400 hover:bg-gray-200",
+                      "group relative flex items-center justify-center rounded-xl border py-2 px-3 text-sm cursor-pointer"
+                    )}
+                  >
+                    <span>{color}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Button
+                onClick={applyFilterChanges}
+                className="btn__custom-filter bg-black text-white border-none hover:opacity-80 hover:text-white active:bg-gray-900 flex justify-center items-center text-base mt-4"
+                style={{
+                  width: "100%",
+                  padding: "24px",
+                  fontSize: "20px",
+                  fontWeight: "600",
+                }}
+              >
+                Tiến hành lọc
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 ml-8">
+          <div className="flex justify-between">
+            <p className="text-2xl font-bold tracking-tight text-gray-900">
+              {categoryName}
+            </p>
+
+            <div className="flex items-center">
+              <p className="font-normal text-base text-gray-500">
+                Sắp xếp theo:
+              </p>
+              <Select
+                defaultValue="name_asc"
+                defaultActiveFirstOption
+                onChange={(value) => handleField(value, setSort)}
+                className="sortByProduct rounded-xl"
+              >
+                <Option value="name_asc">A-Z</Option>
+                <Option value="name_desc">Z-A</Option>
+                <Option value="rating_asc">Đánh giá Cao-Thấp</Option>
+                <Option value="rating_desc">Đánh giá Thấp-Cao</Option>
+                <Option value="old_to_new">Cũ-Mới</Option>
+                <Option value="new_to_old">Mới-Cũ</Option>
+                <Option value="price_asc">Giá Thấp-Cao</Option>
+                <Option value="price_desc">Giá Cao-Thấp</Option>
+                <Option value="sold_asc">Số lượng bán Cao-Thấp</Option>
+                <Option value="sold_desc">Số lượng bán Thấp-Cao</Option>
+              </Select>
+            </div>
           </div>
 
-          {/* Combo box for Sort */}
-          <Select
-            defaultValue="name_asc"
-            defaultActiveFirstOption
-            onChange={handleSort}
-            style={{ width: "200px" }}
-          >
-            <Option value="name_asc">Từ A-Z</Option>
-            <Option value="name_desc">Từ Z-A</Option>
-            <Option value="rating-asc">Rating từ Cao-Thấp</Option>
-            <Option value="rating-desc">Rating từ Thấp-Cao</Option>
-            <Option value="old_to_new">Từ Cũ - Mới</Option>
-            <Option value="new_to_old">Từ Mới - Cũ</Option>
-            <Option value="price_asc">Giá từ Thấp-Cao</Option>
-            <Option value="price_desc">Giá từ Cao-Thấp</Option>
-            <Option value="sold_asc">Số lượng bán từ Cao-Thấp</Option>
-            <Option value="sold_desc">Số lượng bán từ Thấp-Cao</Option>
-          </Select>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-          {filterProducts ? (
-            filterProducts?.contents?.map((product, index) => (
-              <div
-                key={index}
-                className="group relative"
-                style={{ marginLeft: "-12px", marginRight: "-12px" }}
-              >
-                <ProductCard data={product} />
-              </div>
-            ))
-          ) : (
-            <>Không có sản phẩm</>
+          <div className="mt-6 flex flex-wrap gap-9">
+            {filterProducts ? (
+              filterProducts.contents.map((product, index) => (
+                <div key={index} className="group relative w-[16rem]">
+                  <ProductCard data={product} />
+                </div>
+              ))
+            ) : (
+              <>Không có sản phẩm</>
+            )}
+          </div>
+          {filterProducts && (
+            <div className="flex justify-center mt-6">
+              <Pagination
+                total={filterProducts.totalElements}
+                pageSize={filterProducts.pageSize}
+                current={filterProducts.pageNumber}
+                onChange={onChange}
+              />
+            </div>
           )}
         </div>
-        {filterProducts && (
-          <Pagination
-            total={filterProducts?.totalElements}
-            pageSize={filterProducts?.pageSize}
-            defaultCurrent={filterProducts?.pageNumber}
-            onChange={onChange}
-          />
-        )}
       </div>
     </div>
   );

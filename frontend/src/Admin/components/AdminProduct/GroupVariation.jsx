@@ -4,6 +4,7 @@ import { Button } from "antd";
 import Price_Quantity from "./Price_Quantity";
 import Variations from "./Variations";
 import UploadImage from "../UploadFile/UploadImage";
+import UploadImage2 from "../UploadFile/UploadImage2";
 import { useSelector } from "react-redux";
 
 const GroupVariation = (props) => {
@@ -38,8 +39,17 @@ const GroupVariation = (props) => {
     sizeArray = uniqueSizes.map((size) => ({ size }));
 
     priceQuantityActiveIDArray = productItemsDetail.map(
-      ({ price, quantityInStock, active, id }) => ({
+      ({
+        warehousePrice,
         price,
+        numberQuantity,
+        quantityInStock,
+        active,
+        id,
+      }) => ({
+        warehousePrice,
+        price,
+        numberQuantity,
         quantityInStock,
         active,
         id,
@@ -103,7 +113,9 @@ const GroupVariation = (props) => {
         // console.log(`item`, {...item});
         return {
           ...item,
+          warehousePrice: priceQuantityActiveIDArray[index]?.warehousePrice,
           price: priceQuantityActiveIDArray[index]?.price,
+          numberQuantity: priceQuantityActiveIDArray[index]?.numberQuantity,
           quantityInStock: priceQuantityActiveIDArray[index]?.quantityInStock,
           active: priceQuantityActiveIDArray[index]?.active,
           id: priceQuantityActiveIDArray[index]?.id,
@@ -163,6 +175,7 @@ const GroupVariation = (props) => {
   };
 
   const updateCombinedData = (updatedData) => {
+    console.log("updatedData in GroupVariation", updatedData);
     setCombinedData(updatedData);
     props.onCombinedDataChange(updatedData);
   };
@@ -174,11 +187,11 @@ const GroupVariation = (props) => {
       </p>
 
       {/* Add Default picture */}
-      <UploadImage
+      {/* <UploadImage2
         onImageChange={handleDefaultImageChange}
         dataImage={defaultImage}
         isEdit={isEdit}
-      />
+      /> */}
 
       {/* Variations */}
       <Variations

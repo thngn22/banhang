@@ -27,7 +27,8 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String phone;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy", timezone = "Asia/Ho_Chi_Minh")
     private Date dob;
     private String gender;
     private boolean isEmailActive;
@@ -40,16 +41,16 @@ public class User implements UserDetails {
 
     @Column(name = "otp_requested_time")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date otpRequestedTime;
 
     @Column(name = "otp_expire_time")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date otpExpireTime;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
 
     //Token
@@ -66,7 +67,7 @@ public class User implements UserDetails {
     //Address
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<UserAddress> addresses = new ArrayList<>();
+    private List<Address> addresses = new ArrayList<>();
 
     //Cart
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -89,6 +90,10 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Orders> orders = new ArrayList<>();
 
+    //Chat User
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private ChatUser chatUser;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

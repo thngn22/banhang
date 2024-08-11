@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { WrapperHeader, WrapperSubHeader } from "./style";
-import InputField from "../../../customer/components/InputField";
+import InputField from "../../../Customer/components/InputField";
 import Group from "./Group";
 import GroupVariation from "./GroupVariation";
 import { Button, message } from "antd";
@@ -15,10 +15,11 @@ import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import axios from "axios";
 import * as AuthService from "../../../services/AuthService";
-import CustomInput from "../../../customer/components/CKEditor/customInput";
+import CustomInput from "../../../Customer/components/CKEditor/customInput";
+import createAxiosInstance from "../../../services/createAxiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const AdminProductEdit = (props) => {
-  // console.log("key", props.idDetailProduct);
   const dispatch = useDispatch();
 
   let productDetail = useSelector(
@@ -28,6 +29,8 @@ const AdminProductEdit = (props) => {
     (state) => state.category.multilevelCate.currentCate
   );
   const auth = useSelector((state) => state.auth.login.currentUser);
+  const axiosJWT = createAxiosInstance(auth, dispatch);
+  const navigate = useNavigate();
 
   const [dataNameProduct, setDataNameProduct] = useState("");
   const [dataCategory, setDataCategory] = useState("");
@@ -37,7 +40,7 @@ const AdminProductEdit = (props) => {
   const [combinedData, setCombinedData] = useState([]);
   const [isEdit, setIsEdit] = useState(true);
 
-  console.log("defaultImage", defaultImage);
+  // console.log("defaultImage", defaultImage);
 
   const [dataAPICreate, setDataAPICreate] = useState(null);
 
@@ -55,44 +58,7 @@ const AdminProductEdit = (props) => {
   const handleCombinedDataChange = (data) => {
     setCombinedData(data);
   };
-
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      // console.log("data", data);
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          // console.log("data in axiosJWT", data);
-          // console.log("refreshUser", refreshUser);
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  console.log("combinedData in admin create", combinedData);
 
   const mutation = useMutationHook((data) => {
     const res = ProductService.editProduct(data, auth.accessToken, axiosJWT);
@@ -104,14 +70,11 @@ const AdminProductEdit = (props) => {
     if (
       dataNameProduct !== "" &&
       dataDescription !== "" &&
-      defaultImage !== "" &&
+      // defaultImage !== "" &&
       parseInt(dataCategory.id) !== null
     ) {
       const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
-      if (
-        specialCharacterRegex.test(dataNameProduct) ||
-        specialCharacterRegex.test(dataDescription)
-      ) {
+      if (specialCharacterRegex.test(dataNameProduct)) {
         message.error("Không được nhập các ký tự đặc biệt");
       } else {
         const productCreateRequest = {
@@ -119,13 +82,15 @@ const AdminProductEdit = (props) => {
           active: productDetail?.active,
           name: dataNameProduct,
           description: dataDescription,
-          productImage: defaultImage,
+          // productImage: defaultImage,
           categoryId: parseInt(dataCategory?.id),
         };
-
+        console.log("combinedData", combinedData);
         const productItems = combinedData?.map((item) => ({
           id: item?.id,
+          warehousePrice: item?.warehousePrice,
           price: item?.price,
+          numberQuantity: item?.numberQuantity,
           quantityInStock: item?.quantity,
           productImage: item?.productImage,
           active: item?.active,
@@ -133,15 +98,49 @@ const AdminProductEdit = (props) => {
           color: item?.color,
         }));
 
-        const apiPayload = {
-          ...productCreateRequest,
-          productItems,
-        };
+        const formData = new FormData();
+        formData.append("id", productCreateRequest.id);
+        formData.append("active", productCreateRequest.active);
+        formData.append("name", productCreateRequest.name);
+        formData.append("description", productCreateRequest.description);
+        formData.append("categoryId", productCreateRequest.categoryId);
+        productItems.forEach((item, index) => {
+          formData.append(`productItems[${index}].id`, item.id);
+          formData.append(
+            `productItems[${index}].warehousePrice`,
+            item.warehousePrice
+          );
+          formData.append(`productItems[${index}].price`, item.price);
+          formData.append(
+            `productItems[${index}].quantityInStock`,
+            item.quantityInStock
+          );
+          formData.append(
+            `productItems[${index}].numberQuantity`,
+            item.numberQuantity
+          );
+          formData.append(`productItems[${index}].size`, item.size);
+          formData.append(`productItems[${index}].color`, item.color);
+          if (item.productImage instanceof File) {
+            formData.append(
+              `productItems[${index}].productImage`,
+              item.productImage
+            );
+          }
+          formData.append(`productItems[${index}].active`, item.active);
+        });
 
-        console.log("apiPayload", apiPayload);
-        setDataAPICreate(apiPayload);
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(key, value);
+        //   }
 
-        mutation.mutate(apiPayload, {
+        const formDataEntries = [];
+        for (let [key, value] of formData.entries()) {
+          formDataEntries.push({ key, value });
+        }
+        console.table("tong", formDataEntries);
+
+        mutation.mutate(formData, {
           onSuccess: () => {
             message.success("Chỉnh sửa sản phẩm thành công");
             props.setIsModalOpen(false);
@@ -151,8 +150,13 @@ const AdminProductEdit = (props) => {
             }, 1000);
           },
           onError: (error) => {
-            message.error(`Đã xảy ra lỗi: ${error.message}`);
+            console.log(`Đã xảy ra lỗi: ${error.message}`);
+            message.error("Chỉnh sửa không thành công");
             props.setIsModalOpen(false);
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
           },
         });
       }
@@ -163,10 +167,6 @@ const AdminProductEdit = (props) => {
     }
   };
 
-  // if (isSuccess || isError) {
-  //   window.location.reload();
-  // }
-
   const handleMenuItemClick = (id, name) => {
     setDataCategory({ id, name });
   };
@@ -174,9 +174,9 @@ const AdminProductEdit = (props) => {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <WrapperHeader style={{ paddingLeft: "20px" }}>
-        Thêm Sản phẩm
+        Chỉnh sửa Sản phẩm
       </WrapperHeader>
-      <div style={{ marginTop: "20px" }}>
+      <div>
         <div
           style={{
             margin: "16px 20px",
@@ -209,11 +209,6 @@ const AdminProductEdit = (props) => {
           }}
         >
           <WrapperSubHeader>Chi tiết sản phẩm</WrapperSubHeader>
-          {/* <Group
-            title={"Mô tả sản phẩm"}
-            onDataChange={setDataDescription}
-            dataDetail={dataDescription}
-          /> */}
           <CustomInput
             dataDetail={dataDescription}
             onDataChange={setDataDescription}

@@ -19,16 +19,18 @@ import java.util.Set;
 public class ProductItemDTO {
     private Long id;
     private Integer price;
+    private Integer salePrice;
+    private Double discountRate;
     private Integer warehousePrice;
     private Integer warehouseQuantity;
     private Integer quantityInStock;
     private String productImage;
     private boolean active;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date modifiedDate;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdDate;
     private List<ProductConfigurationDTO> productConfigurations;
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { WrapperHeader, WrapperSubHeader } from "./style";
-import InputField from "../../../customer/components/InputField";
+import InputField from "../../../Customer/components/InputField";
 import Group from "./Group";
 import GroupVariation from "./GroupVariation";
 import { Button, message } from "antd";
@@ -13,7 +13,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
-import CustomInput from "../../../customer/components/CKEditor/customInput";
+import CustomInput from "../../../Customer/components/CKEditor/customInput";
+import { contextType } from "react-quill";
 
 const AdminProductCreate = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -25,6 +26,7 @@ const AdminProductCreate = () => {
   const [saveButtonClicked, setSaveButtonClicked] = useState(false);
   const [defaultImage, setDefaultImage] = useState("");
   const [combinedData, setCombinedData] = useState([]);
+  console.log("combinedData", combinedData);
 
   const [dataAPICreate, setDataAPICreate] = useState(null);
 
@@ -71,7 +73,7 @@ const AdminProductCreate = () => {
   );
 
   const mutation = useMutationHook((data) => {
-    const res = ProductService.createProduct(data, auth.accessToken, axiosJWT);
+    const res = ProductService.createProduct2(data, auth.accessToken, axiosJWT);
     return res;
   });
   const { data, status, isSuccess, isError } = mutation;
@@ -87,30 +89,40 @@ const AdminProductCreate = () => {
       if (specialCharacterRegex.test(dataNameProduct)) {
         message.error("Không được nhập các ký tự đặc biệt");
       } else {
+
+
+        const productItems = combinedData.map((item) => ({
+          warehousePrice: item?.warehousePrice,
+          price: item.price,
+          quantityInStock: item.quantity,
+          size: item.size,
+          color: item.color,
+          productItemImage: item.productImage 
+        }));
+
         const productCreateRequest = {
           name: dataNameProduct,
           description: dataDescription,
-          productImage: defaultImage,
           categoryId: parseInt(dataCategory.id),
         };
 
-        const productItems = combinedData.map((item) => ({
-          price: item.price,
-          quantityInStock: item.quantity,
-          productImage: item.productImage,
-          size: item.size,
-          color: item.color,
-        }));
 
-        const apiPayload = {
-          ...productCreateRequest,
-          productItems,
-        };
+        const formData = new FormData()
+        formData.append('name', productCreateRequest.name)
+        formData.append('description', productCreateRequest.description)
+        formData.append('categoryId', productCreateRequest.categoryId)
+        productItems.forEach((item, index) => {
+          formData.append(`productItems[${index}].warehousePrice`, item.warehousePrice);
+          formData.append(`productItems[${index}].price`, item.price);
+          formData.append(`productItems[${index}].quantityInStock`, item.quantityInStock);
+          formData.append(`productItems[${index}].size`, item.size);
+          formData.append(`productItems[${index}].color`, item.color);
+          formData.append(`productItems[${index}].productItemImage`, item.productItemImage);
 
-        setDataAPICreate(apiPayload);
-        console.log("", apiPayload);
+        });
 
-        mutation.mutate(apiPayload, {
+
+        mutation.mutate(formData, {
           onSuccess: () => {
             message.success("Thêm mới sản phẩm thành công");
             setTimeout(() => {
@@ -121,7 +133,7 @@ const AdminProductCreate = () => {
             message.error(`Đã xảy ra lỗi: ${error.message}`);
             setTimeout(() => {
               window.location.reload();
-            }, 1000);
+            }, 1000000);
           },
         });
       }

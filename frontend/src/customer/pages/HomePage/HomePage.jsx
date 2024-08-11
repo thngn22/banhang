@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import HomeCarousel from "../../components/HomeCarousel/HomeCarousel";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../../services/ProductService";
-import ProductCard from "../../components/Product/ProductCard";
 import FooterHomePage from "../../components/CustomLayout/FooterHomePage";
 import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
+import CategoryMenu from "../../components/CategoryMenu/CategoryMenu";
+import { useDispatch, useSelector } from "react-redux";
+import createAxiosInstance from "../../../services/createAxiosInstance";
+import { Pagination } from "antd";
+import ProductCard from "../../components/Product/ProductCard";
 
 HomePage.propTypes = {};
 
 function HomePage(props) {
+  const auth = useSelector((state) => state.auth.login.currentUser);
+  const [pageNumber, setPageNumber] = useState(1);
+  const dispatch = useDispatch();
+  const axiosJWT = createAxiosInstance(auth, dispatch);
+
   const { data: topRating } = useQuery({
     queryKey: ["topRating"],
     queryFn: () => {
@@ -22,28 +31,69 @@ function HomePage(props) {
     },
   });
 
-  console.log("topRating", topRating);
-  console.log("topSold", topSold);
+  const { data: productsRS } = useQuery({
+    queryKey: [pageNumber],
+    queryFn: () => {
+      return ProductService.getProductsRS(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
+
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
 
   return (
-    <div className="">
+    <div>
       <HomeCarousel />
 
-      <div className="py-10 px-20">
-        {/* Smililer Products */}
-        <section className="text-xl text-left ml-4 font-semibold">
-          Sản phẩm bán được nhiều
-        </section>
-        <hr class="mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
+      <div className="px-8 py-8">
+        <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+          Những sản phẩm bán được nhiều
+        </p>
         <MultiCarousel homePage={true} dataCarousel={topSold} />
+        <hr className="border bg-gray-400 mx-5 my-10" />
 
-        {/* High Rating Products */}
-        <section className="text-xl text-left ml-4 font-semibold">
-          Sản phẩm được đánh giá cao
-        </section>
-        <hr class=" mb-2 ml-4 mr-4 mt-1 border-t border-gray-300" />
+        <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+          Những sản phẩm được đánh giá cao
+        </p>
         <MultiCarousel homePage={true} dataCarousel={topRating} />
+
+        {productsRS?.totalElements > 0 && (
+          <div className="">
+            <hr className="border bg-gray-400 mx-5 my-10" />
+            <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+              Những sản phẩm có thể bạn thích
+            </p>
+            <div className="grid grid-cols-4 justify-items-center">
+              {productsRS &&
+                productsRS.contents.map((product, index) => (
+                  <div key={index} className="group relative w-[16rem]">
+                    <ProductCard data={product} />
+                  </div>
+                ))}
+            </div>
+            <div className="flex justify-center mt-2">
+              {productsRS?.totalElements > 0 && (
+                <Pagination
+                  total={productsRS?.totalElements}
+                  pageSize={productsRS?.pageSize}
+                  defaultCurrent={pageNumber}
+                  showSizeChanger={false}
+                  onChange={onChange}
+                />
+              )}
+            </div>
+          </div>
+        )}
       </div>
+
       <FooterHomePage />
     </div>
   );

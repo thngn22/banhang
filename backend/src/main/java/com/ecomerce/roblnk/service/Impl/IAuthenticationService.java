@@ -10,6 +10,7 @@ import com.ecomerce.roblnk.repository.TokenRepository;
 import com.ecomerce.roblnk.repository.UserRepository;
 import com.ecomerce.roblnk.security.JwtService;
 import com.ecomerce.roblnk.service.AuthenticationService;
+import com.ecomerce.roblnk.service.ChatUserService;
 import com.ecomerce.roblnk.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
@@ -43,7 +44,7 @@ public class IAuthenticationService implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final CartRepository cartRepository;
-
+    private final ChatUserService chatUserService;
 
     @Override
     public ResponseEntity<?> register(RegisterRequest request) {
@@ -60,6 +61,7 @@ public class IAuthenticationService implements AuthenticationService {
             user.setEmail(request.getEmail());
             user.setRoles(role);
             user.setActive(true);
+            user.setCreatedAt(new Date(System.currentTimeMillis()));
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             Cart cart = new Cart();
             cart.setUser(user);
@@ -245,7 +247,10 @@ public class IAuthenticationService implements AuthenticationService {
                 refreshTokenCookie.setHttpOnly(true);
                 response.addCookie(refreshTokenCookie);
                 httpServletRequest.getCookies();
-                System.out.println("đã vào dc response add cookie");
+
+                //Create CHatUser account
+                chatUserService.createChatUser(user.getId());
+
                 return ResponseEntity.ok(AuthenticationResponse.builder()
                         .accessToken(jwtToken)
                         .build());

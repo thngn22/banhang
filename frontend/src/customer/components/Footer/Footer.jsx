@@ -1,38 +1,92 @@
 import React from "react";
+import logoVnPay from "../../../Data/image/vnpay-logo.jpg";
 
 function Footer(props) {
   return (
-    <footer class="bg-white shadow dark:bg-gray-900 border-t border-solid border-gray-300">
-      <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
-        <div class="sm:flex sm:items-center sm:justify-between">
-          <a
-            href="https://flowbite.com/"
-            class="flex items-center mb-4 sm:mb-0"
-          >
-            <img
-              src="https://flowbite.com/docs/images/logo.svg"
-              class="h-8 mr-3"
-              alt="Flowbite Logo"
-            />
-            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-              Flowbite
-            </span>
-          </a>
-          <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
-            <li>
-              <a href="https://github.com/thngn22/banhang" class="hover:underline" target="_blank" rel="noreferrer">
-                Contact for GitHub
+    <footer className="bg-gray-200 px-8 py-10">
+      <div className="w-full flex flex-col sm:flex-row justify-between mb-10">
+        <div className="flex flex-col mb-4 sm:mb-0">
+          <p className="ml-1 text-4xl font-extrabold text-gray-800">SHOES.CO</p>
+
+          <div className="mt-4 text-center sm:text-left">
+            <p className="text-sm text-gray-500">
+              We have shoes that suits your style
+            </p>
+            <p className="text-sm text-gray-500">
+              and which you are proud to wear.
+            </p>
+            <p className="text-sm text-gray-500">From women to men.</p>
+            <p className="font-semibold text-gray-500 mt-4">
+              Contact with us:{" "}
+              <a
+                href="https://github.com/thngn22/banhang"
+                className="text-black underline"
+              >
+                github
               </a>
-            </li>
-          </ul>
+            </p>
+          </div>
         </div>
 
-        <span class="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
-          © 8/2023{" "}
-          <a href="https://flowbite.com/" class="hover:underline">
+        <div className="flex-1 sm:order-2 flex justify-end">
+          <div className="flex w-full justify-end gap-52">
+            <div className="flex flex-col items-start gap-2">
+              <p className="font-medium uppercase tracking-widest">Company</p>
+              <ul className="flex flex-col gap-2 text-gray-500">
+                <li>About</li>
+                <li>Features</li>
+                <li>Works</li>
+                <li>Careers</li>
+              </ul>
+            </div>
+            <div className="flex flex-col items-start gap-2">
+              <p className="font-medium uppercase tracking-widest">Help</p>
+              <ul className="flex flex-col gap-2 text-gray-500">
+                <li>Customer Support</li>
+                <li>Delivery Details</li>
+                <li>Terms & Conditions</li>
+                <li>Privacy Policy</li>
+              </ul>
+            </div>
+            <div className="flex flex-col items-start gap-2">
+              <p className="font-medium uppercase tracking-widest">FAQ</p>
+              <ul className="flex flex-col gap-2 text-gray-500">
+                <li>Account</li>
+                <li>Manage Deliveries</li>
+                <li>Orders</li>
+                <li>Payments</li>
+              </ul>
+            </div>
+            <div className="flex flex-col items-start gap-2">
+              <p className="font-medium uppercase tracking-widest">Resource</p>
+              <ul className="flex flex-col gap-2 text-gray-500">
+                <li>Ebooks</li>
+                <li>How To - Blog</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr
+        className="border-solid bg-gray-400 h-[1px] mt-4"
+        style={{ border: "1px" }}
+      />
+
+      <div className="flex justify-between pt-4">
+        <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
+          Shoes.co© 8/2023{" "}
+          <a href="https://flowbite.com/" className="hover:underline">
             nhthaqq7™ & roblnk™
           </a>
         </span>
+        <div className="w-[4rem]">
+          <img
+            className="object-cover rounded-3xl"
+            src={logoVnPay}
+            alt="logoVnPay"
+          />
+        </div>
       </div>
     </footer>
   );

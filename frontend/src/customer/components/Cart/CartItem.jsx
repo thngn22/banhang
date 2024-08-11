@@ -3,7 +3,6 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Button, IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useSelector, useDispatch } from "react-redux";
-import { removeItem, updateQuantity } from "../../../redux/slides/userSlide";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as CartService from "../../../services/CartService";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import * as AuthService from "../../../services/AuthService";
 import { CloseOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
 const CartItem = ({ product }) => {
   const queryClient = useQueryClient();
@@ -58,15 +58,6 @@ const CartItem = ({ product }) => {
   });
 
   const handlePlusQuantity = () => {
-    // const newPrice = product.price + (product.price / product.quantity)
-    // const newQuantity = product.quantity + 1;
-
-    // dispatch(updateQuantity({
-    //   ...product,
-    //   quantity: newQuantity,
-    //   price: newPrice
-    // }))
-
     mutation.mutate(
       [
         {
@@ -82,19 +73,6 @@ const CartItem = ({ product }) => {
     );
   };
   const handleSubQuantity = () => {
-    // const newPrice = product.price - (product.price / product.quantity)
-    // const newQuantity = product.quantity - 1;
-    // if (newQuantity === 0) {
-    //   dispatch(removeItem({
-    //     ...product
-    //   }))
-    // } else {
-    //   dispatch(updateQuantity({
-    //     ...product,
-    //     quantity: newQuantity,
-    //     price: newPrice
-    //   }))
-    // }
     mutation.mutate(
       [
         {
@@ -110,9 +88,6 @@ const CartItem = ({ product }) => {
     );
   };
   const handleRemove = () => {
-    // dispatch(removeItem({
-    //   ...product
-    // }))
     mutation.mutate(
       [
         {
@@ -129,38 +104,54 @@ const CartItem = ({ product }) => {
   };
   return (
     <div className="p-5 border rounded-md mb-5 flex relative">
-      <div className="w-[3rem] h-[3rem] lg:w-[6rem] lg:h-[6rem]">
-        <img
-          className="w-full h-full object-cover object-top"
-          src={`${product?.productItem.productImage}`}
-          alt={`${product?.productItem.productImage}`}
-        />
-      </div>
-      <div className="ml-2 flex-col">
-        <p className="">{product?.productItem.name}</p>
-        <div className="flex space-x-5 text-gray-900 pt-6">
-          <p className="text-red-600">
+      <Link className="flex" to={`/product/${product?.productItem.productId}`}>
+        <div className="w-[8rem] h-[8rem]">
+          <img
+            className="w-full object-cover object-top rounded-xl"
+            src={`${product?.productItem.productImage}`}
+            alt={`${product?.productItem.productImage}`}
+          />
+        </div>
+        <div className="ml-2 flex flex-col justify-between">
+          <div className="flex flex-col text-gray-900">
+            <p className="text-xl font-bold">{product?.productItem.name}</p>
+            <div className="flex gap-2 text-sm">
+              <p>Màu: </p>
+              <p className="text-gray-400 font-medium">
+                {product?.productItem.color}
+              </p>
+            </div>
+            <div className="flex gap-2 text-sm">
+              <p>Kích thướcc: </p>
+              <p className="text-gray-400 font-medium">
+                {product?.productItem.size}
+              </p>
+            </div>
+          </div>
+          <p className="text-red-600 text-xl font-bold">
             {product.totalPrice.toLocaleString("vi-VN", {
               style: "currency",
               currency: "VND",
             })}
           </p>
         </div>
-      </div>
+      </Link>
+
       <div className="ml-auto flex">
-        {" "}
-        {/* Thêm class ml-auto để đưa phần tử về góc phải */}
-        <div className="lg:flex items-center lg:space-x-10 pt-4">
-          <div className="flex items-center space-x-2">
-            <IconButton onClick={() => handleSubQuantity()}>
+        <div className="flex items-end pt-4">
+          <div className="flex items-center">
+            <IconButton
+              onClick={() => handleSubQuantity()}
+              sx={{ color: "black" }}
+            >
               <RemoveCircleOutlineIcon />
             </IconButton>
-            <span className="py-1 px-7 border rounded-sm">
+            <p className="py-1 px-4 border border-black rounded-sm font-semibold">
               {product.quantity}
-            </span>
+            </p>
             <IconButton
               onClick={() => handlePlusQuantity()}
-              sx={{ color: "RGB(145,85,253)" }}
+              sx={{ color: "red" }}
             >
               <AddCircleOutlineIcon />
             </IconButton>

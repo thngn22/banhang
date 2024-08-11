@@ -1,24 +1,27 @@
 package com.ecomerce.roblnk.controller;
 
+import com.ecomerce.roblnk.configuration.GoongConfiguration;
 import com.ecomerce.roblnk.dto.cart.CheckoutRequest;
+import com.ecomerce.roblnk.dto.cart.UserAddressRequestv2;
 import com.ecomerce.roblnk.dto.cartItem.CartItemEditRequest;
-import com.ecomerce.roblnk.exception.ErrorResponse;
+import com.ecomerce.roblnk.exception.InputFieldException;
 import com.ecomerce.roblnk.service.CartService;
 import com.ecomerce.roblnk.service.DeliveryService;
 import com.ecomerce.roblnk.service.PaymentMethodService;
-import com.ecomerce.roblnk.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -26,9 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final UserService userService;
     private final DeliveryService deliveryService;
     private final PaymentMethodService paymentMethodService;
+    private final GoongConfiguration goong;
 
     @GetMapping("/")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
@@ -46,9 +49,13 @@ public class CartController {
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<?> checkout(Principal principal, @RequestBody @Valid CheckoutRequest list,
                                       HttpServletRequest request,
-                                      RedirectAttributes redirectAttributes) throws URISyntaxException {
-        return cartService.checkoutCart(principal, list, request, redirectAttributes);
-
+                                      RedirectAttributes redirectAttributes, BindingResult bindingResult) throws URISyntaxException {
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new InputFieldException(bindingResult).getMessage());
+        }
+        if (list.getPhoneNumber().matches("^[0-9]{10}$"))
+            return cartService.checkoutCart(principal, list, request, redirectAttributes);
+        else return ResponseEntity.status(403).body("Số điện thoại không đúng định dạng");
 
 
     }
@@ -68,6 +75,13 @@ public class CartController {
 
     }
 
-
+    @PostMapping("/distance")
+    public ResponseEntity<?> test(@RequestBody UserAddressRequestv2 address) throws IOException, URISyntaxException {
+        var revenue = goong.calculateDistance(address);
+        if (revenue != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(revenue);
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You do not have permission to access this resource!");
+    }
 
 }

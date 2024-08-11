@@ -1,34 +1,30 @@
-import React, { useState } from "react";
-import { StarIcon } from "@heroicons/react/20/solid";
+import React, { useEffect, useRef, useState } from "react";
 import { RadioGroup } from "@headlessui/react";
-import Rating from "@mui/material/Rating";
 import { Button } from "@mui/material";
-import ProductCard from "../../components/Product/ProductCard";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../../services/ProductService";
 import * as CartService from "../../../services/CartService";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../../redux/slides/userSlide";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { IconButton } from "@mui/material";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import * as AuthService from "../../../services/AuthService";
-import { loginSuccess } from "../../../redux/slides/authSlice";
-import { Modal, Rate, Space, Table, message } from "antd";
-import Review from "../../components/Product/Review";
-import MultiCarousel from "../../components/MultiCarousel/MultiCarousel";
-// import parse from "html-react-parser";
+import { Modal, Pagination, Rate, Space, message } from "antd";
+import { descReviewStart } from "../../../utils/constants";
+import "./styles.css";
+import ProductCard from "../../components/Product/ProductCard";
+import Review2 from "../../components/Review/Review2";
+import pageIntroduction from "../../../Data/image/chọn size giày mới.png";
+import createAxiosInstance from "../../../services/createAxiosInstance";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function ProductDetailPage() {
+  const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
   const [selectedColor, setSelectedColor] = useState();
   const [selectedSize, setSelectedSize] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState(1);
@@ -36,15 +32,13 @@ export default function ProductDetailPage() {
   const queryClient = useQueryClient();
   const auth = useSelector((state) => state.auth.login.currentUser);
   const dispatch = useDispatch();
-  const desc = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
+  const axiosJWT = createAxiosInstance(auth, dispatch);
   const [selectedQuantityStock, setSelectedQuantityStock] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(0);
-  const [expanded, setExpanded] = useState(true);
-  const [contentHeight, setContentHeight] = useState(0);
-  const pageIntroduction = require(`../../../Data/image/chọn size giày mới.png`);
   const [defaultImage, setDefaultImage] = useState();
-
-  const parse = require("html-react-parser").default;
+  const iframeRef = useRef(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumberTopInDetail, setPageNumberTopInDetail] = useState(1);
 
   const { data: productDetail } = useQuery({
     queryKey: ["category", productId],
@@ -57,12 +51,56 @@ export default function ProductDetailPage() {
     queryFn: () => {
       return ProductService.getProductTopInDetail({
         category_id: productDetail?.categoryId?.id,
+        page_number: pageNumberTopInDetail,
       });
     },
   });
-  console.log("topInDetail", topInDetail);
+  const { data: productsRS } = useQuery({
+    queryKey: [pageNumber],
+    queryFn: () => {
+      return ProductService.getProductsRS(
+        {
+          page_number: pageNumber,
+        },
+        auth.accessToken,
+        axiosJWT
+      );
+    },
+    enabled: Boolean(auth?.accessToken),
+  });
 
-  React.useEffect(() => {
+  const onChange = (pageNumber) => {
+    setPageNumber(pageNumber);
+  };
+
+  const onChangeTopInDetail = (pageNumber) => {
+    setPageNumberTopInDetail(pageNumber);
+  };
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    const adjustHeight = () => {
+      if (
+        iframe &&
+        iframe.contentWindow &&
+        iframe.contentWindow.document.body
+      ) {
+        iframe.style.height = `${
+          iframe.contentWindow.document.body.scrollHeight + 16
+        }px`;
+      }
+    };
+
+    if (iframe) {
+      iframe.addEventListener("load", adjustHeight);
+      // Xóa bỏ event listener khi component bị hủy
+      return () => {
+        iframe.removeEventListener("load", adjustHeight);
+      };
+    }
+  }, [productDetail?.description]);
+
+  useEffect(() => {
     if (productDetail) {
       // Lấy màu đầu tiên trong danh sách
       const defaultColor =
@@ -87,7 +125,11 @@ export default function ProductDetailPage() {
       if (defaultItem) {
         setSelectedSize(defaultItem.variationSize);
         setSelectedQuantityStock(defaultItem.quantityInStock);
-        setSelectedPrice(defaultItem.price);
+        setSelectedPrice({
+          estimatedPrice: defaultItem.price,
+          salePrice: defaultItem.salePrice,
+          discountRate: defaultItem.discountRate,
+        });
       }
     }
   }, [productDetail]);
@@ -113,7 +155,11 @@ export default function ProductDetailPage() {
 
     if (selectedProductItem) {
       setSelectedQuantityStock(selectedProductItem.quantityInStock);
-      setSelectedPrice(selectedProductItem.price);
+      setSelectedPrice({
+        estimatedPrice: selectedProductItem.price,
+        salePrice: selectedProductItem.salePrice,
+        discountRate: selectedProductItem.discountRate,
+      });
       setSelectedQuantity(1);
     }
   };
@@ -134,21 +180,15 @@ export default function ProductDetailPage() {
     if (defaultItem) {
       setSelectedSize(defaultItem.variationSize);
       setSelectedQuantityStock(defaultItem.quantityInStock);
-      setSelectedPrice(defaultItem.price);
+      setSelectedPrice({
+        estimatedPrice: defaultItem.price,
+        salePrice: defaultItem.salePrice,
+        discountRate: defaultItem.discountRate,
+      });
       setSelectedQuantity(1);
     } else {
       setSelectedQuantity(0);
     }
-  };
-
-  React.useEffect(() => {
-    // Lấy chiều cao của nội dung mô tả
-    const descriptionElement = document.getElementById("productDescription");
-    setContentHeight(descriptionElement.clientHeight);
-  }, [productDetail?.description, expanded]);
-
-  const toggleDescription = () => {
-    setExpanded(!expanded);
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -162,58 +202,22 @@ export default function ProductDetailPage() {
     setIsModalOpen(false);
   };
 
-  const refreshToken = async () => {
-    try {
-      const data = await AuthService.refreshToken();
-      return data?.accessToken;
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-  const axiosJWT = axios.create();
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      if (auth?.accessToken) {
-        const decodAccessToken = jwtDecode(auth?.accessToken);
-        if (decodAccessToken.exp < date.getTime() / 1000) {
-          const data = await refreshToken();
-          const refreshUser = {
-            ...auth,
-            accessToken: data,
-          };
-
-          dispatch(loginSuccess(refreshUser));
-          config.headers["Authorization"] = `Bearer ${data}`;
-        }
-      }
-
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
-
   const mutation = useMutationHook((data) => {
     const res = CartService.updateCart(data, auth.accessToken, axiosJWT);
     return res;
   });
 
-  // console.log("des", productDetail?.description);
-
   return (
     <div className="bg-white">
-      <div className="pt-6 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
+      <div className="pt-6 mx-auto max-w-7xl ">
         {/* Information Product */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-10 pb-10 pt-4 lg:pb-16 lg:pt-6">
-          {/* Image gallery */}
+        <div className="grid grid-cols-2 gap-16 pb-16 pt-6">
           <div className="flex flex-col">
-            <div className="overflow-hidden rounded-lg max-w-full max-h-[34.3rem]">
+            <div className="overflow-hidden rounded-3xl max-w-full max-h-[34.3rem]">
               {defaultImage && (
                 <img
                   src={defaultImage}
-                  alt={defaultImage}
+                  alt="defaultImage"
                   className="h-full w-full object-cover object-center"
                 />
               )}
@@ -221,61 +225,77 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product info */}
-          <div className="lg:col-span-1 maxt-auto max-w-2x1 lg:max-w-7x1">
-            <div className="lg:col-span-2">
-              <h1 className="text-lg lg:text-3xl font-semibold text-gray-900 text-left">
+          <div className="col-span-1 maxt-auto max-w-7x1">
+            <div className="col-span-2">
+              <p className="text-4xl font-extrabold text-gray-900 text-left">
                 {productDetail?.name}
-              </h1>
+              </p>
             </div>
 
             {/* Options */}
-            <div className="mt-4 lg:row-span-3 lg:mt-0">
-              <div className="flex space-x-5 items-center text-lg lg-test-x1 text-gray-900 mt-1">
-                <p
-                  className="text-red-600 font-semibold"
-                  style={{ fontSize: "26px" }}
+            <div className="row-span-3">
+              {productDetail?.rating ? (
+                <Space
+                  style={{
+                    display: "flex",
+                    textAlign: "left",
+                  }}
+                  className="pt-1"
                 >
-                  {selectedPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </p>
-              </div>
+                  <Rate
+                    tooltips={desc}
+                    disabled
+                    value={productDetail?.rating}
+                    allowHalf
+                  />
 
-              {/* Reviews */}
-              <Space
-                style={{
-                  display: "flex",
-                  textAlign: "left",
-                }}
-              >
-                <>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Rate
-                      tooltips={desc}
-                      disabled
-                      value={productDetail?.rating}
-                      allowHalf
-                    />
-                    {productDetail?.rating ? (
-                      <span style={{ marginLeft: "8px" }}>
-                        {desc[productDetail?.rating - 1]}
-                      </span>
-                    ) : (
-                      ""
+                  <span className="cursor-pointer text-blue-400 text-lg">
+                    ({productDetail?.reviews?.length} Đánh giá)
+                  </span>
+                </Space>
+              ) : (
+                <></>
+              )}
+              {selectedPrice?.discountRate > 0 &&
+              selectedPrice?.discountRate !== null ? (
+                <div className="flex items-center space-x-2">
+                  <p className="text-red-600 font-bold text-3xl">
+                    {Number(selectedPrice?.salePrice).toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p className="line-through text-gray-500 text-sm">
+                    {Number(selectedPrice?.estimatedPrice).toLocaleString(
+                      "vi-VN",
+                      {
+                        style: "currency",
+                        currency: "VND",
+                      }
                     )}
-                  </div>
-                </>
+                  </p>
+                  <p className="bg-red-500 text-white text-sm font-semibold px-2 rounded">
+                    -{selectedPrice?.discountRate}%
+                  </p>
+                </div>
+              ) : (
+                <p className="text-red-600 font-bold text-3xl">
+                  {Number(selectedPrice?.estimatedPrice).toLocaleString(
+                    "vi-VN",
+                    {
+                      style: "currency",
+                      currency: "VND",
+                    }
+                  )}
+                </p>
+              )}
 
-                <span style={{ color: "blue" }}>
-                  ({productDetail?.reviews?.length} đánh giá)
-                </span>
-              </Space>
+              <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
 
-              <form className="mt-5">
+              <form className="mt-4">
                 {/* Colors */}
-                <span className="text-sm font-semibold text-gray-900 flex items-center">
-                  <span className="mr-2">Tình trạng:</span>
+                <div className="text-xl font-semibold text-gray-900 flex items-center">
+                  <span className="mr-2">Trạng thái:</span>
                   {selectedQuantityStock > 0 ? (
                     <span className="text-green-600">
                       Còn hàng ({selectedQuantityStock})
@@ -283,67 +303,63 @@ export default function ProductDetailPage() {
                   ) : (
                     <span className="text-red-600">Hết hàng</span>
                   )}
-                </span>
-                {/* 
-                <span className="text-sm font-semibold text-gray-900">
-                  Giá: {selectedPrice} VND
-                </span> */}
-                <div>
-                  <RadioGroup
-                    value={selectedColor}
-                    onChange={(value) => {
-                      setSelectedColor(value);
-                      handleColorChange(value);
-                    }}
-                    className="mt-4"
-                  >
-                    <div className="flex items-center space-x-3">
-                      {productDetail?.productItemResponses.map(
-                        (item, index) => (
-                          <RadioGroup.Option
-                            key={index}
-                            value={item?.variationColor}
-                            style={{ width: "80px" }}
-                            className={({ active, checked }) =>
-                              classNames(
-                                "ring-green-500",
-                                active && checked ? "ring ring-offset-1" : "",
-                                !active && checked ? "ring-2" : "",
-                                "relative -m-0.5 flex flex-col items-center cursor-pointer focus:outline-none"
-                              )
-                            }
-                          >
-                            <RadioGroup.Label as="span" className="sr-only">
-                              {item?.variationColor}
-                            </RadioGroup.Label>
-                            <div className="mb-1">
-                              <img
-                                src={item?.listProductItem[0].productImage}
-                                alt={item?.listProductItem[0].productImage}
-                              />
-                            </div>
-                            <span className="text-sm font-semibold">
-                              {item?.variationColor}
-                            </span>
-                          </RadioGroup.Option>
-                        )
-                      )}
-                    </div>
-                  </RadioGroup>
                 </div>
 
+                <RadioGroup
+                  value={selectedColor}
+                  onChange={(value) => {
+                    setSelectedColor(value);
+                    handleColorChange(value);
+                  }}
+                  className="mt-2"
+                >
+                  <div className="flex items-center space-x-3">
+                    {productDetail?.productItemResponses.map((item, index) => (
+                      <RadioGroup.Option
+                        key={index}
+                        value={item?.variationColor}
+                        style={{ width: "100px" }}
+                        className={({ active, checked }) =>
+                          classNames(
+                            "ring-black",
+                            active && checked ? "ring-1" : "",
+                            !active && checked ? "ring-1" : "",
+                            "relative -m-0.5 flex flex-col items-center cursor-pointer focus:outline-none rounded-lg p-2"
+                          )
+                        }
+                      >
+                        <RadioGroup.Label as="span" className="sr-only">
+                          {item?.variationColor}
+                        </RadioGroup.Label>
+                        <div className="mb-1">
+                          <img
+                            src={item?.listProductItem[0].productImage}
+                            alt="colorItem"
+                            className="rounded-lg"
+                          />
+                        </div>
+                        <span className="text-sm font-semibold">
+                          {item?.variationColor}
+                        </span>
+                      </RadioGroup.Option>
+                    ))}
+                  </div>
+                </RadioGroup>
+
+                <hr className="border-solid bg-gray-100 h-[1px] my-4" />
+
                 {/* Sizes */}
-                <div className="mt-5">
+                <div className="">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900">
-                      Kích thước
-                    </h3>
+                    <p className="text-lg font-light text-gray-500">
+                      Chọn Size giày
+                    </p>
                     <p
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      className="text-sm font-medium text-red-500 hover:opacity-80"
                       style={{ cursor: "pointer" }}
                       onClick={showModal}
                     >
-                      (Cách chọn Kích thước)
+                      (Cách chọn size)
                     </p>
                   </div>
 
@@ -353,9 +369,9 @@ export default function ProductDetailPage() {
                       setSelectedSize(value);
                       handleSizeChange(value);
                     }}
-                    className="mt-4"
+                    className="mt-2"
                   >
-                    <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-6">
+                    <div className="grid grid-cols-4 gap-x-10 gap-y-4">
                       {selectedItems?.map((item, index) => (
                         <RadioGroup.Option
                           key={index}
@@ -366,8 +382,8 @@ export default function ProductDetailPage() {
                               item?.quantityInStock > 0
                                 ? "cursor-pointer bg-white text-gray-900 shadow-sm"
                                 : "cursor-not-allowed bg-gray-50 text-gray-200",
-                              active ? "ring-2 ring-indigo-500" : "",
-                              "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1"
+                              active ? "" : "",
+                              "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium hover:bg-gray-50 focus:outline-none"
                             )
                           }
                         >
@@ -377,18 +393,20 @@ export default function ProductDetailPage() {
                                 {item?.variationSize}
                               </RadioGroup.Label>
                               {item?.variationSize ? (
-                                <span
+                                <p
                                   className={classNames(
-                                    active ? "border" : "border-2",
+                                    active
+                                      ? "border-2"
+                                      : "border-2 border-black",
                                     checked
-                                      ? "border-indigo-500"
+                                      ? "border-black"
                                       : "border-transparent",
                                     "pointer-events-none absolute -inset-px rounded-md"
                                   )}
                                   aria-hidden="true"
                                 />
                               ) : (
-                                <span
+                                <p
                                   aria-hidden="true"
                                   className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
                                 >
@@ -406,7 +424,7 @@ export default function ProductDetailPage() {
                                       vectorEffect="non-scaling-stroke"
                                     />
                                   </svg>
-                                </span>
+                                </p>
                               )}
                             </>
                           )}
@@ -415,34 +433,41 @@ export default function ProductDetailPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                <div className="mt-5">
-                  <div className="flex items-center space-x-2">
-                    <IconButton
-                      onClick={() => handleSubQuantity()}
-                      disabled={selectedQuantity < 1}
-                    >
-                      <RemoveCircleOutlineIcon />
-                    </IconButton>
-                    <span className="py-1 px-7 border rounded-sm">
-                      {selectedQuantity}
-                    </span>
-                    <IconButton
-                      onClick={() => handlePlusQuantity()}
-                      sx={{ color: "RGB(145,85,253)" }}
-                      disabled={selectedQuantity >= selectedQuantityStock}
-                    >
-                      <AddCircleOutlineIcon />
-                    </IconButton>
+
+                <div className="flex items-center gap-6 pt-5">
+                  <div className="flex justify-center">
+                    <div className="flex items-center bg-gray-100 gap-2 py-2 px-4 rounded-full">
+                      <IconButton
+                        onClick={() => handleSubQuantity()}
+                        disabled={selectedQuantity < 1}
+                        className="disabled:opacity-50"
+                      >
+                        <RemoveCircleOutlineIcon />
+                      </IconButton>
+                      <div className="px-4 flex items-center justify-center">
+                        <p className="text-lg font-semibold">
+                          {selectedQuantity}
+                        </p>
+                      </div>
+                      <IconButton
+                        onClick={() => handlePlusQuantity()}
+                        sx={{ color: "red" }}
+                        disabled={selectedQuantity >= selectedQuantityStock}
+                        className="disabled:opacity-50"
+                      >
+                        <AddCircleOutlineIcon />
+                      </IconButton>
+                    </div>
                   </div>
-                </div>
-                <div className="flex space-x-10 pt-5">
+
                   <Button
                     variant="contained"
+                    className="btn__custom-add-cart"
                     sx={{
-                      px: "2rem",
                       py: "1rem",
-                      bgcolor: "#9155fd",
+                      bgcolor: "black",
                       flexGrow: "1",
+                      borderRadius: "100px",
                     }}
                     onClick={() => {
                       const resultItem =
@@ -468,90 +493,115 @@ export default function ProductDetailPage() {
                       mutation.mutate([dataToUpdate], {
                         onSuccess: (data) => {
                           queryClient.invalidateQueries({ queryKey: ["cart"] });
-                          message.success("Thêm vào giỏ hàng thành công");
+                          message.success("Thêm sản phẩm vào giỏ thành công");
                         },
                         onError: (err) => {
-                          message.error(`Lỗi ${err}`);
+                          console.log(err.message);
+                          if (
+                            err.message ===
+                            "Cannot read properties of null (reading 'accessToken')"
+                          ) {
+                            message.error("Bạn chưa năng nhập");
+                          } else {
+                            message.error(`${err.message}`);
+                          }
                         },
                       });
                     }}
                   >
-                    Thêm vào giỏ hàng
+                    Thêm sản phẩm vào Giỏ hàng
                   </Button>
                 </div>
               </form>
             </div>
           </div>
-        </section>
+        </div>
 
         {/* Description */}
-        <section className="text-xl text-left">Mô tả sản phẩm</section>
-        <hr class="w-full mt-1 border-t border-gray-300" />
-        <section>
-          <div
-            id="productDescription"
-            style={{
-              height: expanded ? "100px" : "auto",
-              position: "relative",
-              overflow: "hidden",
-              transition: "height 0.5s ease-in-out", // Thêm hiệu ứng chuyển động
-              textAlign: "left",
-            }}
-          >
+        <div>
+          <p className="pb-2 text-xl font-extrabold">Chi tiết sản phẩm</p>
+          <div id="productDescription">
             <iframe
+              ref={iframeRef}
               title="productDescription"
               style={{
                 border: "none",
                 width: "100%",
-                height: "100%",
                 fontSize: "inherit",
                 fontWeight: "inherit",
-                // Thêm các thuộc tính CSS khác nếu cần
               }}
               srcDoc={productDetail?.description}
             />
-            {contentHeight <= 100 && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  textAlign: "center",
-                  paddingTop: "50px",
-                  background:
-                    "linear-gradient(rgba(255, 255, 255, 0), #FFFFFF)",
-                }}
-              ></div>
-            )}
           </div>
-
-          <Button
-            style={{
-              backgroundColor: "rgba(0, 119, 204, 0.2)",
-              color: "#1f2937",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.375rem",
-              transition: "background 0.3s ease-in-out",
-              marginTop: "10px",
-            }}
-            onClick={toggleDescription}
-          >
-            {expanded ? "Xem thêm" : "Thu gọn"}
-          </Button>
-        </section>
+        </div>
 
         {/* Recent Review & Ratings */}
-        <section className="mt-4 mb-4">
-          <Review dataReviews={productDetail?.reviews} />
-        </section>
+        <div className="mt-8">
+          <p className="pb-2 text-xl font-extrabold">Review và đánh giá</p>
+          <div className="grid grid-cols-2 gap-x-20 gap-y-4">
+            {productDetail?.reviews &&
+              productDetail.reviews.map((reviewItem) => (
+                <Review2 reviewItem={reviewItem} />
+              ))}
+          </div>
+        </div>
+
+        <hr className="border-solid bg-gray-400 h-[1px] mt-4" />
 
         {/* High Rating Products */}
-        <section className="text-xl text-left ml-8">
-          Sản phẩm được đánh giá cao
-        </section>
-        <hr class=" mb-2 ml-8 mr-8 mt-1 border-t border-gray-300" />
-        <MultiCarousel dataCarousel={topInDetail} />
+        <div className="my-8">
+          <p className="text-center text-4xl font-extrabold uppercase">
+            sản phẩm cùng loại được đánh giá cao
+          </p>
+          <div className="mt-6 grid grid-cols-4 gap-20">
+            {topInDetail &&
+              topInDetail?.contents.map((product, index) => (
+                <div key={index} className="group relative w-[16rem]">
+                  <ProductCard data={product} />
+                </div>
+              ))}
+          </div>
+          <div className="flex justify-center mt-2">
+            {topInDetail && (
+              <Pagination
+                total={topInDetail?.totalElements}
+                pageSize={topInDetail?.pageSize}
+                defaultCurrent={pageNumberTopInDetail}
+                showSizeChanger={false}
+                onChange={onChangeTopInDetail}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* PRODUCTS RECOMMENDATION */}
+        {productsRS?.totalElements && (
+          <div className="mb-4">
+            <hr className="border bg-gray-400 mx-5 my-10" />
+            <p className="text-4xl text-center font-extrabold pt-10 pb-6 uppercase">
+              Những sản phẩm có thể bạn thích
+            </p>
+            <div className="grid grid-cols-4 justify-items-center">
+              {productsRS &&
+                productsRS.contents.map((product, index) => (
+                  <div key={index} className="group relative w-[16rem]">
+                    <ProductCard data={product} />
+                  </div>
+                ))}
+            </div>
+            <div className="flex justify-center mt-2">
+              {productsRS?.totalElements && (
+                <Pagination
+                  total={productsRS?.totalElements}
+                  pageSize={productsRS?.pageSize}
+                  defaultCurrent={pageNumber}
+                  showSizeChanger={false}
+                  onChange={onChange}
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         <Modal
           open={isModalOpen}
@@ -569,7 +619,7 @@ export default function ProductDetailPage() {
               width: "100%",
             }}
             src={pageIntroduction}
-            alt="Đây là ảnh hướng dẫn chọn size giày"
+            alt="How to choose size"
           />
         </Modal>
       </div>

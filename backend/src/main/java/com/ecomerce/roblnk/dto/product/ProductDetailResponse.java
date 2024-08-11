@@ -13,7 +13,10 @@ import java.util.List;
 public class ProductDetailResponse {
     private Long id;
     private String name;
-    private String estimatedPrice;
+    private Integer estimatedPrice;
+    private Long saleId;
+    private Integer salePrice;
+    private Double discountRate;
     private String description;
     private String productImage;
     private CategoryDTO categoryId;
@@ -21,10 +24,10 @@ public class ProductDetailResponse {
     private Integer quantity;
     private boolean active;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date modifiedDate;
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date createdDate;
     private List<ProductItemDTO> productItems;
     private Integer sold;

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { categoryReducer } from "../reducers/categoryReducer";
 
 export const categorySlice = createSlice({
   name: "category",
@@ -8,17 +9,20 @@ export const categorySlice = createSlice({
       isFetching: false,
       error: false,
     },
+
+    fatherCate: {
+      categories: [],
+    },
   },
   reducers: {
-    getCategory: (state, action) => {
-      state.multilevelCate.currentCate = action.payload;
-      state.multilevelCate.isFetching = false;
-      state.multilevelCate.error = false;
-    },
+    getCategory: categoryReducer.getCategory,
+    updateCategory: categoryReducer.updateCategory,
+    updateCategoriesFather: categoryReducer.updateCategoriesFather,
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { getCategory } = categorySlice.actions;
+export const { getCategory, updateCategoriesFather, updateCategory } =
+  categorySlice.actions;
 
 export default categorySlice.reducer;

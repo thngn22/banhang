@@ -21,4 +21,5 @@ public class IProductItemService implements ProductItemService {
     public ProductItem getProductItem(Long id) {
         return productItemRepository.findById(id).orElseThrow();
     }
+
 }
