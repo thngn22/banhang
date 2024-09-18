@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
