@@ -47,13 +47,6 @@ jobs:
       with:
         distribution: ${{ env.DISTRIBUTION }}
         java-version: ${{ env.JAVA_VERSION }}
-
-    - name: 'Restore Project Dependencies Using Mvn'
-      shell: pwsh # For Linux, use bash
-      run: |
-        pushd './${{ env.POM_XML_DIRECTORY }}'
-        mvn clean package
-        popd
         
     - name: 'Import MySQL Database'
       uses: mirromutth/mysql-action@v1.1
@@ -67,7 +60,15 @@ jobs:
         mysql root password: 123456 # Required if "mysql user" is empty, default is empty. The root superuser password
         mysql user: 'root' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
         mysql password: 123456 # Required if "mysql user" exists. The password for the "mysql user"
-   
+       
+    - name: 'Restore Project Dependencies Using Mvn'
+      shell: pwsh # For Linux, use bash
+      run: |
+        pushd './${{ env.POM_XML_DIRECTORY }}'
+        mvn clean package
+        popd
+        
+    
 
       
     - name: 'Run Azure Functions Action'
