@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { WrapperHeader, WrapperSubHeader } from "./style";
-import InputField from "../../../Customer/components/InputField";
 import Group from "./Group";
 import GroupVariation from "./GroupVariation";
 import { Button, message } from "antd";
-import { useMutation } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { useMutationHook } from "../../../hooks/useMutationHook";
 import * as ProductService from "../../../services/ProductService";
@@ -14,7 +12,6 @@ import { jwtDecode } from "jwt-decode";
 import * as AuthService from "../../../services/AuthService";
 import { loginSuccess } from "../../../redux/slides/authSlice";
 import CustomInput from "../../../Customer/components/CKEditor/customInput";
-import { contextType } from "react-quill";
 
 const AdminProductCreate = () => {
   const auth = useSelector((state) => state.auth.login.currentUser);
@@ -26,9 +23,7 @@ const AdminProductCreate = () => {
   const [saveButtonClicked, setSaveButtonClicked] = useState(false);
   const [defaultImage, setDefaultImage] = useState("");
   const [combinedData, setCombinedData] = useState([]);
-  console.log("combinedData", combinedData);
 
-  const [dataAPICreate, setDataAPICreate] = useState(null);
 
   const handleDefaultImageChange = (imageData) => {
     setDefaultImage(imageData);
@@ -76,7 +71,6 @@ const AdminProductCreate = () => {
     const res = ProductService.createProduct2(data, auth.accessToken, axiosJWT);
     return res;
   });
-  const { data, status, isSuccess, isError } = mutation;
 
   const handleCreateProductClick = () => {
     if (
